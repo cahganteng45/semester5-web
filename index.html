@@ -275,7 +275,7 @@ function selectTopic(id){
 }
 $("topicSelect").onchange=e=>e.target.value?selectTopic(e.target.value):clearTopic();
 function clearTopic(){selected="";$("selectedText").textContent="Pilih mata kuliah";renderTopics();$("materials").innerHTML='<div class="empty"><div class="eicon">📚</div>Pilih mata kuliah untuk melihat materi.</div>';$("upload").disabled=true}
-async async function loadMaterials(){
+async function loadMaterials(){
  if(!selected)return;
  $("materials").innerHTML='<div class="loading">⏳ Memuat materi...</div>';
  try{
