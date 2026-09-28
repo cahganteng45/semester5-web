@@ -15,6 +15,7 @@ button,input,select{font:inherit}
 label{display:block;font-size:14px;font-weight:700;margin-bottom:7px}
 .field{margin-bottom:15px}input,select{width:100%;padding:13px;border:1px solid #d1d5db;border-radius:12px;outline:none;background:#fff}input:focus,select:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.1)}
 .btn{border:0;border-radius:12px;padding:13px 17px;cursor:pointer;font-weight:700}.primary{background:#4f46e5;color:#fff}.primary:hover{background:#4338ca}.full{width:100%}
+.linkbtn{width:100%;margin-top:12px;background:transparent;border:0;color:#4f46e5;font-weight:700;cursor:pointer;padding:8px}.register-note{font-size:11px;color:#6b7280;line-height:1.45;text-align:center;margin-top:5px}.linkbtn:hover{text-decoration:underline}
 .error{background:#fee2e2;color:#b91c1c;padding:11px 13px;border-radius:10px;font-size:14px;margin-bottom:15px}
 .topbar{background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:5}.topin{max-width:1100px;margin:auto;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{display:flex;align-items:center;gap:10px}.brand b{font-size:19px}.brand small{display:block;color:#6b7280;margin-top:2px}.logout{border:0;background:#f3f4f6;padding:9px 13px;border-radius:10px;cursor:pointer;font-weight:700}
 .container{max-width:1100px;margin:auto;padding:22px 20px 50px}.hero{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border-radius:20px;padding:24px;margin-bottom:22px}.hero h2{font-size:24px;margin-bottom:7px}.hero p{opacity:.9}
@@ -34,19 +35,36 @@ label{display:block;font-size:14px;font-weight:700;margin-bottom:7px}
   <div class="login-box">
     <div class="logo">📚</div>
     <h1>Semester 5</h1>
-    <p class="sub">Masuk dengan akun kamu</p>
+    <p id="loginSub" class="sub">Masuk dengan akun kamu</p>
     <div id="loginError" class="error hidden"></div>
+
     <form id="loginForm">
       <div class="field">
         <label for="username">Username</label>
         <input id="username" autocomplete="username" placeholder="Masukkan username" required>
       </div>
+
       <div class="field">
         <label for="password">Password</label>
         <input id="password" type="password" autocomplete="current-password" placeholder="Masukkan password" required>
       </div>
+
+      <div id="confirmWrap" class="field hidden">
+        <label for="confirmPassword">Ulangi Password</label>
+        <input id="confirmPassword" type="password" autocomplete="new-password" placeholder="Ulangi password">
+      </div>
+
       <button id="loginButton" class="btn primary full" type="submit">🔐 Masuk</button>
     </form>
+
+    <button id="registerToggle" class="linkbtn" type="button">
+      📝 Belum punya akun? Buat akun
+    </button>
+
+    <p id="registerNote" class="register-note hidden">
+      Dengan membuat akun, kamu setuju mengikuti aturan penggunaan Semester 5.
+      Password disimpan secara aman dan tidak dikirim ke laporan Telegram.
+    </p>
   </div>
 </div>
 
@@ -131,19 +149,87 @@ async function api(path,opt={}){
 function showLogin(){$("loginPage").classList.remove("hidden");$("app").classList.add("hidden")}
 function showApp(){$("loginPage").classList.add("hidden");$("app").classList.remove("hidden")}
 
+let registerMode=false;
+
+$("registerToggle").onclick=()=>{
+ registerMode=!registerMode;
+ $("loginError").classList.add("hidden");
+
+ if(registerMode){
+   $("loginSub").textContent="Buat akun kamu";
+   $("loginButton").textContent="📝 Buat Akun";
+   $("registerToggle").textContent="🔐 Sudah punya akun? Masuk";
+   $("confirmWrap").classList.remove("hidden");
+   $("confirmPassword").required=true;
+   $("password").autocomplete="new-password";
+   $("registerNote").classList.remove("hidden");
+ }else{
+   $("loginSub").textContent="Masuk dengan akun kamu";
+   $("loginButton").textContent="🔐 Masuk";
+   $("registerToggle").textContent="📝 Belum punya akun? Buat akun";
+   $("confirmWrap").classList.add("hidden");
+   $("confirmPassword").required=false;
+   $("confirmPassword").value="";
+   $("password").autocomplete="current-password";
+   $("registerNote").classList.add("hidden");
+ }
+};
+
 $("loginForm").addEventListener("submit",async e=>{
  e.preventDefault();
- $("loginButton").disabled=true;$("loginButton").textContent="⏳ Memeriksa...";
+ $("loginButton").disabled=true;
  $("loginError").classList.add("hidden");
+
+ const username=$("username").value.trim();
+ const password=$("password").value;
+ const confirm=$("confirmPassword").value;
+
  try{
-   const r=await fetch(API+"/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:$("username").value.trim(),password:$("password").value})});
-   const d=await r.json();
-   if(!r.ok||!d.ok)throw new Error(d.error||"Login gagal.");
-   token=d.token;localStorage.setItem("semester5_token",token);
-   showApp();$("welcome").textContent="Login sebagai @"+d.username;
-   await loadTopics();toast("✅ Berhasil masuk");
- }catch(err){$("loginError").textContent="❌ "+err.message;$("loginError").classList.remove("hidden")}
- finally{$("loginButton").disabled=false;$("loginButton").textContent="🔐 Masuk"}
+   if(registerMode){
+     $("loginButton").textContent="⏳ Membuat akun...";
+     const r=await fetch(API+"/api/register",{
+       method:"POST",
+       headers:{"Content-Type":"application/json"},
+       body:JSON.stringify({username,password,confirm})
+     });
+     const d=await r.json();
+     if(!r.ok||!d.ok)throw new Error(d.error||"Pendaftaran gagal.");
+
+     registerMode=false;
+     $("loginSub").textContent="Masuk dengan akun kamu";
+     $("loginButton").textContent="🔐 Masuk";
+     $("registerToggle").textContent="📝 Belum punya akun? Buat akun";
+     $("confirmWrap").classList.add("hidden");
+     $("confirmPassword").required=false;
+     $("confirmPassword").value="";
+     $("registerNote").classList.add("hidden");
+     $("password").value="";
+     toast("✅ Akun berhasil dibuat. Silakan login.");
+   }else{
+     $("loginButton").textContent="⏳ Memeriksa...";
+     const r=await fetch(API+"/api/login",{
+       method:"POST",
+       headers:{"Content-Type":"application/json"},
+       body:JSON.stringify({username,password})
+     });
+     const d=await r.json();
+     if(!r.ok||!d.ok)throw new Error(d.error||"Login gagal.");
+
+     token=d.token;
+     localStorage.setItem("semester5_token",token);
+     showApp();
+     $("welcome").textContent="Login sebagai @"+d.username;
+     await loadTopics();
+     toast("✅ Berhasil masuk");
+   }
+ }catch(err){
+   $("loginError").textContent="❌ "+err.message;
+   $("loginError").classList.remove("hidden");
+ }finally{
+   $("loginButton").disabled=false;
+   if(!registerMode)$("loginButton").textContent="🔐 Masuk";
+   else $("loginButton").textContent="📝 Buat Akun";
+ }
 });
 
 $("logout").onclick=()=>{token="";localStorage.removeItem("semester5_token");showLogin()};
@@ -189,7 +275,7 @@ function selectTopic(id){
 }
 $("topicSelect").onchange=e=>e.target.value?selectTopic(e.target.value):clearTopic();
 function clearTopic(){selected="";$("selectedText").textContent="Pilih mata kuliah";renderTopics();$("materials").innerHTML='<div class="empty"><div class="eicon">📚</div>Pilih mata kuliah untuk melihat materi.</div>';$("upload").disabled=true}
-async function loadMaterials(){
+async async function loadMaterials(){
  if(!selected)return;
  $("materials").innerHTML='<div class="loading">⏳ Memuat materi...</div>';
  try{
@@ -204,7 +290,7 @@ function size(bytes){
 }
 function materialUrl(m){
  if(!m.url)return "";
- if(m.url.startsWith("/"))return API_URL+m.url;
+ if(m.url.startsWith("/"))return API+m.url;
  return m.url;
 }
 function renderMaterials(list){
