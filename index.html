@@ -288,11 +288,14 @@ function size(bytes){
  if(!bytes)return "0 B";let n=bytes,u=["B","KB","MB","GB"],i=0;
  while(n>=1024&&i<u.length-1){n/=1024;i++}return n.toFixed(n>=10||i===0?0:1)+" "+u[i]
 }
+
+/* FUNGSI YANG DIPERBAIKI */
 function materialUrl(m){
- if(!m.url)return "";
- if(m.url.startsWith("/"))return API+m.url;
- return m.url;
+  if(!m.url) return "";
+  if(m.url.startsWith("http")) return m.url;
+  return m.url.startsWith("/") ? API + m.url : API + "/" + m.url;
 }
+
 function renderMaterials(list){
  if(!list.length){
    $("materials").innerHTML='<div class="empty"><div class="eicon">📭</div>Belum ada materi di mata kuliah ini.</div>';
