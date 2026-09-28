@@ -22,6 +22,7 @@ label{display:block;font-size:14px;font-weight:700;margin-bottom:7px}
 .grid{display:grid;grid-template-columns:1fr 1.4fr;gap:18px}.panel{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:20px}.panel h3{margin-bottom:5px}.muted{font-size:13px;color:#6b7280;margin-bottom:17px}
 .drop{border:2px dashed #c7d2fe;background:#eef2ff;border-radius:14px;padding:24px 12px;text-align:center;cursor:pointer;margin-bottom:14px}.drop .big{font-size:34px}.drop p{font-size:13px;color:#4b5563;margin-top:5px}#fileInput{display:none}.selected{background:#f3f4f6;padding:10px;border-radius:10px;font-size:13px;word-break:break-word;margin-bottom:14px}.upload{width:100%}
 .mhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:15px}.refresh{border:0;background:#f3f4f6;padding:8px 11px;border-radius:9px;cursor:pointer;font-weight:700;font-size:12px}.materials{display:flex;flex-direction:column;gap:10px}.item{border:1px solid #e5e7eb;border-radius:13px;padding:13px;display:flex;justify-content:space-between;align-items:center;gap:10px}.name{font-weight:700;word-break:break-word;line-height:1.35}.meta{font-size:11px;color:#6b7280;margin-top:5px}.caption{font-size:13px;color:#4b5563;margin-top:4px;word-break:break-word}.open{background:#111827;color:#fff;text-decoration:none;padding:9px 11px;border-radius:9px;font-size:12px;font-weight:700;white-space:nowrap}.empty,.loading{text-align:center;padding:30px 12px;color:#9ca3af}.empty .eicon{font-size:38px;margin-bottom:8px}
+.preview{margin-top:10px;border-radius:12px;overflow:hidden;background:#f3f4f6}.preview img,.preview video{display:block;width:100%;max-height:330px;object-fit:contain;background:#111}.preview audio{width:100%;display:block}.note{background:#f8fafc;border-left:4px solid #6366f1;padding:12px;border-radius:10px;margin-top:9px;white-space:pre-wrap;word-break:break-word;line-height:1.5;font-size:14px}.material-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.material-actions a{display:inline-block}.source-tag{display:inline-block;padding:2px 7px;border-radius:999px;background:#eef2ff;color:#4338ca;font-size:10px;font-weight:700}.item{display:block}.itemtop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.material-main{min-width:0}.sender{font-size:11px;color:#6b7280;margin-top:5px}.open.telegram{background:#eef2ff;color:#4338ca}.open.download{background:#111827;color:#fff}
 #toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111827;color:#fff;padding:11px 15px;border-radius:11px;z-index:20;font-size:13px;max-width:90%;text-align:center}
 @media(max-width:850px){.topics{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
 @media(max-width:550px){.topin,.container{padding-left:15px;padding-right:15px}.topics{gap:9px}.topic{padding:13px}.hero{padding:20px}.item{align-items:flex-start}.brand b{font-size:17px}}
@@ -155,21 +156,35 @@ async function loadTopics(){
    topics=d.topics||[];renderTopics();renderSelect();
  }catch(e){$("topics").innerHTML='<div class="empty">⚠️ '+esc(e.message)+'</div>'}
 }
+function topicId(t){
+ const raw=t?.id ?? t?.thread_id ?? t?.topic_id ?? t?.value;
+ if(raw && typeof raw==="object"){
+   return String(raw.id ?? raw.thread_id ?? raw.topic_id ?? "");
+ }
+ return String(raw ?? "");
+}
+function topicName(t){
+ if(typeof t==="string") return t;
+ return String(t?.name ?? t?.title ?? t?.topic_name ?? "Tanpa nama");
+}
 function renderTopics(){
  if(!topics.length){$("topics").innerHTML='<div class="empty">Belum ada mata kuliah.</div>';return}
  $("topics").innerHTML=topics.map(t=>{
-   const id=String(t.id),name=t.name||"Tanpa nama";
-   return `<div class="topic ${selected===id?"active":""}" data-id="${esc(id)}"><div class="icon">${icons[name]||"📚"}</div><b>${esc(name)}</b><div class="tid">Topic ${esc(id)}</div></div>`;
+   const id=topicId(t),name=topicName(t);
+   return `<div class="topic ${selected===id?"active":""}" data-id="${esc(id)}"><div class="icon">${icons[name]||"📚"}</div><b>${esc(name)}</b><div class="tid">Topic ${esc(id||"-")}</div></div>`;
  }).join("");
  document.querySelectorAll(".topic").forEach(x=>x.onclick=()=>selectTopic(x.dataset.id));
 }
 function renderSelect(){
- $("topicSelect").innerHTML='<option value="">Pilih mata kuliah</option>'+topics.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join("");
+ $("topicSelect").innerHTML='<option value="">Pilih mata kuliah</option>'+topics.map(t=>{
+   const id=topicId(t),name=topicName(t);
+   return `<option value="${esc(id)}">${esc(name)}</option>`;
+ }).join("");
  $("topicSelect").value=selected;
 }
 function selectTopic(id){
  selected=String(id);$("topicSelect").value=selected;
- const t=topics.find(x=>String(x.id)===selected),name=t?.name||"Mata kuliah";
+ const t=topics.find(x=>topicId(x)===selected),name=t?topicName(t):"Mata kuliah";
  $("selectedText").textContent=name;renderTopics();loadMaterials();
 }
 $("topicSelect").onchange=e=>e.target.value?selectTopic(e.target.value):clearTopic();
@@ -187,17 +202,56 @@ function size(bytes){
  if(!bytes)return "0 B";let n=bytes,u=["B","KB","MB","GB"],i=0;
  while(n>=1024&&i<u.length-1){n/=1024;i++}return n.toFixed(n>=10||i===0?0:1)+" "+u[i]
 }
+function materialUrl(m){
+ if(!m.url)return "";
+ if(m.url.startsWith("/"))return API_URL+m.url;
+ return m.url;
+}
 function renderMaterials(list){
- if(!list.length){$("materials").innerHTML='<div class="empty"><div class="eicon">📭</div>Belum ada materi di mata kuliah ini.</div>';return}
- $("materials").innerHTML=list.map(m=>`
- <div class="item">
-   <div>
-     <div class="name">📄 ${esc(m.name||"Materi")}</div>
-     ${m.caption?`<div class="caption">${esc(m.caption)}</div>`:""}
-     <div class="meta">${esc(size(m.size))}${m.source?" • "+esc(m.source==="website"?"Website":"Telegram"):""}${m.date?" • "+esc(new Date(m.date).toLocaleString("id-ID")):""}</div>
-   </div>
-   ${m.url?`<a class="open" href="${esc(m.url)}" target="_blank" rel="noopener">📥 Buka</a>`:""}
- </div>`).join("");
+ if(!list.length){
+   $("materials").innerHTML='<div class="empty"><div class="eicon">📭</div>Belum ada materi di mata kuliah ini.</div>';
+   return;
+ }
+
+ $("materials").innerHTML=list.map(m=>{
+   const kind=String(m.kind||"").toLowerCase();
+   const url=materialUrl(m);
+   const content=String(m.content||m.caption||"");
+   const sender=m.sender?`<div class="sender">👤 ${esc(m.sender)}</div>`:"";
+   const date=m.date?new Date(m.date).toLocaleString("id-ID"):"";
+   const source=m.source==="website"?"Website":"Telegram";
+   let preview="";
+
+   if(kind==="text"){
+     preview=content?`<div class="note">📝 ${esc(content)}</div>`:"";
+   }else if(kind==="photo" || (m.mime_type||"").startsWith("image/")){
+     preview=url?`<div class="preview"><img src="${esc(url)}" alt="${esc(m.name||"Foto")}"></div>`:"";
+   }else if(kind==="video" || (m.mime_type||"").startsWith("video/")){
+     preview=url?`<div class="preview"><video controls preload="metadata" src="${esc(url)}"></video></div>`:"";
+   }else if(kind==="audio" || kind==="voice" || (m.mime_type||"").startsWith("audio/")){
+     preview=url?`<div class="preview"><audio controls preload="metadata" src="${esc(url)}"></audio></div>`:"";
+   }
+
+   const caption = content && kind!=="text" ? `<div class="caption">${esc(content)}</div>` : "";
+
+   return `
+   <div class="item">
+     <div class="itemtop">
+       <div class="material-main">
+         <div class="name">${kind==="text"?"📝":"📄"} ${esc(m.name||"Materi")}</div>
+         ${sender}
+         <div class="meta">${esc(size(m.size))} • <span class="source-tag">${esc(source)}</span>${date?" • "+esc(date):""}</div>
+         ${caption}
+       </div>
+     </div>
+     ${preview}
+     <div class="material-actions">
+       ${url && kind!=="text" ? `<a class="open download" href="${esc(url)}" target="_blank" rel="noopener">📥 Buka / Download</a>` : ""}
+       ${m.telegram_url ? `<a class="open telegram" href="${esc(m.telegram_url)}" target="_blank" rel="noopener">✈️ Telegram</a>` : ""}
+       ${kind==="text" && !m.telegram_url ? "" : ""}
+     </div>
+   </div>`;
+ }).join("");
 }
 $("fileInput").onchange=()=>{
  const f=$("fileInput").files[0];
