@@ -15,6 +15,7 @@
 .topics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:23px}.topic{position:relative;display:flex;align-items:center;gap:11px;background:var(--card);backdrop-filter:blur(16px);border:1px solid rgba(228,227,237,.9);border-radius:17px;padding:12px 13px;cursor:pointer;min-height:67px;transition:.2s;box-shadow:0 7px 22px rgba(30,25,70,.035)}.topic:hover{transform:translateY(-2px);border-color:#bcb5ff;box-shadow:0 13px 28px rgba(55,44,130,.08)}.topic.active{border-color:#796bff;background:#f5f3ff;box-shadow:0 0 0 2px rgba(109,93,252,.09)}.topic-icon{width:39px;height:39px;border-radius:12px;display:grid;place-items:center;background:#f0efff;font-size:20px;flex:0 0 auto}.topic-info{min-width:0}.topic b{display:block;font-size:13px;line-height:1.25;letter-spacing:-.15px}.tid{font-size:10px;color:#aaa9b7;margin-top:4px}.chev{margin-left:auto;color:#aaa7ba;font-size:16px}
 .content{display:grid;grid-template-columns:360px minmax(0,1fr);gap:15px;align-items:start}.panel{background:rgba(255,255,255,.84);backdrop-filter:blur(18px);border:1px solid rgba(228,227,237,.95);border-radius:22px;padding:18px;box-shadow:var(--shadow)}.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}.panel h3{font-size:17px;letter-spacing:-.4px}.muted{font-size:12px;color:var(--muted);line-height:1.5;margin-top:3px}.mini-badge{padding:6px 8px;background:#f1efff;color:#5d4fe0;border-radius:9px;font-size:10px;font-weight:900;white-space:nowrap}.drop{display:block;border:1.5px dashed #c5bfff;background:linear-gradient(180deg,#f6f4ff,#faf9ff);border-radius:17px;padding:22px 13px;text-align:center;cursor:pointer;margin:4px 0 14px;transition:.2s}.drop:hover{border-color:#8e80ff;background:#f1efff}.drop .big{font-size:31px}.drop p{font-size:12px;color:#59586b;margin-top:5px;font-weight:700}.drop small{display:block;color:#a1a0ae;font-size:10px;margin-top:4px}#fileInput{display:none}.selected{background:#f6f6f9;border:1px solid var(--line);padding:10px 11px;border-radius:11px;font-size:11px;word-break:break-word;margin-bottom:14px}.upload{margin-top:2px}.upload-help{display:flex;gap:7px;margin-top:10px;color:#a0a0ae;font-size:10px;line-height:1.45}
 .mhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}.selected-topic{display:flex;align-items:center;gap:9px}.selected-topic-icon{width:35px;height:35px;border-radius:11px;background:#f0efff;display:grid;place-items:center;font-size:18px}.mhead h3{font-size:16px}.refresh{border:1px solid var(--line);background:#fff;padding:8px 10px;border-radius:10px;cursor:pointer;font-weight:800;font-size:11px}.materials{display:flex;flex-direction:column;gap:9px}.item{background:#fff;border:1px solid #e9e8ef;border-radius:16px;padding:12px;transition:.18s}.item:hover{border-color:#d5d0ff;box-shadow:0 8px 22px rgba(40,31,100,.055)}.itemtop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.material-main{min-width:0}.name{font-weight:850;word-break:break-word;line-height:1.35;font-size:13px}.meta{font-size:10px;color:#92919f;margin-top:5px}.caption{font-size:12px;color:#5c5b69;margin-top:5px;word-break:break-word}.sender{font-size:10px;color:#8f8e9b;margin-top:4px}.source-tag{display:inline-block;padding:2px 6px;border-radius:999px;background:#eeecff;color:#5c4ddd;font-size:9px;font-weight:900}.preview{margin-top:9px;border-radius:13px;overflow:hidden;background:#15151a;border:1px solid #ecebf2}.preview img,.preview video{display:block;width:100%;max-height:340px;object-fit:contain;background:#121217}.preview audio{width:100%;display:block}.note{background:#f7f6ff;border-left:3px solid #7666ff;padding:11px;border-radius:11px;margin-top:9px;white-space:pre-wrap;word-break:break-word;line-height:1.5;font-size:12px}.material-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.open{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border-radius:10px;font-size:10px;font-weight:900;white-space:nowrap}.open.download{background:#171720;color:#fff}.open.telegram{background:#f0efff;color:#5749d7}.empty,.loading{text-align:center;padding:34px 12px;color:#aaa9b5;font-size:12px}.empty .eicon{font-size:34px;margin-bottom:7px}
+
 .admin-panel{margin:0 0 22px;background:rgba(255,255,255,.9);backdrop-filter:blur(18px);border:1px solid #e5e3ef;border-radius:22px;padding:16px;box-shadow:var(--shadow)}.admin-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.admin-head h3{font-size:16px}.admin-head p{font-size:11px;color:var(--muted);margin-top:3px}.admin-list{display:flex;flex-direction:column;gap:7px}.admin-topic{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px;background:#fafafd;border:1px solid #eceaf2;border-radius:13px}.admin-topic-name{display:flex;align-items:center;gap:8px;min-width:0;font-size:12px;font-weight:800}.admin-topic-name span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.visibility-btn{border:0;border-radius:10px;padding:7px 9px;font-size:10px;font-weight:900;white-space:nowrap}.visibility-btn.public{background:#eafaf1;color:#16834b}.visibility-btn.private{background:#fff0f0;color:#c03939}.admin-hint{font-size:10px;color:#9997a7;margin-top:9px;line-height:1.45}
 #toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#171720;color:#fff;padding:11px 14px;border-radius:12px;z-index:50;font-size:12px;max-width:90%;text-align:center;box-shadow:0 14px 35px rgba(0,0,0,.2)}
 @media(max-width:850px){.content{grid-template-columns:1fr}.topics{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -51,7 +52,14 @@
   <div class="eyebrow">✦ SEMESTER 5 • STUDY HUB</div>
   <h2>Materi kuliah,<br>rapi dalam satu tempat.</h2>
   <p>Upload file (PDF, Doc, Image, Music, Video) bisa dibuka langsung di browser ini.</p>
-  <div class="quick"><button type="button" onclick="document.getElementById('uploadPanel').scrollIntoView({behavior:'smooth'})">＋ Upload materi</button><button type="button" onclick="document.getElementById('topics').scrollIntoView({behavior:'smooth'})">↓ Lihat mata kuliah</button></div>
+  
+  <!-- Fitur Baru: Tombol Jadwal Kuliah -->
+  <div class="quick">
+    <button type="button" onclick="openJadwal()">📅 Jadwal Kuliah</button>
+    <button type="button" onclick="document.getElementById('uploadPanel').scrollIntoView({behavior:'smooth'})">＋ Upload materi</button>
+    <button type="button" onclick="document.getElementById('topics').scrollIntoView({behavior:'smooth'})">↓ Lihat mata kuliah</button>
+  </div>
+
 </div></section>
 
 <section id="adminPanel" class="admin-panel hidden">
@@ -81,6 +89,113 @@
 </div>
 </main>
 </div>
+
+<!-- Modal Jadwal Kuliah -->
+<div id="jadwalModal" class="hidden" style="position:fixed;inset:0;z-index:999;background:rgba(15,15,25,.55);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:rgba(255,255,255,.92);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.9);border-radius:26px;width:100%;max-width:820px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 28px 60px rgba(25,20,60,.2);overflow:hidden;">
+    
+    <div style="padding:18px 22px;border-bottom:1px solid #ebe9f3;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <h3 style="font-size:18px;letter-spacing:-.4px;">🗓️ Jadwal Kuliah Semester 5</h3>
+        <p style="font-size:11px;color:#858596;margin-top:2px;">Sistem Informasi • Semester Gasal 2026/2027</p>
+      </div>
+      <button onclick="closeJadwal()" style="border:0;background:#f0eff8;color:#555;width:34px;height:34px;border-radius:12px;font-weight:900;font-size:15px;cursor:pointer;transition:.2s;">✕</button>
+    </div>
+
+    <div style="padding:18px 22px;overflow-y:auto;display:flex;flex-direction:column;gap:18px;">
+      
+      <!-- SENIN -->
+      <div>
+        <div style="display:inline-block;padding:3px 10px;border-radius:8px;background:#6d5dfc;color:#fff;font-size:11px;font-weight:800;margin-bottom:8px;">SENIN</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">
+          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
+            <b style="font-size:13px;">☁️ Cloud Computing (Teori)</b>
+            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 13:00 - 14:40 • Ruang B1.2</div>
+            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Era Yunianto, M.Kom | 5P52</div>
+          </div>
+          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
+            <b style="font-size:13px;">☁️ Cloud Computing (Praktek)</b>
+            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 15:00 - 16:40 • LAB 3</div>
+            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Era Yunianto, M.Kom | 5P52A</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RABU -->
+      <div>
+        <div style="display:inline-block;padding:3px 10px;border-radius:8px;background:#6d5dfc;color:#fff;font-size:11px;font-weight:800;margin-bottom:8px;">RABU</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">
+          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
+            <b style="font-size:13px;">📋 Audit Sistem Informasi</b>
+            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 09:15 - 10:55 • Ruang A1.2</div>
+            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Satriedi Wahyu Binabar, M.Kom | 5P52</div>
+          </div>
+          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
+            <b style="font-size:13px;">🔐 Keamanan Sistem Informasi</b>
+            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 11:00 - 12:40 • Ruang C.6</div>
+            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 M. Faizal Kurniawan, M.Kom | 5P52</div>
+          </div>
+          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
+            <b style="font-size:13px;">📊 Visualisasi Data (Teori)</b>
+            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 13:00 - 14:40 • Ruang C.3</div>
+            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Nurul Amalia, M.Kom | 5P52</div>
+          </div>
+          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
+            <b style="font-size:13px;">📊 Visualisasi Data (Praktek)</b>
+            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 15:00 - 16:40 • LAB 5</div>
+            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Nurul Amalia, M.Kom | 5P52A</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KAMIS -->
+      <div>
+        <div style="display:inline-block;padding:3px 10px;border-radius:8px;background:#6d5dfc;color:#fff;font-size:11px;font-weight:800;margin-bottom:8px;">KAMIS</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">
+          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
+            <b style="font-size:13px;">💡 Business Intelligence Sys (Sesi 1)</b>
+            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 07:30 - 09:10 • Ruang B1.2</div>
+            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Eny Jumiati, M.Kom | 5P52</div>
+          </div>
+          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
+            <b style="font-size:13px;">💡 Business Intelligence Sys (Sesi 2)</b>
+            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 09:15 - 10:55 • Ruang B1.2</div>
+            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Eny Jumiati, M.Kom | 5P52</div>
+          </div>
+          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
+            <b style="font-size:13px;">📁 Manajemen Proyek</b>
+            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 13:00 - 14:40 • Ruang B1.2</div>
+            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Indrayanti, M.Kom | 5P52</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JUMAT -->
+      <div>
+        <div style="display:inline-block;padding:3px 10px;border-radius:8px;background:#6d5dfc;color:#fff;font-size:11px;font-weight:800;margin-bottom:8px;">JUMAT</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">
+          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
+            <b style="font-size:13px;">🔬 Metodologi Penelitian & Publikasi</b>
+            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 07:30 - 09:10 • Ruang D1.1</div>
+            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Eko Budi Susanto, M.Kom | 5P52</div>
+          </div>
+          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
+            <b style="font-size:13px;">📱 Pemrograman Mobile I (Teori)</b>
+            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 09:15 - 10:55 • Ruang A1.1</div>
+            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Arochman, M.Kom | 5P52</div>
+          </div>
+          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
+            <b style="font-size:13px;">📱 Pemrograman Mobile I (Praktek)</b>
+            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 13:00 - 14:40 • LAB 1</div>
+            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Arochman, M.Kom | 5P52A</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <div id="toast" class="hidden"></div>
 
 <script>
@@ -88,29 +203,121 @@ const API="https://telegram-semester5-bot.onrender.com";
 const icons={"Cloud Computing":"☁️","Audit Sistem Informasi":"📋","Keamanan Sistem Informasi":"🔐","Visualisasi Data & Data Science":"📊","Business Intelligence System":"💡","Manajemen Proyek":"📁","Metodologi Penelitian & Publikasi":"🔬","Pemrograman Berbasis Mobile I":"📱","Dokumentasi Semester 5":"🗂️"};
 let token=localStorage.getItem("semester5_token")||"";let topics=[];let selected="";let registerMode=false;let isAdmin=false;
 const $=id=>document.getElementById(id);
+
 function toast(msg){$("toast").textContent=msg;$("toast").classList.remove("hidden");setTimeout(()=>$("toast").classList.add("hidden"),3000)}
 function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
-async function api(path,opt={}){opt.headers=opt.headers||{};if(token)opt.headers.Authorization="Bearer "+token;const r=await fetch(API+path,opt);if(r.status===401||r.status===403){let d={};try{d=await r.json()}catch(e){};if(d.error==="Maaf, kamu di-banned.")throw new Error(d.error);token="";localStorage.removeItem("semester5_token");showLogin();throw new Error("Sesi login berakhir.")}return r}
+
+async function api(path,opt={}){
+  opt.headers=opt.headers||{};
+  if(token)opt.headers.Authorization="Bearer "+token;
+  const r=await fetch(API+path,opt);
+  if(r.status===401||r.status===403){
+    let d={};try{d=await r.json()}catch(e){};
+    if(d.error==="Maaf, kamu di-banned.")throw new Error(d.error);
+    token="";localStorage.removeItem("semester5_token");showLogin();throw new Error("Sesi login berakhir.");
+  }
+  return r;
+}
+
 function showLogin(){$("loginPage").classList.remove("hidden");$("app").classList.add("hidden")}
 function showApp(){$("loginPage").classList.add("hidden");$("app").classList.remove("hidden")}
-$("registerToggle").onclick=()=>{registerMode=!registerMode;$("loginError").classList.add("hidden");if(registerMode){$("loginSub").textContent="Buat akun kamu";$("loginButton").textContent="📝 Buat Akun";$("registerToggle").textContent="🔐 Sudah punya akun? Masuk";$("confirmWrap").classList.remove("hidden");$("confirmPassword").required=true;$("password").autocomplete="new-password";$("registerNote").classList.remove("hidden")}else{$("loginSub").textContent="Study hub pribadi kamu";$("loginButton").textContent="🔐 Masuk";$("registerToggle").textContent="📝 Belum punya akun? Buat akun";$("confirmWrap").classList.add("hidden");$("confirmPassword").required=false;$("confirmPassword").value="";$("password").autocomplete="current-password";$("registerNote").classList.add("hidden")}};
-$("loginForm").addEventListener("submit",async e=>{e.preventDefault();$("loginButton").disabled=true;$("loginError").classList.add("hidden");const username=$("username").value.trim(),password=$("password").value,confirm=$("confirmPassword").value;try{if(registerMode){$("loginButton").textContent="⏳ Membuat akun...";const r=await fetch(API+"/api/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password,confirm})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||"Pendaftaran gagal.");registerMode=false;$("loginSub").textContent="Study hub pribadi kamu";$("loginButton").textContent="🔐 Masuk";$("registerToggle").textContent="📝 Belum punya akun? Buat akun";$("confirmWrap").classList.add("hidden");$("confirmPassword").required=false;$("confirmPassword").value="";$("registerNote").classList.add("hidden");$("password").value="";toast("✅ Akun berhasil dibuat. Silakan login.")}else{$("loginButton").textContent="⏳ Memeriksa...";const r=await fetch(API+"/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||"Login gagal.");token=d.token;localStorage.setItem("semester5_token",token);showApp();$("welcome").textContent="Login sebagai @"+d.username;await loadTopics();toast("✅ Berhasil masuk")}}catch(err){$("loginError").textContent="❌ "+err.message;$("loginError").classList.remove("hidden")}finally{$("loginButton").disabled=false;$("loginButton").textContent=registerMode?"📝 Buat Akun":"🔐 Masuk"}});
+
+$("registerToggle").onclick=()=>{
+  registerMode=!registerMode;$("loginError").classList.add("hidden");
+  if(registerMode){
+    $("loginSub").textContent="Buat akun kamu";$("loginButton").textContent="📝 Buat Akun";$("registerToggle").textContent="🔐 Sudah punya akun? Masuk";
+    $("confirmWrap").classList.remove("hidden");$("confirmPassword").required=true;$("password").autocomplete="new-password";$("registerNote").classList.remove("hidden");
+  }else{
+    $("loginSub").textContent="Study hub pribadi kamu";$("loginButton").textContent="🔐 Masuk";$("registerToggle").textContent="📝 Belum punya akun? Buat akun";
+    $("confirmWrap").classList.add("hidden");$("confirmPassword").required=false;$("confirmPassword").value="";$("password").autocomplete="current-password";$("registerNote").classList.add("hidden");
+  }
+};
+
+$("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault();$("loginButton").disabled=true;$("loginError").classList.add("hidden");
+  const username=$("username").value.trim(),password=$("password").value,confirm=$("confirmPassword").value;
+  try{
+    if(registerMode){
+      $("loginButton").textContent="⏳ Membuat akun...";
+      const r=await fetch(API+"/api/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password,confirm})});
+      const d=await r.json();
+      if(!r.ok||!d.ok)throw new Error(d.error||"Pendaftaran gagal.");
+      registerMode=false;$("loginSub").textContent="Study hub pribadi kamu";$("loginButton").textContent="🔐 Masuk";$("registerToggle").textContent="📝 Belum punya akun? Buat akun";
+      $("confirmWrap").classList.add("hidden");$("confirmPassword").required=false;$("confirmPassword").value="";$("registerNote").classList.add("hidden");$("password").value="";
+      toast("✅ Akun berhasil dibuat. Silakan login.");
+    }else{
+      $("loginButton").textContent="⏳ Memeriksa...";
+      const r=await fetch(API+"/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password})});
+      const d=await r.json();
+      if(!r.ok||!d.ok)throw new Error(d.error||"Login gagal.");
+      token=d.token;localStorage.setItem("semester5_token",token);showApp();$("welcome").textContent="Login sebagai @"+d.username;await loadTopics();toast("✅ Berhasil masuk");
+    }
+  }catch(err){$("loginError").textContent="❌ "+err.message;$("loginError").classList.remove("hidden")}finally{$("loginButton").disabled=false;$("loginButton").textContent=registerMode?"📝 Buat Akun":"🔐 Masuk"}
+});
+
 $("logout").onclick=()=>{token="";localStorage.removeItem("semester5_token");selected="";showLogin()};
-async function loadTopics(){$("topics").innerHTML='<div class="loading">Memuat mata kuliah...</div>';try{const r=await api("/api/topics"),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||"Gagal memuat mata kuliah.");topics=d.topics||[];isAdmin=!!d.is_admin;renderTopics();renderSelect();renderAdminTopics()}catch(e){$("topics").innerHTML='<div class="empty">⚠️ '+esc(e.message)+"</div>"}}
+
+async function loadTopics(){
+  $("topics").innerHTML='<div class="loading">Memuat mata kuliah...</div>';
+  try{
+    const r=await api("/api/topics"),d=await r.json();
+    if(!r.ok||!d.ok)throw new Error(d.error||"Gagal memuat mata kuliah.");
+    topics=d.topics||[];isAdmin=!!d.is_admin;renderTopics();renderSelect();renderAdminTopics();
+  }catch(e){$("topics").innerHTML='<div class="empty">⚠️ '+esc(e.message)+"</div>"}
+}
+
 function topicId(t){if(typeof t==="string")return t;const raw=t?.id??t?.thread_id??t?.topic_id??t?.value;if(raw&&typeof raw==="object")return String(raw.id??raw.thread_id??raw.topic_id??"");return String(raw??"")}
 function topicName(t){if(typeof t==="string")return t;return String(t?.name??t?.title??t?.topic_name??"Tanpa nama")}
-function renderAdminTopics(){const panel=$("adminPanel");if(!isAdmin){panel.classList.add("hidden");return}panel.classList.remove("hidden");const allTopics=topics.length?topics:[];$("adminTopics").innerHTML=allTopics.length?allTopics.map(t=>{const id=topicId(t),name=topicName(t),visible=t.visible!==false;return `<div class="admin-topic"><div class="admin-topic-name"><span>${icons[name]||"📚"}</span><span>${esc(name)}</span></div><button class="visibility-btn ${visible?"public":"private"}" data-topic="${esc(id)}" data-visible="${visible}">${visible?"👁️ Public":"🔒 Privat"}</button></div>`}).join(""):'<div class="empty" style="padding:15px">Belum ada Topic.</div>';document.querySelectorAll(".visibility-btn").forEach(btn=>{btn.onclick=()=>toggleTopicVisibility(btn.dataset.topic,btn.dataset.visible!=="true")});}
-async function toggleTopicVisibility(topic,visible){try{const r=await api("/api/topics/visibility",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({topic,visible})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||"Gagal mengubah visibilitas Topic.");toast(visible?"👁️ Topic sekarang public.":"🔒 Topic disembunyikan dari user.");await loadTopics();}catch(e){toast("❌ "+e.message)}}
-function renderTopics(){if(!topics.length){$("topics").innerHTML='<div class="empty">Belum ada mata kuliah.</div>';return}$("topics").innerHTML=topics.map(t=>{const id=topicId(t),name=topicName(t);return `<div class="topic ${selected===id?"active":""}" data-id="${esc(id)}"><div class="topic-icon">${icons[name]||"📚"}</div><div class="topic-info"><b>${esc(name)}</b><div class="tid">Topic ${esc(id||"-")}</div></div><div class="chev">›</div></div>`}).join("");document.querySelectorAll(".topic").forEach(x=>x.onclick=()=>selectTopic(x.dataset.id))}
+
+function renderAdminTopics(){
+  const panel=$("adminPanel");
+  if(!isAdmin){panel.classList.add("hidden");return}
+  panel.classList.remove("hidden");
+  const allTopics=topics.length?topics:[];
+  $("adminTopics").innerHTML=allTopics.length?allTopics.map(t=>{
+    const id=topicId(t),name=topicName(t),visible=t.visible!==false;
+    return `<div class="admin-topic"><div class="admin-topic-name"><span>${icons[name]||"📚"}</span><span>${esc(name)}</span></div><button class="visibility-btn ${visible?"public":"private"}" data-topic="${esc(id)}" data-visible="${visible}">${visible?"👁️ Public":"🔒 Privat"}</button></div>`
+  }).join(""):'<div class="empty" style="padding:15px">Belum ada Topic.</div>';
+  document.querySelectorAll(".visibility-btn").forEach(btn=>{btn.onclick=()=>toggleTopicVisibility(btn.dataset.topic,btn.dataset.visible!=="true")});
+}
+
+async function toggleTopicVisibility(topic,visible){
+  try{
+    const r=await api("/api/topics/visibility",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({topic,visible})});
+    const d=await r.json();
+    if(!r.ok||!d.ok)throw new Error(d.error||"Gagal mengubah visibilitas Topic.");
+    toast(visible?"👁️ Topic sekarang public.":"🔒 Topic disembunyikan dari user.");await loadTopics();
+  }catch(e){toast("❌ "+e.message)}
+}
+
+function renderTopics(){
+  if(!topics.length){$("topics").innerHTML='<div class="empty">Belum ada mata kuliah.</div>';return}
+  $("topics").innerHTML=topics.map(t=>{
+    const id=topicId(t),name=topicName(t);
+    return `<div class="topic ${selected===id?"active":""}" data-id="${esc(id)}"><div class="topic-icon">${icons[name]||"📚"}</div><div class="topic-info"><b>${esc(name)}</b><div class="tid">Topic ${esc(id||"-")}</div></div><div class="chev">›</div></div>`
+  }).join("");
+  document.querySelectorAll(".topic").forEach(x=>x.onclick=()=>selectTopic(x.dataset.id));
+}
+
 function renderSelect(){$("topicSelect").innerHTML='<option value="">Pilih mata kuliah</option>'+topics.map(t=>`<option value="${esc(topicId(t))}">${esc(topicName(t))}</option>`).join("");$("topicSelect").value=selected}
 function selectTopic(id){selected=String(id);$("topicSelect").value=selected;const t=topics.find(x=>topicId(x)===selected),name=t?topicName(t):"Mata kuliah";$("selectedText").textContent=name;$("selectedIcon").textContent=icons[name]||"📚";renderTopics();loadMaterials()}
 $("topicSelect").onchange=e=>e.target.value?selectTopic(e.target.value):clearTopic();
+
 function clearTopic(){selected="";$("selectedText").textContent="Pilih mata kuliah";$("selectedIcon").textContent="📚";renderTopics();$("materials").innerHTML='<div class="empty"><div class="eicon">📚</div>Pilih mata kuliah untuk melihat materi.</div>';$("upload").disabled=true}
-async function loadMaterials(quiet=false){if(!selected)return;if(!quiet)$("materials").innerHTML='<div class="loading">⏳ Memuat materi...</div>';try{const r=await api("/api/materials?topic="+encodeURIComponent(selected)),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||"Gagal memuat materi.");renderMaterials(d.materials||[])}catch(e){$("materials").innerHTML='<div class="empty">⚠️ '+esc(e.message)+"</div>"}}
+
+async function loadMaterials(quiet=false){
+  if(!selected)return;
+  if(!quiet)$("materials").innerHTML='<div class="loading">⏳ Memuat materi...</div>';
+  try{
+    const r=await api("/api/materials?topic="+encodeURIComponent(selected)),d=await r.json();
+    if(!r.ok||!d.ok)throw new Error(d.error||"Gagal memuat materi.");
+    renderMaterials(d.materials||[])
+  }catch(e){$("materials").innerHTML='<div class="empty">⚠️ '+esc(e.message)+"</div>"}
+}
+
 function size(bytes){if(!bytes)return"0 B";let n=Number(bytes),u=["B","KB","MB","GB"],i=0;while(n>=1024&&i<u.length-1){n/=1024;i++}return n.toFixed(n>=10||i===0?0:1)+" "+u[i]}
 function materialUrl(m){if(!m.url)return"";if(m.url.startsWith("/")){const sep=m.url.includes("?")?"&":"?";return API+m.url+sep+"token="+encodeURIComponent(token)}return m.url}
 
-// PENGAMAN PREVIEW MEDIA: Memastikan preview hanya terbuka jika API bisa menemukan file_id-nya
 function renderMaterials(list){
   if(!list.length){
     $("materials").innerHTML='<div class="empty"><div class="eicon">📭</div>Belum ada materi di mata kuliah ini.</div>';
@@ -119,10 +326,9 @@ function renderMaterials(list){
   $("materials").innerHTML=list.map(m=>{
     const kind=String(m.kind||"").toLowerCase(),url=materialUrl(m),content=String(m.content||m.caption||""),sender=m.sender?`<div class="sender">👤 ${esc(m.sender)}</div>`:"",date=m.date?new Date(m.date).toLocaleString("id-ID"):"",source=m.source==="website"?"Website":"Telegram";
     
-    // Pastikan URL yang dirender BUKAN link t.me untuk tag img/video/audio (karena akan diblok browser)
     const isProxyUrl = !!m.file_id || (url && url.includes("/api/material/"));
-    
     let preview="";
+    
     if(kind==="text"){
         preview=content?`<div class="note">📝 ${esc(content)}</div>`:"";
     } else if(isProxyUrl && url) {
@@ -141,9 +347,29 @@ function renderMaterials(list){
 }
 
 $("fileInput").onchange=()=>{const f=$("fileInput").files[0];if(!f){$("selectedFile").classList.add("hidden");$("upload").disabled=true;return}if(f.size>50*1024*1024){toast("❌ File terlalu besar. Maksimal 50 MB.");$("fileInput").value="";$("selectedFile").classList.add("hidden");$("upload").disabled=true;return}$("selectedFile").textContent="📄 "+f.name+" • "+size(f.size);$("selectedFile").classList.remove("hidden");$("upload").disabled=!selected};
-$("upload").onclick=async()=>{const f=$("fileInput").files[0];if(!selected||!f){toast("⚠️ Pilih mata kuliah dan file.");return}const fd=new FormData();fd.append("topic",selected);fd.append("caption",$("caption").value.trim());fd.append("file",f);$("upload").disabled=true;$("upload").textContent="⏳ Mengupload...";try{const r=await api("/api/upload",{method:"POST",body:fd}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||"Upload gagal.");toast("✅ Materi berhasil diupload!");$("fileInput").value="";$("caption").value="";$("selectedFile").classList.add("hidden");await loadMaterials(true)}catch(e){toast("❌ "+e.message)}finally{$("upload").disabled=!selected;$("upload").textContent="📤 Upload Materi"}};
+
+$("upload").onclick=async()=>{
+  const f=$("fileInput").files[0];if(!selected||!f){toast("⚠️ Pilih mata kuliah dan file.");return}
+  const fd=new FormData();fd.append("topic",selected);fd.append("caption",$("caption").value.trim());fd.append("file",f);
+  $("upload").disabled=true;$("upload").textContent="⏳ Mengupload...";
+  try{
+    const r=await api("/api/upload",{method:"POST",body:fd}),d=await r.json();
+    if(!r.ok||!d.ok)throw new Error(d.error||"Upload gagal.");
+    toast("✅ Materi berhasil diupload!");$("fileInput").value="";$("caption").value="";$("selectedFile").classList.add("hidden");await loadMaterials(true);
+  }catch(e){toast("❌ "+e.message)}finally{$("upload").disabled=!selected;$("upload").textContent="📤 Upload Materi"}
+};
+
 $("refresh").onclick=()=>selected?loadMaterials():loadTopics();
-async function init(){if(!token){showLogin();return}try{const r=await api("/api/me"),d=await r.json();if(!r.ok||!d.ok)throw new Error("Sesi tidak valid.");showApp();$("welcome").textContent="Login sebagai @"+d.username;await loadTopics()}catch(e){token="";localStorage.removeItem("semester5_token");showLogin()}}init();
+
+async function init(){
+  if(!token){showLogin();return}
+  try{
+    const r=await api("/api/me"),d=await r.json();
+    if(!r.ok||!d.ok)throw new Error("Sesi tidak valid.");
+    showApp();$("welcome").textContent="Login sebagai @"+d.username;await loadTopics();
+  }catch(e){token="";localStorage.removeItem("semester5_token");showLogin()}
+}
+init();
 setInterval(()=>{if(token&&selected)loadMaterials(true)},2500);
 
 async function deleteMaterial(id) {
@@ -157,6 +383,14 @@ async function deleteMaterial(id) {
   } catch(e) {
     toast("❌ " + e.message);
   }
+}
+
+// Fungsi Modal Jadwal Kuliah
+function openJadwal(){
+  document.getElementById("jadwalModal").classList.remove("hidden");
+}
+function closeJadwal(){
+  document.getElementById("jadwalModal").classList.add("hidden");
 }
 </script>
 </body>
