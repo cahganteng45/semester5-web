@@ -98,7 +98,7 @@ function showApp(){$("loginPage").classList.add("hidden");$("app").classList.rem
 $("registerToggle").onclick=()=>{registerMode=!registerMode;$("loginError").classList.add("hidden");if(registerMode){$("loginSub").textContent="Buat akun kamu";$("loginButton").textContent="📝 Buat Akun";$("registerToggle").textContent="🔐 Sudah punya akun? Masuk";$("confirmWrap").classList.remove("hidden");$("confirmPassword").required=true;$("password").autocomplete="new-password";$("registerNote").classList.remove("hidden")}else{$("loginSub").textContent="Study hub pribadi kamu";$("loginButton").textContent="🔐 Masuk";$("registerToggle").textContent="📝 Belum punya akun? Buat akun";$("confirmWrap").classList.add("hidden");$("confirmPassword").required=false;$("confirmPassword").value="";$("password").autocomplete="current-password";$("registerNote").classList.add("hidden")}};
 $("loginForm").addEventListener("submit",async e=>{e.preventDefault();$("loginButton").disabled=true;$("loginError").classList.add("hidden");const username=$("username").value.trim(),password=$("password").value,confirm=$("confirmPassword").value;try{if(registerMode){$("loginButton").textContent="⏳ Membuat akun...";const r=await fetch(API+"/api/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password,confirm})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||"Pendaftaran gagal.");registerMode=false;$("loginSub").textContent="Study hub pribadi kamu";$("loginButton").textContent="🔐 Masuk";$("registerToggle").textContent="📝 Belum punya akun? Buat akun";$("confirmWrap").classList.add("hidden");$("confirmPassword").required=false;$("confirmPassword").value="";$("registerNote").classList.add("hidden");$("password").value="";toast("✅ Akun berhasil dibuat. Silakan login.")}else{$("loginButton").textContent="⏳ Memeriksa...";const r=await fetch(API+"/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||"Login gagal.");token=d.token;localStorage.setItem("semester5_token",token);showApp();$("welcome").textContent="Login sebagai @"+d.username;await loadTopics();toast("✅ Berhasil masuk")}}catch(err){$("loginError").textContent="❌ "+err.message;$("loginError").classList.remove("hidden")}finally{$("loginButton").disabled=false;$("loginButton").textContent=registerMode?"📝 Buat Akun":"🔐 Masuk"}});
 $("logout").onclick=()=>{token="";localStorage.removeItem("semester5_token");selected="";showLogin()};
-async function loadTopics(){$("topics").innerHTML='<div class="loading">Memuat mata kuliah...</div>';try{const r=await api("/api/topics"),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||"Gagal memuat mata kuliah.");const rawTopics=d.topics||[];const seenNames=new Set(),seenIds=new Set();topics=rawTopics.filter(t=>{const id=topicId(t),name=topicName(t).trim().toLowerCase();if(seenNames.has(name)||seenIds.has(id))return false;seenNames.add(name);seenIds.add(id);return true});isAdmin=!!d.is_admin;renderTopics();renderSelect();renderAdminTopics()}catch(e){$("topics").innerHTML='<div class="empty">⚠️ '+esc(e.message)+"</div>"}}
+async function loadTopics(){$("topics").innerHTML='<div class="loading">Memuat mata kuliah...</div>';try{const r=await api("/api/topics"),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||"Gagal memuat mata kuliah.");topics=d.topics||[];isAdmin=!!d.is_admin;renderTopics();renderSelect();renderAdminTopics()}catch(e){$("topics").innerHTML='<div class="empty">⚠️ '+esc(e.message)+"</div>"}}
 function topicId(t){if(typeof t==="string")return t;const raw=t?.id??t?.thread_id??t?.topic_id??t?.value;if(raw&&typeof raw==="object")return String(raw.id??raw.thread_id??raw.topic_id??"");return String(raw??"")}
 function topicName(t){if(typeof t==="string")return t;return String(t?.name??t?.title??t?.topic_name??"Tanpa nama")}
 function renderAdminTopics(){
@@ -133,12 +133,48 @@ function clearTopic(){selected="";$("selectedText").textContent="Pilih mata kuli
 async function loadMaterials(quiet=false){if(!selected)return;if(!quiet)$("materials").innerHTML='<div class="loading">⏳ Memuat materi...</div>';try{const r=await api("/api/materials?topic="+encodeURIComponent(selected)),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||"Gagal memuat materi.");renderMaterials(d.materials||[])}catch(e){$("materials").innerHTML='<div class="empty">⚠️ '+esc(e.message)+"</div>"}}
 function size(bytes){if(!bytes)return"0 B";let n=Number(bytes),u=["B","KB","MB","GB"],i=0;while(n>=1024&&i<u.length-1){n/=1024;i++}return n.toFixed(n>=10||i===0?0:1)+" "+u[i]}
 function materialUrl(m){if(!m.url)return"";if(m.url.startsWith("/")){const sep=m.url.includes("?")?"&":"?";return API+m.url+sep+"token="+encodeURIComponent(token)}return m.url}
-function renderMaterials(list){if(!list.length){$("materials").innerHTML='<div class="empty"><div class="eicon">📭</div>Belum ada materi di mata kuliah ini.</div>';return}$("materials").innerHTML=list.map(m=>{const kind=String(m.kind||"").toLowerCase(),url=materialUrl(m),content=String(m.content||m.caption||""),sender=m.sender?`<div class="sender">👤 ${esc(m.sender)}</div>`:"",date=m.date?new Date(m.date).toLocaleString("id-ID"):"",source=m.source==="website"?"Website":"Telegram";let preview="";if(kind==="text")preview=content?`<div class="note">📝 ${esc(content)}</div>`:"";else if(kind==="photo"||(m.mime_type||"").startsWith("image/"))preview=url?`<div class="preview"><img src="${esc(url)}" alt="${esc(m.name||"Foto")}"></div>`:"";else if(kind==="video"||(m.mime_type||"").startsWith("video/"))preview=url?`<div class="preview"><video controls preload="metadata" src="${esc(url)}"></video></div>`:"";else if(kind==="audio"||kind==="voice"||(m.mime_type||"").startsWith("audio/"))preview=url?`<div class="preview"><audio controls preload="metadata" src="${esc(url)}"></audio></div>`:"";const caption=content&&kind!=="text"?`<div class="caption">${esc(content)}</div>`:"";return `<div class="item"><div class="itemtop"><div class="material-main"><div class="name">${kind==="text"?"📝":"📄"} ${esc(m.name||"Materi")}</div>${sender}<div class="meta">${esc(size(m.size))} • <span class="source-tag">${esc(source)}</span>${date?" • "+esc(date):""}</div>${caption}</div></div>${preview}<div class="material-actions">${url&&kind!=="text"?`<a class="open download" href="${esc(url)}" target="_blank" rel="noopener">📥 Buka / Download</a>`:""}${m.telegram_url?`<a class="open telegram" href="${esc(m.telegram_url)}" target="_blank" rel="noopener">✈️ Telegram</a>`:""}</div></div>`}).join("")}
+
+// FITUR BARU: renderMaterials memunculkan tombol hapus jika isAdmin
+function renderMaterials(list){
+  if(!list.length){
+    $("materials").innerHTML='<div class="empty"><div class="eicon">📭</div>Belum ada materi di mata kuliah ini.</div>';
+    return;
+  }
+  $("materials").innerHTML=list.map(m=>{
+    const kind=String(m.kind||"").toLowerCase(),url=materialUrl(m),content=String(m.content||m.caption||""),sender=m.sender?`<div class="sender">👤 ${esc(m.sender)}</div>`:"",date=m.date?new Date(m.date).toLocaleString("id-ID"):"",source=m.source==="website"?"Website":"Telegram";
+    let preview="";
+    if(kind==="text")preview=content?`<div class="note">📝 ${esc(content)}</div>`:"";
+    else if(kind==="photo"||(m.mime_type||"").startsWith("image/"))preview=url?`<div class="preview"><img src="${esc(url)}" alt="${esc(m.name||"Foto")}"></div>`:"";
+    else if(kind==="video"||(m.mime_type||"").startsWith("video/"))preview=url?`<div class="preview"><video controls preload="metadata" src="${esc(url)}"></video></div>`:"";
+    else if(kind==="audio"||kind==="voice"||(m.mime_type||"").startsWith("audio/"))preview=url?`<div class="preview"><audio controls preload="metadata" src="${esc(url)}"></audio></div>`:"";
+    const caption=content&&kind!=="text"?`<div class="caption">${esc(content)}</div>`:"";
+    
+    // Tombol hapus khusus admin
+    const deleteBtn = isAdmin ? `<button class="open" style="background:#ffebee;color:#c62828;border:0;cursor:pointer" onclick="deleteMaterial('${m.id}')">🗑️ Hapus</button>` : '';
+
+    return `<div class="item"><div class="itemtop"><div class="material-main"><div class="name">${kind==="text"?"📝":"📄"} ${esc(m.name||"Materi")}</div>${sender}<div class="meta">${esc(size(m.size))} • <span class="source-tag">${esc(source)}</span>${date?" • "+esc(date):""}</div>${caption}</div></div>${preview}<div class="material-actions">${url&&kind!=="text"?`<a class="open download" href="${esc(url)}" target="_blank" rel="noopener">📥 Buka / Download</a>`:""}${m.telegram_url?`<a class="open telegram" href="${esc(m.telegram_url)}" target="_blank" rel="noopener">✈️ Telegram</a>`:""}${deleteBtn}</div></div>`
+  }).join("");
+}
+
 $("fileInput").onchange=()=>{const f=$("fileInput").files[0];if(!f){$("selectedFile").classList.add("hidden");$("upload").disabled=true;return}if(f.size>50*1024*1024){toast("❌ File terlalu besar. Maksimal 50 MB.");$("fileInput").value="";$("selectedFile").classList.add("hidden");$("upload").disabled=true;return}$("selectedFile").textContent="📄 "+f.name+" • "+size(f.size);$("selectedFile").classList.remove("hidden");$("upload").disabled=!selected};
 $("upload").onclick=async()=>{const f=$("fileInput").files[0];if(!selected||!f){toast("⚠️ Pilih mata kuliah dan file.");return}const fd=new FormData();fd.append("topic",selected);fd.append("caption",$("caption").value.trim());fd.append("file",f);$("upload").disabled=true;$("upload").textContent="⏳ Mengupload...";try{const r=await api("/api/upload",{method:"POST",body:fd}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||"Upload gagal.");toast("✅ Materi berhasil diupload!");$("fileInput").value="";$("caption").value="";$("selectedFile").classList.add("hidden");await loadMaterials()}catch(e){toast("❌ "+e.message)}finally{$("upload").disabled=!selected;$("upload").textContent="📤 Upload Materi"}};
 $("refresh").onclick=()=>selected?loadMaterials():loadTopics();
 async function init(){if(!token){showLogin();return}try{const r=await api("/api/me"),d=await r.json();if(!r.ok||!d.ok)throw new Error("Sesi tidak valid.");showApp();$("welcome").textContent="Login sebagai @"+d.username;await loadTopics()}catch(e){token="";localStorage.removeItem("semester5_token");showLogin()}}init();
 setInterval(()=>{if(token&&selected)loadMaterials(true)},2500);
+
+// FITUR BARU: Fungsi Hapus Materi untuk Admin
+async function deleteMaterial(id) {
+  if(!confirm("Yakin ingin menghapus materi ini dari website?")) return;
+  try {
+    const r = await api("/api/material/" + encodeURIComponent(id), { method: "DELETE" });
+    const d = await r.json();
+    if(!r.ok || !d.ok) throw new Error(d.error || "Gagal menghapus.");
+    toast("✅ Materi berhasil dihapus!");
+    loadMaterials(true);
+  } catch(e) {
+    toast("❌ " + e.message);
+  }
+}
 </script>
 </body>
 </html>
