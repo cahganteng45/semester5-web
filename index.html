@@ -290,7 +290,10 @@ function size(bytes){
 }
 function materialUrl(m){
  if(!m.url)return "";
- if(m.url.startsWith("/"))return API+m.url;
+ if(m.url.startsWith("/")){
+   const sep=m.url.includes("?")?"&":"?";
+   return API+m.url+sep+"token="+encodeURIComponent(token);
+ }
  return m.url;
 }
 function renderMaterials(list){
