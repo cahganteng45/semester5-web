@@ -1,397 +1,1074 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#11111a">
-<title>Semester 5 — Study Hub</title>
-<style>
-:root{--bg:#f6f6fb;--card:rgba(255,255,255,.86);--ink:#171722;--muted:#858596;--line:#e9e8f0;--purple:#6d5dfc;--purple2:#8d72ff;--dark:#15151f;--shadow:0 18px 50px rgba(31,25,71,.09)}
-*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 10% 0%,#ece9ff 0,transparent 27%),radial-gradient(circle at 100% 20%,#ffe9f5 0,transparent 24%),var(--bg);color:var(--ink);min-height:100vh}button,input,select{font:inherit}.hidden{display:none!important}button{cursor:pointer}a{text-decoration:none;color:inherit}
-#loginPage{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:22px;background:radial-gradient(circle at 20% 10%,#dcd6ff,transparent 32%),radial-gradient(circle at 90% 90%,#ffddec,transparent 35%),#f7f6fc}.login-box{width:100%;max-width:410px;background:rgba(255,255,255,.82);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.8);padding:32px;border-radius:30px;box-shadow:0 25px 70px rgba(54,41,116,.14)}.login-logo{width:72px;height:72px;border-radius:22px;display:grid;place-items:center;margin:0 auto 17px;background:linear-gradient(135deg,#7664ff,#a275ff);font-size:37px;box-shadow:0 14px 30px rgba(109,93,252,.28)}.login-box h1{text-align:center;font-size:27px;letter-spacing:-.8px}.sub{text-align:center;color:var(--muted);font-size:14px;margin:7px 0 25px}.field{margin-bottom:15px}.field label{display:block;font-size:12px;font-weight:800;margin:0 0 7px 3px;color:#555566}input,select{width:100%;padding:14px 15px;border:1px solid #dedde8;border-radius:14px;outline:0;background:rgba(255,255,255,.9);color:var(--ink);transition:.2s}input:focus,select:focus{border-color:#8a7cff;box-shadow:0 0 0 4px rgba(109,93,252,.1)}.btn{border:0;border-radius:14px;padding:14px 17px;font-weight:800;transition:.2s}.primary{background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff;box-shadow:0 12px 24px rgba(109,93,252,.23)}.primary:hover{transform:translateY(-1px);box-shadow:0 15px 28px rgba(109,93,252,.3)}.primary:disabled{opacity:.55;transform:none}.full{width:100%}.linkbtn{width:100%;margin-top:11px;background:transparent;border:0;color:#6254dd;font-weight:800;padding:9px}.register-note{font-size:11px;color:var(--muted);line-height:1.5;text-align:center;margin-top:5px}.error{background:#fff0f0;color:#bd3030;border:1px solid #ffd5d5;padding:11px 13px;border-radius:12px;font-size:13px;margin-bottom:15px}
-#app{min-height:100vh}.topbar{position:sticky;top:0;z-index:20;background:rgba(246,246,251,.78);backdrop-filter:blur(20px);border-bottom:1px solid rgba(225,224,235,.8)}.topin{max-width:1120px;margin:auto;padding:13px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:11px}.brand-logo{width:43px;height:43px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#7565ff,#a070ff);font-size:23px;box-shadow:0 8px 18px rgba(109,93,252,.2)}.brand b{font-size:16px;letter-spacing:-.3px}.brand small{display:block;color:var(--muted);font-size:11px;margin-top:2px}.top-actions{display:flex;align-items:center;gap:8px}.user-pill{background:#fff;border:1px solid var(--line);padding:9px 12px;border-radius:13px;font-size:12px;font-weight:800}.logout{border:0;background:#1a1a24;color:#fff;padding:10px 13px;border-radius:12px;font-weight:800}
-.container{max-width:1120px;margin:auto;padding:24px 20px 70px}.hero{position:relative;overflow:hidden;border-radius:28px;padding:27px;color:#fff;background:linear-gradient(135deg,#4e3df0 0%,#7655ff 55%,#a05cff 100%);box-shadow:0 22px 45px rgba(92,70,230,.22);margin-bottom:22px}.hero:before{content:"";position:absolute;width:190px;height:190px;border-radius:50%;right:-55px;top:-80px;background:rgba(255,255,255,.14)}.hero:after{content:"";position:absolute;width:110px;height:110px;border-radius:50%;right:100px;bottom:-65px;background:rgba(255,255,255,.09)}.hero-content{position:relative;z-index:1;max-width:650px}.eyebrow{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.14);font-size:10px;font-weight:900;letter-spacing:.3px;margin-bottom:12px}.hero h2{font-size:30px;letter-spacing:-1.3px;line-height:1.1;margin-bottom:8px}.hero p{font-size:13px;line-height:1.6;opacity:.88;max-width:520px}.quick{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}.quick button{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:#fff;border-radius:12px;padding:9px 12px;font-size:12px;font-weight:800;backdrop-filter:blur(8px)}
-.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:0 2px 12px}.section-head h2{font-size:19px;letter-spacing:-.5px}.section-head p{font-size:12px;color:var(--muted);margin-top:3px}.view-note{font-size:11px;color:var(--muted);font-weight:700}
-.topics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:23px}.topic{position:relative;display:flex;align-items:center;gap:11px;background:var(--card);backdrop-filter:blur(16px);border:1px solid rgba(228,227,237,.9);border-radius:17px;padding:12px 13px;cursor:pointer;min-height:67px;transition:.2s;box-shadow:0 7px 22px rgba(30,25,70,.035)}.topic:hover{transform:translateY(-2px);border-color:#bcb5ff;box-shadow:0 13px 28px rgba(55,44,130,.08)}.topic.active{border-color:#796bff;background:#f5f3ff;box-shadow:0 0 0 2px rgba(109,93,252,.09)}.topic-icon{width:39px;height:39px;border-radius:12px;display:grid;place-items:center;background:#f0efff;font-size:20px;flex:0 0 auto}.topic-info{min-width:0}.topic b{display:block;font-size:13px;line-height:1.25;letter-spacing:-.15px}.tid{font-size:10px;color:#aaa9b7;margin-top:4px}.chev{margin-left:auto;color:#aaa7ba;font-size:16px}
-.content{display:grid;grid-template-columns:360px minmax(0,1fr);gap:15px;align-items:start}.panel{background:rgba(255,255,255,.84);backdrop-filter:blur(18px);border:1px solid rgba(228,227,237,.95);border-radius:22px;padding:18px;box-shadow:var(--shadow)}.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}.panel h3{font-size:17px;letter-spacing:-.4px}.muted{font-size:12px;color:var(--muted);line-height:1.5;margin-top:3px}.mini-badge{padding:6px 8px;background:#f1efff;color:#5d4fe0;border-radius:9px;font-size:10px;font-weight:900;white-space:nowrap}.drop{display:block;border:1.5px dashed #c5bfff;background:linear-gradient(180deg,#f6f4ff,#faf9ff);border-radius:17px;padding:22px 13px;text-align:center;cursor:pointer;margin:4px 0 14px;transition:.2s}.drop:hover{border-color:#8e80ff;background:#f1efff}.drop .big{font-size:31px}.drop p{font-size:12px;color:#59586b;margin-top:5px;font-weight:700}.drop small{display:block;color:#a1a0ae;font-size:10px;margin-top:4px}#fileInput{display:none}.selected{background:#f6f6f9;border:1px solid var(--line);padding:10px 11px;border-radius:11px;font-size:11px;word-break:break-word;margin-bottom:14px}.upload{margin-top:2px}.upload-help{display:flex;gap:7px;margin-top:10px;color:#a0a0ae;font-size:10px;line-height:1.45}
-.mhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}.selected-topic{display:flex;align-items:center;gap:9px}.selected-topic-icon{width:35px;height:35px;border-radius:11px;background:#f0efff;display:grid;place-items:center;font-size:18px}.mhead h3{font-size:16px}.refresh{border:1px solid var(--line);background:#fff;padding:8px 10px;border-radius:10px;cursor:pointer;font-weight:800;font-size:11px}.materials{display:flex;flex-direction:column;gap:9px}.item{background:#fff;border:1px solid #e9e8ef;border-radius:16px;padding:12px;transition:.18s}.item:hover{border-color:#d5d0ff;box-shadow:0 8px 22px rgba(40,31,100,.055)}.itemtop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.material-main{min-width:0}.name{font-weight:850;word-break:break-word;line-height:1.35;font-size:13px}.meta{font-size:10px;color:#92919f;margin-top:5px}.caption{font-size:12px;color:#5c5b69;margin-top:5px;word-break:break-word}.sender{font-size:10px;color:#8f8e9b;margin-top:4px}.source-tag{display:inline-block;padding:2px 6px;border-radius:999px;background:#eeecff;color:#5c4ddd;font-size:9px;font-weight:900}.preview{margin-top:9px;border-radius:13px;overflow:hidden;background:#15151a;border:1px solid #ecebf2}.preview img,.preview video{display:block;width:100%;max-height:340px;object-fit:contain;background:#121217}.preview audio{width:100%;display:block}.note{background:#f7f6ff;border-left:3px solid #7666ff;padding:11px;border-radius:11px;margin-top:9px;white-space:pre-wrap;word-break:break-word;line-height:1.5;font-size:12px}.material-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.open{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border-radius:10px;font-size:10px;font-weight:900;white-space:nowrap}.open.download{background:#171720;color:#fff}.open.telegram{background:#f0efff;color:#5749d7}.empty,.loading{text-align:center;padding:34px 12px;color:#aaa9b5;font-size:12px}.empty .eicon{font-size:34px;margin-bottom:7px}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#ffffff">
+    <title>Semester 5 — Study Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* =========================================================
+           CSS VARIABLES & RESET
+           ========================================================= */
+        :root {
+            --bg-body: #f4f5f9;
+            --bg-surface: #ffffff;
+            --bg-surface-glass: rgba(255, 255, 255, 0.85);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-light: #e0e7ff;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --nav-width: 260px;
+            --nav-bottom-height: 70px;
+        }
 
-.admin-panel{margin:0 0 22px;background:rgba(255,255,255,.9);backdrop-filter:blur(18px);border:1px solid #e5e3ef;border-radius:22px;padding:16px;box-shadow:var(--shadow)}.admin-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.admin-head h3{font-size:16px}.admin-head p{font-size:11px;color:var(--muted);margin-top:3px}.admin-list{display:flex;flex-direction:column;gap:7px}.admin-topic{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px;background:#fafafd;border:1px solid #eceaf2;border-radius:13px}.admin-topic-name{display:flex;align-items:center;gap:8px;min-width:0;font-size:12px;font-weight:800}.admin-topic-name span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.visibility-btn{border:0;border-radius:10px;padding:7px 9px;font-size:10px;font-weight:900;white-space:nowrap}.visibility-btn.public{background:#eafaf1;color:#16834b}.visibility-btn.private{background:#fff0f0;color:#c03939}.admin-hint{font-size:10px;color:#9997a7;margin-top:9px;line-height:1.45}
-#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#171720;color:#fff;padding:11px 14px;border-radius:12px;z-index:50;font-size:12px;max-width:90%;text-align:center;box-shadow:0 14px 35px rgba(0,0,0,.2)}
-@media(max-width:850px){.content{grid-template-columns:1fr}.topics{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:560px){.topin,.container{padding-left:14px;padding-right:14px}.topin{padding-top:10px;padding-bottom:10px}.user-pill{display:none}.hero{padding:22px;border-radius:24px}.hero h2{font-size:25px}.topics{grid-template-columns:1fr;gap:8px}.topic{min-height:62px}.content{gap:11px}.panel{padding:15px;border-radius:19px}.section-head{margin-bottom:10px}.view-note{display:none}}
-</style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        button, input, select, textarea { font-family: inherit; }
+        button { cursor: pointer; border: none; background: none; transition: var(--transition); }
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+        .hidden { display: none !important; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* =========================================================
+           LOGIN PAGE
+           ========================================================= */
+        #loginPage {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .login-box {
+            background: var(--bg-surface-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+
+        .login-header { text-align: center; margin-bottom: 30px; }
+        .login-logo {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            border-radius: var(--radius-lg);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px;
+            color: white;
+        }
+        .login-header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        .login-header p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block; font-size: 12px; font-weight: 700;
+            color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.5px;
+        }
+        .form-control {
+            width: 100%; padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 14px; background: white;
+            transition: var(--transition);
+        }
+        .form-control:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px var(--primary-light); }
+
+        .btn-primary {
+            width: 100%; padding: 14px;
+            background: var(--primary); color: white;
+            font-weight: 700; font-size: 15px;
+            border-radius: var(--radius-md);
+            margin-top: 8px;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+        }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); }
+        .btn-primary:disabled { opacity: 0.7; transform: none; cursor: not-allowed; }
+
+        .link-btn {
+            width: 100%; text-align: center; margin-top: 16px;
+            font-size: 14px; font-weight: 600; color: var(--primary);
+        }
+        .link-btn:hover { text-decoration: underline; }
+
+        .alert {
+            padding: 12px 16px; border-radius: var(--radius-md);
+            font-size: 13px; font-weight: 500; margin-bottom: 20px;
+        }
+        .alert-error { background: var(--danger-light); color: var(--danger); border: 1px solid #fecaca; }
+
+        /* =========================================================
+           APP LAYOUT (SIDEBAR & MOBILE BOTTOM NAV)
+           ========================================================= */
+        #app {
+            display: flex; width: 100%; min-height: 100vh;
+        }
+
+        .sidebar {
+            width: var(--nav-width);
+            background: var(--bg-surface);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column;
+            position: fixed; top: 0; bottom: 0; left: 0;
+            z-index: 50;
+        }
+
+        .sidebar-header {
+            padding: 24px; display: flex; align-items: center; gap: 12px;
+        }
+        .sidebar-logo {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white; display: flex; align-items: center; justify-content: center;
+        }
+        .sidebar-title h2 { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+        .sidebar-title span { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+
+        .nav-menu { padding: 12px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .nav-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px; border-radius: var(--radius-md);
+            color: var(--text-muted); font-weight: 600; font-size: 15px;
+            transition: var(--transition);
+        }
+        .nav-item svg { width: 22px; height: 22px; stroke-width: 2; transition: var(--transition); }
+        .nav-item:hover { background: var(--bg-body); color: var(--text-main); }
+        .nav-item.active { background: var(--primary-light); color: var(--primary); }
+
+        .user-profile {
+            padding: 16px; border-top: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .user-info { display: flex; align-items: center; gap: 10px; overflow: hidden; }
+        .user-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: #e2e8f0; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: var(--text-muted); flex-shrink: 0;
+        }
+        .user-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-role { font-size: 11px; color: var(--text-muted); }
+        
+        .btn-logout {
+            width: 36px; height: 36px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--danger); background: var(--danger-light);
+        }
+        .btn-logout:hover { background: #fecaca; }
+
+        /* MAIN CONTENT AREA */
+        .main-content {
+            flex: 1; margin-left: var(--nav-width);
+            padding: 32px 40px 100px; max-width: 1200px;
+        }
+
+        .view-section { display: none; animation: fadeIn 0.3s ease; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* =========================================================
+           COMPONENTS
+           ========================================================= */
+        /* Header / Greeting */
+        .page-header { margin-bottom: 30px; }
+        .greeting { font-size: 28px; font-weight: 800; letter-spacing: -1px; margin-bottom: 6px; }
+        .date-text { color: var(--text-muted); font-size: 14px; font-weight: 500; }
+
+        /* Cards */
+        .card {
+            background: var(--bg-surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card-title { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
+        .badge {
+            padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+        }
+        .badge-primary { background: var(--primary-light); color: var(--primary); }
+
+        /* Topic Grid */
+        .topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+        .topic-card {
+            background: var(--bg-surface); border: 1px solid var(--border);
+            border-radius: var(--radius-md); padding: 16px;
+            display: flex; align-items: center; gap: 14px;
+            cursor: pointer; transition: var(--transition);
+        }
+        .topic-card:hover { border-color: var(--primary); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .topic-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            background: var(--primary-light); color: var(--primary);
+            display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;
+        }
+        .topic-info h4 { font-size: 14px; font-weight: 700; line-height: 1.3; }
+        .topic-info p { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+        /* Materials View */
+        .material-actions-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            background: white; padding: 12px 16px; border-radius: var(--radius-md);
+            border: 1px solid var(--border); margin-bottom: 16px;
+        }
+        .selected-topic-label { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; }
+        .btn-icon {
+            display: flex; align-items: center; gap: 6px;
+            padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
+            background: var(--bg-body); border: 1px solid var(--border);
+        }
+        .btn-icon:hover { background: #e2e8f0; }
+
+        .material-list { display: flex; flex-direction: column; gap: 12px; }
+        .material-item {
+            background: white; border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 16px;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .material-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .m-name { font-weight: 700; font-size: 15px; line-height: 1.4; word-break: break-word; }
+        .m-meta { font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+        .m-tag { background: var(--primary-light); color: var(--primary); padding: 2px 6px; border-radius: 4px; font-weight: 800; font-size: 9px; }
+        .m-preview { border-radius: var(--radius-md); overflow: hidden; background: #0f172a; max-height: 300px; }
+        .m-preview img, .m-preview video { width: 100%; height: 100%; object-fit: contain; max-height: 300px; display: block; }
+        .m-preview audio { width: 100%; display: block; margin-top: 10px; }
+        .m-note { background: #f8fafc; border-left: 3px solid var(--primary); padding: 12px; border-radius: 0 var(--radius-md) var(--radius-md) 0; font-size: 13px; line-height: 1.5; white-space: pre-wrap; }
+        
+        .m-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+        .m-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 700;
+        }
+        .btn-download { background: var(--text-main); color: white; }
+        .btn-tele { background: #e0f2fe; color: #0284c7; }
+        .btn-del { background: var(--danger-light); color: var(--danger); }
+
+        /* Upload View */
+        .upload-area {
+            border: 2px dashed #cbd5e1; background: #f8fafc;
+            border-radius: var(--radius-lg); padding: 40px 20px;
+            text-align: center; cursor: pointer; transition: var(--transition);
+            margin: 10px 0 20px;
+        }
+        .upload-area:hover { border-color: var(--primary); background: var(--primary-light); }
+        .upload-icon { width: 48px; height: 48px; color: var(--primary); margin-bottom: 12px; }
+        .upload-area h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+        .upload-area p { font-size: 12px; color: var(--text-muted); }
+
+        /* Schedule View */
+        .schedule-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;
+        }
+        .day-card {
+            background: white; border: 1px solid var(--border); border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+        .day-header {
+            background: var(--primary); color: white; padding: 12px 20px;
+            font-weight: 800; font-size: 15px; letter-spacing: 0.5px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .day-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+        .class-item {
+            padding-left: 16px; border-left: 3px solid var(--primary-light);
+            position: relative;
+        }
+        .class-item::before {
+            content: ''; position: absolute; left: -6px; top: 0;
+            width: 9px; height: 9px; border-radius: 50%; background: var(--primary);
+        }
+        .class-time { font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+        .class-name { font-size: 14px; font-weight: 800; color: var(--text-main); line-height: 1.3; }
+        .class-room { font-size: 12px; color: var(--text-muted); margin-top: 4px; display: flex; align-items: center; gap: 4px;}
+        .class-dosen { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+        /* Toast & Loading */
+        #toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: var(--text-main); color: white; padding: 12px 20px;
+            border-radius: 30px; font-size: 13px; font-weight: 600;
+            box-shadow: var(--shadow-lg); z-index: 9999; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; align-items: center; gap: 8px;
+        }
+        #toast.show { transform: translateX(-50%) translateY(0); }
+        
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .empty-state svg { width: 48px; height: 48px; color: #cbd5e1; margin-bottom: 12px; }
+
+        /* =========================================================
+           RESPONSIVE MOBILE (BOTTOM NAV)
+           ========================================================= */
+        @media (max-width: 768px) {
+            .sidebar {
+                top: auto; bottom: 0; width: 100%; height: var(--nav-bottom-height);
+                flex-direction: row; border-right: none; border-top: 1px solid var(--border);
+                padding: 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            }
+            .sidebar-header, .user-profile { display: none; }
+            .nav-menu { 
+                flex-direction: row; justify-content: space-around; align-items: center;
+                padding: 0; padding-bottom: env(safe-area-inset-bottom);
+            }
+            .nav-item {
+                flex-direction: column; gap: 4px; padding: 8px; border-radius: 0;
+                font-size: 10px; font-weight: 700; flex: 1; text-align: center;
+                background: transparent !important;
+            }
+            .nav-item svg { width: 24px; height: 24px; }
+            .nav-item.active { color: var(--primary); }
+            .nav-item.active svg { transform: translateY(-2px); }
+            
+            .main-content {
+                margin-left: 0; padding: 20px 20px calc(var(--nav-bottom-height) + 30px);
+            }
+            
+            .page-header { margin-top: 10px; }
+            .greeting { font-size: 24px; }
+            
+            #toast { bottom: calc(var(--nav-bottom-height) + 16px); width: 90%; text-align: center; justify-content: center; }
+        }
+    </style>
 </head>
 <body>
 
+<!-- SVG ICONS DEFS -->
+<svg width="0" height="0" class="hidden">
+    <defs>
+        <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></symbol>
+        <symbol id="icon-book" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></symbol>
+        <symbol id="icon-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></symbol>
+        <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></symbol>
+        <symbol id="icon-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></symbol>
+        <symbol id="icon-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></symbol>
+        <symbol id="icon-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></symbol>
+        <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></symbol>
+        <symbol id="icon-map" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></symbol>
+    </defs>
+</svg>
+
+<!-- ================= LOGIN PAGE ================= -->
 <div id="loginPage">
-  <div class="login-box">
-    <div class="login-logo">📚</div>
-    <h1>Semester 5</h1>
-    <p id="loginSub" class="sub">Study hub pribadi kamu</p>
-    <div id="loginError" class="error hidden"></div>
-    <form id="loginForm">
-      <div class="field"><label for="username">USERNAME</label><input id="username" autocomplete="username" placeholder="Masukkan username" required></div>
-      <div class="field"><label for="password">PASSWORD</label><input id="password" type="password" autocomplete="current-password" placeholder="Masukkan password" required></div>
-      <div id="confirmWrap" class="field hidden"><label for="confirmPassword">ULANGI PASSWORD</label><input id="confirmPassword" type="password" autocomplete="new-password" placeholder="Ulangi password"></div>
-      <button id="loginButton" class="btn primary full" type="submit">🔐 Masuk</button>
-    </form>
-    <button id="registerToggle" class="linkbtn" type="button">📝 Belum punya akun? Buat akun</button>
-    <p id="registerNote" class="register-note hidden">Password disimpan sebagai hash dan tidak dikirim ke laporan Telegram.</p>
-  </div>
+    <div class="login-box">
+        <div class="login-header">
+            <div class="login-logo">
+                <svg width="32" height="32"><use href="#icon-book"></use></svg>
+            </div>
+            <h1>Semester 5</h1>
+            <p id="loginSub">Study hub eksklusif kelas kita.</p>
+        </div>
+        <div id="loginError" class="alert alert-error hidden"></div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>USERNAME</label>
+                <input type="text" id="username" class="form-control" placeholder="Masukkan username" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label>PASSWORD</label>
+                <input type="password" id="password" class="form-control" placeholder="Masukkan password" required autocomplete="current-password">
+            </div>
+            <div id="confirmWrap" class="form-group hidden">
+                <label>ULANGI PASSWORD</label>
+                <input type="password" id="confirmPassword" class="form-control" placeholder="Ketik ulang password" autocomplete="new-password">
+            </div>
+            <button type="submit" id="loginButton" class="btn-primary">Masuk ke Dashboard</button>
+        </form>
+        <button type="button" id="registerToggle" class="link-btn">Belum punya akun? Buat disini</button>
+    </div>
 </div>
 
+<!-- ================= MAIN APP ================= -->
 <div id="app" class="hidden">
-<header class="topbar"><div class="topin">
-  <div class="brand"><div class="brand-logo">📚</div><div><b>Semester 5</b><small id="welcome"></small></div></div>
-  <div class="top-actions"><div class="user-pill">✦ Study Hub</div><button id="logout" class="logout">Keluar</button></div>
-</div></header>
-
-<main class="container">
-<section class="hero"><div class="hero-content">
-  <div class="eyebrow">✦ SEMESTER 5 • STUDY HUB</div>
-  <h2>Materi kuliah,<br>rapi dalam satu tempat.</h2>
-  <p>Upload file (PDF, Doc, Image, Music, Video) bisa dibuka langsung di browser ini.</p>
-  
-  <!-- Fitur Baru: Tombol Jadwal Kuliah -->
-  <div class="quick">
-    <button type="button" onclick="openJadwal()">📅 Jadwal Kuliah</button>
-    <button type="button" onclick="document.getElementById('uploadPanel').scrollIntoView({behavior:'smooth'})">＋ Upload materi</button>
-    <button type="button" onclick="document.getElementById('topics').scrollIntoView({behavior:'smooth'})">↓ Lihat mata kuliah</button>
-  </div>
-
-</div></section>
-
-<section id="adminPanel" class="admin-panel hidden">
-  <div class="admin-head"><div><h3>👑 Kelola tampilan Topic</h3><p>Sembunyikan Topic dari user biasa.</p></div><span class="mini-badge">ADMIN</span></div>
-  <div id="adminTopics" class="admin-list"></div>
-</section>
-
-<div class="section-head"><div><h2>📚 Mata kuliah</h2><p>Pilih untuk melihat materi.</p></div><span class="view-note">Semester 5</span></div>
-<div id="topics" class="topics"><div class="loading">Memuat mata kuliah...</div></div>
-
-<div class="content">
-<section id="uploadPanel" class="panel">
-  <div class="panel-head"><div><h3>📤 Upload materi</h3><p class="muted">Bebas kirim Dokumen, Foto, Video, dll.</p></div><span class="mini-badge">MAX 50 MB</span></div>
-  <div class="field"><label for="topicSelect">MATA KULIAH</label><select id="topicSelect"><option value="">Pilih mata kuliah</option></select></div>
-  <label class="drop" for="fileInput"><div class="big">📎</div><p>Pilih file untuk di-upload</p><small>PDF, DOCX, ZIP, gambar, video, dan lainnya</small></label>
-  <input id="fileInput" type="file">
-  <div id="selectedFile" class="selected hidden"></div>
-  <div class="field"><label for="caption">KETERANGAN <span style="font-weight:500;color:#aaa">(opsional)</span></label><input id="caption" placeholder="Contoh: Materi pertemuan 5"></div>
-  <button id="upload" class="btn primary upload full" disabled>📤 Upload Materi</button>
-  <div class="upload-help">🔒 File akan otomatis tersinkron antara Web dan Telegram secara dua arah.</div>
-</section>
-
-<section class="panel">
-  <div class="mhead"><div class="selected-topic"><div class="selected-topic-icon" id="selectedIcon">📚</div><div><h3>Materi</h3><p id="selectedText" class="muted">Pilih mata kuliah</p></div></div><button id="refresh" class="refresh">↻ Refresh</button></div>
-  <div id="materials"><div class="empty"><div class="eicon">📚</div>Pilih mata kuliah untuk melihat materi.</div></div>
-</section>
-</div>
-</main>
-</div>
-
-<!-- Modal Jadwal Kuliah -->
-<div id="jadwalModal" class="hidden" style="position:fixed;inset:0;z-index:999;background:rgba(15,15,25,.55);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:16px;">
-  <div style="background:rgba(255,255,255,.92);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.9);border-radius:26px;width:100%;max-width:820px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 28px 60px rgba(25,20,60,.2);overflow:hidden;">
     
-    <div style="padding:18px 22px;border-bottom:1px solid #ebe9f3;display:flex;align-items:center;justify-content:space-between;">
-      <div>
-        <h3 style="font-size:18px;letter-spacing:-.4px;">🗓️ Jadwal Kuliah Semester 5</h3>
-        <p style="font-size:11px;color:#858596;margin-top:2px;">Sistem Informasi • Semester Gasal 2026/2027</p>
-      </div>
-      <button onclick="closeJadwal()" style="border:0;background:#f0eff8;color:#555;width:34px;height:34px;border-radius:12px;font-weight:900;font-size:15px;cursor:pointer;transition:.2s;">✕</button>
-    </div>
-
-    <div style="padding:18px 22px;overflow-y:auto;display:flex;flex-direction:column;gap:18px;">
-      
-      <!-- SENIN -->
-      <div>
-        <div style="display:inline-block;padding:3px 10px;border-radius:8px;background:#6d5dfc;color:#fff;font-size:11px;font-weight:800;margin-bottom:8px;">SENIN</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">
-          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
-            <b style="font-size:13px;">☁️ Cloud Computing (Teori)</b>
-            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 13:00 - 14:40 • Ruang B1.2</div>
-            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Era Yunianto, M.Kom | 5P52</div>
-          </div>
-          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
-            <b style="font-size:13px;">☁️ Cloud Computing (Praktek)</b>
-            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 15:00 - 16:40 • LAB 3</div>
-            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Era Yunianto, M.Kom | 5P52A</div>
-          </div>
+    <!-- Navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo"><svg width="24" height="24"><use href="#icon-book"></use></svg></div>
+            <div class="sidebar-title">
+                <h2>Semester 5</h2>
+                <span>Study Hub</span>
+            </div>
         </div>
-      </div>
+        
+        <ul class="nav-menu">
+            <li><button class="nav-item active" onclick="switchView('home')">
+                <svg><use href="#icon-home"></use></svg> Dashboard
+            </button></li>
+            <li><button class="nav-item" onclick="switchView('materi'); loadTopics();">
+                <svg><use href="#icon-folder"></use></svg> Materi Kuliah
+            </button></li>
+            <li><button class="nav-item" onclick="switchView('jadwal')">
+                <svg><use href="#icon-calendar"></use></svg> Jadwal Kelas
+            </button></li>
+            <li><button class="nav-item" onclick="switchView('upload'); loadTopics();">
+                <svg><use href="#icon-upload"></use></svg> Upload File
+            </button></li>
+        </ul>
 
-      <!-- RABU -->
-      <div>
-        <div style="display:inline-block;padding:3px 10px;border-radius:8px;background:#6d5dfc;color:#fff;font-size:11px;font-weight:800;margin-bottom:8px;">RABU</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">
-          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
-            <b style="font-size:13px;">📋 Audit Sistem Informasi</b>
-            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 09:15 - 10:55 • Ruang A1.2</div>
-            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Satriedi Wahyu Binabar, M.Kom | 5P52</div>
-          </div>
-          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
-            <b style="font-size:13px;">🔐 Keamanan Sistem Informasi</b>
-            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 11:00 - 12:40 • Ruang C.6</div>
-            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 M. Faizal Kurniawan, M.Kom | 5P52</div>
-          </div>
-          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
-            <b style="font-size:13px;">📊 Visualisasi Data (Teori)</b>
-            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 13:00 - 14:40 • Ruang C.3</div>
-            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Nurul Amalia, M.Kom | 5P52</div>
-          </div>
-          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
-            <b style="font-size:13px;">📊 Visualisasi Data (Praktek)</b>
-            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 15:00 - 16:40 • LAB 5</div>
-            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Nurul Amalia, M.Kom | 5P52A</div>
-          </div>
+        <div class="user-profile">
+            <div class="user-info">
+                <div class="user-avatar" id="avatarInitials">US</div>
+                <div>
+                    <div class="user-name" id="displayUsername">User</div>
+                    <div class="user-role" id="displayRole">Mahasiswa</div>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="logout()" title="Keluar">
+                <svg width="20" height="20"><use href="#icon-logout"></use></svg>
+            </button>
         </div>
-      </div>
+    </nav>
 
-      <!-- KAMIS -->
-      <div>
-        <div style="display:inline-block;padding:3px 10px;border-radius:8px;background:#6d5dfc;color:#fff;font-size:11px;font-weight:800;margin-bottom:8px;">KAMIS</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">
-          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
-            <b style="font-size:13px;">💡 Business Intelligence Sys (Sesi 1)</b>
-            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 07:30 - 09:10 • Ruang B1.2</div>
-            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Eny Jumiati, M.Kom | 5P52</div>
-          </div>
-          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
-            <b style="font-size:13px;">💡 Business Intelligence Sys (Sesi 2)</b>
-            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 09:15 - 10:55 • Ruang B1.2</div>
-            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Eny Jumiati, M.Kom | 5P52</div>
-          </div>
-          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
-            <b style="font-size:13px;">📁 Manajemen Proyek</b>
-            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 13:00 - 14:40 • Ruang B1.2</div>
-            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Indrayanti, M.Kom | 5P52</div>
-          </div>
-        </div>
-      </div>
+    <!-- Main Content -->
+    <main class="main-content">
+        
+        <header class="page-header">
+            <h1 class="greeting" id="greetingText">Halo, @username! 👋</h1>
+            <p class="date-text" id="currentDateText">Memuat tanggal...</p>
+        </header>
 
-      <!-- JUMAT -->
-      <div>
-        <div style="display:inline-block;padding:3px 10px;border-radius:8px;background:#6d5dfc;color:#fff;font-size:11px;font-weight:800;margin-bottom:8px;">JUMAT</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">
-          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
-            <b style="font-size:13px;">🔬 Metodologi Penelitian & Publikasi</b>
-            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 07:30 - 09:10 • Ruang D1.1</div>
-            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Eko Budi Susanto, M.Kom | 5P52</div>
-          </div>
-          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
-            <b style="font-size:13px;">📱 Pemrograman Mobile I (Teori)</b>
-            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 09:15 - 10:55 • Ruang A1.1</div>
-            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Arochman, M.Kom | 5P52</div>
-          </div>
-          <div style="background:#f9f9fd;border:1px solid #e7e6f0;border-radius:14px;padding:12px;">
-            <b style="font-size:13px;">📱 Pemrograman Mobile I (Praktek)</b>
-            <div style="font-size:11px;color:#717082;margin-top:4px;">⏰ 13:00 - 14:40 • LAB 1</div>
-            <div style="font-size:11px;color:#9291a0;margin-top:2px;">👤 Arochman, M.Kom | 5P52A</div>
-          </div>
-        </div>
-      </div>
+        <!-- VIEW: DASHBOARD -->
+        <section id="view-home" class="view-section active">
+            <div class="card" style="margin-bottom: 24px; background: linear-gradient(135deg, var(--primary), #8b5cf6); color: white; border:none;">
+                <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 8px;">Selamat datang di Study Hub!</h2>
+                <p style="font-size: 14px; opacity: 0.9; max-width: 500px; line-height: 1.5; margin-bottom: 20px;">
+                    Semua materi, PDF, catatan, dan jadwal kelas Semester 5 terkumpul rapi di sini. Tersinkronisasi otomatis dengan grup Telegram kita.
+                </p>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <button onclick="switchView('jadwal')" style="background: rgba(255,255,255,0.2); color: white; padding: 10px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; backdrop-filter: blur(5px);">Lihat Jadwal Hari Ini</button>
+                    <button onclick="switchView('materi'); loadTopics();" style="background: white; color: var(--primary); padding: 10px 16px; border-radius: 8px; font-weight: 800; font-size: 13px;">Buka Materi</button>
+                </div>
+            </div>
 
-    </div>
-  </div>
+            <!-- Admin Panel (Only visible to admin) -->
+            <div id="adminPanel" class="card hidden" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <div class="card-title">👑 Panel Admin Topic</div>
+                    <span class="badge badge-primary">ADMIN ONLY</span>
+                </div>
+                <div id="adminTopics" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+        </section>
+
+        <!-- VIEW: MATERI (TOPICS & FILES) -->
+        <section id="view-materi" class="view-section">
+            
+            <!-- List of Topics -->
+            <div id="topicSelection">
+                <div class="card-header">
+                    <h2 class="card-title">Pilih Mata Kuliah</h2>
+                </div>
+                <div id="topicsGrid" class="topic-grid">
+                    <div class="empty-state">Memuat mata kuliah...</div>
+                </div>
+            </div>
+
+            <!-- List of Files inside a Topic -->
+            <div id="materialSelection" class="hidden">
+                <div class="material-actions-bar">
+                    <div class="selected-topic-label">
+                        <span id="activeTopicIcon">📚</span> <span id="activeTopicName">Nama Matkul</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-icon" onclick="backToTopics()">
+                            Kembali
+                        </button>
+                        <button class="btn-icon" onclick="loadMaterials(true)">
+                            <svg width="16" height="16"><use href="#icon-refresh"></use></svg> Segarkan
+                        </button>
+                    </div>
+                </div>
+                <div id="materialsList" class="material-list">
+                    <!-- Materials injected here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: UPLOAD -->
+        <section id="view-upload" class="view-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📤 Upload Materi Baru</h2>
+                    <span class="badge badge-primary">MAX 50 MB</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>MATA KULIAH</label>
+                    <select id="topicSelect" class="form-control">
+                        <option value="">-- Pilih Mata Kuliah --</option>
+                    </select>
+                </div>
+
+                <input type="file" id="fileInput" class="hidden">
+                <label for="fileInput" class="upload-area" id="dropArea">
+                    <svg class="upload-icon"><use href="#icon-upload"></use></svg>
+                    <h3 id="fileNameDisplay">Klik atau tap untuk pilih file</h3>
+                    <p id="fileSizeDisplay">PDF, Gambar, Video, Dokumen, dll.</p>
+                </label>
+
+                <div class="form-group">
+                    <label>KETERANGAN TAMBAHAN (OPSIONAL)</label>
+                    <input type="text" id="captionInput" class="form-control" placeholder="Contoh: Materi pertemuan 5 Pak Dosen">
+                </div>
+
+                <button id="uploadBtn" class="btn-primary" disabled onclick="handleUpload()">Upload ke Server & Telegram</button>
+                <p style="font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 12px;">
+                    File akan langsung tersinkronisasi dua arah ke grup Telegram.
+                </p>
+            </div>
+        </section>
+
+        <!-- VIEW: JADWAL KULIAH -->
+        <section id="view-jadwal" class="view-section">
+            <div class="page-header" style="margin-bottom: 20px;">
+                <h2 style="font-size: 20px; font-weight: 800;">Jadwal Semester Gasal 2026/2027</h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Sistem Informasi - Kelas 5P52 & 5P52A</p>
+            </div>
+
+            <div class="schedule-grid" id="scheduleContainer">
+                <!-- Rendered by JS -->
+            </div>
+        </section>
+
+    </main>
 </div>
 
-<div id="toast" class="hidden"></div>
+<div id="toast">✅ Pesan notifikasi</div>
 
+<!-- ================= JAVASCRIPT ================= -->
 <script>
-const API="https://telegram-semester5-bot.onrender.com";
-const icons={"Cloud Computing":"☁️","Audit Sistem Informasi":"📋","Keamanan Sistem Informasi":"🔐","Visualisasi Data & Data Science":"📊","Business Intelligence System":"💡","Manajemen Proyek":"📁","Metodologi Penelitian & Publikasi":"🔬","Pemrograman Berbasis Mobile I":"📱","Dokumentasi Semester 5":"🗂️"};
-let token=localStorage.getItem("semester5_token")||"";let topics=[];let selected="";let registerMode=false;let isAdmin=false;
-const $=id=>document.getElementById(id);
+    // --- KONFIGURASI API ---
+    const API = "https://telegram-semester5-bot.onrender.com";
+    const icons = {
+        "Cloud Computing": "☁️",
+        "Audit Sistem Informasi": "📋",
+        "Keamanan Sistem Informasi": "🔐",
+        "Visualisasi Data & Data Science": "📊",
+        "Business Intelligence System": "💡",
+        "Manajemen Proyek": "📁",
+        "Metodologi Penelitian & Publikasi": "🔬",
+        "Pemrograman Berbasis Mobile I": "📱",
+        "Dokumentasi Semester 5": "🗂️"
+    };
 
-function toast(msg){$("toast").textContent=msg;$("toast").classList.remove("hidden");setTimeout(()=>$("toast").classList.add("hidden"),3000)}
-function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+    // --- DATA JADWAL (Hardcoded based on user image) ---
+    const jadwalData = [
+        {
+            day: "Senin",
+            classes: [
+                { time: "13:00 - 14:40", name: "Cloud Computing (Teori)", room: "B1.2", dosen: "Era Yunianto, M.Kom", code: "5P52" },
+                { time: "15:00 - 16:40", name: "Cloud Computing (Praktek)", room: "LAB 3", dosen: "Era Yunianto, M.Kom", code: "5P52A" }
+            ]
+        },
+        {
+            day: "Rabu",
+            classes: [
+                { time: "09:15 - 10:55", name: "Audit Sistem Informasi", room: "A1.2", dosen: "Satriedi Wahyu Binabar, M.Kom", code: "5P52" },
+                { time: "11:00 - 12:40", name: "Keamanan Sistem Informasi", room: "C.6", dosen: "M. Faizal Kurniawan, M.Kom", code: "5P52" },
+                { time: "13:00 - 14:40", name: "Visualisasi Data (Teori)", room: "C.3", dosen: "Nurul Amalia, M.Kom", code: "5P52" },
+                { time: "15:00 - 16:40", name: "Visualisasi Data (Praktek)", room: "LAB 5", dosen: "Nurul Amalia, M.Kom", code: "5P52A" }
+            ]
+        },
+        {
+            day: "Kamis",
+            classes: [
+                { time: "07:30 - 09:10", name: "Business Inteligence System", room: "B1.2", dosen: "Eny Jumiati, M.Kom", code: "5P52" },
+                { time: "09:15 - 10:55", name: "Business Inteligence System", room: "B1.2", dosen: "Eny Jumiati, M.Kom", code: "5P52" },
+                { time: "13:00 - 14:40", name: "Manajemen Proyek", room: "B1.2", dosen: "Indrayanti, M.Kom", code: "5P52" }
+            ]
+        },
+        {
+            day: "Jumat",
+            classes: [
+                { time: "07:30 - 09:10", name: "Metodologi Penelitian & Publikasi", room: "D1.1", dosen: "Eko Budi Susanto, M.Kom", code: "5P52" },
+                { time: "09:15 - 10:55", name: "Pemrograman Berbasis Mobile I", room: "A1.1", dosen: "Arochman, M.Kom", code: "5P52" },
+                { time: "13:00 - 14:40", name: "Pemrograman Berbasis Mobile I", room: "LAB 1", dosen: "Arochman, M.Kom", code: "5P52A" }
+            ]
+        }
+    ];
 
-async function api(path,opt={}){
-  opt.headers=opt.headers||{};
-  if(token)opt.headers.Authorization="Bearer "+token;
-  const r=await fetch(API+path,opt);
-  if(r.status===401||r.status===403){
-    let d={};try{d=await r.json()}catch(e){};
-    if(d.error==="Maaf, kamu di-banned.")throw new Error(d.error);
-    token="";localStorage.removeItem("semester5_token");showLogin();throw new Error("Sesi login berakhir.");
-  }
-  return r;
-}
+    // --- STATE MANAGEMENT ---
+    let token = localStorage.getItem("semester5_token") || "";
+    let currentUser = "";
+    let isAdmin = false;
+    let topicsList = [];
+    let selectedTopicId = "";
+    let registerMode = false;
+    let syncInterval;
 
-function showLogin(){$("loginPage").classList.remove("hidden");$("app").classList.add("hidden")}
-function showApp(){$("loginPage").classList.add("hidden");$("app").classList.remove("hidden")}
-
-$("registerToggle").onclick=()=>{
-  registerMode=!registerMode;$("loginError").classList.add("hidden");
-  if(registerMode){
-    $("loginSub").textContent="Buat akun kamu";$("loginButton").textContent="📝 Buat Akun";$("registerToggle").textContent="🔐 Sudah punya akun? Masuk";
-    $("confirmWrap").classList.remove("hidden");$("confirmPassword").required=true;$("password").autocomplete="new-password";$("registerNote").classList.remove("hidden");
-  }else{
-    $("loginSub").textContent="Study hub pribadi kamu";$("loginButton").textContent="🔐 Masuk";$("registerToggle").textContent="📝 Belum punya akun? Buat akun";
-    $("confirmWrap").classList.add("hidden");$("confirmPassword").required=false;$("confirmPassword").value="";$("password").autocomplete="current-password";$("registerNote").classList.add("hidden");
-  }
-};
-
-$("loginForm").addEventListener("submit",async e=>{
-  e.preventDefault();$("loginButton").disabled=true;$("loginError").classList.add("hidden");
-  const username=$("username").value.trim(),password=$("password").value,confirm=$("confirmPassword").value;
-  try{
-    if(registerMode){
-      $("loginButton").textContent="⏳ Membuat akun...";
-      const r=await fetch(API+"/api/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password,confirm})});
-      const d=await r.json();
-      if(!r.ok||!d.ok)throw new Error(d.error||"Pendaftaran gagal.");
-      registerMode=false;$("loginSub").textContent="Study hub pribadi kamu";$("loginButton").textContent="🔐 Masuk";$("registerToggle").textContent="📝 Belum punya akun? Buat akun";
-      $("confirmWrap").classList.add("hidden");$("confirmPassword").required=false;$("confirmPassword").value="";$("registerNote").classList.add("hidden");$("password").value="";
-      toast("✅ Akun berhasil dibuat. Silakan login.");
-    }else{
-      $("loginButton").textContent="⏳ Memeriksa...";
-      const r=await fetch(API+"/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password})});
-      const d=await r.json();
-      if(!r.ok||!d.ok)throw new Error(d.error||"Login gagal.");
-      token=d.token;localStorage.setItem("semester5_token",token);showApp();$("welcome").textContent="Login sebagai @"+d.username;await loadTopics();toast("✅ Berhasil masuk");
-    }
-  }catch(err){$("loginError").textContent="❌ "+err.message;$("loginError").classList.remove("hidden")}finally{$("loginButton").disabled=false;$("loginButton").textContent=registerMode?"📝 Buat Akun":"🔐 Masuk"}
-});
-
-$("logout").onclick=()=>{token="";localStorage.removeItem("semester5_token");selected="";showLogin()};
-
-async function loadTopics(){
-  $("topics").innerHTML='<div class="loading">Memuat mata kuliah...</div>';
-  try{
-    const r=await api("/api/topics"),d=await r.json();
-    if(!r.ok||!d.ok)throw new Error(d.error||"Gagal memuat mata kuliah.");
-    topics=d.topics||[];isAdmin=!!d.is_admin;renderTopics();renderSelect();renderAdminTopics();
-  }catch(e){$("topics").innerHTML='<div class="empty">⚠️ '+esc(e.message)+"</div>"}
-}
-
-function topicId(t){if(typeof t==="string")return t;const raw=t?.id??t?.thread_id??t?.topic_id??t?.value;if(raw&&typeof raw==="object")return String(raw.id??raw.thread_id??raw.topic_id??"");return String(raw??"")}
-function topicName(t){if(typeof t==="string")return t;return String(t?.name??t?.title??t?.topic_name??"Tanpa nama")}
-
-function renderAdminTopics(){
-  const panel=$("adminPanel");
-  if(!isAdmin){panel.classList.add("hidden");return}
-  panel.classList.remove("hidden");
-  const allTopics=topics.length?topics:[];
-  $("adminTopics").innerHTML=allTopics.length?allTopics.map(t=>{
-    const id=topicId(t),name=topicName(t),visible=t.visible!==false;
-    return `<div class="admin-topic"><div class="admin-topic-name"><span>${icons[name]||"📚"}</span><span>${esc(name)}</span></div><button class="visibility-btn ${visible?"public":"private"}" data-topic="${esc(id)}" data-visible="${visible}">${visible?"👁️ Public":"🔒 Privat"}</button></div>`
-  }).join(""):'<div class="empty" style="padding:15px">Belum ada Topic.</div>';
-  document.querySelectorAll(".visibility-btn").forEach(btn=>{btn.onclick=()=>toggleTopicVisibility(btn.dataset.topic,btn.dataset.visible!=="true")});
-}
-
-async function toggleTopicVisibility(topic,visible){
-  try{
-    const r=await api("/api/topics/visibility",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({topic,visible})});
-    const d=await r.json();
-    if(!r.ok||!d.ok)throw new Error(d.error||"Gagal mengubah visibilitas Topic.");
-    toast(visible?"👁️ Topic sekarang public.":"🔒 Topic disembunyikan dari user.");await loadTopics();
-  }catch(e){toast("❌ "+e.message)}
-}
-
-function renderTopics(){
-  if(!topics.length){$("topics").innerHTML='<div class="empty">Belum ada mata kuliah.</div>';return}
-  $("topics").innerHTML=topics.map(t=>{
-    const id=topicId(t),name=topicName(t);
-    return `<div class="topic ${selected===id?"active":""}" data-id="${esc(id)}"><div class="topic-icon">${icons[name]||"📚"}</div><div class="topic-info"><b>${esc(name)}</b><div class="tid">Topic ${esc(id||"-")}</div></div><div class="chev">›</div></div>`
-  }).join("");
-  document.querySelectorAll(".topic").forEach(x=>x.onclick=()=>selectTopic(x.dataset.id));
-}
-
-function renderSelect(){$("topicSelect").innerHTML='<option value="">Pilih mata kuliah</option>'+topics.map(t=>`<option value="${esc(topicId(t))}">${esc(topicName(t))}</option>`).join("");$("topicSelect").value=selected}
-function selectTopic(id){selected=String(id);$("topicSelect").value=selected;const t=topics.find(x=>topicId(x)===selected),name=t?topicName(t):"Mata kuliah";$("selectedText").textContent=name;$("selectedIcon").textContent=icons[name]||"📚";renderTopics();loadMaterials()}
-$("topicSelect").onchange=e=>e.target.value?selectTopic(e.target.value):clearTopic();
-
-function clearTopic(){selected="";$("selectedText").textContent="Pilih mata kuliah";$("selectedIcon").textContent="📚";renderTopics();$("materials").innerHTML='<div class="empty"><div class="eicon">📚</div>Pilih mata kuliah untuk melihat materi.</div>';$("upload").disabled=true}
-
-async function loadMaterials(quiet=false){
-  if(!selected)return;
-  if(!quiet)$("materials").innerHTML='<div class="loading">⏳ Memuat materi...</div>';
-  try{
-    const r=await api("/api/materials?topic="+encodeURIComponent(selected)),d=await r.json();
-    if(!r.ok||!d.ok)throw new Error(d.error||"Gagal memuat materi.");
-    renderMaterials(d.materials||[])
-  }catch(e){$("materials").innerHTML='<div class="empty">⚠️ '+esc(e.message)+"</div>"}
-}
-
-function size(bytes){if(!bytes)return"0 B";let n=Number(bytes),u=["B","KB","MB","GB"],i=0;while(n>=1024&&i<u.length-1){n/=1024;i++}return n.toFixed(n>=10||i===0?0:1)+" "+u[i]}
-function materialUrl(m){if(!m.url)return"";if(m.url.startsWith("/")){const sep=m.url.includes("?")?"&":"?";return API+m.url+sep+"token="+encodeURIComponent(token)}return m.url}
-
-function renderMaterials(list){
-  if(!list.length){
-    $("materials").innerHTML='<div class="empty"><div class="eicon">📭</div>Belum ada materi di mata kuliah ini.</div>';
-    return;
-  }
-  $("materials").innerHTML=list.map(m=>{
-    const kind=String(m.kind||"").toLowerCase(),url=materialUrl(m),content=String(m.content||m.caption||""),sender=m.sender?`<div class="sender">👤 ${esc(m.sender)}</div>`:"",date=m.date?new Date(m.date).toLocaleString("id-ID"):"",source=m.source==="website"?"Website":"Telegram";
+    // --- UTILS ---
+    const $ = id => document.getElementById(id);
+    const esc = str => String(str ?? "").replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
     
-    const isProxyUrl = !!m.file_id || (url && url.includes("/api/material/"));
-    let preview="";
-    
-    if(kind==="text"){
-        preview=content?`<div class="note">📝 ${esc(content)}</div>`:"";
-    } else if(isProxyUrl && url) {
-        if(kind==="photo"||(m.mime_type||"").startsWith("image/"))preview=`<div class="preview"><img src="${esc(url)}" alt="${esc(m.name||"Foto")}"></div>`;
-        else if(kind==="video"||(m.mime_type||"").startsWith("video/"))preview=`<div class="preview"><video controls preload="metadata" src="${esc(url)}"></video></div>`;
-        else if(kind==="audio"||kind==="voice"||(m.mime_type||"").startsWith("audio/"))preview=`<div class="preview"><audio controls preload="metadata" src="${esc(url)}"></audio></div>`;
-    } else if (!isProxyUrl && kind !== "document") {
-        preview=`<div class="note" style="color:#c62828;background:#ffebee;border-color:#ffcdd2">⚠️ Sedang diproses atau ID gambar hilang. Gunakan tombol 'Telegram' di bawah.</div>`;
+    function showToast(msg, isError = false) {
+        const t = $("toast");
+        t.innerHTML = (isError ? "❌ " : "✅ ") + esc(msg);
+        t.style.background = isError ? "var(--danger)" : "var(--text-main)";
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 3000);
     }
 
-    const caption=content&&kind!=="text"?`<div class="caption">${esc(content)}</div>`:"";
-    const deleteBtn = isAdmin ? `<button class="open" style="background:#ffebee;color:#c62828;border:0;cursor:pointer" onclick="deleteMaterial('${m.id}')">🗑️ Hapus</button>` : '';
+    function formatBytes(bytes) {
+        if (!bytes) return "0 B";
+        const k = 1024, dm = 1, sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
 
-    return `<div class="item"><div class="itemtop"><div class="material-main"><div class="name">${kind==="text"?"📝":"📄"} ${esc(m.name||"Materi")}</div>${sender}<div class="meta">${esc(size(m.size))} • <span class="source-tag">${esc(source)}</span>${date?" • "+esc(date):""}</div>${caption}</div></div>${preview}<div class="material-actions">${url&&kind!=="text"?`<a class="open download" href="${esc(url)}" target="_blank" rel="noopener">📥 Buka / Download</a>`:""}${m.telegram_url?`<a class="open telegram" href="${esc(m.telegram_url)}" target="_blank" rel="noopener">✈️ Telegram</a>`:""}${deleteBtn}</div></div>`
-  }).join("");
-}
+    function updateGreeting() {
+        const hour = new Date().getHours();
+        let waktu = "Malam";
+        if (hour >= 5 && hour < 11) waktu = "Pagi";
+        else if (hour >= 11 && hour < 15) waktu = "Siang";
+        else if (hour >= 15 && hour < 18) waktu = "Sore";
+        
+        $("greetingText").innerHTML = `Selamat ${waktu}, <span style="color:var(--primary)">@${esc(currentUser)}</span> 👋`;
+        
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        $("currentDateText").textContent = new Date().toLocaleDateString('id-ID', options);
+    }
 
-$("fileInput").onchange=()=>{const f=$("fileInput").files[0];if(!f){$("selectedFile").classList.add("hidden");$("upload").disabled=true;return}if(f.size>50*1024*1024){toast("❌ File terlalu besar. Maksimal 50 MB.");$("fileInput").value="";$("selectedFile").classList.add("hidden");$("upload").disabled=true;return}$("selectedFile").textContent="📄 "+f.name+" • "+size(f.size);$("selectedFile").classList.remove("hidden");$("upload").disabled=!selected};
+    // --- API WRAPPER ---
+    async function apiCall(path, options = {}) {
+        options.headers = options.headers || {};
+        if (token) options.headers.Authorization = "Bearer " + token;
+        
+        const res = await fetch(API + path, options);
+        if (res.status === 401 || res.status === 403) {
+            let data = {}; try { data = await res.json() } catch(e){}
+            if (data.error === "Maaf, kamu di-banned.") throw new Error(data.error);
+            logout(false);
+            throw new Error("Sesi berakhir, silakan login ulang.");
+        }
+        return res;
+    }
 
-$("upload").onclick=async()=>{
-  const f=$("fileInput").files[0];if(!selected||!f){toast("⚠️ Pilih mata kuliah dan file.");return}
-  const fd=new FormData();fd.append("topic",selected);fd.append("caption",$("caption").value.trim());fd.append("file",f);
-  $("upload").disabled=true;$("upload").textContent="⏳ Mengupload...";
-  try{
-    const r=await api("/api/upload",{method:"POST",body:fd}),d=await r.json();
-    if(!r.ok||!d.ok)throw new Error(d.error||"Upload gagal.");
-    toast("✅ Materi berhasil diupload!");$("fileInput").value="";$("caption").value="";$("selectedFile").classList.add("hidden");await loadMaterials(true);
-  }catch(e){toast("❌ "+e.message)}finally{$("upload").disabled=!selected;$("upload").textContent="📤 Upload Materi"}
-};
+    // --- ROUTING / SPA LOGIC ---
+    function switchView(viewId) {
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        
+        $( `view-${viewId}` ).classList.add('active');
+        
+        // Update nav UI
+        const navBtn = Array.from(document.querySelectorAll('.nav-item')).find(btn => btn.getAttribute('onclick').includes(viewId));
+        if(navBtn) navBtn.classList.add('active');
 
-$("refresh").onclick=()=>selected?loadMaterials():loadTopics();
+        // Reset specific views
+        if (viewId === 'materi') {
+            $('topicSelection').classList.remove('hidden');$('materialSelection').classList.add('hidden');
+            selectedTopicId = "";
+        }
+    }
 
-async function init(){
-  if(!token){showLogin();return}
-  try{
-    const r=await api("/api/me"),d=await r.json();
-    if(!r.ok||!d.ok)throw new Error("Sesi tidak valid.");
-    showApp();$("welcome").textContent="Login sebagai @"+d.username;await loadTopics();
-  }catch(e){token="";localStorage.removeItem("semester5_token");showLogin()}
-}
-init();
-setInterval(()=>{if(token&&selected)loadMaterials(true)},2500);
+    // --- RENDER JADWAL ---
+    function renderJadwal() {
+        const container = $("scheduleContainer");
+        container.innerHTML = jadwalData.map(hari => `
+            <div class="day-card">
+                <div class="day-header">
+                    <span>${hari.day}</span>
+                    <span style="font-size:11px; background:rgba(255,255,255,0.2); padding:3px 8px; border-radius:10px;">${hari.classes.length} Kelas</span>
+                </div>
+                <div class="day-body">
+                    ${hari.classes.map(cls => `
+                        <div class="class-item">
+                            <div class="class-time"><svg width="12" height="12" style="vertical-align:-2px;margin-right:2px"><use href="#icon-clock"></use></svg> ${cls.time}</div>
+                            <div class="class-name">${esc(cls.name)}</div>
+                            <div class="class-room"><svg width="12" height="12"><use href="#icon-map"></use></svg> Ruang: ${esc(cls.room)} •${esc(cls.code)}</div>
+                            <div class="class-dosen">👤 ${esc(cls.dosen)}</div>
+                        </div>
+                    `).join("")}
+                </div>
+            </div>
+        `).join("");
+    }
 
-async function deleteMaterial(id) {
-  if(!confirm("Yakin ingin menghapus materi ini dari Web dan Telegram secara permanen?")) return;
-  try {
-    const r = await api("/api/material/" + encodeURIComponent(id), { method: "DELETE" });
-    const d = await r.json();
-    if(!r.ok || !d.ok) throw new Error(d.error || "Gagal menghapus.");
-    toast("✅ Materi berhasil dihapus!");
-    loadMaterials(true);
-  } catch(e) {
-    toast("❌ " + e.message);
-  }
-}
+    // --- LOGIN / AUTH ---
+    $("registerToggle").onclick = () => {
+        registerMode = !registerMode;
+        $("loginError").classList.add("hidden");
+        if (registerMode) {
+            $("loginSub").textContent = "Daftar akun baru";
+            $("loginButton").textContent = "Buat Akun Sekarang";
+            $("registerToggle").textContent = "Sudah punya akun? Masuk disini";
+            $("confirmWrap").classList.remove("hidden");
+            $("confirmPassword").required = true;
+        } else {
+            $("loginSub").textContent = "Study hub eksklusif kelas kita.";
+            $("loginButton").textContent = "Masuk ke Dashboard";
+            $("registerToggle").textContent = "Belum punya akun? Buat disini";
+            $("confirmWrap").classList.add("hidden");
+            $("confirmPassword").required = false;
+        }
+    };
 
-// Fungsi Modal Jadwal Kuliah
-function openJadwal(){
-  document.getElementById("jadwalModal").classList.remove("hidden");
-}
-function closeJadwal(){
-  document.getElementById("jadwalModal").classList.add("hidden");
-}
+    $("loginForm").addEventListener("submit", async e => {
+        e.preventDefault();
+        const btn = $("loginButton");
+        const err = $("loginError");
+        btn.disabled = true; err.classList.add("hidden");
+
+        const username = $("username").value.trim();
+        const password = $("password").value;
+        const confirm = $("confirmPassword").value;
+
+        try {
+            if (registerMode) {
+                btn.textContent = "Memproses...";
+                const res = await fetch(API + "/api/register", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password, confirm })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.ok) throw new Error(data.error || "Gagal mendaftar.");
+                
+                showToast("Akun berhasil dibuat! Silakan login.");
+                $("registerToggle").click(); // switch back to login
+                $("password").value = "";
+            } else {
+                btn.textContent = "Mencocokkan data...";
+                const res = await fetch(API + "/api/login", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.ok) throw new Error(data.error || "Login gagal.");
+                
+                token = data.token;
+                localStorage.setItem("semester5_token", token);
+                await initApp();
+                showToast("Berhasil masuk!");
+            }
+        } catch (error) {
+            err.textContent = error.message;
+            err.classList.remove("hidden");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = registerMode ? "Buat Akun Sekarang" : "Masuk ke Dashboard";
+        }
+    });
+
+    function logout(manual = true) {
+        token = ""; localStorage.removeItem("semester5_token");
+        $("app").classList.add("hidden");
+        $("loginPage").classList.remove("hidden");
+        $("loginForm").reset();
+        clearInterval(syncInterval);
+        if(manual) showToast("Berhasil keluar.");
+    }
+
+    // --- CORE APP LOGIC ---
+    async function initApp() {
+        if (!token) return;
+        try {
+            const res = await apiCall("/api/me");
+            const data = await res.json();
+            if (!res.ok || !data.ok) throw new Error("Sesi tidak valid");
+            
+            currentUser = data.username;
+            $("displayUsername").textContent = "@" + currentUser;
+            $("avatarInitials").textContent = currentUser.substring(0, 2).toUpperCase();
+            
+            $("loginPage").classList.add("hidden");
+            $("app").classList.remove("hidden");
+            
+            updateGreeting();
+            renderJadwal();
+            await loadTopics();
+            switchView('home');
+
+            // Auto sync
+            syncInterval = setInterval(() => {
+                if (token && selectedTopicId) loadMaterials(true);
+            }, 3000);
+
+        } catch (e) {
+            logout(false);
+        }
+    }
+
+    // --- TOPICS & ADMIN ---
+    async function loadTopics() {
+        try {
+            const res = await apiCall("/api/topics");
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+            
+            topicsList = data.topics || [];
+            isAdmin = !!data.is_admin;
+            
+            $("displayRole").textContent = isAdmin ? "Administrator" : "Mahasiswa";
+            
+            renderTopicsGrid();
+            renderUploadSelect();
+            renderAdminPanel();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function renderTopicsGrid() {
+        const grid = $("topicsGrid");
+        if (!topicsList.length) {
+            grid.innerHTML = `<div class="empty-state">Belum ada mata kuliah tersedia.</div>`;
+            return;
+        }
+        
+        grid.innerHTML = topicsList.map(t => {
+            const name = t.name || "Mata Kuliah";
+            const icon = icons[name] || "📚";
+            return `
+                <div class="topic-card" onclick="openTopic('${t.id}', '${esc(name)}', '${icon}')">
+                    <div class="topic-icon">${icon}</div>
+                    <div class="topic-info">
+                        <h4>${esc(name)}</h4>
+                        <p>Topic ID: ${t.id}</p>
+                    </div>
+                </div>
+            `;
+        }).join("");
+    }
+
+    function renderUploadSelect() {
+        const sel = $("topicSelect");
+        sel.innerHTML = `<option value="">-- Pilih Mata Kuliah --</option>` + 
+            topicsList.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join("");
+    }
+
+    function renderAdminPanel() {
+        const panel = $("adminPanel");
+        if (!isAdmin) { panel.classList.add("hidden"); return; }
+        
+        panel.classList.remove("hidden");
+        $("adminTopics").innerHTML = topicsList.map(t => {
+            const isPub = t.visible !== false;
+            return `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:var(--bg-body); border-radius:8px;">
+                    <div style="font-size:13px; font-weight:600;">${icons[t.name]||"📚"} ${esc(t.name)}</div>
+                    <button onclick="toggleVisibility('${t.id}', ${!isPub})" style="padding:4px 10px; border-radius:6px; font-size:10px; font-weight:800; background:${isPub? 'var(--success-light)':'var(--danger-light)'}; color:${isPub? 'var(--success)':'var(--danger)'}">
+                        ${isPub ? '👁️ PUBLIC' : '🔒 PRIVAT'}
+                    </button>
+                </div>
+            `;
+        }).join("");
+    }
+
+    async function toggleVisibility(topicId, makeVisible) {
+        try {
+            const res = await apiCall("/api/topics/visibility", {
+                method: "PATCH", headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ topic: topicId, visible: makeVisible })
+            });
+            if(res.ok) { showToast("Visibilitas diubah."); loadTopics(); }
+        } catch(e) { showToast(e.message, true); }
+    }
+
+    // --- MATERIALS ---
+    function openTopic(id, name, icon) {
+        selectedTopicId = id;
+        $("activeTopicName").textContent = name;
+        $("activeTopicIcon").textContent = icon;
+        
+        $("topicSelection").classList.add("hidden");
+        $("materialSelection").classList.remove("hidden");
+        
+        loadMaterials();
+    }
+
+    function backToTopics() {
+        selectedTopicId = "";
+        $("topicSelection").classList.remove("hidden");
+        $("materialSelection").classList.add("hidden");
+    }
+
+    async function loadMaterials(isSilent = false) {
+        if(!selectedTopicId) return;
+        if(!isSilent) $("materialsList").innerHTML = `<div class="empty-state">⏳ Mengambil data dari Telegram...</div>`;
+        
+        try {
+            const res = await apiCall("/api/materials?topic=" + encodeURIComponent(selectedTopicId));
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+            
+            renderMaterialsList(data.materials || []);
+        } catch (e) {
+            if(!isSilent) $("materialsList").innerHTML = `<div class="empty-state">❌ Gagal memuat: ${esc(e.message)}</div>`;
+        }
+    }
+
+    function renderMaterialsList(list) {
+        if(!list.length) {
+            $("materialsList").innerHTML = `<div class="empty-state"><svg><use href="#icon-folder"></use></svg><br>Belum ada materi di sini.</div>`;
+            return;
+        }
+
+        $("materialsList").innerHTML = list.map(m => {
+            const kind = String(m.kind||"").toLowerCase();
+            const isText = kind === "text";
+            
+            let url = m.url || "";
+            if (url.startsWith("/")) url = API + url + (url.includes('?')?'&':'?') + "token=" + encodeURIComponent(token);
+            
+            const isProxy = !!m.file_id || (url && url.includes("/api/material/"));
+            let previewHtml = "";
+
+            if (isText) {
+                previewHtml = m.content ? `<div class="m-note">${esc(m.content)}</div>` : "";
+            } else if (isProxy && url) {
+                if (kind === "photo" || (m.mime_type||"").startsWith("image/")) {
+                    previewHtml = `<div class="m-preview"><img src="${esc(url)}" loading="lazy"></div>`;
+                } else if (kind === "video" || (m.mime_type||"").startsWith("video/")) {
+                    previewHtml = `<div class="m-preview"><video controls src="${esc(url)}"></video></div>`;
+                } else if (kind === "audio" || kind === "voice" || (m.mime_type||"").startsWith("audio/")) {
+                    previewHtml = `<div class="m-preview"><audio controls src="${esc(url)}"></audio></div>`;
+                }
+            } else if (!isProxy && kind !== "document") {
+                previewHtml = `<div class="m-note" style="border-color:var(--danger); color:var(--danger); background:var(--danger-light);">⏳ File sedang diproses Telegram. Gunakan tombol Telegram di bawah.</div>`;
+            }
+
+            const delBtn = isAdmin ? `<button class="m-btn btn-del" onclick="deleteMaterial('${m.id}')">🗑️ Hapus</button>` : '';
+            const downloadBtn = (url && !isText) ? `<a href="${esc(url)}" target="_blank" class="m-btn btn-download">📥 Buka / Download</a>` : '';
+            const teleBtn = m.telegram_url ? `<a href="${esc(m.telegram_url)}" target="_blank" class="m-btn btn-tele">✈️ Telegram</a>` : '';
+
+            return `
+                <div class="material-item">
+                    <div class="material-top">
+                        <div>
+                            <div class="m-name">${isText ? '📝' : '📄'} ${esc(m.name)}</div>
+                            <div class="m-meta">
+                                <span>👤 ${esc(m.sender)}</span> • 
+                                <span>${m.date ? new Date(m.date).toLocaleString('id-ID') : ''}</span>
+                            </div>
+                            <div class="m-meta" style="margin-top:2px;">
+                                <span class="m-tag">${m.source === 'website' ? 'Web' : 'Tele'}</span>
+                                ${!isText ? `<span>${formatBytes(m.size)}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    ${!isText && m.caption ? `<div style="font-size:13px; color:var(--text-muted);">${esc(m.caption)}</div>` : ''}
+                    ${previewHtml}
+                    <div class="m-buttons">
+                        ${downloadBtn} ${teleBtn} ${delBtn}
+                    </div>
+                </div>
+            `;
+        }).join("");
+    }
+
+    async function deleteMaterial(id) {
+        if(!confirm("Hapus file ini permanen dari Web dan Telegram?")) return;
+        try {
+            const res = await apiCall("/api/material/" + encodeURIComponent(id), { method: "DELETE" });
+            if(res.ok) { showToast("Materi terhapus."); loadMaterials(true); }
+            else { const d = await res.json(); throw new Error(d.error); }
+        } catch(e) { showToast(e.message, true); }
+    }
+
+    // --- UPLOAD LOGIC ---
+    const fileInput = $("fileInput");
+    const dropArea = $("dropArea");
+
+    fileInput.addEventListener("change", () => {
+        const f = fileInput.files[0];
+        if(!f) {
+            $("fileNameDisplay").textContent = "Klik atau tap untuk pilih file";
+            $("uploadBtn").disabled = true;
+            return;
+        }
+        if(f.size > 50 * 1024 * 1024) {
+            showToast("File melebihi 50 MB!", true);
+            fileInput.value = "";
+            return;
+        }
+        $("fileNameDisplay").textContent = f.name;
+        $("fileSizeDisplay").textContent = formatBytes(f.size);
+        $("uploadBtn").disabled = false;
+    });
+
+    async function handleUpload() {
+        const f = fileInput.files[0];
+        const topic = $("topicSelect").value;
+        const caption = $("captionInput").value;
+
+        if(!f || !topic) { showToast("Pilih mata kuliah & file!", true); return; }
+
+        const fd = new FormData();
+        fd.append("topic", topic);
+        fd.append("file", f);
+        if(caption) fd.append("caption", caption);
+
+        const btn = $("uploadBtn");
+        btn.textContent = "⏳ Mengupload ke Telegram...";
+        btn.disabled = true;
+
+        try {
+            const res = await apiCall("/api/upload", { method: "POST", body: fd });
+            const data = await res.json();
+            if(!res.ok || !data.ok) throw new Error(data.error || "Gagal upload");
+
+            showToast("Berhasil diupload!");
+            
+            // Reset form
+            fileInput.value = "";
+            $("fileNameDisplay").textContent = "Klik atau tap untuk pilih file";
+            $("fileSizeDisplay").textContent = "PDF, Gambar, Video, Dokumen, dll.";
+            $("captionInput").value = "";
+            $("topicSelect").value = "";
+            
+            // Pindah ke halaman materi untuk melihat hasil
+            switchView('materi');
+            openTopic(topic, topicsList.find(t=>t.id===topic)?.name, icons[topicsList.find(t=>t.id===topic)?.name]);
+
+        } catch(e) {
+            showToast(e.message, true);
+            btn.disabled = false;
+            btn.textContent = "Upload ke Server & Telegram";
+        }
+    }
+
+    // --- STARTUP ---
+    if (token) {
+        initApp();
+    } else {
+        $("loginPage").classList.remove("hidden");
+    }
+
 </script>
 </body>
 </html>
