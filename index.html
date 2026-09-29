@@ -8,55 +8,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         /* =========================================================
-           CSS VARIABLES & RESET (PREMIUM THEME)
+           CSS VARIABLES & RESET (PREMIUM & FAST THEME)
            ========================================================= */
         :root {
-            --bg-body: #f3f4f8;
-            --bg-surface: #ffffff;
-            --bg-surface-glass: rgba(255, 255, 255, 0.85);
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --primary-light: #e0e7ff;
-            --danger: #ef4444;
-            --danger-light: #fee2e2;
-            --success: #10b981;
-            --success-light: #d1fae5;
-            --warning: #f59e0b;
-            --warning-light: #fef3c7;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-            --shadow-float: 0 14px 30px rgba(99, 102, 241, 0.15);
-            --radius-md: 14px;
-            --radius-lg: 22px;
-            --radius-xl: 30px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --nav-width: 270px;
-            --nav-bottom-height: 75px;
+            --bg-body: #f3f4f8; --bg-surface: #ffffff; --bg-surface-glass: rgba(255, 255, 255, 0.85);
+            --primary: #6366f1; --primary-hover: #4f46e5; --primary-light: #e0e7ff;
+            --danger: #ef4444; --danger-light: #fee2e2;
+            --success: #10b981; --success-light: #d1fae5;
+            --warning: #f59e0b; --warning-light: #fef3c7;
+            --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.05);
+            --shadow-float: 0 14px 30px rgba(99,102,241,0.15);
+            --radius-md: 14px; --radius-lg: 22px; --radius-xl: 30px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --nav-width: 270px; --nav-bottom-height: 75px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-body);
-            background-image: radial-gradient(circle at 0% 0%, #e2e8ff 0%, transparent 20%), 
-                              radial-gradient(circle at 100% 100%, #eef2ff 0%, transparent 20%);
-            background-attachment: fixed;
-            color: var(--text-main);
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-            display: flex;
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif; background-color: var(--bg-body);
+            background-image: radial-gradient(circle at 0% 0%, #e2e8ff 0%, transparent 20%), radial-gradient(circle at 100% 100%, #eef2ff 0%, transparent 20%);
+            background-attachment: fixed; color: var(--text-main);
+            -webkit-font-smoothing: antialiased; overflow-x: hidden; display: flex; min-height: 100vh;
         }
 
         button, input, select, textarea { font-family: inherit; }
         button { cursor: pointer; border: none; background: none; transition: var(--transition); }
-        a { text-decoration: none; color: inherit; }
-        ul { list-style: none; }
+        a { text-decoration: none; color: inherit; } ul { list-style: none; }
         .hidden { display: none !important; }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -67,53 +48,22 @@
         /* =========================================================
            LOGIN PAGE
            ========================================================= */
-        #loginPage {
-            position: fixed; inset: 0;
-            background: linear-gradient(135deg, #f0f4ff 0%, #fdfbfb 100%);
-            display: flex; align-items: center; justify-content: center;
-            padding: 20px; z-index: 1000;
-        }
-
-        .login-box {
-            background: var(--bg-surface-glass);
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            padding: 45px 40px; border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-lg); width: 100%; max-width: 420px;
-            border: 1px solid rgba(255,255,255,0.7);
-        }
-
+        #loginPage { position: fixed; inset: 0; background: linear-gradient(135deg, #f0f4ff 0%, #fdfbfb 100%); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
+        .login-box { background: var(--bg-surface-glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); padding: 45px 40px; border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); width: 100%; max-width: 420px; border: 1px solid rgba(255,255,255,0.7); }
         .login-header { text-align: center; margin-bottom: 35px; }
-        .login-logo {
-            width: 70px; height: 70px; background: linear-gradient(135deg, var(--primary), #8b5cf6);
-            border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 18px; color: white; box-shadow: var(--shadow-float);
-        }
+        .login-logo { width: 70px; height: 70px; background: linear-gradient(135deg, var(--primary), #8b5cf6); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; color: white; box-shadow: var(--shadow-float); }
         .login-header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.8px; }
         .login-header p { color: var(--text-muted); font-size: 14px; margin-top: 6px; font-weight: 500; }
-
         .form-group { margin-bottom: 18px; }
-        .form-group label {
-            display: block; font-size: 11px; font-weight: 800;
-            color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.8px;
-        }
-        .form-control {
-            width: 100%; padding: 15px 18px; border: 2px solid var(--border); border-radius: var(--radius-md);
-            font-size: 14px; font-weight: 500; background: white; transition: var(--transition);
-        }
+        .form-group label { display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.8px; }
+        .form-control { width: 100%; padding: 15px 18px; border: 2px solid var(--border); border-radius: var(--radius-md); font-size: 14px; font-weight: 500; background: white; transition: var(--transition); }
         .form-control:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px var(--primary-light); }
-
-        .btn-primary {
-            width: 100%; padding: 15px; background: linear-gradient(135deg, var(--primary), #5a5ce6); color: white;
-            font-weight: 800; font-size: 15px; border-radius: var(--radius-md);
-            margin-top: 10px; box-shadow: var(--shadow-float);
-        }
+        .btn-primary { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--primary), #5a5ce6); color: white; font-weight: 800; font-size: 15px; border-radius: var(--radius-md); margin-top: 10px; box-shadow: var(--shadow-float); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
         .btn-primary:active { transform: translateY(0); }
         .btn-primary:disabled { opacity: 0.7; transform: none; cursor: not-allowed; }
-
         .link-btn { width: 100%; text-align: center; margin-top: 20px; font-size: 14px; font-weight: 700; color: var(--primary); }
         .link-btn:hover { color: var(--primary-hover); }
-
         .alert { padding: 14px 18px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
         .alert-error { background: var(--danger-light); color: var(--danger); border: 1px solid #fecaca; }
 
@@ -121,46 +71,33 @@
            APP LAYOUT
            ========================================================= */
         #app { display: flex; width: 100%; min-height: 100vh; }
-
-        .sidebar {
-            width: var(--nav-width); background: var(--bg-surface); border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 50;
-        }
-
+        .sidebar { width: var(--nav-width); background: var(--bg-surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 50; }
         .sidebar-header { padding: 28px 24px; display: flex; align-items: center; gap: 14px; }
-        .sidebar-logo {
-            width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, var(--primary), #8b5cf6);
-            color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 18px rgba(99, 102, 241, 0.3);
-        }
+        .sidebar-logo { width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, var(--primary), #8b5cf6); color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 18px rgba(99, 102, 241, 0.3); }
         .sidebar-title h2 { font-size: 19px; font-weight: 800; letter-spacing: -0.5px; }
         .sidebar-title span { font-size: 11px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; }
-
         .nav-menu { padding: 12px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
-        .nav-item {
-            display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: var(--radius-md);
-            color: var(--text-muted); font-weight: 700; font-size: 15px; transition: var(--transition); position: relative;
-        }
+        .nav-item { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: var(--radius-md); color: var(--text-muted); font-weight: 700; font-size: 15px; transition: var(--transition); position: relative; }
         .nav-item svg { width: 22px; height: 22px; stroke-width: 2.5; transition: var(--transition); }
         .nav-item:hover { background: var(--bg-body); color: var(--text-main); }
         .nav-item.active { background: var(--primary-light); color: var(--primary); }
+        .mobile-only-nav { display: none; } /* Hide mobile logout on desktop */
 
         .user-profile { padding: 20px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
         .user-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
-        .user-avatar {
-            width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #e2e8f0, #cbd5e1); 
-            display: flex; align-items: center; justify-content: center; font-weight: 800; color: #475569; flex-shrink: 0; font-size: 14px;
-        }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #e2e8f0, #cbd5e1); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #475569; flex-shrink: 0; font-size: 14px; }
         .user-avatar.owner-avatar { background: linear-gradient(135deg, #ffd700, #ff8c00); color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         .user-name { font-size: 14px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .user-role { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
-        
         .btn-logout { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--danger); background: var(--danger-light); }
         .btn-logout:hover { background: #fecaca; transform: scale(1.05); }
 
         .main-content { flex: 1; margin-left: var(--nav-width); padding: 40px 48px 100px; max-width: 1300px; }
-        .view-section { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .view-section.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Fast Animation */
+        .view-section { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .view-section.active { display: block; opacity: 1; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* =========================================================
            COMPONENTS
@@ -178,64 +115,38 @@
 
         /* Topic Grid */
         .topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
-        .topic-card {
-            background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px;
-            display: flex; align-items: center; gap: 16px; cursor: pointer; transition: var(--transition); position: relative;
-        }
+        .topic-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: var(--transition); position: relative; }
         .topic-card:hover { border-color: #a5b4fc; box-shadow: var(--shadow-md); transform: translateY(-3px); }
         .topic-card.pinned { background: #fcfaff; border-color: #d8b4fe; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.08); }
-        
-        .topic-icon {
-            width: 52px; height: 52px; border-radius: 14px; background: var(--primary-light); color: var(--primary);
-            display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0;
-        }
+        .topic-icon { width: 52px; height: 52px; border-radius: 14px; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
         .topic-info { flex: 1; }
         .topic-info h4 { font-size: 15px; font-weight: 800; line-height: 1.3; }
         .topic-info p { font-size: 12px; color: var(--text-muted); margin-top: 5px; font-weight: 500;}
         
-        .pin-btn {
-            position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
-            width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            background: transparent; color: #cbd5e1; transition: var(--transition); z-index: 10;
-        }
+        /* PIN BUTTON - DIPERBESAR SUPAYA GAMPANG DI-KLIK HP */
+        .pin-btn { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: transparent; color: #cbd5e1; transition: var(--transition); z-index: 10; cursor: pointer; }
         .pin-btn:hover { background: #f1f5f9; color: var(--warning); }
         .topic-card.pinned .pin-btn { color: var(--warning); }
 
         /* Materials View */
-        .material-actions-bar {
-            display: flex; justify-content: space-between; align-items: center; background: white; padding: 14px 20px; 
-            border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 20px; box-shadow: var(--shadow-sm);
-        }
+        .material-actions-bar { display: flex; justify-content: space-between; align-items: center; background: white; padding: 14px 20px; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 20px; box-shadow: var(--shadow-sm); }
         .selected-topic-label { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 16px; }
         .btn-icon { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; background: var(--bg-body); border: 1px solid var(--border); }
         .btn-icon:hover { background: #e2e8f0; transform: translateY(-1px); }
 
         .material-list { display: flex; flex-direction: column; gap: 14px; }
-        .material-item {
-            background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px;
-            display: flex; flex-direction: column; gap: 14px; transition: var(--transition); animation: slideUp 0.3s ease forwards;
-            position: relative;
-        }
+        .material-item { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; display: flex; flex-direction: column; gap: 14px; transition: var(--transition); animation: slideUp 0.3s ease forwards; position: relative; }
         .material-item:hover { border-color: #cbd5e1; box-shadow: var(--shadow-md); }
-        .material-item.pinned-msg {
-            background: #fffcf2; border-color: #fde047; box-shadow: 0 4px 20px rgba(250, 204, 21, 0.1);
-        }
-        
+        .material-item.pinned-msg { background: #fffcf2; border-color: #fde047; box-shadow: 0 4px 20px rgba(250, 204, 21, 0.1); }
         .material-top { display: flex; justify-content: space-between; align-items: flex-start; }
         .m-name { font-weight: 800; font-size: 16px; line-height: 1.4; word-break: break-word; }
         .m-meta { font-size: 12px; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; gap: 8px; font-weight: 500;}
         .m-tag { background: var(--primary-light); color: var(--primary); padding: 3px 8px; border-radius: 6px; font-weight: 800; font-size: 10px; }
-        
-        .deadline-badge {
-            background: var(--danger-light); color: var(--danger); padding: 6px 12px; border-radius: 8px;
-            font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #fecaca; margin-top: 8px;
-        }
-
+        .deadline-badge { background: var(--danger-light); color: var(--danger); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #fecaca; margin-top: 8px; }
         .m-preview { border-radius: var(--radius-md); overflow: hidden; background: #0f172a; max-height: 350px; border: 1px solid var(--border);}
         .m-preview img, .m-preview video { width: 100%; height: 100%; object-fit: contain; max-height: 350px; display: block; }
         .m-preview audio { width: 100%; display: block; margin-top: 10px; }
         .m-note { background: #f8fafc; border-left: 4px solid var(--primary); padding: 14px 16px; border-radius: 0 var(--radius-md) var(--radius-md) 0; font-size: 14px; line-height: 1.6; white-space: pre-wrap; font-weight: 500;}
-        
         .m-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px;}
         .m-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 800; }
         .btn-download { background: var(--text-main); color: white; }
@@ -244,13 +155,13 @@
         .btn-pin { background: #f1f5f9; color: var(--text-muted); }
         .material-item.pinned-msg .btn-pin { background: var(--warning-light); color: var(--warning); }
 
-        /* Upload View */
-        .upload-area {
-            border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: var(--radius-lg); padding: 50px 20px;
-            text-align: center; cursor: pointer; transition: var(--transition); margin: 15px 0 25px;
-        }
+        /* Upload View (Tabs Type) */
+        .upload-type-selector { display: flex; gap: 10px; margin-bottom: 20px; }
+        .type-btn { flex: 1; padding: 12px; border-radius: 12px; border: 2px solid var(--border); background: white; font-weight: 800; font-size: 14px; color: var(--text-muted); transition: var(--transition); text-align: center; }
+        .type-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+        .upload-area { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: var(--radius-lg); padding: 40px 20px; text-align: center; cursor: pointer; transition: var(--transition); }
         .upload-area:hover { border-color: var(--primary); background: var(--primary-light); }
-        .upload-icon { width: 56px; height: 56px; color: var(--primary); margin-bottom: 16px; }
+        .upload-icon { width: 48px; height: 48px; color: var(--primary); margin-bottom: 12px; }
 
         /* Schedule View */
         .schedule-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
@@ -264,29 +175,22 @@
         .class-room { font-size: 13px; color: var(--text-muted); font-weight: 600; margin-top: 6px; display: flex; align-items: center; gap: 6px;}
 
         /* PREMIUM TOAST */
-        #toast {
-            position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-150px);
-            background: var(--text-main); color: white; padding: 14px 24px; border-radius: 100px; font-size: 14px; font-weight: 700;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.25); z-index: 9999; transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            display: flex; align-items: center; gap: 10px;
-        }
+        #toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-150px); background: var(--text-main); color: white; padding: 14px 24px; border-radius: 100px; font-size: 14px; font-weight: 700; box-shadow: 0 15px 35px rgba(0,0,0,0.25); z-index: 9999; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; gap: 10px; }
         #toast.show { transform: translateX(-50%) translateY(0); }
         .empty-state { text-align: center; padding: 50px 20px; color: var(--text-muted); font-weight: 600;}
         .empty-state svg { width: 56px; height: 56px; color: #cbd5e1; margin-bottom: 16px; }
 
         @media (max-width: 768px) {
-            .sidebar {
-                top: auto; bottom: 0; width: 100%; height: var(--nav-bottom-height); flex-direction: row; border-right: none; 
-                background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-                border-top: 1px solid rgba(0,0,0,0.08); padding: 0; box-shadow: 0 -10px 25px rgba(0,0,0,0.04);
-            }
+            .sidebar { top: auto; bottom: 0; width: 100%; height: var(--nav-bottom-height); flex-direction: row; border-right: none; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid rgba(0,0,0,0.08); padding: 0; box-shadow: 0 -10px 25px rgba(0,0,0,0.04); }
             .sidebar-header, .user-profile { display: none; }
-            .nav-menu { flex-direction: row; justify-content: space-around; align-items: center; padding: 0; padding-bottom: env(safe-area-inset-bottom); }
-            .nav-item { flex-direction: column; gap: 6px; padding: 10px; border-radius: 0; font-size: 11px; font-weight: 800; flex: 1; text-align: center; background: transparent !important; position: relative; }
-            .nav-item svg { width: 24px; height: 24px; }
+            .nav-menu { flex-direction: row; justify-content: space-around; align-items: center; padding: 0; padding-bottom: env(safe-area-inset-bottom); width: 100%; }
+            .nav-item { flex-direction: column; gap: 6px; padding: 10px 0; border-radius: 0; font-size: 10px; font-weight: 800; flex: 1; text-align: center; background: transparent !important; position: relative; }
+            .nav-item svg { width: 22px; height: 22px; }
             .nav-item.active { color: var(--primary); }
             .nav-item.active svg { transform: translateY(-3px); }
-            .nav-item.active::after { content: ''; position: absolute; top: -1px; left: 50%; transform: translateX(-50%); width: 35px; height: 4px; background: var(--primary); border-radius: 0 0 4px 4px; }
+            .nav-item.active::after { content: ''; position: absolute; top: -1px; left: 50%; transform: translateX(-50%); width: 35px; height: 3px; background: var(--primary); border-radius: 0 0 4px 4px; }
+            .mobile-only-nav { display: block; } /* Show logout on mobile */
+            
             .main-content { margin-left: 0; padding: 24px 20px calc(var(--nav-bottom-height) + 30px); }
             .page-header { margin-top: 10px; margin-bottom: 24px;}
             .greeting { font-size: 26px; }
@@ -310,6 +214,7 @@
         <symbol id="icon-map" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></symbol>
         <symbol id="icon-file" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></symbol>
         <symbol id="icon-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 4.5l-4 4L7 8.5 5.5 10l3.5 3.5-4.5 4.5 1.5 1.5 4.5-4.5L14 18.5l1.5-1.5-1-4 4-4-3.5-3.5z" /></symbol>
+        <symbol id="icon-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></symbol>
     </defs>
 </svg>
 
@@ -348,16 +253,18 @@
         </div>
         <ul class="nav-menu">
             <li><button class="nav-item active" onclick="switchView('home')"><svg><use href="#icon-home"></use></svg> Dashboard</button></li>
-            <li><button class="nav-item" onclick="switchView('materi'); loadTopics();"><svg><use href="#icon-folder"></use></svg> Materi Kuliah</button></li>
-            <li><button class="nav-item" onclick="switchView('jadwal')"><svg><use href="#icon-calendar"></use></svg> Jadwal Kelas</button></li>
-            <li><button class="nav-item" onclick="switchView('upload'); loadTopics();"><svg><use href="#icon-upload"></use></svg> Upload File</button></li>
+            <li><button class="nav-item" onclick="switchView('materi'); loadTopics();"><svg><use href="#icon-folder"></use></svg> Materi</button></li>
+            <li><button class="nav-item" onclick="switchView('jadwal')"><svg><use href="#icon-calendar"></use></svg> Jadwal</button></li>
+            <li><button class="nav-item" onclick="switchView('upload'); loadTopics();"><svg><use href="#icon-upload"></use></svg> Upload</button></li>
+            <!-- MOBILE LOGOUT BUTTON -->
+            <li class="mobile-only-nav"><button class="nav-item" onclick="logout()" style="color: var(--danger);"><svg><use href="#icon-logout"></use></svg> Keluar</button></li>
         </ul>
         <div class="user-profile">
             <div class="user-info">
                 <div class="user-avatar" id="avatarInitials">US</div>
                 <div><div class="user-name" id="displayUsername">User</div><div class="user-role" id="displayRole">Mahasiswa</div></div>
             </div>
-            <button class="btn-logout" onclick="logout()" title="Keluar"><svg width="22" height="22"><use href="#icon-logout"></use></svg></button>
+            <button class="btn-logout" onclick="logout()" title="Keluar"><svg width="20" height="20"><use href="#icon-logout"></use></svg></button>
         </div>
     </nav>
 
@@ -371,11 +278,11 @@
             <div class="card" style="margin-bottom: 28px; background: linear-gradient(135deg, var(--primary), #8b5cf6); color: white; border:none; box-shadow: var(--shadow-float);">
                 <h2 style="font-size: 24px; font-weight: 900; margin-bottom: 10px; letter-spacing: -0.5px;">Selamat datang di Study Hub!</h2>
                 <p style="font-size: 15px; opacity: 0.95; max-width: 550px; line-height: 1.6; margin-bottom: 24px; font-weight: 500;">
-                    Semua materi, PDF, catatan, dan jadwal kelas Semester 5 terkumpul rapi di sini. Tersinkronisasi otomatis dengan grup Telegram kita.
+                    Semua materi, PDF, catatan, dan jadwal kelas Semester 5 terkumpul rapi di sini.
                 </p>
                 <div style="display: flex; gap: 14px; flex-wrap: wrap;">
-                    <button onclick="switchView('jadwal')" style="background: rgba(255,255,255,0.2); color: white; padding: 12px 20px; border-radius: 12px; font-weight: 800; font-size: 14px; backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.3); transition: var(--transition);">Lihat Jadwal Hari Ini</button>
-                    <button onclick="switchView('materi'); loadTopics();" style="background: white; color: var(--primary); padding: 12px 20px; border-radius: 12px; font-weight: 900; font-size: 14px; transition: var(--transition); box-shadow: 0 4px 15px rgba(0,0,0,0.1);">Buka Materi</button>
+                    <button onclick="switchView('jadwal')" style="background: rgba(255,255,255,0.2); color: white; padding: 12px 20px; border-radius: 12px; font-weight: 800; font-size: 14px; backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.3);">Lihat Jadwal</button>
+                    <button onclick="switchView('materi'); loadTopics();" style="background: white; color: var(--primary); padding: 12px 20px; border-radius: 12px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">Buka Materi</button>
                 </div>
             </div>
 
@@ -389,7 +296,7 @@
             <div id="topicSelection">
                 <div class="card-header">
                     <h2 class="card-title">Pilih Mata Kuliah</h2>
-                    <span class="badge" style="background: var(--warning-light); color:var(--warning)">📌 Pin Tersimpan di HP Kamu</span>
+                    <span class="badge" style="background: var(--warning-light); color:var(--warning)">📌 Pin Tersimpan di HP</span>
                 </div>
                 <div id="topicsGrid" class="topic-grid"><div class="empty-state"><svg><use href="#icon-folder"></use></svg><div>Memuat mata kuliah...</div></div></div>
             </div>
@@ -399,7 +306,7 @@
                     <div class="selected-topic-label"><span id="activeTopicIcon" style="font-size: 22px;">📚</span><span id="activeTopicName" style="letter-spacing: -0.3px;">Nama Matkul</span></div>
                     <div style="display: flex; gap: 10px;">
                         <button class="btn-icon" onclick="backToTopics()">Kembali</button>
-                        <button class="btn-icon" onclick="loadMaterials(true)" style="background: var(--primary-light); color: var(--primary); border-color: transparent;"><svg width="16" height="16"><use href="#icon-refresh"></use></svg> Segarkan</button>
+                        <button class="btn-icon" onclick="loadMaterials(true)" style="background: var(--primary-light); color: var(--primary); border-color: transparent;"><svg width="16" height="16"><use href="#icon-refresh"></use></svg> Refresh</button>
                     </div>
                 </div>
                 <div id="materialsList" class="material-list"></div>
@@ -408,27 +315,44 @@
 
         <section id="view-upload" class="view-section">
             <div class="card">
-                <div class="card-header"><h2 class="card-title">📤 Upload Materi / Tugas</h2><span class="badge badge-primary">MAX 50 MB</span></div>
+                <div class="card-header"><h2 class="card-title">📤 Upload & Tambah Catatan</h2></div>
                 
                 <div class="form-group">
                     <label>MATA KULIAH</label>
                     <select id="topicSelect" class="form-control" style="font-weight: 700; color: var(--primary);"><option value="">-- Pilih Mata Kuliah --</option></select>
                 </div>
 
-                <input type="file" id="fileInput" class="hidden">
-                <label for="fileInput" class="upload-area" id="dropArea">
-                    <svg class="upload-icon"><use href="#icon-upload"></use></svg>
-                    <h3 id="fileNameDisplay">Klik atau tap untuk pilih file</h3>
-                    <p id="fileSizeDisplay">PDF, Gambar, Video, Dokumen, dll.</p>
-                </label>
+                <!-- TABS TIPE UPLOAD -->
+                <div class="upload-type-selector">
+                    <button class="type-btn active" id="btnTypeFile" onclick="setUploadType('file')"><svg width="16" height="16" style="vertical-align:-3px; margin-right:4px;"><use href="#icon-upload"></use></svg> Upload File</button>
+                    <button class="type-btn" id="btnTypeNote" onclick="setUploadType('note')"><svg width="16" height="16" style="vertical-align:-3px; margin-right:4px;"><use href="#icon-edit"></use></svg> Buat Catatan Teks</button>
+                </div>
 
-                <!-- FITUR BARU: TENGGAT WAKTU (DEADLINE) -->
+                <!-- AREA FILE -->
+                <div id="areaFile">
+                    <input type="file" id="fileInput" class="hidden">
+                    <label for="fileInput" class="upload-area" id="dropArea">
+                        <svg class="upload-icon"><use href="#icon-upload"></use></svg>
+                        <h3 id="fileNameDisplay">Klik atau tap untuk pilih file</h3>
+                        <p id="fileSizeDisplay">PDF, Gambar, Video, Dokumen, dll.</p>
+                    </label>
+                </div>
+
+                <!-- AREA CATATAN (TERSEMBUNYI DEFAULT) -->
+                <div id="areaNote" class="hidden">
+                    <div class="form-group">
+                        <label>TULIS CATATAN KAMU DI SINI</label>
+                        <textarea id="noteInput" class="form-control" rows="6" placeholder="Ketik catatan, rangkuman, atau info penting di sini..."></textarea>
+                    </div>
+                </div>
+
+                <!-- TENGGAT WAKTU (DEADLINE) -->
                 <div class="form-group" style="background: var(--warning-light); padding: 16px; border-radius: var(--radius-md); border: 1px dashed #fcd34d;">
                     <label style="color: #b45309; display: flex; align-items: center; gap: 6px;">
-                        <svg width="14" height="14"><use href="#icon-calendar"></use></svg> ATUR DEADLINE TUGAS (OPSIONAL)
+                        <svg width="14" height="14"><use href="#icon-calendar"></use></svg> ATUR DEADLINE (OPSIONAL)
                     </label>
                     <input type="datetime-local" id="deadlineInput" class="form-control" style="border-color: #fde68a;">
-                    <p style="font-size:11px; color:#b45309; margin-top:6px; font-weight:600;">Kosongkan jika hanya materi biasa.</p>
+                    <p style="font-size:11px; color:#b45309; margin-top:6px; font-weight:600;">Kosongkan jika bukan tugas.</p>
                 </div>
 
                 <div class="form-group" style="margin-top: 20px;">
@@ -436,8 +360,8 @@
                     <input type="text" id="captionInput" class="form-control" placeholder="Contoh: Materi pertemuan 5 Pak Dosen">
                 </div>
 
-                <button id="uploadBtn" class="btn-primary" disabled onclick="handleUpload()" style="font-size: 16px; padding: 16px;">🚀 Upload ke Server & Telegram</button>
-                <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 14px; font-weight: 600;">🔒 Tersinkronisasi dua arah ke grup Telegram.</p>
+                <button id="uploadBtn" class="btn-primary" onclick="handleUpload()" style="font-size: 16px; padding: 16px;">🚀 Kirim ke Server & Telegram</button>
+                <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 14px; font-weight: 600;">🔒 Tersinkronisasi otomatis dua arah.</p>
             </div>
         </section>
 
@@ -468,8 +392,9 @@
 
     let token = localStorage.getItem("semester5_token") || "";
     let currentUser = ""; let isAdmin = false; let topicsList = []; let selectedTopicId = ""; let registerMode = false; let syncInterval;
+    let currentUploadType = 'file'; // 'file' or 'note'
     
-    // LOAD LOCAL STORAGE PINS
+    // LOAD PINS
     let pinnedTopics = JSON.parse(localStorage.getItem('semester5_pinned_topics') || '[]');
     let pinnedMaterials = JSON.parse(localStorage.getItem('semester5_pinned_materials') || '[]');
 
@@ -477,8 +402,7 @@
     const esc = str => String(str ?? "").replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
     
     function formatSenderName(rawName) {
-        if (!rawName) return "Unknown";
-        const low = String(rawName).toLowerCase().trim();
+        if (!rawName) return "Unknown"; const low = String(rawName).toLowerCase().trim();
         if (low === "admin" || low === "@admin" || low === "brownmatcha" || low === "@brownmatcha") return "padil 👑";
         return String(rawName).startsWith("@") ? rawName : "@" + rawName;
     }
@@ -506,8 +430,6 @@
         options.headers = options.headers || {}; if (token) options.headers.Authorization = "Bearer " + token;
         const res = await fetch(API + path, options);
         if (res.status === 401 || res.status === 403) {
-            let data = {}; try { data = await res.json() } catch(e){}
-            if (data.error === "Maaf, kamu di-banned.") throw new Error(data.error);
             logout(false); throw new Error("Sesi berakhir, silakan login ulang.");
         }
         return res;
@@ -517,8 +439,8 @@
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         $( `view-${viewId}` ).classList.add('active');
-        const navBtn = Array.from(document.querySelectorAll('.nav-item')).find(btn => btn.getAttribute('onclick').includes(viewId));
-        if(navBtn) navBtn.classList.add('active');
+        const navBtns = document.querySelectorAll('.nav-item');
+        navBtns.forEach(btn => { if(btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${viewId}'`)) btn.classList.add('active'); });
         if (viewId === 'materi') { $('topicSelection').classList.remove('hidden');$('materialSelection').classList.add('hidden'); selectedTopicId = ""; }
     }
 
@@ -573,18 +495,16 @@
 
     // --- TOGGLE PIN LOGIC ---
     window.toggleTopicPin = function(e, topicId) {
-        e.stopPropagation(); // Mencegah masuk ke topic saat klik pin
-        if(pinnedTopics.includes(topicId)) pinnedTopics = pinnedTopics.filter(id => id !== topicId);
-        else pinnedTopics.push(topicId);
+        e.preventDefault(); e.stopPropagation(); // Mencegah masuk ke topic saat diklik
+        if(pinnedTopics.includes(topicId)) pinnedTopics = pinnedTopics.filter(id => id !== topicId); else pinnedTopics.push(topicId);
         localStorage.setItem('semester5_pinned_topics', JSON.stringify(pinnedTopics));
-        renderTopicsGrid(); // Re-render dengan urutan baru
+        renderTopicsGrid(); 
     };
 
     window.toggleMaterialPin = function(materialId) {
-        if(pinnedMaterials.includes(materialId)) pinnedMaterials = pinnedMaterials.filter(id => id !== materialId);
-        else pinnedMaterials.push(materialId);
+        if(pinnedMaterials.includes(materialId)) pinnedMaterials = pinnedMaterials.filter(id => id !== materialId); else pinnedMaterials.push(materialId);
         localStorage.setItem('semester5_pinned_materials', JSON.stringify(pinnedMaterials));
-        loadMaterials(true); // Re-render
+        loadMaterials(true); 
     };
 
     async function loadTopics() {
@@ -599,27 +519,14 @@
         const grid = $("topicsGrid");
         if (!topicsList.length) { grid.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;"><svg><use href="#icon-folder"></use></svg><br>Belum ada mata kuliah tersedia.</div>`; return; }
         
-        // Sorting: Pinned duluan
         let sortedTopics = [...topicsList].sort((a,b) => {
-            let isPinnedA = pinnedTopics.includes(a.id);
-            let isPinnedB = pinnedTopics.includes(b.id);
-            if (isPinnedA && !isPinnedB) return -1;
-            if (!isPinnedA && isPinnedB) return 1;
-            return 0;
+            let pA = pinnedTopics.includes(a.id); let pB = pinnedTopics.includes(b.id);
+            if (pA && !pB) return -1; if (!pA && pB) return 1; return 0;
         });
 
         grid.innerHTML = sortedTopics.map(t => {
-            const name = t.name || "Mata Kuliah"; const icon = icons[name] || "📚";
-            const isPinned = pinnedTopics.includes(t.id);
-            return `
-                <div class="topic-card ${isPinned ? 'pinned' : ''}" onclick="openTopic('${t.id}', '${esc(name)}', '${icon}')">
-                    <div class="topic-icon">${icon}</div>
-                    <div class="topic-info"><h4>${esc(name)}</h4><p>Topic ID: ${t.id}</p></div>
-                    <button class="pin-btn" onclick="toggleTopicPin(event, '${t.id}')" title="Pin ke atas">
-                        <svg width="20" height="20"><use href="#icon-pin"></use></svg>
-                    </button>
-                </div>
-            `;
+            const name = t.name || "Mata Kuliah"; const icon = icons[name] || "📚"; const isPinned = pinnedTopics.includes(t.id);
+            return `<div class="topic-card ${isPinned ? 'pinned' : ''}" onclick="openTopic('${t.id}', '${esc(name)}', '${icon}')"><div class="topic-icon">${icon}</div><div class="topic-info"><h4>${esc(name)}</h4><p>Topic ID: ${t.id}</p></div><div class="pin-btn" onclick="toggleTopicPin(event, '${t.id}')"><svg width="24" height="24"><use href="#icon-pin"></use></svg></div></div>`;
         }).join("");
     }
 
@@ -634,10 +541,7 @@
         }).join("");
     }
 
-    async function toggleVisibility(topicId, makeVisible) {
-        try { const res = await apiCall("/api/topics/visibility", { method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ topic: topicId, visible: makeVisible }) }); if(res.ok) { showToast(makeVisible ? "Topic dibuka public." : "Topic di-privat."); loadTopics(); } } catch(e) { showToast(e.message, true); }
-    }
-
+    async function toggleVisibility(topicId, makeVisible) { try { const res = await apiCall("/api/topics/visibility", { method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ topic: topicId, visible: makeVisible }) }); if(res.ok) { showToast(makeVisible ? "Topic dibuka public." : "Topic di-privat."); loadTopics(); } } catch(e) { showToast(e.message, true); } }
     function openTopic(id, name, icon) { selectedTopicId = id; $("activeTopicName").textContent = name; $("activeTopicIcon").textContent = icon; $("topicSelection").classList.add("hidden"); $("materialSelection").classList.remove("hidden"); loadMaterials(); }
     function backToTopics() { selectedTopicId = ""; $("topicSelection").classList.remove("hidden"); $("materialSelection").classList.add("hidden"); }
 
@@ -651,28 +555,23 @@
     function renderMaterialsList(list) {
         if(!list.length) { $("materialsList").innerHTML = `<div class="empty-state"><svg><use href="#icon-folder"></use></svg><br>Belum ada materi di sini.</div>`; return; }
 
-        // Sorting Material (Pinned di Atas)
         let sortedList = [...list].sort((a,b) => {
             let pA = pinnedMaterials.includes(a.id); let pB = pinnedMaterials.includes(b.id);
             if(pA && !pB) return -1; if(!pA && pB) return 1; return 0;
         });
 
         $("materialsList").innerHTML = sortedList.map(m => {
-            const kind = String(m.kind||"").toLowerCase(); const isText = kind === "text";
+            const kind = String(m.kind||"").toLowerCase(); const isText = kind === "text" || (m.filename && m.filename.endsWith('.txt') && m.size < 10000);
             let url = m.url || ""; if (url.startsWith("/")) url = API + url + (url.includes('?')?'&':'?') + "token=" + encodeURIComponent(token);
             const isProxy = !!m.file_id || (url && url.includes("/api/material/"));
-            let previewHtml = "";
-            let captionText = esc(m.content || m.caption || "");
-
-            // CEK APAKAH ADA FORMAT DEADLINE DI DALAM CAPTION
+            let previewHtml = ""; let captionText = esc(m.content || m.caption || "");
             let deadlineHtml = "";
             if (captionText.includes("⏰ DEADLINE:")) {
-                const parts = captionText.split("⏰ DEADLINE:");
-                captionText = parts[0].trim(); // Ambil teks sebelum tulisan deadline
-                const deadlineTime = parts[1].trim(); // Ambil teks sesudah tulisan deadline
-                deadlineHtml = `<div class="deadline-badge"><svg width="14" height="14"><use href="#icon-clock"></use></svg> DEADLINE: ${deadlineTime}</div>`;
+                const parts = captionText.split("⏰ DEADLINE:"); captionText = parts[0].trim();
+                deadlineHtml = `<div class="deadline-badge"><svg width="14" height="14"><use href="#icon-clock"></use></svg> DEADLINE: ${parts[1].trim()}</div>`;
             }
 
+            // Jika itu file teks dari fitur "Buat Catatan", tampilkan sebagai note
             if (isText) { previewHtml = captionText ? `<div class="m-note">${captionText}</div>` : ""; } 
             else if (isProxy && url) {
                 if (kind === "photo" || (m.mime_type||"").startsWith("image/")) previewHtml = `<div class="m-preview"><img src="${esc(url)}" loading="lazy"></div>`;
@@ -682,7 +581,6 @@
 
             const isOwner = formatSenderName(m.sender).includes("padil 👑");
             const isPinned = pinnedMaterials.includes(m.id);
-
             const pinBtn = `<button class="m-btn btn-pin" onclick="toggleMaterialPin('${m.id}')">📌 ${isPinned ? 'Unpin' : 'Pin'}</button>`;
             const downloadBtn = (url && !isText) ? `<a href="${esc(url)}" target="_blank" class="m-btn btn-download">📥 Buka File</a>` : '';
             const teleBtn = m.telegram_url ? `<a href="${esc(m.telegram_url)}" target="_blank" class="m-btn btn-tele">✈️ Telegram</a>` : '';
@@ -690,19 +588,16 @@
 
             return `
                 <div class="material-item ${isPinned ? 'pinned-msg' : ''}">
-                    <div class="material-top">
-                        <div>
-                            <div class="m-name"><svg width="18" height="18" style="vertical-align:-3px; color:var(--primary); margin-right:4px;"><use href="#icon-file"></use></svg> ${esc(m.name)}</div>
-                            <div class="m-meta"><span style="font-weight:${isOwner ? '900':'600'}; color:${isOwner ? 'var(--primary)':'inherit'}">👤 ${formatSenderName(m.sender)}</span> • <span>${m.date ? new Date(m.date).toLocaleString('id-ID') : ''}</span></div>
-                            <div class="m-meta" style="margin-top:4px;"><span class="m-tag">${m.source === 'website' ? 'Web' : 'Tele'}</span>${!isText ? `<span>${formatBytes(m.size)}</span>` : ''}</div>
-                        </div>
-                    </div>
+                    <div class="material-top"><div>
+                        <div class="m-name"><svg width="18" height="18" style="vertical-align:-3px; color:var(--primary); margin-right:4px;"><use href="#icon-file"></use></svg> ${isText ? 'Catatan Baru' : esc(m.name)}</div>
+                        <div class="m-meta"><span style="font-weight:${isOwner ? '900':'600'}; color:${isOwner ? 'var(--primary)':'inherit'}">👤 ${formatSenderName(m.sender)}</span> • <span>${m.date ? new Date(m.date).toLocaleString('id-ID') : ''}</span></div>
+                        <div class="m-meta" style="margin-top:4px;"><span class="m-tag">${m.source === 'website' ? 'Web' : 'Tele'}</span>${!isText ? `<span>${formatBytes(m.size)}</span>` : ''}</div>
+                    </div></div>
                     ${!isText && captionText ? `<div style="font-size:14px; color:var(--text-muted); font-weight:500; white-space:pre-wrap;">${captionText}</div>` : ''}
                     ${deadlineHtml}
                     ${previewHtml}
                     <div class="m-buttons">${pinBtn} ${downloadBtn} ${teleBtn} ${delBtn}</div>
-                </div>
-            `;
+                </div>`;
         }).join("");
     }
 
@@ -710,34 +605,56 @@
 
     const fileInput = $("fileInput");
     fileInput.addEventListener("change", () => {
-        const f = fileInput.files[0]; if(!f) { $("fileNameDisplay").textContent = "Klik atau tap untuk pilih file"; $("uploadBtn").disabled = true; return; }
+        const f = fileInput.files[0]; if(!f) { $("fileNameDisplay").textContent = "Klik atau tap untuk pilih file"; return; }
         if(f.size > 50 * 1024 * 1024) { showToast("File melebihi batas 50 MB!", true); fileInput.value = ""; return; }
-        $("fileNameDisplay").textContent = f.name; $("fileSizeDisplay").textContent = formatBytes(f.size); $("uploadBtn").disabled = false;
+        $("fileNameDisplay").textContent = f.name; $("fileSizeDisplay").textContent = formatBytes(f.size);
     });
 
+    function setUploadType(type) {
+        currentUploadType = type;
+        if(type === 'file') {
+            $("btnTypeFile").classList.add("active"); $("btnTypeNote").classList.remove("active");
+            $("areaFile").classList.remove("hidden"); $("areaNote").classList.add("hidden");
+        } else {
+            $("btnTypeNote").classList.add("active"); $("btnTypeFile").classList.remove("active");
+            $("areaNote").classList.remove("hidden"); $("areaFile").classList.add("hidden");
+        }
+    }
+
     async function handleUpload() {
-        const f = fileInput.files[0]; const topic = $("topicSelect").value; 
+        const topic = $("topicSelect").value; 
         let caption = $("captionInput").value;
         const deadline = $("deadlineInput").value;
 
-        if(!f || !topic) { showToast("Pilih mata kuliah & file!", true); return; }
+        if(!topic) { showToast("Pilih mata kuliah terlebih dahulu!", true); return; }
 
-        // INJEKSI TANGGAL DEADLINE KE CAPTION
+        let fileToUpload = null;
+        if (currentUploadType === 'file') {
+            fileToUpload = fileInput.files[0];
+            if(!fileToUpload) { showToast("Pilih file yang mau diupload!", true); return; }
+        } else {
+            const noteText = $("noteInput").value.trim();
+            if(!noteText) { showToast("Isi catatanmu terlebih dahulu!", true); return; }
+            // Trik cerdas: Ubah text jadi file .txt agar backend menerimanya dengan mulus
+            fileToUpload = new File([noteText], "Catatan.txt", { type: "text/plain" });
+            caption = caption || noteText; // Jadikan text sebagai caption jg agar terbaca di web
+        }
+
         if (deadline) {
             const dateObj = new Date(deadline);
             const dateStr = dateObj.toLocaleString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
             caption = caption + `\n\n⏰ DEADLINE: ${dateStr}`;
         }
 
-        const fd = new FormData(); fd.append("topic", topic); fd.append("file", f); if(caption) fd.append("caption", caption);
+        const fd = new FormData(); fd.append("topic", topic); fd.append("file", fileToUpload); if(caption) fd.append("caption", caption);
         const btn = $("uploadBtn"); btn.textContent = "⏳ Memproses Upload..."; btn.disabled = true;
 
         try {
             const res = await apiCall("/api/upload", { method: "POST", body: fd }); const data = await res.json(); if(!res.ok || !data.ok) throw new Error(data.error || "Gagal upload");
             showToast("Berhasil diupload ke Telegram!");
-            fileInput.value = ""; $("fileNameDisplay").textContent = "Klik atau tap untuk pilih file"; $("fileSizeDisplay").textContent = "PDF, Gambar, Video, Dokumen, dll."; $("captionInput").value = ""; $("deadlineInput").value = ""; $("topicSelect").value = "";
+            fileInput.value = ""; $("fileNameDisplay").textContent = "Klik atau tap untuk pilih file"; $("fileSizeDisplay").textContent = "PDF, Gambar, Video, Dokumen, dll."; $("captionInput").value = ""; $("deadlineInput").value = ""; $("noteInput").value = ""; $("topicSelect").value = "";
             switchView('materi'); openTopic(topic, topicsList.find(t=>t.id===topic)?.name, icons[topicsList.find(t=>t.id===topic)?.name]);
-        } catch(e) { showToast(e.message, true); } finally { btn.disabled = false; btn.textContent = "🚀 Upload ke Server & Telegram"; }
+        } catch(e) { showToast(e.message, true); } finally { btn.disabled = false; btn.textContent = "🚀 Kirim ke Server & Telegram"; }
     }
 
     if (token) initApp(); else $("loginPage").classList.remove("hidden");
