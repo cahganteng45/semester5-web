@@ -21,6 +21,8 @@
             --danger-light: #fee2e2;
             --success: #10b981;
             --success-light: #d1fae5;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
             --text-main: #0f172a;
             --text-muted: #64748b;
             --border: #e2e8f0;
@@ -57,7 +59,6 @@
         ul { list-style: none; }
         .hidden { display: none !important; }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -83,12 +84,9 @@
 
         .login-header { text-align: center; margin-bottom: 35px; }
         .login-logo {
-            width: 70px; height: 70px;
-            background: linear-gradient(135deg, var(--primary), #8b5cf6);
-            border-radius: var(--radius-lg);
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 18px; color: white;
-            box-shadow: var(--shadow-float);
+            width: 70px; height: 70px; background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 18px; color: white; box-shadow: var(--shadow-float);
         }
         .login-header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.8px; }
         .login-header p { color: var(--text-muted); font-size: 14px; margin-top: 6px; font-weight: 500; }
@@ -99,16 +97,13 @@
             color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.8px;
         }
         .form-control {
-            width: 100%; padding: 15px 18px;
-            border: 2px solid var(--border); border-radius: var(--radius-md);
-            font-size: 14px; font-weight: 500; background: white;
-            transition: var(--transition);
+            width: 100%; padding: 15px 18px; border: 2px solid var(--border); border-radius: var(--radius-md);
+            font-size: 14px; font-weight: 500; background: white; transition: var(--transition);
         }
         .form-control:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px var(--primary-light); }
 
         .btn-primary {
-            width: 100%; padding: 15px;
-            background: linear-gradient(135deg, var(--primary), #5a5ce6); color: white;
+            width: 100%; padding: 15px; background: linear-gradient(135deg, var(--primary), #5a5ce6); color: white;
             font-weight: 800; font-size: 15px; border-radius: var(--radius-md);
             margin-top: 10px; box-shadow: var(--shadow-float);
         }
@@ -116,82 +111,53 @@
         .btn-primary:active { transform: translateY(0); }
         .btn-primary:disabled { opacity: 0.7; transform: none; cursor: not-allowed; }
 
-        .link-btn {
-            width: 100%; text-align: center; margin-top: 20px;
-            font-size: 14px; font-weight: 700; color: var(--primary);
-        }
+        .link-btn { width: 100%; text-align: center; margin-top: 20px; font-size: 14px; font-weight: 700; color: var(--primary); }
         .link-btn:hover { color: var(--primary-hover); }
 
-        .alert {
-            padding: 14px 18px; border-radius: var(--radius-md);
-            font-size: 13px; font-weight: 600; margin-bottom: 24px;
-            display: flex; align-items: center; gap: 8px;
-        }
+        .alert { padding: 14px 18px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
         .alert-error { background: var(--danger-light); color: var(--danger); border: 1px solid #fecaca; }
 
         /* =========================================================
-           APP LAYOUT (SIDEBAR & MOBILE BOTTOM NAV)
+           APP LAYOUT
            ========================================================= */
         #app { display: flex; width: 100%; min-height: 100vh; }
 
         .sidebar {
-            width: var(--nav-width); background: var(--bg-surface);
-            border-right: 1px solid var(--border);
-            display: flex; flex-direction: column;
-            position: fixed; top: 0; bottom: 0; left: 0; z-index: 50;
+            width: var(--nav-width); background: var(--bg-surface); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 50;
         }
 
         .sidebar-header { padding: 28px 24px; display: flex; align-items: center; gap: 14px; }
         .sidebar-logo {
-            width: 44px; height: 44px; border-radius: 14px;
-            background: linear-gradient(135deg, var(--primary), #8b5cf6);
-            color: white; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 8px 18px rgba(99, 102, 241, 0.3);
+            width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 18px rgba(99, 102, 241, 0.3);
         }
         .sidebar-title h2 { font-size: 19px; font-weight: 800; letter-spacing: -0.5px; }
         .sidebar-title span { font-size: 11px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; }
 
         .nav-menu { padding: 12px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
         .nav-item {
-            display: flex; align-items: center; gap: 14px;
-            padding: 14px 18px; border-radius: var(--radius-md);
-            color: var(--text-muted); font-weight: 700; font-size: 15px;
-            transition: var(--transition); position: relative;
+            display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: var(--radius-md);
+            color: var(--text-muted); font-weight: 700; font-size: 15px; transition: var(--transition); position: relative;
         }
         .nav-item svg { width: 22px; height: 22px; stroke-width: 2.5; transition: var(--transition); }
         .nav-item:hover { background: var(--bg-body); color: var(--text-main); }
         .nav-item.active { background: var(--primary-light); color: var(--primary); }
 
-        .user-profile {
-            padding: 20px; border-top: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: space-between;
-        }
+        .user-profile { padding: 20px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
         .user-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
         .user-avatar {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: linear-gradient(135deg, #e2e8f0, #cbd5e1); 
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 800; color: #475569; flex-shrink: 0; font-size: 14px;
+            width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #e2e8f0, #cbd5e1); 
+            display: flex; align-items: center; justify-content: center; font-weight: 800; color: #475569; flex-shrink: 0; font-size: 14px;
         }
-        .user-avatar.owner-avatar {
-            background: linear-gradient(135deg, #ffd700, #ff8c00); color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
+        .user-avatar.owner-avatar { background: linear-gradient(135deg, #ffd700, #ff8c00); color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         .user-name { font-size: 14px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .user-role { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
         
-        .btn-logout {
-            width: 40px; height: 40px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--danger); background: var(--danger-light);
-        }
+        .btn-logout { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--danger); background: var(--danger-light); }
         .btn-logout:hover { background: #fecaca; transform: scale(1.05); }
 
-        /* MAIN CONTENT AREA */
-        .main-content {
-            flex: 1; margin-left: var(--nav-width);
-            padding: 40px 48px 100px; max-width: 1300px;
-        }
-
+        .main-content { flex: 1; margin-left: var(--nav-width); padding: 40px 48px 100px; max-width: 1300px; }
         .view-section { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .view-section.active { display: block; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -203,176 +169,134 @@
         .greeting { font-size: 32px; font-weight: 900; letter-spacing: -1px; margin-bottom: 8px; }
         .date-text { color: var(--text-muted); font-size: 15px; font-weight: 600; }
 
-        .card {
-            background: var(--bg-surface); border: 1px solid var(--border);
-            border-radius: var(--radius-lg); padding: 28px;
-            box-shadow: var(--shadow-sm);
-        }
+        .card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm); }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .card-title { font-size: 19px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
         .badge { padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: 800; letter-spacing: 0.5px; }
         .badge-primary { background: var(--primary-light); color: var(--primary); }
+        .badge-warning { background: var(--warning-light); color: var(--warning); border: 1px solid #fde68a; }
 
         /* Topic Grid */
         .topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
         .topic-card {
-            background: var(--bg-surface); border: 1px solid var(--border);
-            border-radius: var(--radius-md); padding: 20px;
-            display: flex; align-items: center; gap: 16px;
-            cursor: pointer; transition: var(--transition);
+            background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px;
+            display: flex; align-items: center; gap: 16px; cursor: pointer; transition: var(--transition); position: relative;
         }
         .topic-card:hover { border-color: #a5b4fc; box-shadow: var(--shadow-md); transform: translateY(-3px); }
+        .topic-card.pinned { background: #fcfaff; border-color: #d8b4fe; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.08); }
+        
         .topic-icon {
-            width: 52px; height: 52px; border-radius: 14px;
-            background: var(--primary-light); color: var(--primary);
+            width: 52px; height: 52px; border-radius: 14px; background: var(--primary-light); color: var(--primary);
             display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0;
         }
+        .topic-info { flex: 1; }
         .topic-info h4 { font-size: 15px; font-weight: 800; line-height: 1.3; }
         .topic-info p { font-size: 12px; color: var(--text-muted); margin-top: 5px; font-weight: 500;}
+        
+        .pin-btn {
+            position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+            width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            background: transparent; color: #cbd5e1; transition: var(--transition); z-index: 10;
+        }
+        .pin-btn:hover { background: #f1f5f9; color: var(--warning); }
+        .topic-card.pinned .pin-btn { color: var(--warning); }
 
         /* Materials View */
         .material-actions-bar {
-            display: flex; justify-content: space-between; align-items: center;
-            background: white; padding: 14px 20px; border-radius: var(--radius-md);
-            border: 1px solid var(--border); margin-bottom: 20px; box-shadow: var(--shadow-sm);
+            display: flex; justify-content: space-between; align-items: center; background: white; padding: 14px 20px; 
+            border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 20px; box-shadow: var(--shadow-sm);
         }
         .selected-topic-label { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 16px; }
-        .btn-icon {
-            display: flex; align-items: center; gap: 8px;
-            padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700;
-            background: var(--bg-body); border: 1px solid var(--border);
-        }
+        .btn-icon { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; background: var(--bg-body); border: 1px solid var(--border); }
         .btn-icon:hover { background: #e2e8f0; transform: translateY(-1px); }
 
         .material-list { display: flex; flex-direction: column; gap: 14px; }
         .material-item {
-            background: white; border: 1px solid var(--border);
-            border-radius: var(--radius-lg); padding: 20px;
-            display: flex; flex-direction: column; gap: 14px;
-            transition: var(--transition);
-            animation: slideUp 0.3s ease forwards;
+            background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px;
+            display: flex; flex-direction: column; gap: 14px; transition: var(--transition); animation: slideUp 0.3s ease forwards;
+            position: relative;
         }
         .material-item:hover { border-color: #cbd5e1; box-shadow: var(--shadow-md); }
+        .material-item.pinned-msg {
+            background: #fffcf2; border-color: #fde047; box-shadow: 0 4px 20px rgba(250, 204, 21, 0.1);
+        }
         
         .material-top { display: flex; justify-content: space-between; align-items: flex-start; }
         .m-name { font-weight: 800; font-size: 16px; line-height: 1.4; word-break: break-word; }
         .m-meta { font-size: 12px; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; gap: 8px; font-weight: 500;}
         .m-tag { background: var(--primary-light); color: var(--primary); padding: 3px 8px; border-radius: 6px; font-weight: 800; font-size: 10px; }
         
+        .deadline-badge {
+            background: var(--danger-light); color: var(--danger); padding: 6px 12px; border-radius: 8px;
+            font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #fecaca; margin-top: 8px;
+        }
+
         .m-preview { border-radius: var(--radius-md); overflow: hidden; background: #0f172a; max-height: 350px; border: 1px solid var(--border);}
         .m-preview img, .m-preview video { width: 100%; height: 100%; object-fit: contain; max-height: 350px; display: block; }
         .m-preview audio { width: 100%; display: block; margin-top: 10px; }
         .m-note { background: #f8fafc; border-left: 4px solid var(--primary); padding: 14px 16px; border-radius: 0 var(--radius-md) var(--radius-md) 0; font-size: 14px; line-height: 1.6; white-space: pre-wrap; font-weight: 500;}
         
         .m-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px;}
-        .m-btn {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 800;
-        }
+        .m-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 800; }
         .btn-download { background: var(--text-main); color: white; }
-        .btn-download:hover { background: #334155; transform: translateY(-2px); }
         .btn-tele { background: #e0f2fe; color: #0284c7; }
-        .btn-tele:hover { background: #bae6fd; transform: translateY(-2px); }
         .btn-del { background: var(--danger-light); color: var(--danger); }
-        .btn-del:hover { background: #fecaca; transform: translateY(-2px); }
+        .btn-pin { background: #f1f5f9; color: var(--text-muted); }
+        .material-item.pinned-msg .btn-pin { background: var(--warning-light); color: var(--warning); }
 
         /* Upload View */
         .upload-area {
-            border: 2px dashed #cbd5e1; background: #f8fafc;
-            border-radius: var(--radius-lg); padding: 50px 20px;
-            text-align: center; cursor: pointer; transition: var(--transition);
-            margin: 15px 0 25px;
+            border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: var(--radius-lg); padding: 50px 20px;
+            text-align: center; cursor: pointer; transition: var(--transition); margin: 15px 0 25px;
         }
         .upload-area:hover { border-color: var(--primary); background: var(--primary-light); }
         .upload-icon { width: 56px; height: 56px; color: var(--primary); margin-bottom: 16px; }
-        .upload-area h3 { font-size: 17px; font-weight: 800; margin-bottom: 6px; }
-        .upload-area p { font-size: 13px; color: var(--text-muted); font-weight: 500;}
 
         /* Schedule View */
         .schedule-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
-        .day-card {
-            background: white; border: 1px solid var(--border); border-radius: var(--radius-lg);
-            overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition);
-        }
-        .day-card:hover { box-shadow: var(--shadow-md); border-color: #cbd5e1; transform: translateY(-2px); }
-        .day-header {
-            background: linear-gradient(135deg, var(--primary), #8b5cf6); color: white; padding: 16px 24px;
-            font-weight: 900; font-size: 16px; letter-spacing: 0.5px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
+        .day-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); }
+        .day-header { background: linear-gradient(135deg, var(--primary), #8b5cf6); color: white; padding: 16px 24px; font-weight: 900; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
         .day-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
-        .class-item {
-            padding-left: 18px; border-left: 3px solid var(--primary-light); position: relative;
-        }
-        .class-item::before {
-            content: ''; position: absolute; left: -7px; top: 2px;
-            width: 11px; height: 11px; border-radius: 50%; background: var(--primary);
-            border: 2px solid white;
-        }
+        .class-item { padding-left: 18px; border-left: 3px solid var(--primary-light); position: relative; }
+        .class-item::before { content: ''; position: absolute; left: -7px; top: 2px; width: 11px; height: 11px; border-radius: 50%; background: var(--primary); border: 2px solid white; }
         .class-time { font-size: 13px; font-weight: 800; color: var(--primary); margin-bottom: 6px; }
         .class-name { font-size: 15px; font-weight: 800; color: var(--text-main); line-height: 1.3; }
         .class-room { font-size: 13px; color: var(--text-muted); font-weight: 600; margin-top: 6px; display: flex; align-items: center; gap: 6px;}
-        .class-dosen { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 500;}
 
-        /* PREMIUM TOAST NOTIFICATION (TOP) */
+        /* PREMIUM TOAST */
         #toast {
             position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-150px);
-            background: var(--text-main); color: white; padding: 14px 24px;
-            border-radius: 100px; font-size: 14px; font-weight: 700;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.25); z-index: 9999; 
-            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy Apple Effect */
+            background: var(--text-main); color: white; padding: 14px 24px; border-radius: 100px; font-size: 14px; font-weight: 700;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25); z-index: 9999; transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             display: flex; align-items: center; gap: 10px;
         }
         #toast.show { transform: translateX(-50%) translateY(0); }
-        
         .empty-state { text-align: center; padding: 50px 20px; color: var(--text-muted); font-weight: 600;}
         .empty-state svg { width: 56px; height: 56px; color: #cbd5e1; margin-bottom: 16px; }
 
-        /* =========================================================
-           RESPONSIVE MOBILE (NATIVE APP FEEL)
-           ========================================================= */
         @media (max-width: 768px) {
             .sidebar {
-                top: auto; bottom: 0; width: 100%; height: var(--nav-bottom-height);
-                flex-direction: row; border-right: none; 
-                background: rgba(255, 255, 255, 0.85);
-                backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-                border-top: 1px solid rgba(0,0,0,0.08);
-                padding: 0; box-shadow: 0 -10px 25px rgba(0,0,0,0.04);
+                top: auto; bottom: 0; width: 100%; height: var(--nav-bottom-height); flex-direction: row; border-right: none; 
+                background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+                border-top: 1px solid rgba(0,0,0,0.08); padding: 0; box-shadow: 0 -10px 25px rgba(0,0,0,0.04);
             }
             .sidebar-header, .user-profile { display: none; }
-            .nav-menu { 
-                flex-direction: row; justify-content: space-around; align-items: center;
-                padding: 0; padding-bottom: env(safe-area-inset-bottom);
-            }
-            .nav-item {
-                flex-direction: column; gap: 6px; padding: 10px; border-radius: 0;
-                font-size: 11px; font-weight: 800; flex: 1; text-align: center;
-                background: transparent !important; position: relative;
-            }
+            .nav-menu { flex-direction: row; justify-content: space-around; align-items: center; padding: 0; padding-bottom: env(safe-area-inset-bottom); }
+            .nav-item { flex-direction: column; gap: 6px; padding: 10px; border-radius: 0; font-size: 11px; font-weight: 800; flex: 1; text-align: center; background: transparent !important; position: relative; }
             .nav-item svg { width: 24px; height: 24px; }
             .nav-item.active { color: var(--primary); }
             .nav-item.active svg { transform: translateY(-3px); }
-            .nav-item.active::after {
-                content: ''; position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
-                width: 35px; height: 4px; background: var(--primary); border-radius: 0 0 4px 4px;
-            }
-            
+            .nav-item.active::after { content: ''; position: absolute; top: -1px; left: 50%; transform: translateX(-50%); width: 35px; height: 4px; background: var(--primary); border-radius: 0 0 4px 4px; }
             .main-content { margin-left: 0; padding: 24px 20px calc(var(--nav-bottom-height) + 30px); }
             .page-header { margin-top: 10px; margin-bottom: 24px;}
             .greeting { font-size: 26px; }
-            
-            .topic-grid { grid-template-columns: 1fr; }
-            .schedule-grid { grid-template-columns: 1fr; }
-            
-            /* Make toast smaller for mobile but keep it on top! */
+            .topic-grid, .schedule-grid { grid-template-columns: 1fr; }
             #toast { top: 16px; padding: 12px 20px; font-size: 13px; width: 90%; justify-content: center;}
         }
     </style>
 </head>
 <body>
 
-<!-- SVG ICONS DEFS -->
 <svg width="0" height="0" class="hidden">
     <defs>
         <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></symbol>
@@ -385,16 +309,14 @@
         <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></symbol>
         <symbol id="icon-map" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></symbol>
         <symbol id="icon-file" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></symbol>
+        <symbol id="icon-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 4.5l-4 4L7 8.5 5.5 10l3.5 3.5-4.5 4.5 1.5 1.5 4.5-4.5L14 18.5l1.5-1.5-1-4 4-4-3.5-3.5z" /></symbol>
     </defs>
 </svg>
 
-<!-- ================= LOGIN PAGE ================= -->
 <div id="loginPage">
     <div class="login-box">
         <div class="login-header">
-            <div class="login-logo">
-                <svg width="36" height="36"><use href="#icon-book"></use></svg>
-            </div>
+            <div class="login-logo"><svg width="36" height="36"><use href="#icon-book"></use></svg></div>
             <h1>Semester 5</h1>
             <p id="loginSub">Study hub eksklusif kelas kita.</p>
         </div>
@@ -418,57 +340,33 @@
     </div>
 </div>
 
-<!-- ================= MAIN APP ================= -->
 <div id="app" class="hidden">
-    
-    <!-- Navigation -->
     <nav class="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo"><svg width="24" height="24"><use href="#icon-book"></use></svg></div>
-            <div class="sidebar-title">
-                <h2>Semester 5</h2>
-                <span>Study Hub</span>
-            </div>
+            <div class="sidebar-title"><h2>Semester 5</h2><span>Study Hub</span></div>
         </div>
-        
         <ul class="nav-menu">
-            <li><button class="nav-item active" onclick="switchView('home')">
-                <svg><use href="#icon-home"></use></svg> Dashboard
-            </button></li>
-            <li><button class="nav-item" onclick="switchView('materi'); loadTopics();">
-                <svg><use href="#icon-folder"></use></svg> Materi Kuliah
-            </button></li>
-            <li><button class="nav-item" onclick="switchView('jadwal')">
-                <svg><use href="#icon-calendar"></use></svg> Jadwal Kelas
-            </button></li>
-            <li><button class="nav-item" onclick="switchView('upload'); loadTopics();">
-                <svg><use href="#icon-upload"></use></svg> Upload File
-            </button></li>
+            <li><button class="nav-item active" onclick="switchView('home')"><svg><use href="#icon-home"></use></svg> Dashboard</button></li>
+            <li><button class="nav-item" onclick="switchView('materi'); loadTopics();"><svg><use href="#icon-folder"></use></svg> Materi Kuliah</button></li>
+            <li><button class="nav-item" onclick="switchView('jadwal')"><svg><use href="#icon-calendar"></use></svg> Jadwal Kelas</button></li>
+            <li><button class="nav-item" onclick="switchView('upload'); loadTopics();"><svg><use href="#icon-upload"></use></svg> Upload File</button></li>
         </ul>
-
         <div class="user-profile">
             <div class="user-info">
                 <div class="user-avatar" id="avatarInitials">US</div>
-                <div>
-                    <div class="user-name" id="displayUsername">User</div>
-                    <div class="user-role" id="displayRole">Mahasiswa</div>
-                </div>
+                <div><div class="user-name" id="displayUsername">User</div><div class="user-role" id="displayRole">Mahasiswa</div></div>
             </div>
-            <button class="btn-logout" onclick="logout()" title="Keluar">
-                <svg width="22" height="22"><use href="#icon-logout"></use></svg>
-            </button>
+            <button class="btn-logout" onclick="logout()" title="Keluar"><svg width="22" height="22"><use href="#icon-logout"></use></svg></button>
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="main-content">
-        
         <header class="page-header">
             <h1 class="greeting" id="greetingText">Halo, @username! 👋</h1>
             <p class="date-text" id="currentDateText">Memuat tanggal...</p>
         </header>
 
-        <!-- VIEW: DASHBOARD -->
         <section id="view-home" class="view-section active">
             <div class="card" style="margin-bottom: 28px; background: linear-gradient(135deg, var(--primary), #8b5cf6); color: white; border:none; box-shadow: var(--shadow-float);">
                 <h2 style="font-size: 24px; font-weight: 900; margin-bottom: 10px; letter-spacing: -0.5px;">Selamat datang di Study Hub!</h2>
@@ -481,67 +379,40 @@
                 </div>
             </div>
 
-            <!-- Admin Panel (Only visible to admin) -->
             <div id="adminPanel" class="card hidden" style="margin-bottom: 24px;">
-                <div class="card-header">
-                    <div class="card-title">👑 Panel Admin Topic</div>
-                    <span class="badge badge-primary">ADMIN ONLY</span>
-                </div>
+                <div class="card-header"><div class="card-title">👑 Panel Admin Topic</div><span class="badge badge-primary">ADMIN ONLY</span></div>
                 <div id="adminTopics" style="display: flex; flex-direction: column; gap: 10px;"></div>
             </div>
         </section>
 
-        <!-- VIEW: MATERI (TOPICS & FILES) -->
         <section id="view-materi" class="view-section">
-            
-            <!-- List of Topics -->
             <div id="topicSelection">
                 <div class="card-header">
                     <h2 class="card-title">Pilih Mata Kuliah</h2>
+                    <span class="badge" style="background: var(--warning-light); color:var(--warning)">📌 Pin Tersimpan di HP Kamu</span>
                 </div>
-                <div id="topicsGrid" class="topic-grid">
-                    <div class="empty-state">
-                        <svg><use href="#icon-folder"></use></svg>
-                        <div>Memuat mata kuliah...</div>
-                    </div>
-                </div>
+                <div id="topicsGrid" class="topic-grid"><div class="empty-state"><svg><use href="#icon-folder"></use></svg><div>Memuat mata kuliah...</div></div></div>
             </div>
 
-            <!-- List of Files inside a Topic -->
             <div id="materialSelection" class="hidden">
                 <div class="material-actions-bar">
-                    <div class="selected-topic-label">
-                        <span id="activeTopicIcon" style="font-size: 22px;">📚</span> 
-                        <span id="activeTopicName" style="letter-spacing: -0.3px;">Nama Matkul</span>
-                    </div>
+                    <div class="selected-topic-label"><span id="activeTopicIcon" style="font-size: 22px;">📚</span><span id="activeTopicName" style="letter-spacing: -0.3px;">Nama Matkul</span></div>
                     <div style="display: flex; gap: 10px;">
-                        <button class="btn-icon" onclick="backToTopics()">
-                            Kembali
-                        </button>
-                        <button class="btn-icon" onclick="loadMaterials(true)" style="background: var(--primary-light); color: var(--primary); border-color: transparent;">
-                            <svg width="16" height="16"><use href="#icon-refresh"></use></svg> Segarkan
-                        </button>
+                        <button class="btn-icon" onclick="backToTopics()">Kembali</button>
+                        <button class="btn-icon" onclick="loadMaterials(true)" style="background: var(--primary-light); color: var(--primary); border-color: transparent;"><svg width="16" height="16"><use href="#icon-refresh"></use></svg> Segarkan</button>
                     </div>
                 </div>
-                <div id="materialsList" class="material-list">
-                    <!-- Materials injected here -->
-                </div>
+                <div id="materialsList" class="material-list"></div>
             </div>
         </section>
 
-        <!-- VIEW: UPLOAD -->
         <section id="view-upload" class="view-section">
             <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">📤 Upload Materi Baru</h2>
-                    <span class="badge badge-primary">MAX 50 MB</span>
-                </div>
+                <div class="card-header"><h2 class="card-title">📤 Upload Materi / Tugas</h2><span class="badge badge-primary">MAX 50 MB</span></div>
                 
                 <div class="form-group">
                     <label>MATA KULIAH</label>
-                    <select id="topicSelect" class="form-control" style="font-weight: 700; color: var(--primary);">
-                        <option value="">-- Pilih Mata Kuliah --</option>
-                    </select>
+                    <select id="topicSelect" class="form-control" style="font-weight: 700; color: var(--primary);"><option value="">-- Pilih Mata Kuliah --</option></select>
                 </div>
 
                 <input type="file" id="fileInput" class="hidden">
@@ -551,572 +422,325 @@
                     <p id="fileSizeDisplay">PDF, Gambar, Video, Dokumen, dll.</p>
                 </label>
 
-                <div class="form-group">
+                <!-- FITUR BARU: TENGGAT WAKTU (DEADLINE) -->
+                <div class="form-group" style="background: var(--warning-light); padding: 16px; border-radius: var(--radius-md); border: 1px dashed #fcd34d;">
+                    <label style="color: #b45309; display: flex; align-items: center; gap: 6px;">
+                        <svg width="14" height="14"><use href="#icon-calendar"></use></svg> ATUR DEADLINE TUGAS (OPSIONAL)
+                    </label>
+                    <input type="datetime-local" id="deadlineInput" class="form-control" style="border-color: #fde68a;">
+                    <p style="font-size:11px; color:#b45309; margin-top:6px; font-weight:600;">Kosongkan jika hanya materi biasa.</p>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
                     <label>KETERANGAN TAMBAHAN (OPSIONAL)</label>
                     <input type="text" id="captionInput" class="form-control" placeholder="Contoh: Materi pertemuan 5 Pak Dosen">
                 </div>
 
                 <button id="uploadBtn" class="btn-primary" disabled onclick="handleUpload()" style="font-size: 16px; padding: 16px;">🚀 Upload ke Server & Telegram</button>
-                <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 14px; font-weight: 600;">
-                    🔒 File akan otomatis tersinkron antara Web dan Telegram secara dua arah.
-                </p>
+                <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 14px; font-weight: 600;">🔒 Tersinkronisasi dua arah ke grup Telegram.</p>
             </div>
         </section>
 
-        <!-- VIEW: JADWAL KULIAH -->
         <section id="view-jadwal" class="view-section">
             <div class="page-header" style="margin-bottom: 24px;">
                 <h2 style="font-size: 24px; font-weight: 900; letter-spacing: -0.5px;">Jadwal Semester Gasal 2026/2027</h2>
                 <p style="font-size: 14px; color: var(--text-muted); margin-top: 6px; font-weight: 600;">Sistem Informasi - Kelas 5P52 & 5P52A</p>
             </div>
-
-            <div class="schedule-grid" id="scheduleContainer">
-                <!-- Rendered by JS -->
-            </div>
+            <div class="schedule-grid" id="scheduleContainer"></div>
         </section>
 
     </main>
 </div>
 
-<!-- TOAST Notification -->
 <div id="toast">✅ Pesan notifikasi</div>
 
 <!-- ================= JAVASCRIPT ================= -->
 <script>
-    // --- KONFIGURASI API ---
     const API = "https://telegram-semester5-bot.onrender.com";
-    const icons = {
-        "Cloud Computing": "☁️",
-        "Audit Sistem Informasi": "📋",
-        "Keamanan Sistem Informasi": "🔐",
-        "Visualisasi Data & Data Science": "📊",
-        "Business Intelligence System": "💡",
-        "Manajemen Proyek": "📁",
-        "Metodologi Penelitian & Publikasi": "🔬",
-        "Pemrograman Berbasis Mobile I": "📱",
-        "Dokumentasi Semester 5": "🗂️"
-    };
+    const icons = { "Cloud Computing": "☁️", "Audit Sistem Informasi": "📋", "Keamanan Sistem Informasi": "🔐", "Visualisasi Data & Data Science": "📊", "Business Intelligence System": "💡", "Manajemen Proyek": "📁", "Metodologi Penelitian & Publikasi": "🔬", "Pemrograman Berbasis Mobile I": "📱", "Dokumentasi Semester 5": "🗂️" };
 
-    // --- DATA JADWAL ---
     const jadwalData = [
-        {
-            day: "Senin",
-            classes: [
-                { time: "13:00 - 14:40", name: "Cloud Computing (Teori)", room: "B1.2", dosen: "Era Yunianto, M.Kom", code: "5P52" },
-                { time: "15:00 - 16:40", name: "Cloud Computing (Praktek)", room: "LAB 3", dosen: "Era Yunianto, M.Kom", code: "5P52A" }
-            ]
-        },
-        {
-            day: "Rabu",
-            classes: [
-                { time: "09:15 - 10:55", name: "Audit Sistem Informasi", room: "A1.2", dosen: "Satriedi Wahyu Binabar, M.Kom", code: "5P52" },
-                { time: "11:00 - 12:40", name: "Keamanan Sistem Informasi", room: "C.6", dosen: "M. Faizal Kurniawan, M.Kom", code: "5P52" },
-                { time: "13:00 - 14:40", name: "Visualisasi Data (Teori)", room: "C.3", dosen: "Nurul Amalia, M.Kom", code: "5P52" },
-                { time: "15:00 - 16:40", name: "Visualisasi Data (Praktek)", room: "LAB 5", dosen: "Nurul Amalia, M.Kom", code: "5P52A" }
-            ]
-        },
-        {
-            day: "Kamis",
-            classes: [
-                { time: "07:30 - 09:10", name: "Business Inteligence System", room: "B1.2", dosen: "Eny Jumiati, M.Kom", code: "5P52" },
-                { time: "09:15 - 10:55", name: "Business Inteligence System", room: "B1.2", dosen: "Eny Jumiati, M.Kom", code: "5P52" },
-                { time: "13:00 - 14:40", name: "Manajemen Proyek", room: "B1.2", dosen: "Indrayanti, M.Kom", code: "5P52" }
-            ]
-        },
-        {
-            day: "Jumat",
-            classes: [
-                { time: "07:30 - 09:10", name: "Metodologi Penelitian & Publikasi", room: "D1.1", dosen: "Eko Budi Susanto, M.Kom", code: "5P52" },
-                { time: "09:15 - 10:55", name: "Pemrograman Berbasis Mobile I", room: "A1.1", dosen: "Arochman, M.Kom", code: "5P52" },
-                { time: "13:00 - 14:40", name: "Pemrograman Berbasis Mobile I", room: "LAB 1", dosen: "Arochman, M.Kom", code: "5P52A" }
-            ]
-        }
+        { day: "Senin", classes: [{ time: "13:00 - 14:40", name: "Cloud Computing (Teori)", room: "B1.2", dosen: "Era Yunianto, M.Kom", code: "5P52" }, { time: "15:00 - 16:40", name: "Cloud Computing (Praktek)", room: "LAB 3", dosen: "Era Yunianto, M.Kom", code: "5P52A" }] },
+        { day: "Rabu", classes: [{ time: "09:15 - 10:55", name: "Audit Sistem Informasi", room: "A1.2", dosen: "Satriedi Wahyu Binabar, M.Kom", code: "5P52" }, { time: "11:00 - 12:40", name: "Keamanan Sistem Informasi", room: "C.6", dosen: "M. Faizal Kurniawan, M.Kom", code: "5P52" }, { time: "13:00 - 14:40", name: "Visualisasi Data (Teori)", room: "C.3", dosen: "Nurul Amalia, M.Kom", code: "5P52" }, { time: "15:00 - 16:40", name: "Visualisasi Data (Praktek)", room: "LAB 5", dosen: "Nurul Amalia, M.Kom", code: "5P52A" }] },
+        { day: "Kamis", classes: [{ time: "07:30 - 09:10", name: "Business Inteligence System", room: "B1.2", dosen: "Eny Jumiati, M.Kom", code: "5P52" }, { time: "09:15 - 10:55", name: "Business Inteligence System", room: "B1.2", dosen: "Eny Jumiati, M.Kom", code: "5P52" }, { time: "13:00 - 14:40", name: "Manajemen Proyek", room: "B1.2", dosen: "Indrayanti, M.Kom", code: "5P52" }] },
+        { day: "Jumat", classes: [{ time: "07:30 - 09:10", name: "Metodologi Penelitian & Publikasi", room: "D1.1", dosen: "Eko Budi Susanto, M.Kom", code: "5P52" }, { time: "09:15 - 10:55", name: "Pemrograman Berbasis Mobile I", room: "A1.1", dosen: "Arochman, M.Kom", code: "5P52" }, { time: "13:00 - 14:40", name: "Pemrograman Berbasis Mobile I", room: "LAB 1", dosen: "Arochman, M.Kom", code: "5P52A" }] }
     ];
 
-    // --- STATE MANAGEMENT ---
     let token = localStorage.getItem("semester5_token") || "";
-    let currentUser = "";
-    let isAdmin = false;
-    let topicsList = [];
-    let selectedTopicId = "";
-    let registerMode = false;
-    let syncInterval;
+    let currentUser = ""; let isAdmin = false; let topicsList = []; let selectedTopicId = ""; let registerMode = false; let syncInterval;
+    
+    // LOAD LOCAL STORAGE PINS
+    let pinnedTopics = JSON.parse(localStorage.getItem('semester5_pinned_topics') || '[]');
+    let pinnedMaterials = JSON.parse(localStorage.getItem('semester5_pinned_materials') || '[]');
 
-    // --- UTILS ---
     const $ = id => document.getElementById(id);
     const esc = str => String(str ?? "").replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
     
-    // Custom Sender Name Logic (The Padil 👑 Rule)
     function formatSenderName(rawName) {
         if (!rawName) return "Unknown";
         const low = String(rawName).toLowerCase().trim();
-        // Kalau yang upload admin web atau bot dari telegram (milik Padil)
-        if (low === "admin" || low === "@admin" || low === "brownmatcha" || low === "@brownmatcha") {
-            return "padil 👑";
-        }
+        if (low === "admin" || low === "@admin" || low === "brownmatcha" || low === "@brownmatcha") return "padil 👑";
         return String(rawName).startsWith("@") ? rawName : "@" + rawName;
     }
 
     function showToast(msg, isError = false) {
-        const t = $("toast");
-        t.innerHTML = (isError ? "❌ " : "✅ ") + esc(msg);
-        t.style.background = isError ? "var(--danger)" : "var(--text-main)";
-        t.classList.add("show");
-        // Remove class after 3.5 seconds
+        const t = $("toast"); t.innerHTML = (isError ? "❌ " : "✅ ") + esc(msg);
+        t.style.background = isError ? "var(--danger)" : "var(--text-main)"; t.classList.add("show");
         setTimeout(() => t.classList.remove("show"), 3500);
     }
 
     function formatBytes(bytes) {
-        if (!bytes) return "0 B";
-        const k = 1024, dm = 1, sizes = ['B', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        if (!bytes) return "0 B"; const k = 1024, dm = 1, sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k)); return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 
     function updateGreeting() {
-        const hour = new Date().getHours();
-        let waktu = "Malam";
-        if (hour >= 5 && hour < 11) waktu = "Pagi";
-        else if (hour >= 11 && hour < 15) waktu = "Siang";
-        else if (hour >= 15 && hour < 18) waktu = "Sore";
-        
-        // Panggilan khusus untuk admin di dashboard
+        const hour = new Date().getHours(); let waktu = "Malam";
+        if (hour >= 5 && hour < 11) waktu = "Pagi"; else if (hour >= 11 && hour < 15) waktu = "Siang"; else if (hour >= 15 && hour < 18) waktu = "Sore";
         let callName = (currentUser.toLowerCase() === 'admin') ? 'Padil' : '@' + currentUser;
-        
         $("greetingText").innerHTML = `Selamat ${waktu}, <span style="color:var(--primary)">${esc(callName)}</span> 👋`;
-        
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        $("currentDateText").textContent = new Date().toLocaleDateString('id-ID', options);
+        $("currentDateText").textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     }
 
-    // --- API WRAPPER ---
     async function apiCall(path, options = {}) {
-        options.headers = options.headers || {};
-        if (token) options.headers.Authorization = "Bearer " + token;
-        
+        options.headers = options.headers || {}; if (token) options.headers.Authorization = "Bearer " + token;
         const res = await fetch(API + path, options);
         if (res.status === 401 || res.status === 403) {
             let data = {}; try { data = await res.json() } catch(e){}
             if (data.error === "Maaf, kamu di-banned.") throw new Error(data.error);
-            logout(false);
-            throw new Error("Sesi berakhir, silakan login ulang.");
+            logout(false); throw new Error("Sesi berakhir, silakan login ulang.");
         }
         return res;
     }
 
-    // --- ROUTING / SPA LOGIC ---
     function switchView(viewId) {
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        
         $( `view-${viewId}` ).classList.add('active');
-        
-        // Update nav UI
         const navBtn = Array.from(document.querySelectorAll('.nav-item')).find(btn => btn.getAttribute('onclick').includes(viewId));
         if(navBtn) navBtn.classList.add('active');
-
-        // Reset specific views
-        if (viewId === 'materi') {
-            $('topicSelection').classList.remove('hidden');$('materialSelection').classList.add('hidden');
-            selectedTopicId = "";
-        }
+        if (viewId === 'materi') { $('topicSelection').classList.remove('hidden');$('materialSelection').classList.add('hidden'); selectedTopicId = ""; }
     }
 
-    // --- RENDER JADWAL ---
     function renderJadwal() {
-        const container = $("scheduleContainer");
-        container.innerHTML = jadwalData.map(hari => `
-            <div class="day-card">
-                <div class="day-header">
-                    <span>${hari.day}</span>
-                    <span style="font-size:11px; background:rgba(255,255,255,0.25); padding:4px 10px; border-radius:12px; backdrop-filter:blur(5px);">${hari.classes.length} Kelas</span>
-                </div>
-                <div class="day-body">
-                    ${hari.classes.map(cls => `
-                        <div class="class-item">
-                            <div class="class-time"><svg width="12" height="12" style="vertical-align:-2px;margin-right:2px"><use href="#icon-clock"></use></svg> ${cls.time}</div>
-                            <div class="class-name">${esc(cls.name)}</div>
-                            <div class="class-room"><svg width="12" height="12"><use href="#icon-map"></use></svg> Ruang: ${esc(cls.room)} •${esc(cls.code)}</div>
-                            <div class="class-dosen">👤 ${esc(cls.dosen)}</div>
-                        </div>
-                    `).join("")}
-                </div>
-            </div>
+        $("scheduleContainer").innerHTML = jadwalData.map(hari => `
+            <div class="day-card"><div class="day-header"><span>${hari.day}</span><span style="font-size:11px; background:rgba(255,255,255,0.25); padding:4px 10px; border-radius:12px; backdrop-filter:blur(5px);">${hari.classes.length} Kelas</span></div>
+            <div class="day-body">${hari.classes.map(cls => `<div class="class-item"><div class="class-time"><svg width="12" height="12" style="vertical-align:-2px;margin-right:2px"><use href="#icon-clock"></use></svg> ${cls.time}</div><div class="class-name">${esc(cls.name)}</div><div class="class-room"><svg width="12" height="12"><use href="#icon-map"></use></svg> Ruang: ${esc(cls.room)} •${esc(cls.code)}</div><div class="class-dosen">👤 ${esc(cls.dosen)}</div></div>`).join("")}</div></div>
         `).join("");
     }
 
-    // --- LOGIN / AUTH ---
     $("registerToggle").onclick = () => {
-        registerMode = !registerMode;
-        $("loginError").classList.add("hidden");
-        if (registerMode) {
-            $("loginSub").textContent = "Daftar akun baru";
-            $("loginButton").textContent = "Buat Akun Sekarang";
-            $("registerToggle").textContent = "Sudah punya akun? Masuk disini";
-            $("confirmWrap").classList.remove("hidden");
-            $("confirmPassword").required = true;
-        } else {
-            $("loginSub").textContent = "Study hub eksklusif kelas kita.";
-            $("loginButton").textContent = "Masuk ke Dashboard";
-            $("registerToggle").textContent = "Belum punya akun? Buat disini";
-            $("confirmWrap").classList.add("hidden");
-            $("confirmPassword").required = false;
-        }
+        registerMode = !registerMode; $("loginError").classList.add("hidden");
+        if (registerMode) { $("loginSub").textContent = "Daftar akun baru"; $("loginButton").textContent = "Buat Akun Sekarang"; $("registerToggle").textContent = "Sudah punya akun? Masuk disini"; $("confirmWrap").classList.remove("hidden"); $("confirmPassword").required = true; } 
+        else { $("loginSub").textContent = "Study hub eksklusif kelas kita."; $("loginButton").textContent = "Masuk ke Dashboard"; $("registerToggle").textContent = "Belum punya akun? Buat disini"; $("confirmWrap").classList.add("hidden"); $("confirmPassword").required = false; }
     };
 
     $("loginForm").addEventListener("submit", async e => {
-        e.preventDefault();
-        const btn = $("loginButton");
-        const err = $("loginError");
-        btn.disabled = true; err.classList.add("hidden");
-
-        const username = $("username").value.trim();
-        const password = $("password").value;
-        const confirm = $("confirmPassword").value;
-
+        e.preventDefault(); const btn = $("loginButton"); const err = $("loginError"); btn.disabled = true; err.classList.add("hidden");
+        const username = $("username").value.trim(); const password = $("password").value; const confirm = $("confirmPassword").value;
         try {
             if (registerMode) {
-                btn.textContent = "Memproses...";
-                const res = await fetch(API + "/api/register", {
-                    method: "POST", headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, password, confirm })
-                });
-                const data = await res.json();
-                if (!res.ok || !data.ok) throw new Error(data.error || "Gagal mendaftar.");
-                
-                showToast("Akun berhasil dibuat! Silakan login.");
-                $("registerToggle").click(); // switch back to login
-                $("password").value = "";
+                btn.textContent = "Memproses..."; const res = await fetch(API + "/api/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password, confirm }) });
+                const data = await res.json(); if (!res.ok || !data.ok) throw new Error(data.error || "Gagal mendaftar.");
+                showToast("Akun berhasil dibuat! Silakan login."); $("registerToggle").click(); $("password").value = "";
             } else {
-                btn.textContent = "Mencocokkan data...";
-                const res = await fetch(API + "/api/login", {
-                    method: "POST", headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await res.json();
-                if (!res.ok || !data.ok) throw new Error(data.error || "Login gagal.");
-                
-                token = data.token;
-                localStorage.setItem("semester5_token", token);
-                await initApp();
-                showToast("Berhasil masuk!");
+                btn.textContent = "Mencocokkan data..."; const res = await fetch(API + "/api/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password }) });
+                const data = await res.json(); if (!res.ok || !data.ok) throw new Error(data.error || "Login gagal.");
+                token = data.token; localStorage.setItem("semester5_token", token); await initApp(); showToast("Berhasil masuk!");
             }
-        } catch (error) {
-            err.innerHTML = "❌ " + esc(error.message);
-            err.classList.remove("hidden");
-        } finally {
-            btn.disabled = false;
-            btn.textContent = registerMode ? "Buat Akun Sekarang" : "Masuk ke Dashboard";
-        }
+        } catch (error) { err.innerHTML = "❌ " + esc(error.message); err.classList.remove("hidden"); } 
+        finally { btn.disabled = false; btn.textContent = registerMode ? "Buat Akun Sekarang" : "Masuk ke Dashboard"; }
     });
 
     function logout(manual = true) {
-        token = ""; localStorage.removeItem("semester5_token");
-        $("app").classList.add("hidden");
-        $("loginPage").classList.remove("hidden");
-        $("loginForm").reset();
-        clearInterval(syncInterval);
+        token = ""; localStorage.removeItem("semester5_token"); $("app").classList.add("hidden"); $("loginPage").classList.remove("hidden"); $("loginForm").reset(); clearInterval(syncInterval);
         if(manual) showToast("Berhasil keluar.");
     }
 
-    // --- CORE APP LOGIC ---
     async function initApp() {
         if (!token) return;
         try {
-            const res = await apiCall("/api/me");
-            const data = await res.json();
-            if (!res.ok || !data.ok) throw new Error("Sesi tidak valid");
-            
+            const res = await apiCall("/api/me"); const data = await res.json(); if (!res.ok || !data.ok) throw new Error("Sesi tidak valid");
             currentUser = data.username;
-            
-            // Atur nama profil di sidebar (Bawah Kiri)
-            let sideName = (currentUser.toLowerCase() === 'admin') ? 'Padil 👑' : '@' + currentUser;
-            $("displayUsername").textContent = sideName;
-            
-            let initial = (currentUser.toLowerCase() === 'admin') ? 'PD' : currentUser.substring(0, 2).toUpperCase();
-            $("avatarInitials").textContent = initial;
-            if(currentUser.toLowerCase() === 'admin') $("avatarInitials").classList.add('owner-avatar');
-            else $("avatarInitials").classList.remove('owner-avatar');
-            
-            $("loginPage").classList.add("hidden");
-            $("app").classList.remove("hidden");
-            
-            updateGreeting();
-            renderJadwal();
-            await loadTopics();
-            switchView('home');
-
-            // Auto sync content silently
-            syncInterval = setInterval(() => {
-                if (token && selectedTopicId) loadMaterials(true);
-            }, 3000);
-
-        } catch (e) {
-            logout(false);
-        }
+            let sideName = (currentUser.toLowerCase() === 'admin') ? 'Padil 👑' : '@' + currentUser; $("displayUsername").textContent = sideName;
+            let initial = (currentUser.toLowerCase() === 'admin') ? 'PD' : currentUser.substring(0, 2).toUpperCase(); $("avatarInitials").textContent = initial;
+            if(currentUser.toLowerCase() === 'admin') $("avatarInitials").classList.add('owner-avatar'); else $("avatarInitials").classList.remove('owner-avatar');
+            $("loginPage").classList.add("hidden"); $("app").classList.remove("hidden");
+            updateGreeting(); renderJadwal(); await loadTopics(); switchView('home');
+            syncInterval = setInterval(() => { if (token && selectedTopicId) loadMaterials(true); }, 3000);
+        } catch (e) { logout(false); }
     }
 
-    // --- TOPICS & ADMIN ---
+    // --- TOGGLE PIN LOGIC ---
+    window.toggleTopicPin = function(e, topicId) {
+        e.stopPropagation(); // Mencegah masuk ke topic saat klik pin
+        if(pinnedTopics.includes(topicId)) pinnedTopics = pinnedTopics.filter(id => id !== topicId);
+        else pinnedTopics.push(topicId);
+        localStorage.setItem('semester5_pinned_topics', JSON.stringify(pinnedTopics));
+        renderTopicsGrid(); // Re-render dengan urutan baru
+    };
+
+    window.toggleMaterialPin = function(materialId) {
+        if(pinnedMaterials.includes(materialId)) pinnedMaterials = pinnedMaterials.filter(id => id !== materialId);
+        else pinnedMaterials.push(materialId);
+        localStorage.setItem('semester5_pinned_materials', JSON.stringify(pinnedMaterials));
+        loadMaterials(true); // Re-render
+    };
+
     async function loadTopics() {
         try {
-            const res = await apiCall("/api/topics");
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error);
-            
-            topicsList = data.topics || [];
-            isAdmin = !!data.is_admin;
-            
-            $("displayRole").textContent = isAdmin ? "Administrator" : "Mahasiswa";
-            
-            renderTopicsGrid();
-            renderUploadSelect();
-            renderAdminPanel();
-        } catch (e) {
-            console.error(e);
-        }
+            const res = await apiCall("/api/topics"); const data = await res.json(); if (!res.ok) throw new Error(data.error);
+            topicsList = data.topics || []; isAdmin = !!data.is_admin; $("displayRole").textContent = isAdmin ? "Administrator" : "Mahasiswa";
+            renderTopicsGrid(); renderUploadSelect(); renderAdminPanel();
+        } catch (e) { console.error(e); }
     }
 
     function renderTopicsGrid() {
         const grid = $("topicsGrid");
-        if (!topicsList.length) {
-            grid.innerHTML = `
-                <div class="empty-state" style="grid-column: 1 / -1;">
-                    <svg><use href="#icon-folder"></use></svg><br>Belum ada mata kuliah tersedia.
-                </div>`;
-            return;
-        }
+        if (!topicsList.length) { grid.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;"><svg><use href="#icon-folder"></use></svg><br>Belum ada mata kuliah tersedia.</div>`; return; }
         
-        grid.innerHTML = topicsList.map(t => {
-            const name = t.name || "Mata Kuliah";
-            const icon = icons[name] || "📚";
+        // Sorting: Pinned duluan
+        let sortedTopics = [...topicsList].sort((a,b) => {
+            let isPinnedA = pinnedTopics.includes(a.id);
+            let isPinnedB = pinnedTopics.includes(b.id);
+            if (isPinnedA && !isPinnedB) return -1;
+            if (!isPinnedA && isPinnedB) return 1;
+            return 0;
+        });
+
+        grid.innerHTML = sortedTopics.map(t => {
+            const name = t.name || "Mata Kuliah"; const icon = icons[name] || "📚";
+            const isPinned = pinnedTopics.includes(t.id);
             return `
-                <div class="topic-card" onclick="openTopic('${t.id}', '${esc(name)}', '${icon}')">
+                <div class="topic-card ${isPinned ? 'pinned' : ''}" onclick="openTopic('${t.id}', '${esc(name)}', '${icon}')">
                     <div class="topic-icon">${icon}</div>
-                    <div class="topic-info">
-                        <h4>${esc(name)}</h4>
-                        <p>Topic ID: ${t.id}</p>
-                    </div>
-                </div>
-            `;
-        }).join("");
-    }
-
-    function renderUploadSelect() {
-        const sel = $("topicSelect");
-        sel.innerHTML = `<option value="">-- Pilih Mata Kuliah --</option>` + 
-            topicsList.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join("");
-    }
-
-    function renderAdminPanel() {
-        const panel = $("adminPanel");
-        if (!isAdmin) { panel.classList.add("hidden"); return; }
-        
-        panel.classList.remove("hidden");
-        $("adminTopics").innerHTML = topicsList.map(t => {
-            const isPub = t.visible !== false;
-            return `
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--bg-body); border-radius:10px; border:1px solid var(--border);">
-                    <div style="font-size:14px; font-weight:700;">${icons[t.name]||"📚"} ${esc(t.name)}</div>
-                    <button onclick="toggleVisibility('${t.id}', ${!isPub})" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:900; background:${isPub? 'var(--success-light)':'var(--danger-light)'}; color:${isPub? 'var(--success)':'var(--danger)'}">
-                        ${isPub ? '👁️ PUBLIC' : '🔒 PRIVAT'}
+                    <div class="topic-info"><h4>${esc(name)}</h4><p>Topic ID: ${t.id}</p></div>
+                    <button class="pin-btn" onclick="toggleTopicPin(event, '${t.id}')" title="Pin ke atas">
+                        <svg width="20" height="20"><use href="#icon-pin"></use></svg>
                     </button>
                 </div>
             `;
         }).join("");
     }
 
+    function renderUploadSelect() { $("topicSelect").innerHTML = `<option value="">-- Pilih Mata Kuliah --</option>` + topicsList.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join(""); }
+
+    function renderAdminPanel() {
+        const panel = $("adminPanel"); if (!isAdmin) { panel.classList.add("hidden"); return; }
+        panel.classList.remove("hidden");
+        $("adminTopics").innerHTML = topicsList.map(t => {
+            const isPub = t.visible !== false;
+            return `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--bg-body); border-radius:10px; border:1px solid var(--border);"><div style="font-size:14px; font-weight:700;">${icons[t.name]||"📚"} ${esc(t.name)}</div><button onclick="toggleVisibility('${t.id}', ${!isPub})" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:900; background:${isPub? 'var(--success-light)':'var(--danger-light)'}; color:${isPub? 'var(--success)':'var(--danger)'}">${isPub ? '👁️ PUBLIC' : '🔒 PRIVAT'}</button></div>`;
+        }).join("");
+    }
+
     async function toggleVisibility(topicId, makeVisible) {
-        try {
-            const res = await apiCall("/api/topics/visibility", {
-                method: "PATCH", headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({ topic: topicId, visible: makeVisible })
-            });
-            if(res.ok) { showToast(makeVisible ? "Topic dibuka public." : "Topic di-privat."); loadTopics(); }
-        } catch(e) { showToast(e.message, true); }
+        try { const res = await apiCall("/api/topics/visibility", { method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ topic: topicId, visible: makeVisible }) }); if(res.ok) { showToast(makeVisible ? "Topic dibuka public." : "Topic di-privat."); loadTopics(); } } catch(e) { showToast(e.message, true); }
     }
 
-    // --- MATERIALS ---
-    function openTopic(id, name, icon) {
-        selectedTopicId = id;
-        $("activeTopicName").textContent = name;
-        $("activeTopicIcon").textContent = icon;
-        
-        $("topicSelection").classList.add("hidden");
-        $("materialSelection").classList.remove("hidden");
-        
-        loadMaterials();
-    }
-
-    function backToTopics() {
-        selectedTopicId = "";
-        $("topicSelection").classList.remove("hidden");
-        $("materialSelection").classList.add("hidden");
-    }
+    function openTopic(id, name, icon) { selectedTopicId = id; $("activeTopicName").textContent = name; $("activeTopicIcon").textContent = icon; $("topicSelection").classList.add("hidden"); $("materialSelection").classList.remove("hidden"); loadMaterials(); }
+    function backToTopics() { selectedTopicId = ""; $("topicSelection").classList.remove("hidden"); $("materialSelection").classList.add("hidden"); }
 
     async function loadMaterials(isSilent = false) {
         if(!selectedTopicId) return;
-        if(!isSilent) $("materialsList").innerHTML = `
-            <div class="empty-state">
-                <svg style="animation: spin 1s linear infinite;"><use href="#icon-refresh"></use></svg><br>
-                Mengambil data dari Telegram...
-            </div>
-            <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
-        `;
-        
-        try {
-            const res = await apiCall("/api/materials?topic=" + encodeURIComponent(selectedTopicId));
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error);
-            
-            renderMaterialsList(data.materials || []);
-        } catch (e) {
-            if(!isSilent) $("materialsList").innerHTML = `<div class="empty-state">❌ Gagal memuat: ${esc(e.message)}</div>`;
-        }
+        if(!isSilent) $("materialsList").innerHTML = `<div class="empty-state"><svg style="animation: spin 1s linear infinite;"><use href="#icon-refresh"></use></svg><br>Mengambil data dari Telegram...</div><style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>`;
+        try { const res = await apiCall("/api/materials?topic=" + encodeURIComponent(selectedTopicId)); const data = await res.json(); if (!res.ok) throw new Error(data.error); renderMaterialsList(data.materials || []); } 
+        catch (e) { if(!isSilent) $("materialsList").innerHTML = `<div class="empty-state">❌ Gagal memuat: ${esc(e.message)}</div>`; }
     }
 
     function renderMaterialsList(list) {
-        if(!list.length) {
-            $("materialsList").innerHTML = `<div class="empty-state"><svg><use href="#icon-folder"></use></svg><br>Belum ada materi di sini.</div>`;
-            return;
-        }
+        if(!list.length) { $("materialsList").innerHTML = `<div class="empty-state"><svg><use href="#icon-folder"></use></svg><br>Belum ada materi di sini.</div>`; return; }
 
-        $("materialsList").innerHTML = list.map(m => {
-            const kind = String(m.kind||"").toLowerCase();
-            const isText = kind === "text";
-            
-            let url = m.url || "";
-            if (url.startsWith("/")) url = API + url + (url.includes('?')?'&':'?') + "token=" + encodeURIComponent(token);
-            
+        // Sorting Material (Pinned di Atas)
+        let sortedList = [...list].sort((a,b) => {
+            let pA = pinnedMaterials.includes(a.id); let pB = pinnedMaterials.includes(b.id);
+            if(pA && !pB) return -1; if(!pA && pB) return 1; return 0;
+        });
+
+        $("materialsList").innerHTML = sortedList.map(m => {
+            const kind = String(m.kind||"").toLowerCase(); const isText = kind === "text";
+            let url = m.url || ""; if (url.startsWith("/")) url = API + url + (url.includes('?')?'&':'?') + "token=" + encodeURIComponent(token);
             const isProxy = !!m.file_id || (url && url.includes("/api/material/"));
             let previewHtml = "";
+            let captionText = esc(m.content || m.caption || "");
 
-            if (isText) {
-                previewHtml = m.content ? `<div class="m-note">${esc(m.content)}</div>` : "";
-            } else if (isProxy && url) {
-                if (kind === "photo" || (m.mime_type||"").startsWith("image/")) {
-                    previewHtml = `<div class="m-preview"><img src="${esc(url)}" loading="lazy"></div>`;
-                } else if (kind === "video" || (m.mime_type||"").startsWith("video/")) {
-                    previewHtml = `<div class="m-preview"><video controls src="${esc(url)}"></video></div>`;
-                } else if (kind === "audio" || kind === "voice" || (m.mime_type||"").startsWith("audio/")) {
-                    previewHtml = `<div class="m-preview"><audio controls src="${esc(url)}"></audio></div>`;
-                }
-            } else if (!isProxy && kind !== "document") {
-                previewHtml = `<div class="m-note" style="border-color:var(--danger); color:var(--danger); background:var(--danger-light);">⏳ File sedang diproses Telegram. Gunakan tombol Telegram di bawah.</div>`;
+            // CEK APAKAH ADA FORMAT DEADLINE DI DALAM CAPTION
+            let deadlineHtml = "";
+            if (captionText.includes("⏰ DEADLINE:")) {
+                const parts = captionText.split("⏰ DEADLINE:");
+                captionText = parts[0].trim(); // Ambil teks sebelum tulisan deadline
+                const deadlineTime = parts[1].trim(); // Ambil teks sesudah tulisan deadline
+                deadlineHtml = `<div class="deadline-badge"><svg width="14" height="14"><use href="#icon-clock"></use></svg> DEADLINE: ${deadlineTime}</div>`;
             }
 
-            const delBtn = isAdmin ? `<button class="m-btn btn-del" onclick="deleteMaterial('${m.id}')">🗑️ Hapus</button>` : '';
+            if (isText) { previewHtml = captionText ? `<div class="m-note">${captionText}</div>` : ""; } 
+            else if (isProxy && url) {
+                if (kind === "photo" || (m.mime_type||"").startsWith("image/")) previewHtml = `<div class="m-preview"><img src="${esc(url)}" loading="lazy"></div>`;
+                else if (kind === "video" || (m.mime_type||"").startsWith("video/")) previewHtml = `<div class="m-preview"><video controls src="${esc(url)}"></video></div>`;
+                else if (kind === "audio" || kind === "voice" || (m.mime_type||"").startsWith("audio/")) previewHtml = `<div class="m-preview"><audio controls src="${esc(url)}"></audio></div>`;
+            } else if (!isProxy && kind !== "document") { previewHtml = `<div class="m-note" style="border-color:var(--danger); color:var(--danger); background:var(--danger-light);">⏳ File sedang diproses Telegram. Gunakan tombol Telegram di bawah.</div>`; }
+
+            const isOwner = formatSenderName(m.sender).includes("padil 👑");
+            const isPinned = pinnedMaterials.includes(m.id);
+
+            const pinBtn = `<button class="m-btn btn-pin" onclick="toggleMaterialPin('${m.id}')">📌 ${isPinned ? 'Unpin' : 'Pin'}</button>`;
             const downloadBtn = (url && !isText) ? `<a href="${esc(url)}" target="_blank" class="m-btn btn-download">📥 Buka File</a>` : '';
             const teleBtn = m.telegram_url ? `<a href="${esc(m.telegram_url)}" target="_blank" class="m-btn btn-tele">✈️ Telegram</a>` : '';
-
-            // LOGIKA NAMA PADIL 👑
-            const finalSenderName = formatSenderName(m.sender);
-            const isOwner = finalSenderName.includes("padil 👑");
+            const delBtn = isAdmin ? `<button class="m-btn btn-del" onclick="deleteMaterial('${m.id}')">🗑️ Hapus</button>` : '';
 
             return `
-                <div class="material-item">
+                <div class="material-item ${isPinned ? 'pinned-msg' : ''}">
                     <div class="material-top">
                         <div>
-                            <div class="m-name">
-                                <svg width="18" height="18" style="vertical-align:-3px; color:var(--primary); margin-right:4px;"><use href="#icon-file"></use></svg>
-                                ${esc(m.name)}
-                            </div>
-                            <div class="m-meta">
-                                <span style="font-weight:${isOwner ? '900':'600'}; color:${isOwner ? 'var(--primary)':'inherit'}">👤 ${finalSenderName}</span> • 
-                                <span>${m.date ? new Date(m.date).toLocaleString('id-ID') : ''}</span>
-                            </div>
-                            <div class="m-meta" style="margin-top:4px;">
-                                <span class="m-tag">${m.source === 'website' ? 'Web' : 'Tele'}</span>
-                                ${!isText ? `<span>${formatBytes(m.size)}</span>` : ''}
-                            </div>
+                            <div class="m-name"><svg width="18" height="18" style="vertical-align:-3px; color:var(--primary); margin-right:4px;"><use href="#icon-file"></use></svg> ${esc(m.name)}</div>
+                            <div class="m-meta"><span style="font-weight:${isOwner ? '900':'600'}; color:${isOwner ? 'var(--primary)':'inherit'}">👤 ${formatSenderName(m.sender)}</span> • <span>${m.date ? new Date(m.date).toLocaleString('id-ID') : ''}</span></div>
+                            <div class="m-meta" style="margin-top:4px;"><span class="m-tag">${m.source === 'website' ? 'Web' : 'Tele'}</span>${!isText ? `<span>${formatBytes(m.size)}</span>` : ''}</div>
                         </div>
                     </div>
-                    ${!isText && m.caption ? `<div style="font-size:14px; color:var(--text-muted); font-weight:500;">${esc(m.caption)}</div>` : ''}
+                    ${!isText && captionText ? `<div style="font-size:14px; color:var(--text-muted); font-weight:500; white-space:pre-wrap;">${captionText}</div>` : ''}
+                    ${deadlineHtml}
                     ${previewHtml}
-                    <div class="m-buttons">
-                        ${downloadBtn} ${teleBtn} ${delBtn}
-                    </div>
+                    <div class="m-buttons">${pinBtn} ${downloadBtn} ${teleBtn} ${delBtn}</div>
                 </div>
             `;
         }).join("");
     }
 
-    async function deleteMaterial(id) {
-        if(!confirm("Hapus file ini permanen dari Web dan Telegram?")) return;
-        try {
-            const res = await apiCall("/api/material/" + encodeURIComponent(id), { method: "DELETE" });
-            if(res.ok) { showToast("Materi berhasil dihapus."); loadMaterials(true); }
-            else { const d = await res.json(); throw new Error(d.error); }
-        } catch(e) { showToast(e.message, true); }
-    }
+    async function deleteMaterial(id) { if(!confirm("Hapus file ini permanen dari Web dan Telegram?")) return; try { const res = await apiCall("/api/material/" + encodeURIComponent(id), { method: "DELETE" }); if(res.ok) { showToast("Materi berhasil dihapus."); loadMaterials(true); } else { const d = await res.json(); throw new Error(d.error); } } catch(e) { showToast(e.message, true); } }
 
-    // --- UPLOAD LOGIC ---
     const fileInput = $("fileInput");
-
     fileInput.addEventListener("change", () => {
-        const f = fileInput.files[0];
-        if(!f) {
-            $("fileNameDisplay").textContent = "Klik atau tap untuk pilih file";
-            $("uploadBtn").disabled = true;
-            return;
-        }
-        if(f.size > 50 * 1024 * 1024) {
-            showToast("File melebihi batas 50 MB!", true);
-            fileInput.value = "";
-            return;
-        }
-        $("fileNameDisplay").textContent = f.name;
-        $("fileSizeDisplay").textContent = formatBytes(f.size);
-        $("uploadBtn").disabled = false;
+        const f = fileInput.files[0]; if(!f) { $("fileNameDisplay").textContent = "Klik atau tap untuk pilih file"; $("uploadBtn").disabled = true; return; }
+        if(f.size > 50 * 1024 * 1024) { showToast("File melebihi batas 50 MB!", true); fileInput.value = ""; return; }
+        $("fileNameDisplay").textContent = f.name; $("fileSizeDisplay").textContent = formatBytes(f.size); $("uploadBtn").disabled = false;
     });
 
     async function handleUpload() {
-        const f = fileInput.files[0];
-        const topic = $("topicSelect").value;
-        const caption = $("captionInput").value;
+        const f = fileInput.files[0]; const topic = $("topicSelect").value; 
+        let caption = $("captionInput").value;
+        const deadline = $("deadlineInput").value;
 
         if(!f || !topic) { showToast("Pilih mata kuliah & file!", true); return; }
 
-        const fd = new FormData();
-        fd.append("topic", topic);
-        fd.append("file", f);
-        if(caption) fd.append("caption", caption);
+        // INJEKSI TANGGAL DEADLINE KE CAPTION
+        if (deadline) {
+            const dateObj = new Date(deadline);
+            const dateStr = dateObj.toLocaleString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            caption = caption + `\n\n⏰ DEADLINE: ${dateStr}`;
+        }
 
-        const btn = $("uploadBtn");
-        btn.textContent = "⏳ Memproses Upload...";
-        btn.disabled = true;
+        const fd = new FormData(); fd.append("topic", topic); fd.append("file", f); if(caption) fd.append("caption", caption);
+        const btn = $("uploadBtn"); btn.textContent = "⏳ Memproses Upload..."; btn.disabled = true;
 
         try {
-            const res = await apiCall("/api/upload", { method: "POST", body: fd });
-            const data = await res.json();
-            if(!res.ok || !data.ok) throw new Error(data.error || "Gagal upload");
-
+            const res = await apiCall("/api/upload", { method: "POST", body: fd }); const data = await res.json(); if(!res.ok || !data.ok) throw new Error(data.error || "Gagal upload");
             showToast("Berhasil diupload ke Telegram!");
-            
-            // Reset form
-            fileInput.value = "";
-            $("fileNameDisplay").textContent = "Klik atau tap untuk pilih file";
-            $("fileSizeDisplay").textContent = "PDF, Gambar, Video, Dokumen, dll.";
-            $("captionInput").value = "";
-            $("topicSelect").value = "";
-            
-            // Auto switch to topic to see it
-            switchView('materi');
-            openTopic(topic, topicsList.find(t=>t.id===topic)?.name, icons[topicsList.find(t=>t.id===topic)?.name]);
-
-        } catch(e) {
-            showToast(e.message, true);
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "🚀 Upload ke Server & Telegram";
-        }
+            fileInput.value = ""; $("fileNameDisplay").textContent = "Klik atau tap untuk pilih file"; $("fileSizeDisplay").textContent = "PDF, Gambar, Video, Dokumen, dll."; $("captionInput").value = ""; $("deadlineInput").value = ""; $("topicSelect").value = "";
+            switchView('materi'); openTopic(topic, topicsList.find(t=>t.id===topic)?.name, icons[topicsList.find(t=>t.id===topic)?.name]);
+        } catch(e) { showToast(e.message, true); } finally { btn.disabled = false; btn.textContent = "🚀 Upload ke Server & Telegram"; }
     }
 
-    // --- STARTUP ---
-    if (token) {
-        initApp();
-    } else {
-        $("loginPage").classList.remove("hidden");
-    }
+    if (token) initApp(); else $("loginPage").classList.remove("hidden");
 
 </script>
 </body>
