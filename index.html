@@ -233,6 +233,16 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 #toast.show{transform:translate(-50%,0)}
 #toast.err{background:var(--red);color:#fff}
 
+/* ---------- maintenance ---------- */
+#maint{position:fixed;inset:0;z-index:2000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;overflow-y:auto}
+#maint .box{max-width:380px;width:100%}
+#maint .big{font-size:64px;display:block;margin-bottom:12px}
+#maint h1{font-family:var(--font-d);font-size:28px;font-weight:800;letter-spacing:-.03em;margin-bottom:8px}
+#maint p{color:var(--mute);margin-bottom:20px;white-space:pre-wrap;word-break:break-word}
+#maint .pulse{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--amber);background:var(--amber-soft);padding:6px 14px;border-radius:999px;margin-bottom:18px}
+#maint .pulse i{width:8px;height:8px;border-radius:50%;background:currentColor;animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.25}}
+
 /* ---------- mobile nav ---------- */
 @media (max-width:899px){
   .nav{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));height:var(--nav-h);border-radius:24px;display:flex;align-items:center;padding:0 6px;box-shadow:0 8px 30px rgba(0,0,0,.14)}
@@ -478,6 +488,18 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
   </main>
 </div>
 
+<!-- ============ MAINTENANCE ============ -->
+<div id="maint" class="hidden" role="alertdialog" aria-labelledby="maintTitle">
+  <div class="box">
+    <span class="big">🛠️</span>
+    <div class="pulse"><i></i>Sedang perawatan</div>
+    <h1 id="maintTitle">Kami segera kembali</h1>
+    <p id="maintMsg"></p>
+    <p style="font-size:13px;margin-bottom:8px">Halaman ini otomatis terbuka lagi begitu perawatan selesai.</p>
+    <button type="button" class="link quiet" id="maintAdmin">Masuk sebagai admin</button>
+  </div>
+</div>
+
 <div id="offline" class="hidden">Kamu sedang offline. Sebagian fitur tidak bisa dipakai.</div>
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -556,10 +578,34 @@ function initials() {
   return (fullUserName || currentUser).trim().substring(0, 2).toUpperCase();
 }
 
+/* ---------- maintenance ---------- */
+let maintTimer = null;
+function showMaint(msg) {
+  $("maintMsg").textContent = msg || "Website sedang dalam perawatan. Coba lagi sebentar lagi.";
+  $("maint").classList.remove("hidden");
+  clearInterval(maintTimer);
+  maintTimer = setInterval(async () => {
+    try {
+      const d = await (await fetch(API + "/api/status", { cache: "no-store" })).json();
+      if (!d.maintenance) location.reload();
+    } catch (e) { /* server belum siap, coba lagi nanti */ }
+  }, 20000);
+}
+$("maintAdmin").addEventListener("click", () => {
+  $("maint").classList.add("hidden");
+  clearInterval(maintTimer);
+  // Tampilkan halaman login supaya admin bisa masuk
+  if (!token) { $("login").classList.remove("hidden"); $("app").classList.add("hidden"); }
+});
+
 async function apiCall(path, options = {}) {
   options.headers = options.headers || {};
   if (token) options.headers.Authorization = "Bearer " + token;
   const res = await fetch(API + path, options);
+  if (res.status === 503) {
+    const d = await res.clone().json().catch(() => ({}));
+    if (d.maintenance) { showMaint(d.message); throw new Error("Website sedang maintenance."); }
+  }
   if (res.status === 401) {
     logout(false);
     throw new Error("Sesi berakhir, silakan masuk lagi.");
@@ -571,6 +617,7 @@ async function postJSON(path, body, authed) {
   const res = authed ? await apiCall(path, opt) : await fetch(API + path, opt);
   let data = {};
   try { data = await res.json(); } catch (e) {}
+  if (res.status === 503 && data.maintenance) showMaint(data.message);
   return { res, data };
 }
 
@@ -718,6 +765,8 @@ $("authForm").addEventListener("submit", async (e) => {
       if (!res.ok || !data.ok) throw new Error(data.error || "Username atau password salah.");
       token = data.token;
       localStorage.setItem("semester5_token", token);
+      $("maint").classList.add("hidden");
+      clearInterval(maintTimer);
       await initApp();
       showToast("Berhasil masuk.");
     }
@@ -821,6 +870,8 @@ async function initApp() {
     }, 15000);
   } catch (err) {
     console.error(err);
+    // Saat maintenance, jangan hapus token: sesi tetap valid setelah maintenance selesai.
+    if (!$("maint").classList.contains("hidden")) return;
     logout(false);
     showToast("Sesi gagal dimuat. Silakan masuk lagi.", true);
   }
@@ -1181,6 +1232,7 @@ function xhrUpload(fd) {
       if (x.status === 401) { logout(false); return reject(new Error("Sesi berakhir, silakan masuk lagi.")); }
       let d = {};
       try { d = JSON.parse(x.responseText); } catch (err) {}
+      if (x.status === 503 && d.maintenance) { showMaint(d.message); return reject(new Error("Website sedang maintenance.")); }
       if (x.status >= 200 && x.status < 300) resolve(d);
       else reject(new Error(d.error || "Gagal mengunggah (kode " + x.status + ")."));
     };
@@ -1391,6 +1443,8 @@ $("adIpBan").addEventListener("click", async () => {
 });
 
 /* ---------- boot ---------- */
+fetch(API + "/api/status", { cache: "no-store" }).then((r) => r.json())
+  .then((d) => { if (d.maintenance) showMaint(d.message); }).catch(() => {});
 if (token) initApp(); else $("login").classList.remove("hidden");
 </script>
 </body>
