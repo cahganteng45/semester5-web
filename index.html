@@ -210,8 +210,23 @@ textarea.input{resize:vertical;min-height:130px}
 .au .n{font-weight:700;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .au .m{font-size:12px;color:var(--mute);margin:3px 0 10px;word-break:break-word}
 
+/* ---------- modal ---------- */
+.modal-bg{position:fixed;inset:0;z-index:1100;background:rgba(6,16,13,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fade .15s ease}
+.modal{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-l);padding:26px 24px 22px;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:pop .22s cubic-bezier(.34,1.4,.64,1)}
+@keyframes pop{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:none}}
+.modal .m-ic{width:48px;height:48px;border-radius:16px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;margin-bottom:14px}
+.modal .m-ic.danger{background:var(--red-soft);color:var(--red)}
+.modal h3{font-family:var(--font-d);font-size:21px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+.modal p{color:var(--mute);font-size:14px;margin-bottom:16px;word-break:break-word}
+.modal .secret{display:flex;gap:8px;margin-bottom:6px}
+.modal .secret .input{font-family:ui-monospace,Menlo,monospace;font-size:16px;letter-spacing:.04em;font-weight:700}
+.modal .secret .btn{padding:0 16px;flex-shrink:0}
+.modal .m-btns{display:flex;gap:10px;margin-top:18px}
+.modal .m-btns .btn{flex:1}
+.btn-del{background:var(--red);color:#fff}
+.btn-del:hover{filter:brightness(.92)}
 /* ---------- toast ---------- */
-#toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-140px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:700;font-size:14px;z-index:999;max-width:90vw;transition:transform .35s cubic-bezier(.34,1.4,.64,1)}
+#toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-140px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:700;font-size:14px;z-index:1200;max-width:90vw;transition:transform .35s cubic-bezier(.34,1.4,.64,1)}
 #toast.show{transform:translate(-50%,0)}
 #toast.err{background:var(--red);color:#fff}
 
@@ -255,6 +270,8 @@ textarea.input{resize:vertical;min-height:130px}
 <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></symbol>
 <symbol id="i-set" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 00-2-1.2L14.2 3h-4l-.4 2.7a7 7 0 00-2 1.2l-2.3-1-2 3.4 2 1.5a7 7 0 000 2.4l-2 1.5 2 3.4 2.3-1a7 7 0 002 1.2l.4 2.7h4l.4-2.7a7 7 0 002-1.2l2.3 1 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z"/></symbol>
 <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/></symbol>
+<symbol id="i-key" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 11-7.8 7.8 5.5 5.5 0 017.8-7.8zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6"/></symbol>
 <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2V5zM4 19a2 2 0 012-2h13M9 7h6"/></symbol>
 <symbol id="i-out" viewBox="0 0 24 24"><path d="M15 12H3m0 0l4-4m-4 4l4 4M10 5V4a1 1 0 011-1h8a1 1 0 011 1v16a1 1 0 01-1 1h-8a1 1 0 01-1-1v-1"/></symbol>
 <symbol id="i-ref" viewBox="0 0 24 24"><path d="M20 11a8 8 0 00-14-4L4 9M4 4v5h5M4 13a8 8 0 0014 4l2-2M20 20v-5h-5"/></symbol>
@@ -996,7 +1013,7 @@ $("materialsList").addEventListener("click", async (e) => {
     try { await navigator.clipboard.writeText(note.innerText); showToast("Catatan disalin."); }
     catch (err) { showToast("Gagal menyalin catatan.", true); }
   } else if (act === "del") {
-    if (!confirm("Hapus materi ini permanen dari web dan Telegram?")) return;
+    if (!(await openModal({ title: "Hapus materi ini?", text: "Materi dihapus permanen dari web dan Telegram.", ok: "Hapus", icon: "trash", danger: true }))) return;
     try {
       const res = await apiCall("/api/material/" + encodeURIComponent(b.dataset.id), { method: "DELETE" });
       if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || "Gagal menghapus."); }
@@ -1247,6 +1264,57 @@ $("taskList").addEventListener("click", (e) => {
   openTopic(b.dataset.open);
 });
 
+/* ---------- modal (pengganti prompt/confirm bawaan browser) ---------- */
+function openModal(o) {
+  return new Promise((resolve) => {
+    const bg = document.createElement("div");
+    bg.className = "modal-bg";
+    const fields = (o.fields || []).map((f, i) =>
+      `<div class="field"><label for="mf${i}">${esc(f.label)}</label><input class="input" id="mf${i}" value="${esc(f.value || "")}" placeholder="${esc(f.placeholder || "")}" autocapitalize="none" autocomplete="off"></div>`).join("");
+    const secret = o.secret ? `<div class="secret"><input class="input" id="mSecret" value="${esc(o.secret)}" readonly><button type="button" class="btn btn-soft" id="mCopy">Salin</button></div>` : "";
+    bg.innerHTML = `<form class="modal" role="dialog" aria-modal="true">
+      <div class="m-ic ${o.danger ? "danger" : ""}">${svg(o.icon || "shield", 24)}</div>
+      <h3>${esc(o.title)}</h3>${o.text ? `<p>${esc(o.text)}</p>` : ""}${fields}${secret}
+      <div class="m-btns">${o.cancel === false ? "" : `<button type="button" class="btn btn-line" data-m="cancel">${esc(o.cancel || "Batal")}</button>`}
+      <button type="submit" class="btn ${o.danger ? "btn-del" : "btn-primary"}">${esc(o.ok || "OK")}</button></div></form>`;
+    document.body.appendChild(bg);
+    const form = bg.firstElementChild;
+    const onKey = (e) => { if (e.key === "Escape" && !o.secret) close(null); };
+    const close = (v) => { document.removeEventListener("keydown", onKey); bg.remove(); resolve(v); };
+    document.addEventListener("keydown", onKey);
+    bg.addEventListener("click", (e) => { if (e.target === bg && !o.secret) close(null); });
+    const cancel = form.querySelector('[data-m="cancel"]');
+    if (cancel) cancel.addEventListener("click", () => close(null));
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const vals = {};
+      for (let i = 0; i < (o.fields || []).length; i++) {
+        const el = form.querySelector("#mf" + i), f = o.fields[i];
+        if (f.required && !el.value.trim()) { el.focus(); el.style.borderColor = "var(--red)"; return; }
+        vals[f.key] = el.value.trim();
+      }
+      close(o.fields ? vals : true);
+    });
+    const copyBtn = form.querySelector("#mCopy");
+    if (copyBtn) copyBtn.addEventListener("click", async () => {
+      const inp = form.querySelector("#mSecret");
+      try { await navigator.clipboard.writeText(inp.value); }
+      catch (err) { inp.select(); document.execCommand("copy"); }
+      copyBtn.textContent = "Tersalin ✓";
+    });
+    const first = form.querySelector("input");
+    if (first) setTimeout(() => (o.secret ? first.select() : first.focus()), 60);
+  });
+}
+const showSecret = (title, text, secret) => openModal({ title, text, secret, icon: "key", ok: "Selesai", cancel: false });
+
+const ADMIN_CONFIRM = {
+  ban_web: ["Ban akun ini?", "tidak akan bisa login lagi sampai kamu unban.", "Ban akun", "shield"],
+  delete_web: ["Hapus akun ini?", "akun dihapus permanen dan tidak bisa dikembalikan.", "Hapus akun", "trash"],
+  ban_ip: ["Blokir IP ini?", "semua akses dari alamat ini akan ditolak.", "Blokir IP", "shield"],
+  ban_tg: ["Ban user Telegram?", "user ini tidak bisa memakai bot lagi.", "Ban user", "shield"]
+};
+
 /* ---------- panel admin ---------- */
 async function adminAct(action, target, value) {
   const { data } = await postJSON("/api/admin/action", { action, target, value }, true);
@@ -1287,11 +1355,19 @@ $("view-admin").addEventListener("click", async (e) => {
   if (!b) return;
   const a = b.dataset.ad, t = b.dataset.t;
   let v = "";
-  if (a === "set_name") { v = (prompt("Nama lengkap baru:") || "").trim(); if (!v) return; }
-  if (["ban_web", "delete_web", "ban_ip", "ban_tg"].includes(a) && !confirm("Yakin? (" + a.replace("_", " ") + " " + t + ")")) return;
+  if (a === "set_name") {
+    const r = await openModal({ title: "Ubah nama lengkap", text: "Akun @" + t, icon: "edit", ok: "Simpan",
+      fields: [{ key: "name", label: "Nama lengkap baru", placeholder: "Contoh: Andi Saputra", required: true }] });
+    if (!r) return;
+    v = r.name;
+  }
+  if (ADMIN_CONFIRM[a]) {
+    const c = ADMIN_CONFIRM[a];
+    if (!(await openModal({ title: c[0], text: t + " " + c[1], ok: c[2], icon: c[3], danger: true }))) return;
+  }
   try {
     const d = await adminAct(a, t, v);
-    if (d.password) prompt("Password baru. Salin lalu kirim ke user:", d.password);
+    if (d.password) await showSecret("Password baru", "Salin lalu kirim ke @" + t + ". Password ini tidak akan ditampilkan lagi.", d.password);
     showToast("Berhasil.");
     loadAdmin();
   } catch (err) { showToast(err.message, true); }
@@ -1299,7 +1375,7 @@ $("view-admin").addEventListener("click", async (e) => {
 $("adCreate").addEventListener("click", async () => {
   try {
     const d = await adminAct("create_web", $("adNewUser").value, $("adNewName").value);
-    prompt("Akun dibuat. Salin password ini:", d.password);
+    await showSecret("Akun berhasil dibuat", "Salin password ini dan kirim ke pemilik akun. Tidak akan ditampilkan lagi.", d.password);
     $("adNewUser").value = ""; $("adNewName").value = "";
     loadAdmin();
   } catch (err) { showToast(err.message, true); }
