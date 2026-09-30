@@ -171,16 +171,9 @@ textarea.input{resize:vertical;min-height:130px}
 .avatar.owner{background:var(--amber-soft);color:var(--amber)}
 
 /* ---------- extras ---------- */
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:12px 8px;text-align:center}
-.stat b{display:block;font-family:var(--font-d);font-size:26px;font-weight:800;color:var(--brand);line-height:1.1}
-.stat small{color:var(--mute);font-size:12px}
 .favs{display:flex;flex-direction:column;gap:8px}
 .fav{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-s);background:var(--bg);width:100%;text-align:left;font-weight:700;font-size:14px}
 .fav .ticon{width:36px;height:36px;font-size:18px;border-radius:10px}
-.pomo-time{font-family:var(--font-d);font-size:54px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-bottom:12px}
-.pomo .btn-primary{width:auto;flex:1}
-.pomo .btn-line{flex:1}
 .skel{height:96px;border-radius:var(--r-m);background:linear-gradient(90deg,var(--line) 25%,var(--surface) 50%,var(--line) 75%);background-size:200% 100%;animation:shine 1.2s infinite linear}
 @keyframes shine{to{background-position:-200% 0}}
 #offline{position:fixed;left:0;right:0;top:0;background:var(--red);color:#fff;text-align:center;font-size:13px;font-weight:700;padding:calc(6px + env(safe-area-inset-top)) 10px 6px;z-index:998}
@@ -317,18 +310,12 @@ textarea.input{resize:vertical;min-height:130px}
         <div class="clock" id="liveClock">00:00:00</div>
       </div>
       <div class="card next" id="nextCard"></div>
-      <div class="stats" id="stats"></div>
       <div class="quick">
         <button data-go="materi"><span class="ic"><svg class="i"><use href="#i-folder"/></svg></span>Buka materi</button>
-        <button data-go="note"><span class="ic"><svg class="i"><use href="#i-edit"/></svg></span>Tulis catatan</button>
+        <button data-go="jadwal"><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span>Lihat jadwal</button>
       </div>
       <div class="card"><h3>Kelas hari ini</h3><div id="todayList"></div></div>
       <div class="card hidden" id="favCard"><h3>Matkul favorit</h3><div class="favs" id="favList"></div></div>
-      <div class="card pomo"><h3>Timer fokus</h3>
-        <div class="pomo-time" id="pomoTime">25:00</div>
-        <div class="opt-row" id="pomoModes"><button type="button" data-min="25" class="active">Fokus 25</button><button type="button" data-min="5">Istirahat 5</button><button type="button" data-min="15">Panjang 15</button></div>
-        <div class="row"><button class="btn btn-primary" id="pomoStart" type="button">Mulai</button><button class="btn btn-line" id="pomoReset" type="button">Atur ulang</button></div>
-      </div>
       <div class="card hidden" id="adminPanel"><h3>Pengaturan topik (admin)</h3><div id="adminTopics"></div></div>
     </section>
 
@@ -1062,11 +1049,6 @@ $("matFilters").addEventListener("click", (e) => {
 /* ---------- beranda: statistik & favorit ---------- */
 function renderHomeExtras() {
   const pins = topicsList.filter((t) => pinnedTopics.includes(t.id));
-  const today = JADWAL.find((d) => d.dayNum === new Date().getDay());
-  $("stats").innerHTML =
-    `<div class="stat"><b>${topicsList.length}</b><small>Mata kuliah</small></div>` +
-    `<div class="stat"><b>${today ? today.classes.length : 0}</b><small>Kelas hari ini</small></div>` +
-    `<div class="stat"><b>${pins.length}</b><small>Dipin</small></div>`;
   $("favCard").classList.toggle("hidden", !pins.length);
   $("favList").innerHTML = pins.map((t) =>
     `<button type="button" class="fav" data-open="${esc(t.id)}"><span class="ticon">${ICONS[t.name] || "📚"}</span>${esc(t.name)}</button>`).join("");
@@ -1076,45 +1058,6 @@ $("favList").addEventListener("click", (e) => {
   if (!b) return;
   switchView("materi");
   openTopic(b.dataset.open);
-});
-
-/* ---------- timer fokus ---------- */
-let pomoMin = 25, pomoLeft = 25 * 60, pomoTimer = null, pomoEnd = 0;
-function drawPomo() {
-  $("pomoTime").textContent = `${pad(Math.floor(pomoLeft / 60))}:${pad(pomoLeft % 60)}`;
-  $("pomoStart").textContent = pomoTimer ? "Jeda" : "Mulai";
-}
-function stopPomo() { clearInterval(pomoTimer); pomoTimer = null; }
-$("pomoStart").addEventListener("click", () => {
-  if (pomoTimer) {
-    pomoLeft = Math.max(0, Math.round((pomoEnd - Date.now()) / 1000));
-    stopPomo();
-    drawPomo();
-    return;
-  }
-  if (pomoLeft <= 0) pomoLeft = pomoMin * 60;
-  pomoEnd = Date.now() + pomoLeft * 1000;
-  pomoTimer = setInterval(() => {
-    pomoLeft = Math.max(0, Math.round((pomoEnd - Date.now()) / 1000));
-    drawPomo();
-    if (pomoLeft <= 0) {
-      stopPomo();
-      drawPomo();
-      showToast("Waktu habis. Ambil napas sebentar.");
-      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-    }
-  }, 500);
-  drawPomo();
-});
-$("pomoReset").addEventListener("click", () => { stopPomo(); pomoLeft = pomoMin * 60; drawPomo(); });
-$("pomoModes").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-min]");
-  if (!b) return;
-  pomoMin = +b.dataset.min;
-  stopPomo();
-  pomoLeft = pomoMin * 60;
-  document.querySelectorAll("#pomoModes button").forEach((x) => x.classList.toggle("active", x === b));
-  drawPomo();
 });
 
 /* ---------- tema & warna aksen ---------- */
