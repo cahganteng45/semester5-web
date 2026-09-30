@@ -233,6 +233,11 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 #toast.show{transform:translate(-50%,0)}
 #toast.err{background:var(--red);color:#fff}
 
+/* ---------- pengingat ---------- */
+#dueBanner{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--red-soft);color:var(--red);border:1px solid var(--red);border-radius:var(--r-m);padding:12px 14px;margin-bottom:16px;font-size:14px;font-weight:700}
+#dueBanner span{flex:1;min-width:0}
+#dueBanner small{display:block;font-weight:500;opacity:.85}
+
 /* ---------- maintenance ---------- */
 #maint{position:fixed;inset:0;z-index:2000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;overflow-y:auto}
 #maint .box{max-width:380px;width:100%}
@@ -354,6 +359,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
   </nav>
 
   <main class="main">
+    <button type="button" id="dueBanner" class="hidden"></button>
     <section class="view active" id="view-home">
       <div class="hero">
         <h1 id="greetingText">Halo!</h1>
@@ -467,6 +473,10 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
           <button type="button" data-theme-set="dark">Gelap</button>
         </div>
         <div class="swatches" id="swatches"></div>
+      </div>
+      <div class="card"><h3>Pengingat deadline</h3>
+        <p style="color:var(--mute);font-size:14px;margin-bottom:12px">Kamu diberi tahu 24 jam, 3 jam, dan 1 jam sebelum deadline selama web ini terbuka. Aktifkan notifikasi browser agar muncul juga di layar HP.</p>
+        <button type="button" class="btn btn-soft" id="notifBtn">Aktifkan notifikasi browser</button>
       </div>
       <div class="card">
         <h3>Ganti password</h3>
@@ -829,6 +839,10 @@ function logout(manual = true) {
   localStorage.removeItem("semester5_token");
   clearInterval(syncTimer);
   clearInterval(clockTimer);
+  clearInterval(remindTimer);
+  clearInterval(refreshTimer);
+  tasksAll = [];
+  $("dueBanner").classList.add("hidden");
   selectedTopicId = "";
   $("navAdminLi").classList.add("hidden");
   $("app").classList.add("hidden");
@@ -865,6 +879,7 @@ async function initApp() {
     clearInterval(syncTimer);
     tickClock();
     clockTimer = setInterval(tickClock, 1000);
+    startReminders();
     syncTimer = setInterval(() => {
       if (!document.hidden && token && selectedTopicId && activeView === "materi") loadMaterials(true);
     }, 15000);
@@ -1260,7 +1275,7 @@ if (!navigator.onLine) $("offline").classList.remove("hidden");
 
 /* ---------- tugas mendatang ---------- */
 const MONTHS = { januari: 0, februari: 1, maret: 2, april: 3, mei: 4, juni: 5, juli: 6, agustus: 7, september: 8, oktober: 9, november: 10, desember: 11 };
-let tasksCache = { at: 0, user: "", list: [] }, tasksBusy = false;
+let tasksCache = { at: 0, user: "", list: [] }, tasksBusy = false, tasksAll = [], remindTimer = null, refreshTimer = null;
 function parseDeadline(text) {
   const i = String(text).indexOf("DEADLINE:");
   if (i < 0) return null;
@@ -1306,12 +1321,73 @@ async function loadTasks(force) {
       out.push({ title, due, topicId: String(t.id), topicName: t.name || "Mata kuliah" });
     }));
     out.sort((a, b) => a.due - b.due);
+    tasksAll = out;
     tasksCache = { at: Date.now(), user: currentUser, list: out.slice(0, 4) };
     renderTasks();
+    checkReminders();
   } finally {
     tasksBusy = false;
   }
 }
+/* ---------- pengingat deadline ---------- */
+const REMIND_LEVELS = [[3600e3, "1 jam"], [3 * 3600e3, "3 jam"], [24 * 3600e3, "24 jam"]];
+function checkReminders() {
+  const banner = $("dueBanner");
+  if (!token || !currentUser) { banner.classList.add("hidden"); return; }
+  const now = Date.now();
+  const soon = tasksAll.filter((k) => k.due.getTime() > now && k.due.getTime() - now <= 24 * 3600e3);
+  if (!soon.length) banner.classList.add("hidden");
+  else {
+    const f = soon[0];
+    banner.dataset.open = f.topicId;
+    banner.innerHTML = `${svg("clock", 20)}<span>${soon.length} tugas deadline kurang dari 24 jam<small>${esc(f.title)} · ${esc(relTime(f.due))}</small></span>`;
+    banner.classList.remove("hidden");
+  }
+  const key = "s5_remind_" + currentUser;
+  let seen = {};
+  try { seen = JSON.parse(localStorage.getItem(key) || "{}"); } catch (e) {}
+  soon.forEach((k) => {
+    const left = k.due.getTime() - now;
+    const lvl = REMIND_LEVELS.find(([ms]) => left <= ms);
+    if (!lvl) return;
+    const id = k.topicId + "|" + k.due.getTime() + "|" + k.title;
+    if (seen[id] !== undefined && seen[id] <= lvl[0]) return;
+    seen[id] = lvl[0];
+    const msg = `⏰ ${k.title} (${k.topicName}) · ${relTime(k.due)}`;
+    showToast(msg, true);
+    if (window.Notification && Notification.permission === "granted") {
+      try { new Notification("Deadline tugas", { body: msg }); } catch (e) {}
+    }
+    if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
+  });
+  Object.keys(seen).forEach((id) => { if (+id.split("|")[1] < now) delete seen[id]; });
+  try { localStorage.setItem(key, JSON.stringify(seen)); } catch (e) {}
+}
+function startReminders() {
+  clearInterval(remindTimer); clearInterval(refreshTimer);
+  remindTimer = setInterval(checkReminders, 60000);
+  refreshTimer = setInterval(() => { if (!document.hidden) loadTasks(true); }, 5 * 60000);
+}
+$("dueBanner").addEventListener("click", () => {
+  const id = $("dueBanner").dataset.open;
+  if (!id) return;
+  switchView("materi");
+  openTopic(id);
+});
+function updateNotifBtn() {
+  const b = $("notifBtn");
+  if (!window.Notification) { b.textContent = "Tidak didukung di browser ini"; b.disabled = true; return; }
+  if (Notification.permission === "granted") { b.textContent = "Notifikasi browser aktif ✓"; b.disabled = true; }
+}
+$("notifBtn").addEventListener("click", async () => {
+  if (!window.Notification) return showToast("Browser ini tidak mendukung notifikasi.", true);
+  if (Notification.permission === "denied") return showToast("Notifikasi diblokir. Aktifkan lewat pengaturan situs di browser.", true);
+  const r = await Notification.requestPermission();
+  showToast(r === "granted" ? "Notifikasi browser aktif." : "Notifikasi tidak diizinkan.", r !== "granted");
+  updateNotifBtn();
+});
+updateNotifBtn();
+
 $("taskList").addEventListener("click", (e) => {
   const b = e.target.closest("[data-open]");
   if (!b) return;
