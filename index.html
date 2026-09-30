@@ -200,6 +200,16 @@ textarea.input{resize:vertical;min-height:130px}
 .due.soon{background:var(--red-soft);color:var(--red)}
 .deadline.late{background:var(--line);color:var(--mute)}
 
+/* ---------- admin ---------- */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:14px;text-align:center}
+.stat b{display:block;font-family:var(--font-d);font-size:24px;color:var(--brand)}
+.stat small{color:var(--mute);font-size:12px}
+.au{padding:14px 0;border-top:1px solid var(--line)}
+.au:first-child{border-top:0;padding-top:0}
+.au .n{font-weight:700;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.au .m{font-size:12px;color:var(--mute);margin:3px 0 10px;word-break:break-word}
+
 /* ---------- toast ---------- */
 #toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-140px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:700;font-size:14px;z-index:999;max-width:90vw;transition:transform .35s cubic-bezier(.34,1.4,.64,1)}
 #toast.show{transform:translate(-50%,0)}
@@ -208,6 +218,7 @@ textarea.input{resize:vertical;min-height:130px}
 /* ---------- mobile nav ---------- */
 @media (max-width:899px){
   .nav{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));height:var(--nav-h);border-radius:24px;display:flex;align-items:center;padding:0 6px;box-shadow:0 8px 30px rgba(0,0,0,.14)}
+  .nav-item .pill{width:44px}
 }
 /* ---------- desktop sidebar ---------- */
 @media (min-width:900px){
@@ -243,6 +254,7 @@ textarea.input{resize:vertical;min-height:130px}
 <symbol id="i-cal" viewBox="0 0 24 24"><path d="M8 3v4M16 3v4M4 9h16M5 5h14a1 1 0 011 1v13a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/></symbol>
 <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></symbol>
 <symbol id="i-set" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 00-2-1.2L14.2 3h-4l-.4 2.7a7 7 0 00-2 1.2l-2.3-1-2 3.4 2 1.5a7 7 0 000 2.4l-2 1.5 2 3.4 2.3-1a7 7 0 002 1.2l.4 2.7h4l.4-2.7a7 7 0 002-1.2l2.3 1 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/></symbol>
 <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2V5zM4 19a2 2 0 012-2h13M9 7h6"/></symbol>
 <symbol id="i-out" viewBox="0 0 24 24"><path d="M15 12H3m0 0l4-4m-4 4l4 4M10 5V4a1 1 0 011-1h8a1 1 0 011 1v16a1 1 0 01-1 1h-8a1 1 0 01-1-1v-1"/></symbol>
 <symbol id="i-ref" viewBox="0 0 24 24"><path d="M20 11a8 8 0 00-14-4L4 9M4 4v5h5M4 13a8 8 0 0014 4l2-2M20 20v-5h-5"/></symbol>
@@ -301,6 +313,7 @@ textarea.input{resize:vertical;min-height:130px}
       <li><button class="nav-item" data-view="materi"><span class="pill"><svg class="i"><use href="#i-folder"/></svg></span>Materi</button></li>
       <li><button class="nav-item" data-view="jadwal"><span class="pill"><svg class="i"><use href="#i-cal"/></svg></span>Jadwal</button></li>
       <li><button class="nav-item" data-view="upload"><span class="pill"><svg class="i"><use href="#i-up"/></svg></span>Upload</button></li>
+      <li class="hidden" id="navAdminLi"><button class="nav-item" data-view="admin"><span class="pill"><svg class="i"><use href="#i-shield"/></svg></span>Admin</button></li>
       <li><button class="nav-item" data-view="settings"><span class="pill"><svg class="i"><use href="#i-set"/></svg></span>Akun</button></li>
     </ul>
     <div class="nav-user">
@@ -311,7 +324,6 @@ textarea.input{resize:vertical;min-height:130px}
   </nav>
 
   <main class="main">
-    <!-- BERANDA: satu-satunya halaman dengan sapaan -->
     <section class="view active" id="view-home">
       <div class="hero">
         <h1 id="greetingText">Halo!</h1>
@@ -395,6 +407,22 @@ textarea.input{resize:vertical;min-height:130px}
       </div>
     </section>
 
+    <section class="view" id="view-admin">
+      <h2 class="page-title">Panel admin</h2>
+      <p class="page-sub">Kelola akun, ban, dan IP tanpa Telegram.</p>
+      <div class="stats" id="adStats"></div>
+      <div class="card"><h3>Buat akun</h3>
+        <div class="field"><input class="input" id="adNewUser" placeholder="Username" autocapitalize="none"></div>
+        <div class="field"><input class="input" id="adNewName" placeholder="Nama lengkap"></div>
+        <button class="btn btn-primary" id="adCreate" type="button">Buat akun</button></div>
+      <div class="card"><h3>Akun website</h3><div id="adUsers"></div></div>
+      <div class="card"><h3>IP diblokir</h3>
+        <div class="field"><input class="input" id="adIpInput" placeholder="Contoh: 123.123.123.123"></div>
+        <button class="btn btn-soft" id="adIpBan" type="button" style="margin-bottom:12px">Blokir IP</button>
+        <div id="adIps"></div></div>
+      <div class="card"><h3>User Telegram</h3><div id="adTg"></div></div>
+    </section>
+
     <section class="view" id="view-settings">
       <h2 class="page-title">Akun</h2>
       <p class="page-sub">Kelola profil dan keamanan akunmu.</p>
@@ -441,7 +469,6 @@ const ICONS = {
   "Visualisasi Data & Data Science":"📊","Business Intelligence System":"💡","Manajemen Proyek":"📁",
   "Metodologi Penelitian & Publikasi":"🔬","Pemrograman Berbasis Mobile I":"📱","Dokumentasi Semester 5":"🗂️"
 };
-// dayNum: 0=Minggu ... 6=Sabtu (sesuai Date.getDay)
 const JADWAL = [
   {day:"Senin",dayNum:1,classes:[
     {time:"13:00 - 14:40",name:"Cloud Computing (Teori)",room:"B1.2",dosen:"Era Yunianto, M.Kom",code:"5P52"},
@@ -513,7 +540,7 @@ async function apiCall(path, options = {}) {
   options.headers = options.headers || {};
   if (token) options.headers.Authorization = "Bearer " + token;
   const res = await fetch(API + path, options);
-  if (res.status === 401 || res.status === 403) {
+  if (res.status === 401) {
     logout(false);
     throw new Error("Sesi berakhir, silakan masuk lagi.");
   }
@@ -536,7 +563,7 @@ document.addEventListener("click", (e) => {
   b.querySelector("use").setAttribute("href", show ? "#i-eyeoff" : "#i-eye");
 });
 
-/* ---------- clock & greeting (khusus Beranda) ---------- */
+/* ---------- clock & greeting ---------- */
 function tickClock() {
   const n = new Date();
   $("liveClock").textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
@@ -550,11 +577,13 @@ function updateGreeting() {
 
 /* ---------- navigation ---------- */
 function switchView(id) {
+  if (id === "admin" && !isAdmin) id = "home";
   activeView = id;
   document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.id === "view-" + id));
   document.querySelectorAll(".nav-item").forEach((b) => b.classList.toggle("active", b.dataset.view === id));
   if (id === "materi") { backToTopics(); loadTopics(); }
   if (id === "upload") loadTopics();
+  if (id === "admin") loadAdmin();
   if (id === "home") { updateGreeting(); renderHome(); renderHomeExtras(); loadTasks(false); }
   window.scrollTo({ top: 0 });
 }
@@ -712,8 +741,11 @@ $("changePasswordForm").addEventListener("submit", async (e) => {
   btn.textContent = "Menyimpan…";
   try {
     const { data } = await postJSON("/api/change_password", { old_password: op, new_password: np }, true);
-    if (data.ok) { showToast("Password berhasil diganti."); $("changePasswordForm").reset(); }
-    else showToast(data.error || "Gagal mengganti password.", true);
+    if (data.ok) {
+      if (data.token) { token = data.token; localStorage.setItem("semester5_token", token); }
+      showToast("Password berhasil diganti.");
+      $("changePasswordForm").reset();
+    } else showToast(data.error || "Gagal mengganti password.", true);
   } catch (err) {
     showToast(err.message || "Gagal mengganti password.", true);
   } finally {
@@ -724,10 +756,12 @@ $("changePasswordForm").addEventListener("submit", async (e) => {
 
 function logout(manual = true) {
   token = "";
+  isAdmin = false;
   localStorage.removeItem("semester5_token");
   clearInterval(syncTimer);
   clearInterval(clockTimer);
   selectedTopicId = "";
+  $("navAdminLi").classList.add("hidden");
   $("app").classList.add("hidden");
   $("login").classList.remove("hidden");
   $("authForm").reset();
@@ -790,6 +824,7 @@ async function loadTopics() {
     if (!res.ok) throw new Error(data.error);
     topicsList = (data.topics || []).map((t) => ({ ...t, id: String(t.id) }));
     isAdmin = !!data.is_admin;
+    $("navAdminLi").classList.toggle("hidden", !isAdmin);
     $("navRole").textContent = isAdmin ? "Administrator" : "Mahasiswa";
     renderTopicsGrid();
     renderUploadSelect();
@@ -911,7 +946,7 @@ function renderMaterials() {
     const kind = String(m.kind || "").toLowerCase(), mime = m.mime_type || "";
     const isText = kind === "text";
     let url = m.url || "";
-    if (url.startsWith("/")) url = API + url + (url.includes("?") ? "&" : "?") + "token=" + encodeURIComponent(token);
+    if (url.startsWith("/")) url = API + url;
     const isProxy = !!m.file_id || url.includes("/api/material/");
     let caption = esc(m.content || m.caption || ""), deadline = "";
     if (caption.includes("⏰ DEADLINE:")) {
@@ -1064,7 +1099,7 @@ $("matFilters").addEventListener("click", (e) => {
   renderMaterials();
 });
 
-/* ---------- beranda: statistik & favorit ---------- */
+/* ---------- beranda: favorit ---------- */
 function renderHomeExtras() {
   const pins = topicsList.filter((t) => pinnedTopics.includes(t.id));
   $("favCard").classList.toggle("hidden", !pins.length);
@@ -1123,7 +1158,7 @@ function xhrUpload(fd) {
     };
     x.onload = () => {
       box.classList.add("hidden");
-      if (x.status === 401 || x.status === 403) { logout(false); return reject(new Error("Sesi berakhir, silakan masuk lagi.")); }
+      if (x.status === 401) { logout(false); return reject(new Error("Sesi berakhir, silakan masuk lagi.")); }
       let d = {};
       try { d = JSON.parse(x.responseText); } catch (err) {}
       if (x.status >= 200 && x.status < 300) resolve(d);
@@ -1151,7 +1186,7 @@ window.addEventListener("online", () => { $("offline").classList.add("hidden"); 
 window.addEventListener("offline", () => $("offline").classList.remove("hidden"));
 if (!navigator.onLine) $("offline").classList.remove("hidden");
 
-/* ---------- tugas mendatang (dibaca dari deadline di keterangan) ---------- */
+/* ---------- tugas mendatang ---------- */
 const MONTHS = { januari: 0, februari: 1, maret: 2, april: 3, mei: 4, juni: 5, juli: 6, agustus: 7, september: 8, oktober: 9, november: 10, desember: 11 };
 let tasksCache = { at: 0, user: "", list: [] }, tasksBusy = false;
 function parseDeadline(text) {
@@ -1210,6 +1245,70 @@ $("taskList").addEventListener("click", (e) => {
   if (!b) return;
   switchView("materi");
   openTopic(b.dataset.open);
+});
+
+/* ---------- panel admin ---------- */
+async function adminAct(action, target, value) {
+  const { data } = await postJSON("/api/admin/action", { action, target, value }, true);
+  if (!data.ok) throw new Error(data.error || "Gagal.");
+  return data;
+}
+async function loadAdmin() {
+  try {
+    const res = await apiCall("/api/admin/overview");
+    const d = await res.json();
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat panel admin.");
+    const s = d.stats;
+    $("adStats").innerHTML = [["Akun", s.accounts], ["Materi", s.materials], ["Topik", s.topics]]
+      .map(([l, v]) => `<div class="stat"><b>${v}</b><small>${l}</small></div>`).join("");
+    $("adUsers").innerHTML = d.web_users.map((u) => {
+      const me = u.username === "admin", un = esc(u.username);
+      return `<div class="au"><div class="n">${esc(u.full_name || u.username)} <span class="tag">@${un}</span>${u.banned ? '<span class="vis priv">Banned</span>' : ""}</div>
+        <div class="m">Login ${u.login_count || 0} · Upload ${u.upload_count || 0} · IP ${esc(u.last_ip || "-")} · ${esc(u.last_device || "-")}</div>
+        <div class="mbtns">
+          ${me ? "" : `<button class="mbtn" data-ad="${u.banned ? "unban_web" : "ban_web"}" data-t="${un}">${u.banned ? "Unban" : "Ban"}</button>`}
+          <button class="mbtn" data-ad="reset_web" data-t="${un}">Reset password</button>
+          <button class="mbtn" data-ad="set_name" data-t="${un}">Ubah nama</button>
+          ${u.last_ip && !me ? `<button class="mbtn" data-ad="ban_ip" data-t="${esc(u.last_ip)}">Ban IP</button>` : ""}
+          ${me ? "" : `<button class="mbtn del" data-ad="delete_web" data-t="${un}">Hapus</button>`}
+        </div></div>`;
+    }).join("") || `<div class="empty">Belum ada akun.</div>`;
+    $("adIps").innerHTML = d.banned_ips.map((ip) =>
+      `<div class="adm-row"><span>${esc(ip)}</span><button class="mbtn" data-ad="unban_ip" data-t="${esc(ip)}">Buka</button></div>`).join("")
+      || `<div class="empty" style="padding:12px">Tidak ada IP diblokir.</div>`;
+    $("adTg").innerHTML = d.tg_users.map((u) =>
+      `<div class="adm-row"><span>${esc(u.name)} ${u.username ? "@" + esc(u.username) : ""}<br><small style="color:var(--mute)">ID ${esc(u.id)}</small></span>
+       <button class="mbtn ${u.banned ? "" : "del"}" data-ad="${u.banned ? "unban_tg" : "ban_tg"}" data-t="${esc(u.id)}">${u.banned ? "Unban" : "Ban"}</button></div>`).join("")
+      || `<div class="empty" style="padding:12px">Belum ada user Telegram.</div>`;
+  } catch (err) { showToast(err.message, true); }
+}
+$("view-admin").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-ad]");
+  if (!b) return;
+  const a = b.dataset.ad, t = b.dataset.t;
+  let v = "";
+  if (a === "set_name") { v = (prompt("Nama lengkap baru:") || "").trim(); if (!v) return; }
+  if (["ban_web", "delete_web", "ban_ip", "ban_tg"].includes(a) && !confirm("Yakin? (" + a.replace("_", " ") + " " + t + ")")) return;
+  try {
+    const d = await adminAct(a, t, v);
+    if (d.password) prompt("Password baru. Salin lalu kirim ke user:", d.password);
+    showToast("Berhasil.");
+    loadAdmin();
+  } catch (err) { showToast(err.message, true); }
+});
+$("adCreate").addEventListener("click", async () => {
+  try {
+    const d = await adminAct("create_web", $("adNewUser").value, $("adNewName").value);
+    prompt("Akun dibuat. Salin password ini:", d.password);
+    $("adNewUser").value = ""; $("adNewName").value = "";
+    loadAdmin();
+  } catch (err) { showToast(err.message, true); }
+});
+$("adIpBan").addEventListener("click", async () => {
+  const ip = $("adIpInput").value.trim();
+  if (!ip) return;
+  try { await adminAct("ban_ip", ip, ""); $("adIpInput").value = ""; showToast("IP diblokir."); loadAdmin(); }
+  catch (err) { showToast(err.message, true); }
 });
 
 /* ---------- boot ---------- */
