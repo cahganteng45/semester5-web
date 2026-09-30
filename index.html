@@ -752,6 +752,7 @@ function logout(manual = true) {
   $("dueBanner").classList.add("hidden");
   selectedTopicId = "";
   $("navAdminLi").classList.add("hidden");
+  $("setAdminBtn").classList.add("hidden");
   $("app").classList.add("hidden");
   $("login").classList.remove("hidden");
   $("authForm").reset();
@@ -819,6 +820,7 @@ async function loadTopics() {
     topicsList = (data.topics || []).map((t) => ({ ...t, id: String(t.id) }));
     isAdmin = !!data.is_admin;
     $("navAdminLi").classList.toggle("hidden", !isAdmin);
+    $("setAdminBtn").classList.toggle("hidden", !isAdmin);
     $("navRole").textContent = isAdmin ? "Administrator" : "Mahasiswa";
     renderTopicsGrid();
     renderUploadSelect();
