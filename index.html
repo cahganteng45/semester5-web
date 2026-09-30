@@ -515,6 +515,12 @@
         else { el.type = 'password'; icon.setAttribute('href', '#icon-eye'); }
     };
 
+    function formatSenderName(rawName) {
+        if (!rawName) return "Unknown"; const low = String(rawName).toLowerCase().trim();
+        if (low === "admin" || low === "@admin" || low === "brownmatcha" || low === "@brownmatcha") return "padil 👑";
+        return String(rawName).startsWith("@") ? rawName : "@" + rawName;
+    }
+
     // FITUR JAM REAL-TIME
     setInterval(() => {
         const now = new Date();
@@ -597,7 +603,7 @@
         }
     };
 
-    // 🔥 FIX: EVENT LISTENER SEKARANG MENGGUNAKAN ID authForm 🔥
+    // 🔥 EVENT LISTENER UTAMA UNTUK LOGIN & REGISTER 🔥
     $("authForm").addEventListener("submit", async e => {
         e.preventDefault(); const btn = $("loginButton"); const err = $("loginError"); btn.disabled = true; err.classList.add("hidden");
         const username = $("username").value.trim(); const password = $("password").value; const confirm = $("confirmPassword").value;
