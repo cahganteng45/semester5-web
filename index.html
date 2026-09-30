@@ -63,7 +63,7 @@ textarea.input{resize:vertical;min-height:130px}
 .nav ul{list-style:none;display:flex;justify-content:space-around;width:100%}
 .nav li{flex:1}
 .nav-item{width:100%;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;font-size:11px;font-weight:700;color:var(--mute);border-radius:14px;transition:color .15s}
-.nav-item .pill{display:grid;place-items:center;width:52px;height:30px;border-radius:15px;transition:background .2s}
+.nav-item .pill{position:relative;display:grid;place-items:center;width:52px;height:30px;border-radius:15px;transition:background .2s}
 .nav-item.active{color:var(--brand)}
 .nav-item.active .pill{background:var(--brand-soft)}
 .main{padding:20px 18px calc(var(--nav-h) + 40px + env(safe-area-inset-bottom));max-width:760px;margin:0 auto;padding-top:calc(20px + env(safe-area-inset-top))}
@@ -213,6 +213,29 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .au .n{font-weight:700;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .au .m{font-size:12px;color:var(--mute);margin:3px 0 10px;word-break:break-word}
 
+/* ---------- forum ---------- */
+.fdot{position:absolute;top:2px;right:6px;width:10px;height:10px;border-radius:50%;background:var(--red);border:2px solid var(--surface)}
+.fmsgs{height:calc(100vh - 330px);height:calc(100dvh - 330px);min-height:280px;overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:14px;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.fday{align-self:center;font-size:11px;font-weight:700;color:var(--mute);background:var(--bg);padding:3px 12px;border-radius:99px;margin:6px 0}
+.fmsg{display:flex}
+.fmsg.me{justify-content:flex-end}
+.fbub{max-width:82%;background:var(--bg);border-radius:16px 16px 16px 4px;padding:8px 12px}
+.fmsg.me .fbub{background:var(--brand-soft);border-radius:16px 16px 4px 16px}
+.fname{font-size:12px;font-weight:700;color:var(--mute);margin-bottom:2px}
+.fname.crown{color:var(--amber)}
+.ftext{white-space:pre-wrap;word-break:break-word;font-size:15px}
+.fquote{border-left:3px solid var(--brand);padding:2px 8px;margin-bottom:4px;font-size:12px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fquote b{display:block;color:var(--brand)}
+.fmeta{display:flex;gap:10px;align-items:center;font-size:11px;color:var(--mute);margin-top:3px}
+.fmeta button{font-size:11px;font-weight:700;color:var(--mute);padding:4px 0}
+.fmeta button:hover{color:var(--brand)}
+.freply{display:flex;align-items:center;gap:8px;background:var(--brand-soft);color:var(--brand);border-radius:var(--r-s);padding:8px 12px;font-size:13px;margin-bottom:8px}
+.freply span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.freply button{font-weight:800;color:inherit;padding:0 4px}
+.fbar{display:flex;gap:8px;align-items:flex-end}
+.fbar textarea{flex:1;resize:none;min-height:48px;max-height:120px}
+.fbar .btn{width:auto;padding:13px 18px}
+
 /* ---------- modal ---------- */
 .modal-bg{position:fixed;inset:0;z-index:1100;background:rgba(6,16,13,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fade .15s ease}
 .modal{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-l);padding:26px 24px 22px;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:pop .22s cubic-bezier(.34,1.4,.64,1)}
@@ -253,7 +276,8 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 /* ---------- mobile nav ---------- */
 @media (max-width:899px){
   .nav{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));height:var(--nav-h);border-radius:24px;display:flex;align-items:center;padding:0 6px;box-shadow:0 8px 30px rgba(0,0,0,.14)}
-  .nav-item .pill{width:44px}
+  .nav-item{font-size:10px}
+  .nav-item .pill{width:40px}
 }
 /* ---------- desktop sidebar ---------- */
 @media (min-width:900px){
@@ -267,6 +291,8 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
   .nav-item{flex-direction:row;gap:12px;padding:12px 14px;font-size:15px;justify-content:flex-start;border-radius:var(--r-s)}
   .nav-item .pill{width:auto;height:auto;background:none!important}
   .nav-item.active{background:var(--brand-soft)}
+  .fdot{top:-2px;right:-4px}
+  .fmsgs{height:calc(100vh - 290px);height:calc(100dvh - 290px)}
   .nav-user{display:flex;align-items:center;gap:10px;padding:14px 8px 0;border-top:1px solid var(--line)}
   .nav-user .avatar{width:38px;height:38px;font-size:14px}
   .nav-user .who{flex:1;min-width:0}
@@ -300,6 +326,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></symbol>
 <symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="M17.9 17.9A10 10 0 0112 20C5 20 1 12 1 12a18 18 0 015-6M9.9 4.2A9 9 0 0112 4c7 0 11 8 11 8a18 18 0 01-2.2 3.2M14.1 14.1a3 3 0 11-4.2-4.2M1 1l22 22"/></symbol>
 <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12a8 8 0 01-11.6 7.1L3 21l1.9-5.4A8 8 0 1121 12z"/></symbol>
 </defs></svg>
 
 <!-- ============ LOGIN ============ -->
@@ -349,6 +376,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
       <li><button class="nav-item active" data-view="home"><span class="pill"><svg class="i"><use href="#i-home"/></svg></span>Beranda</button></li>
       <li><button class="nav-item" data-view="materi"><span class="pill"><svg class="i"><use href="#i-folder"/></svg></span>Materi</button></li>
       <li><button class="nav-item" data-view="jadwal"><span class="pill"><svg class="i"><use href="#i-cal"/></svg></span>Jadwal</button></li>
+      <li><button class="nav-item" data-view="forum"><span class="pill"><svg class="i"><use href="#i-chat"/></svg><i class="fdot hidden" id="fDot"></i></span>Forum</button></li>
       <li><button class="nav-item" data-view="upload"><span class="pill"><svg class="i"><use href="#i-up"/></svg></span>Upload</button></li>
       <li class="hidden" id="navAdminLi"><button class="nav-item" data-view="admin"><span class="pill"><svg class="i"><use href="#i-shield"/></svg></span>Admin</button></li>
       <li><button class="nav-item" data-view="settings"><span class="pill"><svg class="i"><use href="#i-set"/></svg></span>Akun</button></li>
@@ -412,6 +440,17 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
       <div id="scheduleList"></div>
     </section>
 
+    <section class="view" id="view-forum">
+      <h2 class="page-title">Forum kelas</h2>
+      <p class="page-sub">Ngobrol dengan teman sekelas. Hanya 300 pesan terakhir yang disimpan.</p>
+      <div class="fmsgs" id="fMsgs"></div>
+      <div class="freply hidden" id="fReply"></div>
+      <div class="fbar">
+        <textarea class="input" id="fInput" rows="1" maxlength="1000" placeholder="Tulis pesan"></textarea>
+        <button class="btn btn-primary" id="fSend" type="button">Kirim</button>
+      </div>
+    </section>
+
     <section class="view" id="view-upload">
       <h2 class="page-title">Tambah materi</h2>
       <p class="page-sub">Unggah file atau tulis catatan. Hasilnya langsung terkirim ke Telegram.</p>
@@ -453,6 +492,8 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
         <div class="field"><input class="input" id="adNewUser" placeholder="Username" autocapitalize="none"></div>
         <div class="field"><input class="input" id="adNewName" placeholder="Nama lengkap"></div>
         <button class="btn btn-primary" id="adCreate" type="button">Buat akun</button></div>
+      <div class="card"><h3>Forum</h3>
+        <button class="btn btn-danger" id="adForumClear" type="button">Bersihkan semua pesan forum</button></div>
       <div class="card"><h3>Akun website</h3><div id="adUsers"></div></div>
       <div class="card"><h3>IP diblokir</h3>
         <div class="field"><input class="input" id="adIpInput" placeholder="Contoh: 123.123.123.123"></div>
@@ -663,6 +704,7 @@ function switchView(id) {
   if (id === "materi") { backToTopics(); loadTopics(); }
   if (id === "upload") loadTopics();
   if (id === "admin") loadAdmin();
+  if (id === "forum") openForum();
   if (id === "home") { updateGreeting(); renderHome(); renderHomeExtras(); loadTasks(false); }
   window.scrollTo({ top: 0 });
 }
@@ -843,6 +885,7 @@ function logout(manual = true) {
   clearInterval(clockTimer);
   clearInterval(remindTimer);
   clearInterval(refreshTimer);
+  stopForum();
   tasksAll = [];
   $("dueBanner").classList.add("hidden");
   selectedTopicId = "";
@@ -882,6 +925,7 @@ async function initApp() {
     tickClock();
     clockTimer = setInterval(tickClock, 1000);
     startReminders();
+    startForum();
     syncTimer = setInterval(() => {
       if (!document.hidden && token && selectedTopicId && activeView === "materi") loadMaterials(true);
     }, 15000);
@@ -1549,6 +1593,157 @@ $("adIpBan").addEventListener("click", async () => {
   try { await adminAct("ban_ip", ip, ""); $("adIpInput").value = ""; showToast("IP diblokir."); loadAdmin(); }
   catch (err) { showToast(err.message, true); }
 });
+$("adForumClear").addEventListener("click", async () => {
+  if (!(await openModal({ title: "Bersihkan forum?", text: "Semua pesan forum dihapus permanen untuk semua orang.", ok: "Bersihkan", icon: "trash", danger: true }))) return;
+  try {
+    const res = await apiCall("/api/forum/clear", { method: "POST" });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal membersihkan forum.");
+    forumReset();
+    showToast("Forum dibersihkan.");
+  } catch (err) { showToast(err.message, true); }
+});
+
+/* ---------- forum kelas ---------- */
+let fMsgs = [], fLastId = 0, fReplyTo = null, fBusy = false, fLoaded = false, fTimer = null, fTicks = 0;
+const fTime = (iso) => new Date(iso).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+const fDay = (iso) => new Date(iso).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" });
+
+function renderForum(stick) {
+  const box = $("fMsgs");
+  if (!fMsgs.length) {
+    box.innerHTML = `<div class="empty"><span class="big">💬</span>Belum ada pesan. Kirim pesan pertama untuk memulai obrolan.</div>`;
+    return;
+  }
+  let prevDay = "";
+  box.innerHTML = fMsgs.map((m) => {
+    const mine = m.user === currentUser, name = formatSenderName(m.user), crown = name.includes("👑");
+    const day = fDay(m.ts), sep = day !== prevDay ? `<div class="fday">${esc(day)}</div>` : "";
+    prevDay = day;
+    const quote = m.reply ? `<div class="fquote"><b>${esc(formatSenderName(m.reply.user))}</b>${esc(m.reply.text)}</div>` : "";
+    const canDel = mine || isAdmin;
+    return `${sep}<div class="fmsg ${mine ? "me" : ""}"><div class="fbub">
+      ${mine ? "" : `<div class="fname ${crown ? "crown" : ""}">${esc(name)}</div>`}${quote}
+      <div class="ftext">${esc(m.text)}</div>
+      <div class="fmeta"><span>${esc(fTime(m.ts))}</span><button type="button" data-r="${m.id}">Balas</button>${canDel ? `<button type="button" data-d="${m.id}">Hapus</button>` : ""}</div>
+    </div></div>`;
+  }).join("");
+  if (stick) box.scrollTop = box.scrollHeight;
+}
+function forumReset() {
+  fMsgs = []; fLastId = 0; fLoaded = false; fReplyTo = null;
+  $("fDot").classList.add("hidden");
+  $("fReply").classList.add("hidden");
+  renderForum(false);
+}
+async function pollForum() {
+  if (fBusy || !token || !currentUser) return;
+  fBusy = true;
+  try {
+    const res = await apiCall("/api/forum/messages?after=" + fLastId);
+    const d = await res.json();
+    if (!res.ok || !d.ok) return;
+    const box = $("fMsgs");
+    const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+    let changed = false, fresh = 0;
+    if (d.reset) { fMsgs = []; fLastId = 0; changed = true; }
+    const alive = new Set(d.ids);
+    const kept = fMsgs.filter((m) => alive.has(m.id));
+    if (kept.length !== fMsgs.length) { fMsgs = kept; changed = true; }
+    const known = new Set(fMsgs.map((m) => m.id));
+    (d.messages || []).forEach((m) => {
+      fLastId = Math.max(fLastId, m.id);
+      if (known.has(m.id)) return;
+      fMsgs.push(m); changed = true;
+      if (m.user !== currentUser) fresh++;
+    });
+    fMsgs.sort((a, b) => a.id - b.id);
+    if (fresh && fLoaded && activeView !== "forum") $("fDot").classList.remove("hidden");
+    const first = !fLoaded;
+    fLoaded = true;
+    if (changed || first) renderForum(atBottom || first);
+  } catch (e) { /* koneksi putus, coba lagi di putaran berikutnya */ }
+  finally { fBusy = false; }
+}
+async function openForum() {
+  $("fDot").classList.add("hidden");
+  await pollForum();
+  renderForum(true);
+}
+function startForum() {
+  clearInterval(fTimer);
+  forumReset();
+  fTicks = 0;
+  // 4 detik saat forum dibuka, 20 detik di halaman lain (untuk titik notifikasi di menu).
+  fTimer = setInterval(() => {
+    if (!token || !currentUser || document.hidden) return;
+    fTicks++;
+    if (activeView === "forum" || fTicks % 5 === 0) pollForum();
+  }, 4000);
+  pollForum();
+}
+function stopForum() {
+  clearInterval(fTimer);
+  fTimer = null;
+  forumReset();
+}
+function forumAutosize() {
+  const el = $("fInput");
+  el.style.height = "auto";
+  el.style.height = Math.min(el.scrollHeight, 120) + "px";
+}
+function clearForumReply() { fReplyTo = null; $("fReply").classList.add("hidden"); }
+function setForumReply(id) {
+  const m = fMsgs.find((x) => x.id === id);
+  if (!m) return;
+  fReplyTo = id;
+  const r = $("fReply");
+  r.innerHTML = `<span><b>${esc(formatSenderName(m.user))}</b>: ${esc(m.text.slice(0, 80))}</span><button type="button" aria-label="Batalkan balasan">✕</button>`;
+  r.classList.remove("hidden");
+  r.querySelector("button").onclick = clearForumReply;
+  $("fInput").focus();
+}
+async function sendForum() {
+  const inp = $("fInput"), text = inp.value.trim();
+  if (!text) return;
+  const btn = $("fSend");
+  btn.disabled = true;
+  try {
+    const res = await apiCall("/api/forum/send", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, reply_to: fReplyTo }) });
+    const d = await res.json();
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim pesan.");
+    inp.value = ""; forumAutosize(); clearForumReply();
+    if (!fMsgs.some((m) => m.id === d.message.id)) fMsgs.push(d.message);
+    fMsgs.sort((a, b) => a.id - b.id);
+    renderForum(true);
+    pollForum(); // ambil pesan orang lain yang masuk sebelum pesanmu
+  } catch (e) { showToast(e.message, true); }
+  finally { btn.disabled = false; inp.focus(); }
+}
+async function deleteForum(id) {
+  if (!(await openModal({ title: "Hapus pesan ini?", text: "Pesan ini hilang untuk semua orang.", ok: "Hapus", icon: "trash", danger: true }))) return;
+  try {
+    const res = await apiCall("/api/forum/message/" + id, { method: "DELETE" });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menghapus pesan.");
+    fMsgs = fMsgs.filter((m) => m.id !== id);
+    renderForum(false);
+  } catch (e) { showToast(e.message, true); }
+}
+$("fSend").addEventListener("click", sendForum);
+$("fInput").addEventListener("input", forumAutosize);
+$("fInput").addEventListener("keydown", (e) => {
+  // Di HP, Enter = baris baru. Di komputer, Enter = kirim (Shift+Enter = baris baru).
+  if (e.key === "Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches) { e.preventDefault(); sendForum(); }
+});
+$("fMsgs").addEventListener("click", (e) => {
+  const r = e.target.closest("[data-r]"), d = e.target.closest("[data-d]");
+  if (r) setForumReply(+r.dataset.r);
+  else if (d) deleteForum(+d.dataset.d);
+});
+renderForum(false);
 
 /* ---------- boot ---------- */
 fetch(API + "/api/status", { cache: "no-store" }).then((r) => r.json())
