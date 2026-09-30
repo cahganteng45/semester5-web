@@ -191,6 +191,15 @@ textarea.input{resize:vertical;min-height:130px}
 .sw.active{box-shadow:0 0 0 3px var(--ink)}
 .mfilter{margin-bottom:12px}
 
+.task{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);width:100%;text-align:left}
+.task:first-child{border-top:0;padding-top:0}
+.task .tt{flex:1;min-width:0}
+.task b{display:block;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.task small{color:var(--mute);font-size:12px}
+.due{flex-shrink:0;font-size:12px;font-weight:700;padding:5px 10px;border-radius:8px;background:var(--brand-soft);color:var(--brand)}
+.due.soon{background:var(--red-soft);color:var(--red)}
+.deadline.late{background:var(--line);color:var(--mute)}
+
 /* ---------- toast ---------- */
 #toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-140px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:700;font-size:14px;z-index:999;max-width:90vw;transition:transform .35s cubic-bezier(.34,1.4,.64,1)}
 #toast.show{transform:translate(-50%,0)}
@@ -314,6 +323,7 @@ textarea.input{resize:vertical;min-height:130px}
         <button data-go="materi"><span class="ic"><svg class="i"><use href="#i-folder"/></svg></span>Buka materi</button>
         <button data-go="jadwal"><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span>Lihat jadwal</button>
       </div>
+      <div class="card hidden" id="taskCard"><h3>Tugas mendatang</h3><div id="taskList"></div></div>
       <div class="card"><h3>Kelas hari ini</h3><div id="todayList"></div></div>
       <div class="card hidden" id="favCard"><h3>Matkul favorit</h3><div class="favs" id="favList"></div></div>
       <div class="card hidden" id="adminPanel"><h3>Pengaturan topik (admin)</h3><div id="adminTopics"></div></div>
@@ -469,9 +479,12 @@ const pad = (n) => String(n).padStart(2, "0");
 
 function formatSenderName(raw) {
   if (!raw) return "Unknown";
-  const low = String(raw).toLowerCase().trim();
-  if (["admin", "@admin", "brownmatcha", "@brownmatcha"].includes(low)) return "Padil 👑";
-  return String(raw).startsWith("@") ? String(raw) : "@" + raw;
+  let t = String(raw).trim();
+  const m = t.match(/\(@?([A-Za-z0-9_.]{2,})\)\s*$/);
+  if (m) t = "@" + m[1];
+  const low = t.replace(/^@/, "").toLowerCase();
+  if (["admin", "brownmatcha"].includes(low)) return "Padil 👑";
+  return t.startsWith("@") ? t : "@" + t;
 }
 function formatBytes(b) {
   if (!b) return "0 B";
@@ -489,7 +502,7 @@ function showToast(msg, isErr) {
 }
 function callName() {
   if (currentUser.toLowerCase() === "admin") return "Padil";
-  return (fullUserName || currentUser).trim().split(/\s+/)[0];
+  return (fullUserName || currentUser).trim();
 }
 function initials() {
   if (currentUser.toLowerCase() === "admin") return "PD";
@@ -542,7 +555,7 @@ function switchView(id) {
   document.querySelectorAll(".nav-item").forEach((b) => b.classList.toggle("active", b.dataset.view === id));
   if (id === "materi") { backToTopics(); loadTopics(); }
   if (id === "upload") loadTopics();
-  if (id === "home") { updateGreeting(); renderHome(); renderHomeExtras(); }
+  if (id === "home") { updateGreeting(); renderHome(); renderHomeExtras(); loadTasks(false); }
   window.scrollTo({ top: 0 });
 }
 document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click", () => switchView(b.dataset.view)));
@@ -782,6 +795,7 @@ async function loadTopics() {
     renderUploadSelect();
     renderAdminPanel();
     renderHomeExtras();
+    loadTasks(false);
   } catch (err) { console.error(err); }
 }
 function renderTopicsGrid() {
@@ -903,7 +917,9 @@ function renderMaterials() {
     if (caption.includes("⏰ DEADLINE:")) {
       const p = caption.split("⏰ DEADLINE:");
       caption = p[0].trim();
-      deadline = `<div class="deadline">${svg("clock", 14)} Deadline: ${p[1].trim()}</div>`;
+      const due = parseDeadline("DEADLINE:" + p[1]);
+      const late = due && due.getTime() < Date.now();
+      deadline = `<div class="deadline ${late ? "late" : ""}">${svg("clock", 14)} Deadline: ${p[1].trim()}${due ? " · " + relTime(due) : ""}</div>`;
     }
     let preview = "";
     if (isText) preview = caption ? `<div class="mnote">${caption}</div>` : "";
@@ -950,6 +966,7 @@ $("materialsList").addEventListener("click", async (e) => {
       const res = await apiCall("/api/material/" + encodeURIComponent(b.dataset.id), { method: "DELETE" });
       if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || "Gagal menghapus."); }
       showToast("Materi dihapus.");
+      tasksCache.at = 0;
       loadMaterials(true);
     } catch (err) { showToast(err.message, true); }
   }
@@ -1011,6 +1028,7 @@ $("uploadBtn").addEventListener("click", async () => {
     const data = await xhrUpload(fd);
     if (!data.ok) throw new Error(data.error || "Gagal mengunggah.");
     showToast("Materi terkirim ke Telegram.");
+    tasksCache.at = 0;
     fileInput.value = "";
     resetFileLabel();
     ["captionInput", "deadlineInput", "noteInput", "topicSelect"].forEach((id) => { $(id).value = ""; });
@@ -1132,6 +1150,67 @@ document.addEventListener("keydown", (e) => {
 window.addEventListener("online", () => { $("offline").classList.add("hidden"); showToast("Kembali online."); });
 window.addEventListener("offline", () => $("offline").classList.remove("hidden"));
 if (!navigator.onLine) $("offline").classList.remove("hidden");
+
+/* ---------- tugas mendatang (dibaca dari deadline di keterangan) ---------- */
+const MONTHS = { januari: 0, februari: 1, maret: 2, april: 3, mei: 4, juni: 5, juli: 6, agustus: 7, september: 8, oktober: 9, november: 10, desember: 11 };
+let tasksCache = { at: 0, user: "", list: [] }, tasksBusy = false;
+function parseDeadline(text) {
+  const i = String(text).indexOf("DEADLINE:");
+  if (i < 0) return null;
+  const m = String(text).slice(i).match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4}).*?(\d{1,2})[.:](\d{2})/);
+  if (!m) return null;
+  const mo = MONTHS[m[2].toLowerCase()];
+  if (mo === undefined) return null;
+  return new Date(+m[3], mo, +m[1], +m[4], +m[5]);
+}
+function relTime(d) {
+  const diff = d.getTime() - Date.now(), mins = Math.floor(Math.abs(diff) / 60000);
+  const hrs = Math.floor(mins / 60), days = Math.floor(hrs / 24);
+  const t = days >= 1 ? days + " hari" : hrs >= 1 ? hrs + " jam" : Math.max(mins, 1) + " menit";
+  return diff >= 0 ? t + " lagi" : "lewat " + t;
+}
+function renderTasks() {
+  const list = tasksCache.list;
+  $("taskCard").classList.toggle("hidden", !list.length);
+  $("taskList").innerHTML = list.map((k) => {
+    const soon = k.due.getTime() - Date.now() < 24 * 3600 * 1000;
+    return `<button type="button" class="task" data-open="${esc(k.topicId)}">
+      <div class="tt"><b>${esc(k.title)}</b><small>${esc(k.topicName)}</small></div>
+      <span class="due ${soon ? "soon" : ""}">${esc(relTime(k.due))}</span></button>`;
+  }).join("");
+}
+async function loadTasks(force) {
+  if (!token || tasksBusy || !topicsList.length) return;
+  if (!force && tasksCache.user === currentUser && Date.now() - tasksCache.at < 120000) return renderTasks();
+  tasksBusy = true;
+  try {
+    const results = await Promise.all(topicsList.map((t) =>
+      apiCall("/api/materials?topic=" + encodeURIComponent(t.id))
+        .then((r) => (r.ok ? r.json() : { materials: [] }))
+        .catch(() => ({ materials: [] }))
+        .then((d) => ({ t, items: d.materials || [] }))));
+    const out = [];
+    results.forEach(({ t, items }) => items.forEach((m) => {
+      const raw = String(m.content || m.caption || "");
+      const due = parseDeadline(raw);
+      if (!due || due.getTime() < Date.now()) return;
+      const head = raw.split("⏰")[0].trim().split("\n")[0].trim();
+      const title = (head || (m.name && String(m.kind).toLowerCase() !== "text" ? m.name : "Tugas")).slice(0, 70);
+      out.push({ title, due, topicId: String(t.id), topicName: t.name || "Mata kuliah" });
+    }));
+    out.sort((a, b) => a.due - b.due);
+    tasksCache = { at: Date.now(), user: currentUser, list: out.slice(0, 4) };
+    renderTasks();
+  } finally {
+    tasksBusy = false;
+  }
+}
+$("taskList").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-open]");
+  if (!b) return;
+  switchView("materi");
+  openTopic(b.dataset.open);
+});
 
 /* ---------- boot ---------- */
 if (token) initApp(); else $("login").classList.remove("hidden");
