@@ -46,7 +46,7 @@
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         /* =========================================================
-           LOGIN PAGE
+           LOGIN PAGE & FORMS
            ========================================================= */
         #loginPage { position: fixed; inset: 0; background: linear-gradient(135deg, #f0f4ff 0%, #fdfbfb 100%); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
         .login-box { background: var(--bg-surface-glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); padding: 45px 40px; border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); width: 100%; max-width: 420px; border: 1px solid rgba(255,255,255,0.7); }
@@ -62,7 +62,7 @@
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
         .btn-primary:active { transform: translateY(0); }
         .btn-primary:disabled { opacity: 0.7; transform: none; cursor: not-allowed; }
-        .link-btn { width: 100%; text-align: center; margin-top: 20px; font-size: 14px; font-weight: 700; color: var(--primary); }
+        .link-btn { width: 100%; text-align: center; margin-top: 15px; font-size: 13px; font-weight: 700; color: var(--primary); display:block;}
         .link-btn:hover { color: var(--primary-hover); }
         .alert { padding: 14px 18px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
         .alert-error { background: var(--danger-light); color: var(--danger); border: 1px solid #fecaca; }
@@ -81,7 +81,6 @@
         .nav-item svg { width: 22px; height: 22px; stroke-width: 2.5; transition: var(--transition); }
         .nav-item:hover { background: var(--bg-body); color: var(--text-main); }
         .nav-item.active { background: var(--primary-light); color: var(--primary); }
-        .mobile-only-nav { display: none; }
 
         .user-profile { padding: 20px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
         .user-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
@@ -89,8 +88,6 @@
         .user-avatar.owner-avatar { background: linear-gradient(135deg, #ffd700, #ff8c00); color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         .user-name { font-size: 14px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .user-role { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
-        .btn-logout { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--danger); background: var(--danger-light); }
-        .btn-logout:hover { background: #fecaca; transform: scale(1.05); }
 
         .main-content { flex: 1; margin-left: var(--nav-width); padding: 40px 48px 100px; max-width: 1300px; }
         
@@ -112,6 +109,7 @@
         .badge-primary { background: var(--primary-light); color: var(--primary); }
         .badge-warning { background: var(--warning-light); color: var(--warning); border: 1px solid #fde68a; }
 
+        /* Topic Grid */
         .topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
         .topic-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: var(--transition); position: relative; }
         .topic-card:hover { border-color: #a5b4fc; box-shadow: var(--shadow-md); transform: translateY(-3px); }
@@ -125,6 +123,7 @@
         .pin-btn:hover { background: #f1f5f9; color: var(--warning); }
         .topic-card.pinned .pin-btn { color: var(--warning); }
 
+        /* Materials View */
         .material-actions-bar { display: flex; justify-content: space-between; align-items: center; background: white; padding: 14px 20px; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 20px; box-shadow: var(--shadow-sm); }
         .selected-topic-label { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 16px; }
         .btn-icon { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; background: var(--bg-body); border: 1px solid var(--border); }
@@ -151,15 +150,16 @@
         .btn-pin { background: #f1f5f9; color: var(--text-muted); }
         .material-item.pinned-msg .btn-pin { background: var(--warning-light); color: var(--warning); }
 
+        /* Upload View */
         .upload-type-selector { display: flex; gap: 10px; margin-bottom: 20px; }
         .type-btn { flex: 1; padding: 12px; border-radius: 12px; border: 2px solid var(--border); background: white; font-weight: 800; font-size: 14px; color: var(--text-muted); transition: var(--transition); text-align: center; }
         .type-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
-        
         #areaFile, #areaNote { display: block; margin-bottom: 20px; width: 100%; clear: both; }
         .upload-area { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: var(--radius-lg); padding: 40px 20px; text-align: center; cursor: pointer; transition: var(--transition); width: 100%; box-sizing: border-box; margin-bottom: 10px; }
         .upload-area:hover { border-color: var(--primary); background: var(--primary-light); }
         .upload-icon { width: 48px; height: 48px; color: var(--primary); margin-bottom: 12px; }
 
+        /* Schedule View */
         .schedule-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
         .day-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); }
         .day-header { background: linear-gradient(135deg, var(--primary), #8b5cf6); color: white; padding: 16px 24px; font-weight: 900; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
@@ -170,6 +170,7 @@
         .class-name { font-size: 15px; font-weight: 800; color: var(--text-main); line-height: 1.3; }
         .class-room { font-size: 13px; color: var(--text-muted); font-weight: 600; margin-top: 6px; display: flex; align-items: center; gap: 6px;}
 
+        /* PREMIUM TOAST */
         #toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-150px); background: var(--text-main); color: white; padding: 14px 24px; border-radius: 100px; font-size: 14px; font-weight: 700; box-shadow: 0 15px 35px rgba(0,0,0,0.25); z-index: 9999; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; gap: 10px; }
         #toast.show { transform: translateX(-50%) translateY(0); }
         .empty-state { text-align: center; padding: 50px 20px; color: var(--text-muted); font-weight: 600;}
@@ -184,7 +185,6 @@
             .nav-item.active { color: var(--primary); }
             .nav-item.active svg { transform: translateY(-3px); }
             .nav-item.active::after { content: ''; position: absolute; top: -1px; left: 50%; transform: translateX(-50%); width: 35px; height: 3px; background: var(--primary); border-radius: 0 0 4px 4px; }
-            .mobile-only-nav { display: block; }
             
             .main-content { margin-left: 0; padding: 24px 20px calc(var(--nav-bottom-height) + 30px); }
             .page-header { margin-top: 10px; margin-bottom: 24px;}
@@ -210,6 +210,7 @@
         <symbol id="icon-file" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></symbol>
         <symbol id="icon-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 4.5l-4 4L7 8.5 5.5 10l3.5 3.5-4.5 4.5 1.5 1.5 4.5-4.5L14 18.5l1.5-1.5-1-4 4-4-3.5-3.5z" /></symbol>
         <symbol id="icon-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></symbol>
+        <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></symbol>
     </defs>
 </svg>
 
@@ -220,18 +221,19 @@
             <h1>Semester 5</h1>
             <p id="loginSub">Study hub eksklusif kelas kita.</p>
         </div>
+        
         <div id="loginError" class="alert alert-error hidden"></div>
-        <form id="loginForm">
+        
+        <!-- Form Login & Register -->
+        <form id="authForm">
             <div class="form-group">
                 <label>USERNAME</label>
                 <input type="text" id="username" class="form-control" placeholder="Masukkan username" required autocomplete="username">
             </div>
-            
             <div id="nameWrap" class="form-group hidden">
                 <label>NAMA LENGKAP</label>
                 <input type="text" id="fullName" class="form-control" placeholder="Contoh: Andi Saputra" autocomplete="name">
             </div>
-            
             <div class="form-group">
                 <label>PASSWORD</label>
                 <input type="password" id="password" class="form-control" placeholder="Masukkan password" required autocomplete="current-password">
@@ -242,9 +244,32 @@
             </div>
             <button type="submit" id="loginButton" class="btn-primary">Masuk ke Dashboard</button>
         </form>
+
+        <!-- Form Reset Password Mandiri (Lupa Password) -->
+        <form id="forgotForm" class="hidden">
+            <div class="form-group">
+                <label>USERNAME</label>
+                <input type="text" id="fgUsername" class="form-control" placeholder="Masukkan username akun kamu" required>
+            </div>
+            <div class="form-group">
+                <label>NAMA LENGKAP (SESUAI SAAT DAFTAR)</label>
+                <input type="text" id="fgFullName" class="form-control" placeholder="Masukkan nama lengkap kamu" required>
+            </div>
+            <div class="form-group">
+                <label>PASSWORD BARU</label>
+                <input type="password" id="fgPassword" class="form-control" placeholder="Buat password baru (Min 6 karakter)" required>
+            </div>
+            <button type="submit" id="forgotBtn" class="btn-primary" style="background: linear-gradient(135deg, var(--warning), #f59e0b);">Ganti Password Sekarang</button>
+        </form>
         
-        <button type="button" class="link-btn" onclick="forgotPassword()" style="margin-top: 15px; color: var(--text-muted); font-size: 12px; font-weight: 600;">Lupa Password?</button>
-        <button type="button" id="registerToggle" class="link-btn" style="margin-top: 5px;">Belum punya akun? Buat disini</button>
+        <div id="authLinks">
+            <button type="button" class="link-btn" onclick="toggleForgotMode()" style="margin-top: 15px; color: var(--text-muted); font-size: 12px; font-weight: 600;">Lupa Password?</button>
+            <button type="button" id="registerToggle" class="link-btn" style="margin-top: 5px;">Belum punya akun? Buat disini</button>
+        </div>
+        
+        <div id="forgotLinks" class="hidden">
+            <button type="button" class="link-btn" onclick="toggleForgotMode()" style="margin-top: 15px; color: var(--text-muted); font-size: 13px;">Batal & Kembali ke Login</button>
+        </div>
     </div>
 </div>
 
@@ -259,7 +284,9 @@
             <li><button class="nav-item" onclick="switchView('materi'); loadTopics();"><svg><use href="#icon-folder"></use></svg> Materi</button></li>
             <li><button class="nav-item" onclick="switchView('jadwal')"><svg><use href="#icon-calendar"></use></svg> Jadwal</button></li>
             <li><button class="nav-item" onclick="switchView('upload'); loadTopics();"><svg><use href="#icon-upload"></use></svg> Upload</button></li>
-            <li class="mobile-only-nav"><button class="nav-item" onclick="logout()" style="color: var(--danger);"><svg><use href="#icon-logout"></use></svg> Keluar</button></li>
+            
+            <!-- UPDATE MENU BAWAH: HAPUS KELUAR, GANTI JADI PENGATURAN -->
+            <li><button class="nav-item" onclick="switchView('settings')"><svg><use href="#icon-settings"></use></svg> Pengaturan</button></li>
         </ul>
         <div class="user-profile">
             <div class="user-info">
@@ -273,7 +300,13 @@
     <main class="main-content">
         <header class="page-header">
             <h1 class="greeting" id="greetingText">Halo! 👋</h1>
-            <p class="date-text" id="currentDateText">Memuat tanggal...</p>
+            <p class="date-text">
+                <span id="currentDateText">Memuat tanggal...</span> 
+                <span style="color: var(--border);">|</span>
+                <span id="liveClock" style="color: var(--primary); font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">
+                    <svg width="14" height="14"><use href="#icon-clock"></use></svg> 00:00:00
+                </span>
+            </p>
         </header>
 
         <section id="view-home" class="view-section active">
@@ -287,17 +320,47 @@
                     <button onclick="switchView('materi'); loadTopics();" style="background: white; color: var(--primary); padding: 12px 20px; border-radius: 12px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">Buka Materi</button>
                 </div>
             </div>
-            
-            <!-- 🔥 PENGATURAN AKUN (GANTI PASSWORD) 🔥 -->
-            <div class="card" style="margin-bottom: 24px;">
-                <h3 style="margin-bottom: 15px; font-size:16px;">Pengaturan Akun</h3>
-                <button onclick="changePassword()" class="btn-icon" style="width:100%; justify-content:center; background:var(--primary-light); color:var(--primary); padding:14px; font-size:14px;">🔑 Ganti Password</button>
-            </div>
 
             <div id="adminPanel" class="card hidden" style="margin-bottom: 24px;">
                 <div class="card-header"><div class="card-title">👑 Panel Admin Topic</div><span class="badge badge-primary">ADMIN ONLY</span></div>
                 <div id="adminTopics" style="display: flex; flex-direction: column; gap: 10px;"></div>
             </div>
+        </section>
+
+        <!-- 🔥 MENU PENGATURAN BARU 🔥 -->
+        <section id="view-settings" class="view-section">
+            <div class="card" style="margin-bottom: 24px;">
+                <h3 style="margin-bottom: 20px; font-size:16px;">Profil Akun</h3>
+                <div style="display:flex; align-items:center; gap:16px; margin-bottom: 10px;">
+                    <div class="user-avatar" id="settingAvatar" style="width:64px; height:64px; font-size:20px;">US</div>
+                    <div>
+                        <div id="settingFullName" style="font-weight:800; font-size:18px;">Name</div>
+                        <div id="settingUsername" style="color:var(--text-muted); font-weight:600; font-size:14px; margin-top:2px;">@username</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 24px;">
+                <h3 style="margin-bottom: 20px; font-size:16px;">Ganti Password</h3>
+                <form id="changePasswordForm">
+                    <div class="form-group">
+                        <label>PASSWORD LAMA</label>
+                        <input type="password" id="cpOld" class="form-control" placeholder="Masukkan password lama" required>
+                    </div>
+                    <div class="form-group">
+                        <label>PASSWORD BARU</label>
+                        <input type="password" id="cpNew" class="form-control" placeholder="Buat password baru (Min 6 karakter)" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ULANGI PASSWORD BARU</label>
+                        <input type="password" id="cpConfirm" class="form-control" placeholder="Ketik ulang password baru" required>
+                    </div>
+                    <button type="submit" id="cpBtn" class="btn-primary" style="margin-top:5px;">Simpan Password Baru</button>
+                </form>
+            </div>
+            
+            <!-- TOMBOL KELUAR DI PINDAH KE SINI KHUSUS HP -->
+            <button onclick="logout()" class="btn-primary mobile-only-nav" style="background:var(--danger-light); color:var(--danger); box-shadow:none; padding:18px;">🚪 Keluar dari Akun</button>
         </section>
 
         <section id="view-materi" class="view-section">
@@ -395,14 +458,23 @@
     ];
 
     let token = localStorage.getItem("semester5_token") || "";
-    let currentUser = ""; let fullUserName = ""; let isAdmin = false; let topicsList = []; let selectedTopicId = ""; let registerMode = false; let syncInterval;
+    let currentUser = ""; let fullUserName = ""; let isAdmin = false; let topicsList = []; let selectedTopicId = ""; 
+    let registerMode = false; let forgotMode = false; let syncInterval;
     let currentUploadType = 'file'; 
     
+    // LOAD PINS
     let pinnedTopics = JSON.parse(localStorage.getItem('semester5_pinned_topics') || '[]');
     let pinnedMaterials = JSON.parse(localStorage.getItem('semester5_pinned_materials') || '[]');
 
     const $ = id => document.getElementById(id);
     const esc = str => String(str ?? "").replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+
+    // FITUR JAM REAL-TIME
+    setInterval(() => {
+        const now = new Date();
+        const el = $("liveClock");
+        if(el) { el.innerHTML = `<svg width="14" height="14"><use href="#icon-clock"></use></svg> ${now.toLocaleTimeString('id-ID', { hour12: false })}`; }
+    }, 1000);
 
     function showToast(msg, isError = false) {
         const t = $("toast"); t.innerHTML = (isError ? "❌ " : "✅ ") + esc(msg);
@@ -451,6 +523,21 @@
         `).join("");
     }
 
+    // TOGGLE FORGOT PASSWORD FORM
+    window.toggleForgotMode = function() {
+        forgotMode = !forgotMode;
+        $("loginError").classList.add("hidden");
+        if(forgotMode) {
+            $("authForm").classList.add("hidden"); $("authLinks").classList.add("hidden");
+            $("forgotForm").classList.remove("hidden"); $("forgotLinks").classList.remove("hidden");
+            $("loginSub").textContent = "Reset password secara mandiri.";
+        } else {
+            $("authForm").classList.remove("hidden"); $("authLinks").classList.remove("hidden");
+            $("forgotForm").classList.add("hidden"); $("forgotLinks").classList.add("hidden");
+            $("loginSub").textContent = registerMode ? "Daftar akun baru" : "Study hub eksklusif kelas kita.";
+        }
+    };
+
     $("registerToggle").onclick = () => {
         registerMode = !registerMode; $("loginError").classList.add("hidden");
         if (registerMode) { 
@@ -483,66 +570,45 @@
         } catch (error) { err.innerHTML = "❌ " + esc(error.message); err.classList.remove("hidden"); } 
         finally { btn.disabled = false; btn.textContent = registerMode ? "Buat Akun Sekarang" : "Masuk ke Dashboard"; }
     });
-    
-    // 🔥 FITUR RESET MANDIRI (LUPA PASSWORD) 🔥
-    async function forgotPassword() {
-        const un = prompt("LUPA PASSWORD\n\nMasukkan Username website kamu:");
-        if(!un) return;
-        const fn = prompt("Masukkan Nama Lengkap kamu (Sesuai saat mendaftar):");
-        if(!fn) return;
-        const np = prompt("Masukkan PASSWORD BARU yang kamu inginkan (Minimal 6 karakter):");
-        if(!np) return;
-        if(np.length < 6) return alert("❌ Password minimal 6 karakter!");
+
+    // SUBMIT LUPA PASSWORD
+    $("forgotForm").addEventListener("submit", async e => {
+        e.preventDefault();
+        const btn = $("forgotBtn"); const err = $("loginError"); btn.disabled = true; err.classList.add("hidden");
+        const un = $("fgUsername").value.trim(); const fn = $("fgFullName").value.trim(); const np = $("fgPassword").value;
+        
+        if(np.length < 6) { err.innerHTML = "❌ Password minimal 6 karakter!"; err.classList.remove("hidden"); btn.disabled = false; return; }
 
         try {
-            const res = await fetch(API + "/api/forgot_password", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: un, full_name: fn, new_password: np })
-            });
+            btn.textContent = "Memproses...";
+            const res = await fetch(API + "/api/forgot_password", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: un, full_name: fn, new_password: np }) });
             const data = await res.json();
             if(data.ok) {
                 alert("✅ RESET BERHASIL!\n\nPassword kamu sudah berhasil diganti.\nSilakan login menggunakan password baru tersebut.");
-            } else {
-                alert("❌ Gagal: " + data.error);
-            }
-        } catch(e) {
-            alert("❌ Terjadi kesalahan jaringan.");
-        }
-    }
+                toggleForgotMode(); $("forgotForm").reset();
+            } else { throw new Error(data.error); }
+        } catch(error) { err.innerHTML = "❌ " + esc(error.message); err.classList.remove("hidden"); }
+        finally { btn.disabled = false; btn.textContent = "Ganti Password Sekarang"; }
+    });
 
-    // 🔥 FITUR GANTI PASSWORD DI DALAM APLIKASI 🔥
-    async function changePassword() {
-        const op = prompt("GANTI PASSWORD\n\nMasukkan Password Lama kamu:");
-        if(!op) return;
-        const np = prompt("Masukkan Password Baru (Minimal 6 karakter):");
-        if(!np) return;
-        if(np.length < 6) return alert("❌ Password baru minimal 6 karakter!");
-        const cp = prompt("Ketik ulang Password Baru:");
-        if(np !== cp) return alert("❌ Konfirmasi password tidak cocok!");
+    // SUBMIT GANTI PASSWORD DI PENGATURAN
+    $("changePasswordForm").addEventListener("submit", async e => {
+        e.preventDefault();
+        const op = $("cpOld").value; const np = $("cpNew").value; const cp = $("cpConfirm").value;
+        if(np !== cp) return showToast("Konfirmasi password tidak cocok!", true);
+        if(np.length < 6) return showToast("Password baru minimal 6 karakter!", true);
 
-        const btn = document.querySelector('button[onclick="changePassword()"]');
-        const oldText = btn.textContent;
+        const btn = $("cpBtn"); const oldText = btn.textContent;
         btn.textContent = "⏳ Memproses..."; btn.disabled = true;
 
         try {
-            const res = await apiCall("/api/change_password", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({old_password: op, new_password: np})
-            });
+            const res = await apiCall("/api/change_password", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({old_password: op, new_password: np}) });
             const data = await res.json();
-            if(data.ok) {
-                showToast("✅ Password berhasil diubah!");
-            } else {
-                showToast(data.error, true);
-            }
-        } catch(e) {
-            showToast("Gagal mengubah password.", true);
-        } finally {
-            btn.textContent = oldText; btn.disabled = false;
-        }
-    }
+            if(data.ok) { showToast("✅ Password berhasil diubah!"); $("changePasswordForm").reset(); } 
+            else { showToast(data.error, true); }
+        } catch(error) { showToast("Gagal mengubah password.", true); } 
+        finally { btn.textContent = oldText; btn.disabled = false; }
+    });
 
     function logout(manual = true) {
         token = ""; localStorage.removeItem("semester5_token"); $("app").classList.add("hidden"); $("loginPage").classList.remove("hidden"); $("loginForm").reset(); clearInterval(syncInterval);
@@ -558,11 +624,22 @@
             
             let sideName = fullUserName;
             if(currentUser.toLowerCase() === 'admin') sideName = 'Padil 👑';
+            
             $("displayUsername").textContent = sideName;
+            $("settingFullName").textContent = sideName;
+            $("settingUsername").textContent = "@" + currentUser;
             
             let initial = (currentUser.toLowerCase() === 'admin') ? 'PD' : currentUser.substring(0, 2).toUpperCase(); 
             $("avatarInitials").textContent = initial;
-            if(currentUser.toLowerCase() === 'admin') $("avatarInitials").classList.add('owner-avatar'); else $("avatarInitials").classList.remove('owner-avatar');
+            $("settingAvatar").textContent = initial;
+
+            if(currentUser.toLowerCase() === 'admin') {
+                $("avatarInitials").classList.add('owner-avatar');
+                $("settingAvatar").classList.add('owner-avatar');
+            } else {
+                $("avatarInitials").classList.remove('owner-avatar');
+                $("settingAvatar").classList.remove('owner-avatar');
+            }
             
             $("loginPage").classList.add("hidden"); $("app").classList.remove("hidden");
             updateGreeting(); renderJadwal(); await loadTopics(); switchView('home');
@@ -581,6 +658,18 @@
         if(pinnedMaterials.includes(materialId)) pinnedMaterials = pinnedMaterials.filter(id => id !== materialId); else pinnedMaterials.push(materialId);
         localStorage.setItem('semester5_pinned_materials', JSON.stringify(pinnedMaterials));
         loadMaterials(true); 
+    };
+
+    window.copyNoteText = function(btn) {
+        const noteContainer = btn.closest('.material-item').querySelector('.m-note');
+        if (noteContainer) {
+            const textToCopy = noteContainer.innerText;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast("Catatan berhasil disalin ke clipboard!");
+            }).catch(() => {
+                showToast("Gagal menyalin catatan", true);
+            });
+        }
     };
 
     async function loadTopics() {
@@ -668,6 +757,7 @@
             const pinBtn = `<button class="m-btn btn-pin" onclick="toggleMaterialPin('${m.id}')">📌 ${isPinned ? 'Unpin' : 'Pin'}</button>`;
             const downloadBtn = (url && !isText) ? `<a href="${esc(url)}" target="_blank" class="m-btn btn-download">📥 Buka File</a>` : '';
             const teleBtn = m.telegram_url ? `<a href="${esc(m.telegram_url)}" target="_blank" class="m-btn btn-tele">✈️ Telegram</a>` : '';
+            const copyBtn = isText ? `<button class="m-btn btn-copy" onclick="copyNoteText(this)">📋 Salin Teks</button>` : '';
             const delBtn = isAdmin ? `<button class="m-btn btn-del" onclick="deleteMaterial('${m.id}')">🗑️ Hapus</button>` : '';
 
             return `
@@ -680,7 +770,7 @@
                     ${!isText && captionText ? `<div style="font-size:14px; color:var(--text-muted); font-weight:500; white-space:pre-wrap;">${captionText}</div>` : ''}
                     ${deadlineHtml}
                     ${previewHtml}
-                    <div class="m-buttons">${pinBtn} ${downloadBtn} ${teleBtn} ${delBtn}</div>
+                    <div class="m-buttons">${pinBtn} ${copyBtn} ${downloadBtn} ${teleBtn} ${delBtn}</div>
                 </div>`;
         }).join("");
     }
