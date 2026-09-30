@@ -87,11 +87,11 @@ textarea.input{resize:vertical;min-height:130px}
 .cls .m{font-size:13px;color:var(--mute)}
 .cls.done{opacity:.5}
 .cls.now .n::after{content:' • sedang berlangsung';color:var(--ok);font-size:12px;font-weight:700}
-.quick{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-.quick button{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:16px;border-radius:var(--r-m);background:var(--surface);border:1px solid var(--line);font-weight:700;text-align:left;transition:transform .15s}
-.quick button:active{transform:scale(.97)}
-.quick .ic{width:40px;height:40px;border-radius:12px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center}
-.pomo{font-family:var(--font-d);font-size:38px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.quick button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 6px;border-radius:var(--r-s);background:var(--surface);border:1px solid var(--line);font-weight:700;font-size:12px;line-height:1.2;text-align:center;transition:transform .15s}
+.quick button:active{transform:scale(.96)}
+.quick .ic{width:30px;height:30px;border-radius:9px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center}
+.quick .ic svg{width:17px;height:17px}
 .adm-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--line);gap:10px;font-weight:500;font-size:14px}
 .adm-row:first-child{border-top:0}
 .vis{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700}
@@ -343,15 +343,13 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <div class="hero"><h1 id="greetingText">Halo!</h1><p id="dateText">Memuat tanggal…</p><div class="clock" id="liveClock">00:00:00</div><div class="strip" id="strip"></div></div>
 <div class="card next" id="nextCard"></div>
 <div class="quick">
-<button data-go="upload"><span class="ic"><svg class="i"><use href="#i-up"/></svg></span>Upload file</button>
-<button data-go="note"><span class="ic"><svg class="i"><use href="#i-edit"/></svg></span>Catatan cepat</button>
+<button type="button" data-go="upload"><span class="ic"><svg class="i"><use href="#i-up"/></svg></span>Upload file</button>
 <button type="button" id="qTask"><span class="ic"><svg class="i"><use href="#i-clock"/></svg></span>Lihat tugas</button>
 <button type="button" id="qSearch"><span class="ic"><svg class="i"><use href="#i-folder"/></svg></span>Cari matkul</button>
 </div>
-<div class="card hidden" id="taskCard"><h3>Tugas mendatang</h3><div id="taskList"></div></div>
+<div class="card" id="taskCard"><h3>Tugas mendatang</h3><div id="taskList"><div class="empty" style="padding:16px 8px">Memuat tugas…</div></div></div>
 <div class="card"><h3>Kelas hari ini</h3><div id="todayList"></div></div>
 <div class="card hidden" id="favCard"><h3>Matkul favorit</h3><div class="favs" id="favList"></div></div>
-<div class="card"><h3>Fokus belajar</h3><div class="row between"><div class="pomo" id="pomoTime">25:00</div><div class="row"><button class="btn btn-soft" id="pomoGo" type="button">Mulai</button><button class="btn btn-line" id="pomoReset" type="button">Reset</button></div></div></div>
 <div class="card hidden" id="adminPanel"><h3>Pengaturan topik (admin)</h3><div id="adminTopics"></div></div>
 </section>
 
@@ -565,10 +563,19 @@ function switchView(id) {
   window.scrollTo({ top: 0 });
 }
 document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click", () => switchView(b.dataset.view)));
-document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => {
-  if (b.dataset.go === "note") { switchView("upload"); setUploadType("note"); }
-  else switchView(b.dataset.go);
-}));
+document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => switchView(b.dataset.go)));
+
+/* ---------- tombol cepat beranda ---------- */
+$("qTask").addEventListener("click", async () => {
+  if (!topicsList.length) await loadTopics();
+  try { await loadTasks(true); } catch (e) { /* diabaikan, kartu tetap tampil */ }
+  $("taskCard").scrollIntoView({ behavior: "smooth", block: "center" });
+  if (!tasksAll.length) showToast("Belum ada tugas dengan deadline.");
+});
+$("qSearch").addEventListener("click", () => {
+  switchView("materi");
+  setTimeout(() => $("topicSearch").focus(), 120);
+});
 
 /* ---------- jadwal ---------- */
 function parseRange(t) {
@@ -1203,7 +1210,10 @@ function relTime(d) {
 }
 function renderTasks() {
   const list = tasksCache.list;
-  $("taskCard").classList.toggle("hidden", !list.length);
+  if (!list.length) {
+    $("taskList").innerHTML = `<div class="empty" style="padding:16px 8px"><span class="big">🎉</span>Tidak ada tugas mendatang.</div>`;
+    return;
+  }
   $("taskList").innerHTML = list.map((k) => {
     const soon = k.due.getTime() - Date.now() < 24 * 3600 * 1000;
     return `<div class="task">
