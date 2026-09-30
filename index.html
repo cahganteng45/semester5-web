@@ -59,11 +59,10 @@
         .login-logo { width: 70px; height: 70px; background: linear-gradient(135deg, var(--primary), #8b5cf6); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; color: white; box-shadow: var(--shadow-float); }
         .login-header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.8px; }
         .login-header p { color: var(--text-muted); font-size: 14px; margin-top: 6px; font-weight: 500; }
-        
         .form-group { margin-bottom: 18px; }
         .form-group label { display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.8px; }
-        .form-control { width: 100%; padding: 15px 18px; border: 2px solid var(--border); border-radius: var(--radius-md); font-size: 14px; font-weight: 500; background: rgba(255,255,255,0.9); transition: var(--transition); }
-        .form-control:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px var(--primary-light); background: #ffffff; }
+        .form-control { width: 100%; padding: 15px 18px; border: 2px solid var(--border); border-radius: var(--radius-md); font-size: 14px; font-weight: 500; background: white; transition: var(--transition); }
+        .form-control:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px var(--primary-light); }
         
         /* 🔥 CSS UNTUK ICON MATA (PASSWORD) 🔥 */
         .pwd-wrap { position: relative; width: 100%; }
@@ -488,7 +487,7 @@
 <!-- ================= JAVASCRIPT ================= -->
 <script>
     const API = "https://telegram-semester5-bot.onrender.com";
-    const icons = { "Cloud Computing": "☁️️", "Audit Sistem Informasi": "📋", "Keamanan Sistem Informasi": "🔐", "Visualisasi Data & Data Science": "📊", "Business Intelligence System": "💡", "Manajemen Proyek": "📁", "Metodologi Penelitian & Publikasi": "🔬", "Pemrograman Berbasis Mobile I": "📱", "Dokumentasi Semester 5": "🗂️" };
+    const icons = { "Cloud Computing": "☁️", "Audit Sistem Informasi": "📋", "Keamanan Sistem Informasi": "🔐", "Visualisasi Data & Data Science": "📊", "Business Intelligence System": "💡", "Manajemen Proyek": "📁", "Metodologi Penelitian & Publikasi": "🔬", "Pemrograman Berbasis Mobile I": "📱", "Dokumentasi Semester 5": "🗂️" };
 
     const jadwalData = [
         { day: "Senin", classes: [{ time: "13:00 - 14:40", name: "Cloud Computing (Teori)", room: "B1.2", dosen: "Era Yunianto, M.Kom", code: "5P52" }, { time: "15:00 - 16:40", name: "Cloud Computing (Praktek)", room: "LAB 3", dosen: "Era Yunianto, M.Kom", code: "5P52A" }] },
@@ -598,7 +597,8 @@
         }
     };
 
-    $("loginForm").addEventListener("submit", async e => {
+    // 🔥 FIX: EVENT LISTENER SEKARANG MENGGUNAKAN ID authForm 🔥
+    $("authForm").addEventListener("submit", async e => {
         e.preventDefault(); const btn = $("loginButton"); const err = $("loginError"); btn.disabled = true; err.classList.add("hidden");
         const username = $("username").value.trim(); const password = $("password").value; const confirm = $("confirmPassword").value;
         const fullName = $("fullName").value.trim();
@@ -658,7 +658,7 @@
     });
 
     function logout(manual = true) {
-        token = ""; localStorage.removeItem("semester5_token"); $("app").classList.add("hidden"); $("loginPage").classList.remove("hidden"); $("loginForm").reset(); clearInterval(syncInterval);
+        token = ""; localStorage.removeItem("semester5_token"); $("app").classList.add("hidden"); $("loginPage").classList.remove("hidden"); $("authForm").reset(); clearInterval(syncInterval);
         if(manual) showToast("Berhasil keluar.");
     }
 
@@ -674,7 +674,6 @@
             
             $("displayUsername").textContent = sideName;
             
-            // PENGECEKAN AMAN UNTUK MENU PENGATURAN (Mencegah Crash)
             if($("settingFullName")) $("settingFullName").textContent = sideName;
             if($("settingUsername")) $("settingUsername").textContent = "@" + currentUser;
             
