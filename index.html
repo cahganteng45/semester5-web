@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f766e">
 <title>Semester 5 — Study Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#eef2ee;--sf:#fff;--ink:#13231e;--mute:#5f7069;--line:#dde5df;--br:#0f766e;--on:#fff;--bs:#d5ebe7;--red:#c53030;--rs:#fbe0e0;--am:#fdf1cf}
 @media (prefers-color-scheme:dark){:root{--bg:#0d1714;--sf:#15231f;--ink:#e8f1ed;--mute:#93a69e;--line:#24362f;--br:#3ec2b1;--on:#06201c;--bs:#1b3a35;--red:#f27a7a;--rs:#3c1c1c;--am:#3a2f10}}
@@ -81,6 +83,26 @@ main{max-width:760px;margin:0 auto;padding:20px 16px 100px}
 .prog{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-bottom:12px}
 .prog i{display:block;height:100%;width:0;background:var(--br)}
 @media (min-width:900px){nav{top:0;bottom:auto;right:auto;width:200px;height:100vh;flex-direction:column;justify-content:flex-start;border-top:0;border-right:1px solid var(--line);padding-top:20px}nav button{flex:0;text-align:left;padding:12px 20px}nav button.on{box-shadow:inset 3px 0 0 var(--br)}main{margin-left:200px;max-width:none;padding:36px 48px}main>.view{max-width:780px}.fm{height:calc(100vh - 260px)}}
+
+:root{--bs:color-mix(in srgb,var(--br) 16%,var(--sf));--amber:#b7791f}
+:root[data-theme="light"]{--bg:#eef2ee;--sf:#fff;--ink:#13231e;--mute:#5f7069;--line:#dde5df;--rs:#fbe0e0;--red:#c53030;--am:#fdf1cf}
+:root[data-theme="dark"]{--bg:#0d1714;--sf:#15231f;--ink:#e8f1ed;--mute:#93a69e;--line:#24362f;--rs:#3c1c1c;--red:#f27a7a;--am:#3a2f10;--amber:#f2b632}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--amber:#f2b632}}
+body{font-family:'DM Sans',system-ui,sans-serif}
+h1,h2,h3,.bar b,.hero .clk{font-family:'Bricolage Grotesque','DM Sans',sans-serif}
+h1,h2{font-weight:800;letter-spacing:-.03em}
+.hero{border-radius:24px;padding:24px 22px}.hero h2{font-size:30px;line-height:1.15}
+.hero .clk{font-size:22px;font-weight:600;margin-top:14px;font-variant-numeric:tabular-nums}
+.card,.mi,.tc,.box{border-radius:16px}
+.tc{display:flex;align-items:center;gap:14px;padding:14px 56px 14px 14px;position:relative;cursor:pointer}
+.tc .ic{width:48px;height:48px;border-radius:14px;background:var(--bs);display:grid;place-items:center;font-size:24px;flex-shrink:0}
+.tc small{display:block;color:var(--mute);font-weight:400;font-size:12px}
+.tc.pin,.mi.pin{border-color:var(--amber);background:var(--am)}
+.pinb{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;font-size:18px;opacity:.45}
+.tc.pin .pinb{opacity:1}
+.acts .on{background:var(--am);color:var(--amber)}
+.sw{width:42px;height:42px;border-radius:50%;border:3px solid var(--sf);box-shadow:0 0 0 2px var(--line)}.sw.on{box-shadow:0 0 0 3px var(--ink)}
+@media (max-width:899px){nav{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));border:1px solid var(--line);border-radius:24px;box-shadow:0 8px 30px rgba(0,0,0,.14)}nav button.on{box-shadow:none;background:var(--bs);border-radius:16px}}
 </style>
 </head>
 <body>
@@ -114,7 +136,7 @@ main{max-width:760px;margin:0 auto;padding:20px 16px 100px}
 </nav>
 <main>
 <section class="view on" id="v-home">
-<div class="hero"><h2 id="greet">Halo!</h2><p id="dtxt"></p></div>
+<div class="hero"><h2 id="greet">Halo!</h2><p id="dtxt"></p><div class="clk" id="clk"></div></div>
 <div class="card"><h3>Kelas hari ini</h3><div id="today"></div></div>
 </section>
 
@@ -151,6 +173,7 @@ main{max-width:760px;margin:0 auto;padding:20px 16px 100px}
 </section>
 
 <section class="view" id="v-akun"><h2>Akun</h2><p class="sub" id="who"></p>
+<div class="card"><h3>Tampilan</h3><div class="seg" id="thSeg"><button type="button" data-th="auto">Otomatis</button><button type="button" data-th="light">Terang</button><button type="button" data-th="dark">Gelap</button></div><div id="sw" style="display:flex;gap:14px;flex-wrap:wrap"></div></div>
 <div class="card"><h3>Ganti password</h3>
 <form id="cpf">
 <div class="field"><label for="cpo">Password lama</label><input class="input" type="password" id="cpo" autocomplete="current-password"></div>
@@ -179,6 +202,36 @@ function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(m){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]; }); }
 function bytes(b){ if(!b) return "0 B"; var u=["B","KB","MB","GB"], i=Math.min(Math.floor(Math.log(b)/Math.log(1024)),3); return (Math.round(b/Math.pow(1024,i)*10)/10)+" "+u[i]; }
 function disp(u){ return String(u).toLowerCase()==="admin" ? "Padil 👑" : "@"+u; }
+
+var ICONS={"Cloud Computing":"☁️","Audit Sistem Informasi":"📋","Keamanan Sistem Informasi":"🔐","Visualisasi Data & Data Science":"📊","Business Intelligence System":"💡","Manajemen Proyek":"📁","Metodologi Penelitian & Publikasi":"🔬","Pemrograman Berbasis Mobile I":"📱","Dokumentasi Semester 5":"🗂️"};
+function rj(k){ try { return JSON.parse(localStorage.getItem(k) || "[]").map(String); } catch (e) { return []; } }
+var pinT = rj("semester5_pinned_topics"), pinM = rj("semester5_pinned_materials");
+function tog(a, id){ var i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id); }
+function savePins(){ localStorage.setItem("semester5_pinned_topics", JSON.stringify(pinT)); localStorage.setItem("semester5_pinned_materials", JSON.stringify(pinM)); if (navigator.vibrate) navigator.vibrate(15); }
+function tick(){ var el = $("clk"); if (!el) return; var n = new Date(), z = function(x){ return String(x).padStart(2, "0"); }; el.textContent = z(n.getHours()) + ":" + z(n.getMinutes()) + ":" + z(n.getSeconds()); }
+setInterval(tick, 1000); tick();
+var ACC = {teal:["#0f766e","#3ec2b1"], indigo:["#4f46e5","#9a97ff"], rose:["#be185d","#f472b6"], orange:["#c2410c","#fb923c"]};
+var thMode = localStorage.getItem("s5_theme") || "auto", acc = localStorage.getItem("s5_accent") || "teal";
+if (!ACC[acc]) acc = "teal";
+var dq = window.matchMedia("(prefers-color-scheme: dark)");
+$("sw").innerHTML = Object.keys(ACC).map(function(k){ return '<button type="button" class="sw" data-ac="' + k + '" style="background:' + ACC[k][0] + '" aria-label="Warna ' + k + '"></button>'; }).join("");
+function applyTheme(){
+  var r = document.documentElement;
+  if (thMode === "auto") r.removeAttribute("data-theme"); else r.setAttribute("data-theme", thMode);
+  var dark = thMode === "dark" || (thMode === "auto" && dq.matches);
+  r.style.setProperty("--br", dark ? ACC[acc][1] : ACC[acc][0]);
+  r.style.setProperty("--on", dark ? "#06201c" : "#fff");
+  document.querySelector('meta[name="theme-color"]').content = dark ? "#0d1714" : ACC[acc][0];
+  document.querySelectorAll("[data-th]").forEach(function(b){ b.classList.toggle("on", b.dataset.th === thMode); });
+  document.querySelectorAll("[data-ac]").forEach(function(b){ b.classList.toggle("on", b.dataset.ac === acc); });
+}
+document.addEventListener("click", function(e){
+  var t = e.target.closest("[data-th]"), a = e.target.closest("[data-ac]");
+  if (t){ thMode = t.dataset.th; localStorage.setItem("s5_theme", thMode); applyTheme(); }
+  if (a){ acc = a.dataset.ac; localStorage.setItem("s5_accent", acc); applyTheme(); }
+});
+try { dq.addEventListener("change", applyTheme); } catch (x) { dq.addListener(applyTheme); }
+applyTheme();
 
 var token = localStorage.getItem(TOKEN_KEY) || "";
 var me = {user:"", name:"", admin:false};
@@ -356,10 +409,16 @@ async function loadTopics(){
 function renderTopics(){
   var q = $("tsearch").value.trim().toLowerCase();
   var list = topics.filter(function(t){ return !q || String(t.name).toLowerCase().indexOf(q) >= 0; });
-  $("tgrid").innerHTML = list.length ? list.map(function(t){ return '<button type="button" class="tc" data-id="' + esc(t.id) + '">📚 ' + esc(t.name) + '</button>'; }).join("") : '<div class="empty">Belum ada mata kuliah yang cocok.</div>';
+  list = list.slice().sort(function(a, b){ return (pinT.indexOf(b.id) >= 0) - (pinT.indexOf(a.id) >= 0); });
+  $("tgrid").innerHTML = list.length ? list.map(function(t){ var pn = pinT.indexOf(t.id) >= 0; return '<div class="tc' + (pn ? " pin" : "") + '" data-id="' + esc(t.id) + '" role="button" tabindex="0"><div class="ic">' + (ICONS[t.name] || "📚") + '</div><div><b>' + esc(t.name) + '</b><small>' + (pn ? "Dipin" : "Ketuk untuk membuka") + '</small></div><button type="button" class="pinb" data-pin="' + esc(t.id) + '" aria-label="' + (pn ? "Lepas pin" : "Pin") + '">📌</button></div>'; }).join("") : '<div class="empty">Belum ada mata kuliah yang cocok.</div>';
 }
 $("tsearch").addEventListener("input", renderTopics);
-$("tgrid").addEventListener("click", function(e){ var b = e.target.closest("[data-id]"); if (b) openTopic(b.dataset.id); });
+$("tgrid").addEventListener("click", function(e){
+  var pn = e.target.closest("[data-pin]");
+  if (pn){ tog(pinT, pn.dataset.pin); savePins(); renderTopics(); return; }
+  var b = e.target.closest("[data-id]"); if (b) openTopic(b.dataset.id);
+});
+$("tgrid").addEventListener("keydown", function(e){ var b = e.target.closest("[data-id]"); if (e.key === "Enter" && b && !e.target.closest("[data-pin]")) openTopic(b.dataset.id); });
 function openTopic(id){
   var t = topics.filter(function(x){ return x.id === id; })[0]; if (!t) return;
   curTopic = id; mats = []; $("msearch").value = ""; $("mname").textContent = t.name;
@@ -385,20 +444,21 @@ function renderMats(){
   var q = $("msearch").value.trim().toLowerCase();
   var list = mats.filter(function(m){ return !q || (String(m.name) + " " + String(m.content || m.caption || "")).toLowerCase().indexOf(q) >= 0; });
   if (!list.length){ $("mlist").innerHTML = '<div class="empty">' + (mats.length ? "Tidak ada materi yang cocok." : "Belum ada materi. Buka tab Upload untuk menambahkan.") + '</div>'; return; }
+  list = list.slice().sort(function(a, b){ return (pinM.indexOf(String(b.id)) >= 0) - (pinM.indexOf(String(a.id)) >= 0); });
   $("mlist").innerHTML = list.map(function(m){
     var kind = String(m.kind || "").toLowerCase(), mime = m.mime_type || "", isText = kind === "text";
     var url = m.url || ""; if (url.charAt(0) === "/") url = API + url;
-    var proxy = !!m.file_id, text = esc(m.content || m.caption || ""), pv = "";
+    var proxy = !!m.file_id, text = esc(m.content || m.caption || ""), pv = "", pm = pinM.indexOf(String(m.id)) >= 0;
     if (proxy && url){
       if (kind === "photo" || mime.indexOf("image/") === 0) pv = '<div class="pv"><img src="' + esc(url) + '" loading="lazy" alt=""></div>';
       else if (kind === "video" || mime.indexOf("video/") === 0) pv = '<div class="pv"><video controls preload="metadata" src="' + esc(url) + '"></video></div>';
       else if (kind === "audio" || kind === "voice" || mime.indexOf("audio/") === 0) pv = '<div class="pv"><audio controls src="' + esc(url) + '"></audio></div>';
     }
     var sender = m.sender_full ? (m.sender_admin ? "Padil 👑" : m.sender) : (m.sender || "Unknown");
-    return '<article class="mi"><div class="n">' + (isText ? "Catatan" : esc(m.name)) + '</div>' +
+    return '<article class="mi' + (pm ? " pin" : "") + '"><div class="n">' + (isText ? "Catatan" : esc(m.name)) + '</div>' +
       '<div class="m">' + esc(sender) + ' · ' + (m.date ? esc(new Date(m.date).toLocaleString("id-ID")) : "") + ' · <span class="tag">' + (m.source === "website" ? "Web" : "Telegram") + '</span>' + (isText ? "" : " · " + bytes(m.size)) + '</div>' +
       (text ? '<div class="note">' + text + '</div>' : "") + pv +
-      '<div class="acts">' + (url && !isText && proxy ? '<a href="' + esc(url) + '" target="_blank" rel="noopener">Buka file</a>' : "") +
+      '<div class="acts"><button type="button" class="' + (pm ? "on" : "") + '" data-pin="' + esc(m.id) + '">📌 ' + (pm ? "Lepas pin" : "Pin") + '</button>' + (url && !isText && proxy ? '<a href="' + esc(url) + '" target="_blank" rel="noopener">Buka file</a>' : "") +
       (m.telegram_url ? '<a href="' + esc(m.telegram_url) + '" target="_blank" rel="noopener">Telegram</a>' : "") +
       (isText ? '<button type="button" data-copy="1">Salin teks</button>' : "") +
       (me.admin ? '<button type="button" class="del" data-del="' + esc(m.id) + '">Hapus</button>' : "") + '</div></article>';
@@ -406,7 +466,8 @@ function renderMats(){
 }
 $("msearch").addEventListener("input", renderMats);
 $("mlist").addEventListener("click", async function(e){
-  var c = e.target.closest("[data-copy]"), d = e.target.closest("[data-del]");
+  var c = e.target.closest("[data-copy]"), d = e.target.closest("[data-del]"), pp = e.target.closest("[data-pin]");
+  if (pp){ tog(pinM, pp.dataset.pin); savePins(); renderMats(); return; }
   if (c){
     var note = c.closest(".mi").querySelector(".note"); if (!note) return;
     try { await navigator.clipboard.writeText(note.innerText); toast("Catatan disalin."); } catch (x) { toast("Gagal menyalin.", true); }
