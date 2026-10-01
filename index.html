@@ -311,13 +311,14 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <form id="authForm">
 <div class="field"><label for="username">Username</label><input class="input" id="username" required autocomplete="username" autocapitalize="none" placeholder="Masukkan username"></div>
 <div class="field hidden" id="nameWrap"><label for="fullName">Nama lengkap</label><input class="input" id="fullName" autocomplete="name" placeholder="Contoh: Andi Saputra"></div>
+<div class="field hidden" id="nimWrap"><label for="nim">NIM</label><input class="input" id="nim" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="Contoh: 24.230.0000"></div>
 <div class="field"><label for="password">Password</label><div class="pwd"><input class="input" type="password" id="password" required autocomplete="current-password" placeholder="Masukkan password"><button type="button" data-pwd="password" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
 <div class="field hidden" id="confirmWrap"><label for="confirmPassword">Ulangi password</label><div class="pwd"><input class="input" type="password" id="confirmPassword" autocomplete="new-password" placeholder="Ketik ulang password"><button type="button" data-pwd="confirmPassword" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
 <button class="btn btn-primary" id="loginButton" type="submit">Masuk</button>
 </form>
 <form id="forgotForm" class="hidden">
 <div class="field"><label for="fgUsername">Username</label><input class="input" id="fgUsername" required autocapitalize="none"></div>
-<div class="field"><label for="fgFullName">Nama lengkap (sesuai saat daftar)</label><input class="input" id="fgFullName" required></div>
+<div class="field"><label for="fgNim">NIM (sesuai saat daftar)</label><input class="input" id="fgNim" required inputmode="numeric" autocomplete="off" maxlength="12" placeholder="Contoh: 24.230.0000"></div>
 <div class="field"><label for="fgPassword">Password baru</label><div class="pwd"><input class="input" type="password" id="fgPassword" required placeholder="Minimal 6 karakter"><button type="button" data-pwd="fgPassword" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
 <button class="btn btn-primary" id="forgotBtn" type="submit">Simpan password baru</button>
 </form>
@@ -471,6 +472,18 @@ function formatBytes(b) {
   const u = ["B", "KB", "MB", "GB"], i = Math.min(Math.floor(Math.log(b) / Math.log(1024)), 3);
   return parseFloat((b / Math.pow(1024, i)).toFixed(1)) + " " + u[i];
 }
+
+/* ---------- NIM (format 24.230.0000) ---------- */
+const NIM_RE = /^\d{2}\.\d{3}\.\d{4}$/;
+function formatNim(s) {
+  const d = String(s).replace(/\D/g, "").slice(0, 9);
+  let o = d.slice(0, 2);
+  if (d.length > 2) o += "." + d.slice(2, 5);
+  if (d.length > 5) o += "." + d.slice(5, 9);
+  return o;
+}
+["nim", "fgNim"].forEach((id) => $(id).addEventListener("input", (e) => { e.target.value = formatNim(e.target.value); }));
+
 let toastTimer;
 function showToast(msg, isErr) {
   const t = $("toast");
@@ -649,8 +662,10 @@ function setRegisterMode(on) {
   $("registerToggle").textContent = on ? "Sudah punya akun? Masuk" : "Belum punya akun? Daftar";
   $("confirmWrap").classList.toggle("hidden", !on);
   $("nameWrap").classList.toggle("hidden", !on);
+  $("nimWrap").classList.toggle("hidden", !on);
   $("confirmPassword").required = on;
   $("fullName").required = on;
+  $("nim").required = on;
 }
 $("registerToggle").addEventListener("click", () => setRegisterMode(!registerMode));
 function setForgotMode(on) {
@@ -660,7 +675,7 @@ function setForgotMode(on) {
   $("authLinks").classList.toggle("hidden", on);
   $("forgotForm").classList.toggle("hidden", !on);
   $("forgotLinks").classList.toggle("hidden", !on);
-  $("loginSub").textContent = on ? "Atur ulang password dengan nama lengkapmu." : "Masuk untuk membuka materi dan jadwal kelas.";
+  $("loginSub").textContent = on ? "Atur ulang password dengan NIM-mu." : "Masuk untuk membuka materi dan jadwal kelas.";
 }
 $("forgotToggle").addEventListener("click", () => setForgotMode(true));
 $("forgotBack").addEventListener("click", () => setForgotMode(false));
@@ -674,12 +689,16 @@ $("authForm").addEventListener("submit", async (e) => {
   try {
     if (registerMode) {
       btn.textContent = "Membuat akun…";
+      const nim = $("nim").value.trim();
+      if (!NIM_RE.test(nim)) throw new Error("Format NIM salah. Contoh: 24.230.0000");
       const { res, data } = await postJSON("/api/register", {
-        username, password, confirm: $("confirmPassword").value, full_name: $("fullName").value.trim() });
+        username, password, confirm: $("confirmPassword").value,
+        full_name: $("fullName").value.trim(), nim });
       if (!res.ok || !data.ok) throw new Error(data.error || "Pendaftaran gagal.");
       showToast("Akun berhasil dibuat. Silakan masuk.");
       setRegisterMode(false);
       $("password").value = "";
+      $("nim").value = "";
     } else {
       btn.textContent = "Memeriksa data…";
       const { res, data } = await postJSON("/api/login", { username, password });
@@ -701,14 +720,15 @@ $("authForm").addEventListener("submit", async (e) => {
 
 $("forgotForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const btn = $("forgotBtn"), np = $("fgPassword").value;
+  const btn = $("forgotBtn"), np = $("fgPassword").value, nim = $("fgNim").value.trim();
   setLoginError("");
+  if (!NIM_RE.test(nim)) return setLoginError("Format NIM salah. Contoh: 24.230.0000");
   if (np.length < 6) return setLoginError("Password baru minimal 6 karakter.");
   btn.disabled = true;
   btn.textContent = "Menyimpan…";
   try {
     const { res, data } = await postJSON("/api/forgot_password", {
-      username: $("fgUsername").value.trim(), full_name: $("fgFullName").value.trim(), new_password: np });
+      username: $("fgUsername").value.trim(), nim, new_password: np });
     if (!res.ok || !data.ok) throw new Error(data.error || "Reset password gagal.");
     $("forgotForm").reset();
     setForgotMode(false);
@@ -1458,11 +1478,12 @@ async function loadAdmin() {
     $("adUsers").innerHTML = d.web_users.map((u) => {
       const me = u.username === "admin", un = esc(u.username);
       return `<div class="au"><div class="n">${esc(u.full_name || u.username)} <span class="tag">@${un}</span>${u.banned ? '<span class="vis priv">Banned</span>' : ""}</div>
-        <div class="m">Login ${u.login_count || 0} · Upload ${u.upload_count || 0} · IP ${esc(u.last_ip || "-")} · ${esc(u.last_device || "-")}</div>
+        <div class="m">NIM ${esc(u.nim || "belum diisi")} · Login ${u.login_count || 0} · Upload ${u.upload_count || 0} · IP ${esc(u.last_ip || "-")} · ${esc(u.last_device || "-")}</div>
         <div class="mbtns">
           ${me ? "" : `<button class="mbtn" data-ad="${u.banned ? "unban_web" : "ban_web"}" data-t="${un}">${u.banned ? "Unban" : "Ban"}</button>`}
           <button class="mbtn" data-ad="reset_web" data-t="${un}">Reset password</button>
           <button class="mbtn" data-ad="set_name" data-t="${un}">Ubah nama</button>
+          <button class="mbtn" data-ad="set_nim" data-t="${un}">Ubah NIM</button>
           ${u.last_ip && !me ? `<button class="mbtn" data-ad="ban_ip" data-t="${esc(u.last_ip)}">Ban IP</button>` : ""}
           ${me ? "" : `<button class="mbtn del" data-ad="delete_web" data-t="${un}">Hapus</button>`}
         </div></div>`;
@@ -1486,6 +1507,12 @@ $("view-admin").addEventListener("click", async (e) => {
       fields: [{ key: "name", label: "Nama lengkap baru", placeholder: "Contoh: Andi Saputra", required: true }] });
     if (!r) return;
     v = r.name;
+  }
+  if (a === "set_nim") {
+    const r = await openModal({ title: "Ubah NIM", text: "Akun @" + t, icon: "edit", ok: "Simpan",
+      fields: [{ key: "nim", label: "NIM", placeholder: "24.230.0000", required: true }] });
+    if (!r) return;
+    v = r.nim;
   }
   if (ADMIN_CONFIRM[a]) {
     const c = ADMIN_CONFIRM[a];
