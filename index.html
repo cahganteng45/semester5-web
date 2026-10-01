@@ -283,21 +283,6 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 </style>
 </head>
 <body>
-<script>
-/* Penangkap error: tampilkan pesan error JS di bawah layar supaya mudah didiagnosis. */
-window.addEventListener("error", function (e) {
-  var d = document.createElement("div");
-  d.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#c53030;color:#fff;font:12px monospace;padding:10px;white-space:pre-wrap";
-  d.textContent = "JS ERROR: " + e.message + " (baris " + e.lineno + ")";
-  document.body.appendChild(d);
-});
-window.addEventListener("unhandledrejection", function (e) {
-  var d = document.createElement("div");
-  d.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#9a3412;color:#fff;font:12px monospace;padding:10px;white-space:pre-wrap";
-  d.textContent = "PROMISE ERROR: " + (e.reason && e.reason.message ? e.reason.message : e.reason);
-  document.body.appendChild(d);
-});
-</script>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></symbol>
 <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7v11a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-7l-2-2H5a2 2 0 00-2 2z"/></symbol>
@@ -326,21 +311,18 @@ window.addEventListener("unhandledrejection", function (e) {
 <form id="authForm">
 <div class="field"><label for="username">Username</label><input class="input" id="username" required autocomplete="username" autocapitalize="none" placeholder="Masukkan username"></div>
 <div class="field hidden" id="nameWrap"><label for="fullName">Nama lengkap</label><input class="input" id="fullName" autocomplete="name" placeholder="Contoh: Andi Saputra"></div>
-<div class="field hidden" id="nimWrap"><label for="nim">NIM</label><input class="input" id="nim" inputmode="numeric" autocomplete="off" placeholder="Contoh: 24.230.0000"></div>
 <div class="field"><label for="password">Password</label><div class="pwd"><input class="input" type="password" id="password" required autocomplete="current-password" placeholder="Masukkan password"><button type="button" data-pwd="password" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
 <div class="field hidden" id="confirmWrap"><label for="confirmPassword">Ulangi password</label><div class="pwd"><input class="input" type="password" id="confirmPassword" autocomplete="new-password" placeholder="Ketik ulang password"><button type="button" data-pwd="confirmPassword" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
 <button class="btn btn-primary" id="loginButton" type="submit">Masuk</button>
 </form>
 <form id="forgotForm" class="hidden">
 <div class="field"><label for="fgUsername">Username</label><input class="input" id="fgUsername" required autocapitalize="none"></div>
-<div class="field"><label for="fgNim">NIM</label><input class="input" id="fgNim" required inputmode="numeric" autocomplete="off" placeholder="Contoh: 24.230.0000"></div>
+<div class="field"><label for="fgFullName">Nama lengkap (sesuai saat daftar)</label><input class="input" id="fgFullName" required></div>
 <div class="field"><label for="fgPassword">Password baru</label><div class="pwd"><input class="input" type="password" id="fgPassword" required placeholder="Minimal 6 karakter"><button type="button" data-pwd="fgPassword" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
 <button class="btn btn-primary" id="forgotBtn" type="submit">Simpan password baru</button>
 </form>
 <div id="authLinks"><button type="button" class="link" id="registerToggle">Belum punya akun? Daftar</button><button type="button" class="link quiet" id="forgotToggle">Lupa password?</button></div>
 <div id="forgotLinks" class="hidden"><button type="button" class="link quiet" id="forgotBack">Kembali ke halaman masuk</button></div>
-<p id="buildTag" style="font-size:11px;color:var(--mute);text-align:center;margin-top:16px">build nim-3 · JS belum jalan</p>
-<noscript><p class="alert" style="margin-top:12px">JavaScript dimatikan di browser ini. Aktifkan JavaScript untuk situs ini, lalu muat ulang halaman.</p></noscript>
 </div></div>
 
 <div id="app" class="hidden">
@@ -434,7 +416,6 @@ window.addEventListener("unhandledrejection", function (e) {
 
 <script>
 "use strict";
-document.getElementById("buildTag").textContent = "build nim-3 · JS aktif";
 const API = "https://semester-lima.onrender.com";
 const ICONS = {
   "Cloud Computing":"☁️","Audit Sistem Informasi":"📋","Keamanan Sistem Informasi":"🔐",
@@ -668,10 +649,8 @@ function setRegisterMode(on) {
   $("registerToggle").textContent = on ? "Sudah punya akun? Masuk" : "Belum punya akun? Daftar";
   $("confirmWrap").classList.toggle("hidden", !on);
   $("nameWrap").classList.toggle("hidden", !on);
-  $("nimWrap").classList.toggle("hidden", !on);
   $("confirmPassword").required = on;
   $("fullName").required = on;
-  $("nim").required = on;
 }
 $("registerToggle").addEventListener("click", () => setRegisterMode(!registerMode));
 function setForgotMode(on) {
@@ -681,7 +660,7 @@ function setForgotMode(on) {
   $("authLinks").classList.toggle("hidden", on);
   $("forgotForm").classList.toggle("hidden", !on);
   $("forgotLinks").classList.toggle("hidden", !on);
-  $("loginSub").textContent = on ? "Atur ulang password dengan NIM-mu." : "Masuk untuk membuka materi dan jadwal kelas.";
+  $("loginSub").textContent = on ? "Atur ulang password dengan nama lengkapmu." : "Masuk untuk membuka materi dan jadwal kelas.";
 }
 $("forgotToggle").addEventListener("click", () => setForgotMode(true));
 $("forgotBack").addEventListener("click", () => setForgotMode(false));
@@ -696,7 +675,7 @@ $("authForm").addEventListener("submit", async (e) => {
     if (registerMode) {
       btn.textContent = "Membuat akun…";
       const { res, data } = await postJSON("/api/register", {
-        username, password, confirm: $("confirmPassword").value, full_name: $("fullName").value.trim(), nim: $("nim").value.trim() });
+        username, password, confirm: $("confirmPassword").value, full_name: $("fullName").value.trim() });
       if (!res.ok || !data.ok) throw new Error(data.error || "Pendaftaran gagal.");
       showToast("Akun berhasil dibuat. Silakan masuk.");
       setRegisterMode(false);
@@ -729,7 +708,7 @@ $("forgotForm").addEventListener("submit", async (e) => {
   btn.textContent = "Menyimpan…";
   try {
     const { res, data } = await postJSON("/api/forgot_password", {
-      username: $("fgUsername").value.trim(), nim: $("fgNim").value.trim(), new_password: np });
+      username: $("fgUsername").value.trim(), full_name: $("fgFullName").value.trim(), new_password: np });
     if (!res.ok || !data.ok) throw new Error(data.error || "Reset password gagal.");
     $("forgotForm").reset();
     setForgotMode(false);
@@ -1479,12 +1458,11 @@ async function loadAdmin() {
     $("adUsers").innerHTML = d.web_users.map((u) => {
       const me = u.username === "admin", un = esc(u.username);
       return `<div class="au"><div class="n">${esc(u.full_name || u.username)} <span class="tag">@${un}</span>${u.banned ? '<span class="vis priv">Banned</span>' : ""}</div>
-        <div class="m">NIM ${esc(u.nim || "belum diisi")} · Login ${u.login_count || 0} · Upload ${u.upload_count || 0} · IP ${esc(u.last_ip || "-")} · ${esc(u.last_device || "-")}</div>
+        <div class="m">Login ${u.login_count || 0} · Upload ${u.upload_count || 0} · IP ${esc(u.last_ip || "-")} · ${esc(u.last_device || "-")}</div>
         <div class="mbtns">
           ${me ? "" : `<button class="mbtn" data-ad="${u.banned ? "unban_web" : "ban_web"}" data-t="${un}">${u.banned ? "Unban" : "Ban"}</button>`}
           <button class="mbtn" data-ad="reset_web" data-t="${un}">Reset password</button>
           <button class="mbtn" data-ad="set_name" data-t="${un}">Ubah nama</button>
-          <button class="mbtn" data-ad="set_nim" data-t="${un}" data-nim="${esc(u.nim || "")}">Ubah NIM</button>
           ${u.last_ip && !me ? `<button class="mbtn" data-ad="ban_ip" data-t="${esc(u.last_ip)}">Ban IP</button>` : ""}
           ${me ? "" : `<button class="mbtn del" data-ad="delete_web" data-t="${un}">Hapus</button>`}
         </div></div>`;
@@ -1508,12 +1486,6 @@ $("view-admin").addEventListener("click", async (e) => {
       fields: [{ key: "name", label: "Nama lengkap baru", placeholder: "Contoh: Andi Saputra", required: true }] });
     if (!r) return;
     v = r.name;
-  }
-  if (a === "set_nim") {
-    const r = await openModal({ title: "Ubah NIM", text: "Akun @" + t + ". Kosongkan untuk menghapus.", icon: "edit", ok: "Simpan",
-      fields: [{ key: "nim", label: "NIM", value: b.dataset.nim || "", placeholder: "24.230.0000" }] });
-    if (!r) return;
-    v = r.nim;
   }
   if (ADMIN_CONFIRM[a]) {
     const c = ADMIN_CONFIRM[a];
@@ -1670,4 +1642,32 @@ async function sendForum() {
   finally { btn.disabled = false; inp.focus(); }
 }
 async function deleteForum(id) {
-  if 
+  if (!(await openModal({ title: "Hapus pesan ini?", text: "Pesan ini hilang untuk semua orang.", ok: "Hapus", icon: "trash", danger: true }))) return;
+  try {
+    const res = await apiCall("/api/forum/message/" + id, { method: "DELETE" });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menghapus pesan.");
+    fMsgs = fMsgs.filter((m) => m.id !== id);
+    renderForum(false);
+  } catch (e) { showToast(e.message, true); }
+}
+$("fSend").addEventListener("click", sendForum);
+$("fInput").addEventListener("input", forumAutosize);
+$("fInput").addEventListener("keydown", (e) => {
+  // Di HP, Enter = baris baru. Di komputer, Enter = kirim (Shift+Enter = baris baru).
+  if (e.key === "Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches) { e.preventDefault(); sendForum(); }
+});
+$("fMsgs").addEventListener("click", (e) => {
+  const r = e.target.closest("[data-r]"), d = e.target.closest("[data-d]");
+  if (r) setForumReply(+r.dataset.r);
+  else if (d) deleteForum(+d.dataset.d);
+});
+renderForum(false);
+
+/* ---------- boot ---------- */
+fetch(API + "/api/status", { cache: "no-store" }).then((r) => r.json())
+  .then((d) => { if (d.maintenance) showMaint(d.message); }).catch(() => {});
+if (token) initApp(); else $("login").classList.remove("hidden");
+</script>
+</body>
+</html>
