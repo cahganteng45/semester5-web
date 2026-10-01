@@ -242,6 +242,10 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 #maint .pulse i{width:8px;height:8px;border-radius:50%;background:currentColor;animation:blink 1.4s infinite}
 @keyframes blink{50%{opacity:.25}}
 .fab.hidden{display:none!important}
+.hint{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--amber-soft);color:var(--amber);border:1.5px solid var(--amber);border-radius:var(--r-s);padding:12px 14px;margin-bottom:14px;font-size:14px;font-weight:700}
+.hint span{flex:1;min-width:0}
+.hint small{display:block;font-weight:500;opacity:.85}
+.hint.on{background:var(--brand-soft);color:var(--brand);border-color:var(--brand)}
 @media (max-width:899px){
 .nav{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));height:var(--nav-h);border-radius:24px;display:flex;align-items:center;padding:0 6px;box-shadow:0 8px 30px rgba(0,0,0,.14)}
 .nav-item{font-size:10px}
@@ -372,6 +376,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 
 <section class="view" id="view-upload"><h2 class="page-title">Tambah materi</h2><p class="page-sub">Unggah file atau tulis catatan. Hasilnya langsung terkirim ke Telegram.</p>
 <div class="card">
+<button type="button" class="hint hidden" id="uploadHint"></button>
 <div class="field"><label for="topicSelect">Mata kuliah</label><select class="input" id="topicSelect"><option value="">Pilih mata kuliah</option></select></div>
 <div class="seg"><button id="btnTypeFile" class="active" type="button">Upload file</button><button id="btnTypeNote" type="button">Catatan teks</button></div>
 <div id="areaFile"><input type="file" id="fileInput" class="hidden"><label for="fileInput" class="drop"><svg class="i"><use href="#i-up"/></svg><b id="fileNameDisplay">Ketuk untuk memilih file</b><small id="fileSizeDisplay">PDF, gambar, video, dokumen. Maksimal 50 MB.</small></label></div>
@@ -555,7 +560,7 @@ function switchView(id) {
   document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.id === "view-" + id));
   document.querySelectorAll(".nav-item").forEach((b) => b.classList.toggle("active", b.dataset.view === id));
   if (id === "materi") { backToTopics(); loadTopics(); }
-  if (id === "upload") loadTopics();
+  if (id === "upload") { uploadTouched = false; loadTopics(); suggestUploadTopic(); }
   if (id === "admin") loadAdmin();
   if (id === "forum") openForum();
   if (id === "home") { updateGreeting(); renderHome(); renderHomeExtras(); loadTasks(false); }
@@ -866,7 +871,53 @@ function renderUploadSelect() {
   $("topicSelect").innerHTML = `<option value="">Pilih mata kuliah</option>` +
     topicsList.map((t) => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join("");
   $("topicSelect").value = keep;
+  suggestUploadTopic();
 }
+
+/* ---------- rekomendasi matkul saat upload (berdasarkan jadwal) ---------- */
+let uploadTouched = false;
+function topicForClass(className) {
+  const base = String(className).replace(/\s*\(.*?\)\s*/g, " ").trim().toLowerCase();
+  if (!base) return null;
+  return topicsList.find((t) => {
+    const n = String(t.name || "").toLowerCase();
+    return n === base || n.startsWith(base) || base.startsWith(n);
+  }) || null;
+}
+function currentClassInfo() {
+  const now = new Date(), mins = now.getHours() * 60 + now.getMinutes();
+  const day = JADWAL.find((d) => d.dayNum === now.getDay());
+  if (!day) return null;
+  let ended = null, soon = null;
+  for (const c of day.classes) {
+    const [s, e] = parseRange(c.time);
+    if (mins >= s && mins < e) return { c, state: "live" };
+    if (mins >= e && mins - e <= 60) ended = { c, state: "ended" };
+    if (mins < s && s - mins <= 30 && !soon) soon = { c, state: "soon" };
+  }
+  return ended || soon;
+}
+function suggestUploadTopic() {
+  const hint = $("uploadHint"), info = currentClassInfo();
+  const t = info ? topicForClass(info.c.name) : null;
+  if (!t) { hint.classList.add("hidden"); delete hint.dataset.topic; return; }
+  const label = info.state === "live" ? "Sedang kuliah" : info.state === "ended" ? "Baru selesai kuliah" : "Sebentar lagi kuliah";
+  const sel = $("topicSelect");
+  if (!sel.value && !uploadTouched) sel.value = t.id;
+  const picked = sel.value === t.id;
+  hint.dataset.topic = t.id;
+  hint.classList.toggle("on", picked);
+  hint.innerHTML = `<span>${esc(label)}: ${esc(info.c.name)}<small>${picked ? "Sudah dipilih otomatis" : "Ketuk untuk memilih " + esc(t.name)}</small></span>`;
+  hint.classList.remove("hidden");
+}
+$("uploadHint").addEventListener("click", () => {
+  const id = $("uploadHint").dataset.topic;
+  if (!id) return;
+  $("topicSelect").value = id;
+  uploadTouched = true;
+  suggestUploadTopic();
+});
+$("topicSelect").addEventListener("change", () => { uploadTouched = true; suggestUploadTopic(); });
 function renderAdminPanel() {
   const panel = $("adminPanel");
   panel.classList.toggle("hidden", !isAdmin);
@@ -1071,6 +1122,7 @@ $("uploadBtn").addEventListener("click", async () => {
     fileInput.value = "";
     resetFileLabel();
     ["captionInput", "deadlineInput", "noteInput", "topicSelect"].forEach((id) => { $(id).value = ""; });
+    uploadTouched = false;
     switchView("materi");
     openTopic(topic);
   } catch (err) {
