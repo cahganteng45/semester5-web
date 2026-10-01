@@ -308,7 +308,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <h1>Semester 5</h1>
 <p class="sub" id="loginSub">Masuk untuk membuka materi dan jadwal kelas.</p>
 <div id="loginError" class="alert hidden" role="alert"></div>
-<form id="authForm">
+<form id="authForm" action="javascript:void(0)">
 <div class="field"><label for="username">Username</label><input class="input" id="username" required autocomplete="username" autocapitalize="none" placeholder="Masukkan username"></div>
 <div class="field hidden" id="nameWrap"><label for="fullName">Nama lengkap</label><input class="input" id="fullName" autocomplete="name" placeholder="Contoh: Andi Saputra"></div>
 <div class="field hidden" id="nimWrap"><label for="regNim">NIM</label><input class="input" id="regNim" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="Contoh: 24.230.0001"></div>
@@ -316,7 +316,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <div class="field hidden" id="confirmWrap"><label for="confirmPassword">Ulangi password</label><div class="pwd"><input class="input" type="password" id="confirmPassword" autocomplete="new-password" placeholder="Ketik ulang password"><button type="button" data-pwd="confirmPassword" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
 <button class="btn btn-primary" id="loginButton" type="submit">Masuk</button>
 </form>
-<form id="forgotForm" class="hidden">
+<form id="forgotForm" class="hidden" action="javascript:void(0)">
 <div class="field"><label for="fgUsername">Username</label><input class="input" id="fgUsername" required autocapitalize="none"></div>
 <div class="field"><label for="fgNim">NIM</label><input class="input" id="fgNim" required inputmode="numeric" autocomplete="off" maxlength="12" placeholder="Contoh: 24.230.0001"></div>
 <div class="field"><label for="fgPassword">Password baru</label><div class="pwd"><input class="input" type="password" id="fgPassword" required placeholder="Minimal 6 karakter"><button type="button" data-pwd="fgPassword" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
@@ -401,7 +401,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <div class="card"><h3>Tampilan</h3><div class="opt-row"><button type="button" data-theme-set="auto">Otomatis</button><button type="button" data-theme-set="light">Terang</button><button type="button" data-theme-set="dark">Gelap</button></div><div class="swatches" id="swatches"></div></div>
 <div class="card"><h3>Pengingat deadline</h3><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Kamu diberi tahu 24 jam, 3 jam, 1 jam, dan 5 menit sebelum deadline selama web ini terbuka. Tugas yang sudah kamu tandai selesai tidak akan diingatkan lagi (tersimpan di perangkat ini). Aktifkan notifikasi browser agar muncul juga di layar HP.</p><button type="button" class="btn btn-soft" id="notifBtn">Aktifkan notifikasi browser</button></div>
 <div class="card"><h3>Ganti password</h3>
-<form id="changePasswordForm">
+<form id="changePasswordForm" action="javascript:void(0)">
 <div class="field"><label for="cpOld">Password lama</label><div class="pwd"><input class="input" type="password" id="cpOld" required autocomplete="current-password"><button type="button" data-pwd="cpOld" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
 <div class="field"><label for="cpNew">Password baru</label><div class="pwd"><input class="input" type="password" id="cpNew" required autocomplete="new-password" placeholder="Minimal 6 karakter"><button type="button" data-pwd="cpNew" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
 <div class="field"><label for="cpConfirm">Ulangi password baru</label><div class="pwd"><input class="input" type="password" id="cpConfirm" required autocomplete="new-password"><button type="button" data-pwd="cpConfirm" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
@@ -506,7 +506,6 @@ function showMaint(msg) {
 $("maintAdmin").addEventListener("click", () => {
   $("maint").classList.add("hidden");
   clearInterval(maintTimer);
-  // Tampilkan halaman login supaya admin bisa masuk
   if (!token) { $("login").classList.remove("hidden"); $("app").classList.add("hidden"); }
 });
 
@@ -1664,4 +1663,4 @@ async function deleteForum(id) {
   if (!(await openModal({ title: "Hapus pesan ini?", text: "Pesan ini hilang untuk semua orang.", ok: "Hapus", icon: "trash", danger: true }))) return;
   try {
     const res = await apiCall("/api/forum/message/" + id, { method: "DELETE" });
-    const d = await res.json().cat
+   
