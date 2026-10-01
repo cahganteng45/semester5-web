@@ -283,6 +283,21 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 </style>
 </head>
 <body>
+<script>
+/* Penangkap error: tampilkan pesan error JS di bawah layar supaya mudah didiagnosis. */
+window.addEventListener("error", function (e) {
+  var d = document.createElement("div");
+  d.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#c53030;color:#fff;font:12px monospace;padding:10px;white-space:pre-wrap";
+  d.textContent = "JS ERROR: " + e.message + " (baris " + e.lineno + ")";
+  document.body.appendChild(d);
+});
+window.addEventListener("unhandledrejection", function (e) {
+  var d = document.createElement("div");
+  d.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#9a3412;color:#fff;font:12px monospace;padding:10px;white-space:pre-wrap";
+  d.textContent = "PROMISE ERROR: " + (e.reason && e.reason.message ? e.reason.message : e.reason);
+  document.body.appendChild(d);
+});
+</script>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></symbol>
 <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7v11a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-7l-2-2H5a2 2 0 00-2 2z"/></symbol>
@@ -1657,23 +1672,3 @@ async function deleteForum(id) {
     const res = await apiCall("/api/forum/message/" + id, { method: "DELETE" });
     const d = await res.json().catch(() => ({}));
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menghapus pesan.");
-    fMsgs = fMsgs.filter((m) => m.id !== id);
-    renderForum(false);
-  } catch (e) { showToast(e.message, true); }
-}
-$("fSend").addEventListener("click", sendForum);
-$("fInput").addEventListener("input", forumAutosize);
-$("fInput").addEventListener("keydown", (e) => {
-  // Di HP, Enter = baris baru. Di komputer, Enter = kirim (Shift+Enter = baris baru).
-  if (e.key === "Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches) { e.preventDefault(); sendForum(); }
-});
-$("fMsgs").addEventListener("click", (e) => {
-  const r = e.target.closest("[data-r]"), d = e.target.closest("[data-d]");
-  if (r) setForumReply(+r.dataset.r);
-  else if (d) deleteForum(+d.dataset.d);
-});
-renderForum(false);
-
-/* ---------- boot ---------- */
-fetch(API + "/api/status", { cache: "no-store" }).then((r) => r.json())
-  .then((d) => { if (d.maintenance) showMaint(d.messa
