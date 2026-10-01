@@ -174,6 +174,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .swatches{display:flex;gap:14px;flex-wrap:wrap}
 .sw{width:44px;height:44px;border-radius:50%;border:3px solid var(--surface);box-shadow:0 0 0 2px var(--line)}
 .sw.active{box-shadow:0 0 0 3px var(--ink)}
+.set-nim{color:var(--mute);font-size:14px;margin-top:2px}
 .mfilter{margin-bottom:12px}
 .task{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);width:100%;text-align:left}
 .task:first-child{border-top:0;padding-top:0}
@@ -389,14 +390,14 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 
 <section class="view" id="view-admin"><h2 class="page-title">Panel admin</h2><p class="page-sub">Kelola akun, ban, dan IP tanpa Telegram.</p>
 <div class="stats" id="adStats"></div>
-<div class="card"><h3>Buat akun</h3><div class="field"><input class="input" id="adNewUser" placeholder="Username" autocapitalize="none"></div><div class="field"><input class="input" id="adNewName" placeholder="Nama lengkap"></div><button class="btn btn-primary" id="adCreate" type="button">Buat akun</button></div>
+<div class="card"><h3>Buat akun</h3><div class="field"><input class="input" id="adNewUser" placeholder="Username" autocapitalize="none"></div><div class="field"><input class="input" id="adNewName" placeholder="Nama lengkap"></div><div class="field"><input class="input" id="adNewNim" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="NIM (24.230.0000)"></div><button class="btn btn-primary" id="adCreate" type="button">Buat akun</button></div>
 <div class="card"><h3>Forum</h3><button class="btn btn-danger" id="adForumClear" type="button">Bersihkan semua pesan forum</button></div>
 <div class="card"><h3>Akun website</h3><div id="adUsers"></div></div>
 <div class="card"><h3>IP diblokir</h3><div class="field"><input class="input" id="adIpInput" placeholder="Contoh: 123.123.123.123"></div><button class="btn btn-soft" id="adIpBan" type="button" style="margin-bottom:12px">Blokir IP</button><div id="adIps"></div></div>
 <div class="card"><h3>User Telegram</h3><div id="adTg"></div></div></section>
 
 <section class="view" id="view-settings"><h2 class="page-title">Akun</h2><p class="page-sub">Kelola profil dan keamanan akunmu.</p>
-<div class="card row"><div class="avatar" id="setAvatar">US</div><div><div id="setName" style="font-weight:700;font-size:18px">Nama</div><div id="setUser" style="color:var(--mute);font-size:14px">@username</div></div></div>
+<div class="card row"><div class="avatar" id="setAvatar">US</div><div><div id="setName" style="font-weight:700;font-size:18px">Nama</div><div id="setUser" style="color:var(--mute);font-size:14px">@username</div><div id="setNim" class="set-nim hidden"></div></div></div>
 <button class="btn btn-soft hidden" id="setAdminBtn" data-go="admin" type="button" style="width:100%;margin-bottom:16px">Buka panel admin</button>
 <div class="card"><h3>Tampilan</h3><div class="opt-row"><button type="button" data-theme-set="auto">Otomatis</button><button type="button" data-theme-set="light">Terang</button><button type="button" data-theme-set="dark">Gelap</button></div><div class="swatches" id="swatches"></div></div>
 <div class="card"><h3>Pengingat deadline</h3><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Kamu diberi tahu 24 jam, 3 jam, 1 jam, dan 5 menit sebelum deadline selama web ini terbuka. Tugas yang sudah kamu tandai selesai tidak akan diingatkan lagi (tersimpan di perangkat ini). Aktifkan notifikasi browser agar muncul juga di layar HP.</p><button type="button" class="btn btn-soft" id="notifBtn">Aktifkan notifikasi browser</button></div>
@@ -482,7 +483,7 @@ function formatNim(s) {
   if (d.length > 5) o += "." + d.slice(5, 9);
   return o;
 }
-["nim", "fgNim"].forEach((id) => $(id).addEventListener("input", (e) => { e.target.value = formatNim(e.target.value); }));
+["nim", "fgNim", "adNewNim"].forEach((id) => $(id).addEventListener("input", (e) => { e.target.value = formatNim(e.target.value); }));
 
 let toastTimer;
 function showToast(msg, isErr) {
@@ -799,6 +800,8 @@ async function initApp() {
     $("navName").textContent = display;
     $("setName").textContent = display;
     $("setUser").textContent = "@" + currentUser;
+    $("setNim").textContent = "NIM " + (data.nim || "");
+    $("setNim").classList.toggle("hidden", !data.nim);
     ["navAvatar", "setAvatar"].forEach((id) => {
       $(id).textContent = initials();
       $(id).classList.toggle("owner", isOwner);
@@ -1190,20 +1193,32 @@ $("favList").addEventListener("click", (e) => {
 });
 
 /* ---------- tema & warna aksen ---------- */
-const ACCENTS = { teal: ["#0f766e", "#3ec2b1"], indigo: ["#4f46e5", "#9a97ff"], rose: ["#be185d", "#f472b6"], orange: ["#c2410c", "#fb923c"] };
+/* [warna mode terang, warna mode gelap, warna bulatan pilihan (opsional)] */
+const ACCENTS = {
+  teal: ["#0f766e", "#3ec2b1"], biru: ["#1d4ed8", "#60a5fa"], indigo: ["#4f46e5", "#9a97ff"], ungu: ["#7e22ce", "#c084fc"],
+  pink: ["#be185d", "#f472b6"], merah: ["#b91c1c", "#f87171"], oranye: ["#c2410c", "#fb923c"], kuning: ["#a16207", "#facc15"],
+  hijau: ["#15803d", "#4ade80"], hitam: ["#111111", "#e5e5e5", "#111111"], putih: ["#64748b", "#ffffff", "#ffffff"]
+};
+const LEGACY_ACCENT = { rose: "pink", orange: "oranye" };
 let themeMode = localStorage.getItem("s5_theme") || "auto";
 let accentKey = localStorage.getItem("s5_accent") || "teal";
+if (LEGACY_ACCENT[accentKey]) accentKey = LEGACY_ACCENT[accentKey];
 if (!ACCENTS[accentKey]) accentKey = "teal";
+function onColor(hex) {
+  const n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.62 ? "#111111" : "#ffffff";
+}
 const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 $("swatches").innerHTML = Object.keys(ACCENTS).map((k) =>
-  `<button type="button" class="sw" data-accent="${k}" style="background:${ACCENTS[k][0]}" aria-label="Warna ${k}"></button>`).join("");
+  `<button type="button" class="sw" data-accent="${k}" style="background:${ACCENTS[k][2] || ACCENTS[k][0]}" title="${k}" aria-label="Warna ${k}"></button>`).join("");
 function applyTheme() {
   const root = document.documentElement;
   if (themeMode === "auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", themeMode);
   const dark = themeMode === "dark" || (themeMode === "auto" && darkQuery.matches);
   const pair = ACCENTS[accentKey];
   root.style.setProperty("--brand", dark ? pair[1] : pair[0]);
-  root.style.setProperty("--on-brand", dark ? "#06201c" : "#fff");
+  const brand = dark ? pair[1] : pair[0];
+  root.style.setProperty("--on-brand", onColor(brand));
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.content = dark ? "#0d1714" : pair[0];
   document.querySelectorAll("[data-theme-set]").forEach((b) => b.classList.toggle("active", b.dataset.themeSet === themeMode));
@@ -1462,8 +1477,8 @@ const ADMIN_CONFIRM = {
 };
 
 /* ---------- panel admin ---------- */
-async function adminAct(action, target, value) {
-  const { data } = await postJSON("/api/admin/action", { action, target, value }, true);
+async function adminAct(action, target, value, nim) {
+  const { data } = await postJSON("/api/admin/action", { action, target, value, nim: nim || "" }, true);
   if (!data.ok) throw new Error(data.error || "Gagal.");
   return data;
 }
@@ -1527,9 +1542,11 @@ $("view-admin").addEventListener("click", async (e) => {
 });
 $("adCreate").addEventListener("click", async () => {
   try {
-    const d = await adminAct("create_web", $("adNewUser").value, $("adNewName").value);
+    const nim = $("adNewNim").value.trim();
+    if (!NIM_RE.test(nim)) throw new Error("NIM wajib diisi. Format: 24.230.0000");
+    const d = await adminAct("create_web", $("adNewUser").value, $("adNewName").value, nim);
     await showSecret("Akun berhasil dibuat", "Salin password ini dan kirim ke pemilik akun. Tidak akan ditampilkan lagi.", d.password);
-    $("adNewUser").value = ""; $("adNewName").value = "";
+    $("adNewUser").value = ""; $("adNewName").value = ""; $("adNewNim").value = "";
     loadAdmin();
   } catch (err) { showToast(err.message, true); }
 });
