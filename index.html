@@ -769,7 +769,7 @@ function logout(manual = true) {
   $("setAdminBtn").classList.add("hidden");
   $("app").classList.add("hidden");
   $("login").classList.remove("hidden");
-  $("authForm").reset();
+  $("password").value = "";
   if (manual) showToast("Berhasil keluar.");
 }
 $("navLogout").addEventListener("click", () => logout());
@@ -810,7 +810,9 @@ async function initApp() {
     console.error(err);
     // Saat maintenance, jangan hapus token: sesi tetap valid setelah maintenance selesai.
     if (!$("maint").classList.contains("hidden")) return;
+    const why = (err && err.message) ? err.message : "penyebab tidak diketahui";
     logout(false);
+    setLoginError("Gagal memuat sesi setelah login: " + why);
     showToast("Sesi gagal dimuat. Silakan masuk lagi.", true);
   }
 }
@@ -1662,7 +1664,4 @@ async function deleteForum(id) {
   if (!(await openModal({ title: "Hapus pesan ini?", text: "Pesan ini hilang untuk semua orang.", ok: "Hapus", icon: "trash", danger: true }))) return;
   try {
     const res = await apiCall("/api/forum/message/" + id, { method: "DELETE" });
-    const d = await res.json().catch(() => ({}));
-    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menghapus pesan.");
-    fMsgs = fMsgs.filter((m) => m.id !== id);
-    
+    const d = await res.json().cat
