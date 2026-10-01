@@ -339,6 +339,7 @@ window.addEventListener("unhandledrejection", function (e) {
 </form>
 <div id="authLinks"><button type="button" class="link" id="registerToggle">Belum punya akun? Daftar</button><button type="button" class="link quiet" id="forgotToggle">Lupa password?</button></div>
 <div id="forgotLinks" class="hidden"><button type="button" class="link quiet" id="forgotBack">Kembali ke halaman masuk</button></div>
+<p id="buildTag" style="font-size:11px;color:var(--mute);text-align:center;margin-top:16px">build nim-3 · JS belum jalan</p>
 </div></div>
 
 <div id="app" class="hidden">
@@ -432,6 +433,7 @@ window.addEventListener("unhandledrejection", function (e) {
 
 <script>
 "use strict";
+document.getElementById("buildTag").textContent = "build nim-3 · JS aktif";
 const API = "https://semester-lima.onrender.com";
 const ICONS = {
   "Cloud Computing":"☁️","Audit Sistem Informasi":"📋","Keamanan Sistem Informasi":"🔐",
@@ -1669,6 +1671,4 @@ async function sendForum() {
 async function deleteForum(id) {
   if (!(await openModal({ title: "Hapus pesan ini?", text: "Pesan ini hilang untuk semua orang.", ok: "Hapus", icon: "trash", danger: true }))) return;
   try {
-    const res = await apiCall("/api/forum/message/" + id, { method: "DELETE" });
-    const d = await res.json().catch(() => ({}));
-    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menghapus pesan.");
+    const 
