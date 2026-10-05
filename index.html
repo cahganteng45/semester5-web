@@ -708,8 +708,10 @@ $("authForm").addEventListener("submit", async (e) => {
       localStorage.setItem("semester5_token", token);
       $("maint").classList.add("hidden");
       clearInterval(maintTimer);
-      await initApp();
-      showToast("Berhasil masuk.");
+      // FIX: toast sukses hanya muncul kalau initApp benar-benar berhasil.
+      // Kalau gagal, initApp sudah menampilkan pesan error aslinya.
+      const ok = await initApp();
+      if (ok) showToast("Berhasil masuk.");
     }
   } catch (err) {
     setLoginError(err.message);
@@ -787,12 +789,13 @@ function logout(manual = true) {
 $("navLogout").addEventListener("click", () => logout());
 $("mobileLogout").addEventListener("click", () => logout());
 
+// Mengembalikan true kalau berhasil, false kalau gagal.
 async function initApp() {
-  if (!token) return;
+  if (!token) return false;
   try {
     const res = await apiCall("/api/me");
     const data = await res.json();
-    if (!res.ok || !data.ok) throw new Error("Sesi tidak valid");
+    if (!res.ok || !data.ok) throw new Error(data.error || "Sesi tidak valid");
     currentUser = data.username;
     fullUserName = data.full_name || currentUser;
     const isOwner = currentUser.toLowerCase() === "admin";
@@ -820,12 +823,17 @@ async function initApp() {
     syncTimer = setInterval(() => {
       if (!document.hidden && token && selectedTopicId && activeView === "materi") loadMaterials(true);
     }, 15000);
+    return true;
   } catch (err) {
     console.error(err);
     // Saat maintenance, jangan hapus token: sesi tetap valid setelah maintenance selesai.
-    if (!$("maint").classList.contains("hidden")) return;
+    if (!$("maint").classList.contains("hidden")) return false;
     logout(false);
-    showToast("Sesi gagal dimuat. Silakan masuk lagi.", true);
+    // Tampilkan penyebab asli (mis. "Sesi tidak valid atau kamu di-banned.") di toast dan di kotak login.
+    const msg = (err && err.message) || "Sesi gagal dimuat. Silakan masuk lagi.";
+    setLoginError(msg);
+    showToast(msg, true);
+    return false;
   }
 }
 
@@ -1661,57 +1669,4 @@ function setForumReply(id) {
   if (!m) return;
   fReplyTo = id;
   const r = $("fReply");
-  r.innerHTML = `<span><b>${esc(formatSenderName(m.user))}</b>: ${esc(m.text.slice(0, 80))}</span><button type="button" aria-label="Batalkan balasan">✕</button>`;
-  r.classList.remove("hidden");
-  r.querySelector("button").onclick = clearForumReply;
-  $("fInput").focus();
-}
-async function sendForum() {
-  const inp = $("fInput"), text = inp.value.trim();
-  if (!text) return;
-  const btn = $("fSend");
-  btn.disabled = true;
-  try {
-    const res = await apiCall("/api/forum/send", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, reply_to: fReplyTo }) });
-    const d = await res.json();
-    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim pesan.");
-    inp.value = ""; forumAutosize(); clearForumReply();
-    if (!fMsgs.some((m) => m.id === d.message.id)) fMsgs.push(d.message);
-    fMsgs.sort((a, b) => a.id - b.id);
-    renderForum(true);
-    pollForum(); // ambil pesan orang lain yang masuk sebelum pesanmu
-  } catch (e) { showToast(e.message, true); }
-  finally { btn.disabled = false; inp.focus(); }
-}
-async function deleteForum(id) {
-  if (!(await openModal({ title: "Hapus pesan ini?", text: "Pesan ini hilang untuk semua orang.", ok: "Hapus", icon: "trash", danger: true }))) return;
-  try {
-    const res = await apiCall("/api/forum/message/" + id, { method: "DELETE" });
-    const d = await res.json().catch(() => ({}));
-    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menghapus pesan.");
-    fMsgs = fMsgs.filter((m) => m.id !== id);
-    renderForum(false);
-  } catch (e) { showToast(e.message, true); }
-}
-$("fSend").addEventListener("click", sendForum);
-$("fInput").addEventListener("input", forumAutosize);
-$("fInput").addEventListener("keydown", (e) => {
-  // Di HP, Enter = baris baru. Di komputer, Enter = kirim (Shift+Enter = baris baru).
-  if (e.key === "Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches) { e.preventDefault(); sendForum(); }
-});
-$("fMsgs").addEventListener("click", (e) => {
-  const r = e.target.closest("[data-r]"), d = e.target.closest("[data-d]");
-  if (r) setForumReply(+r.dataset.r);
-  else if (d) deleteForum(+d.dataset.d);
-});
-renderForum(false);
-
-/* ---------- boot ---------- */
-fetch(API + "/api/status", { cache: "no-store" }).then((r) => r.json())
-  .then((d) => { if (d.maintenance) showMaint(d.message); }).catch(() => {});
-if (token) initApp(); else $("login").classList.remove("hidden");
-</script>
-</body>
-</html>
+  r.innerHTML = `<span><b>${esc(formatSenderName(m.user))}</
