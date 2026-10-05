@@ -708,10 +708,8 @@ $("authForm").addEventListener("submit", async (e) => {
       localStorage.setItem("semester5_token", token);
       $("maint").classList.add("hidden");
       clearInterval(maintTimer);
-      // FIX: toast sukses hanya muncul kalau initApp benar-benar berhasil.
-      // Kalau gagal, initApp sudah menampilkan pesan error aslinya.
-      const ok = await initApp();
-      if (ok) showToast("Berhasil masuk.");
+      await initApp();
+      showToast("Berhasil masuk.");
     }
   } catch (err) {
     setLoginError(err.message);
@@ -789,13 +787,12 @@ function logout(manual = true) {
 $("navLogout").addEventListener("click", () => logout());
 $("mobileLogout").addEventListener("click", () => logout());
 
-// Mengembalikan true kalau berhasil, false kalau gagal.
 async function initApp() {
-  if (!token) return false;
+  if (!token) return;
   try {
     const res = await apiCall("/api/me");
     const data = await res.json();
-    if (!res.ok || !data.ok) throw new Error(data.error || "Sesi tidak valid");
+    if (!res.ok || !data.ok) throw new Error("Sesi tidak valid");
     currentUser = data.username;
     fullUserName = data.full_name || currentUser;
     const isOwner = currentUser.toLowerCase() === "admin";
@@ -823,17 +820,12 @@ async function initApp() {
     syncTimer = setInterval(() => {
       if (!document.hidden && token && selectedTopicId && activeView === "materi") loadMaterials(true);
     }, 15000);
-    return true;
   } catch (err) {
     console.error(err);
     // Saat maintenance, jangan hapus token: sesi tetap valid setelah maintenance selesai.
-    if (!$("maint").classList.contains("hidden")) return false;
+    if (!$("maint").classList.contains("hidden")) return;
     logout(false);
-    // Tampilkan penyebab asli (mis. "Sesi tidak valid atau kamu di-banned.") di toast dan di kotak login.
-    const msg = (err && err.message) || "Sesi gagal dimuat. Silakan masuk lagi.";
-    setLoginError(msg);
-    showToast(msg, true);
-    return false;
+    showToast("Sesi gagal dimuat. Silakan masuk lagi.", true);
   }
 }
 
@@ -1669,4 +1661,16 @@ function setForumReply(id) {
   if (!m) return;
   fReplyTo = id;
   const r = $("fReply");
-  r.innerHTML = `<span><b>${esc(formatSenderName(m.user))}</
+  r.innerHTML = `<span><b>${esc(formatSenderName(m.user))}</b>: ${esc(m.text.slice(0, 80))}</span><button type="button" aria-label="Batalkan balasan">✕</button>`;
+  r.classList.remove("hidden");
+  r.querySelector("button").onclick = clearForumReply;
+  $("fInput").focus();
+}
+async function sendForum() {
+  const inp = $("fInput"), text = inp.value.trim();
+  if (!text) return;
+  const btn = $("fSend");
+  btn.disabled = true;
+  try {
+    const res = await apiCall("/api/forum/send", {
+      method: "POST", headers: { 
