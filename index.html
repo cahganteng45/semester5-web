@@ -1673,4 +1673,45 @@ async function sendForum() {
   btn.disabled = true;
   try {
     const res = await apiCall("/api/forum/send", {
-      method: "POST", headers: { 
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, reply_to: fReplyTo }) });
+    const d = await res.json();
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim pesan.");
+    inp.value = ""; forumAutosize(); clearForumReply();
+    if (!fMsgs.some((m) => m.id === d.message.id)) fMsgs.push(d.message);
+    fMsgs.sort((a, b) => a.id - b.id);
+    renderForum(true);
+    pollForum(); // ambil pesan orang lain yang masuk sebelum pesanmu
+  } catch (e) { showToast(e.message, true); }
+  finally { btn.disabled = false; inp.focus(); }
+}
+async function deleteForum(id) {
+  if (!(await openModal({ title: "Hapus pesan ini?", text: "Pesan ini hilang untuk semua orang.", ok: "Hapus", icon: "trash", danger: true }))) return;
+  try {
+    const res = await apiCall("/api/forum/message/" + id, { method: "DELETE" });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menghapus pesan.");
+    fMsgs = fMsgs.filter((m) => m.id !== id);
+    renderForum(false);
+  } catch (e) { showToast(e.message, true); }
+}
+$("fSend").addEventListener("click", sendForum);
+$("fInput").addEventListener("input", forumAutosize);
+$("fInput").addEventListener("keydown", (e) => {
+  // Di HP, Enter = baris baru. Di komputer, Enter = kirim (Shift+Enter = baris baru).
+  if (e.key === "Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches) { e.preventDefault(); sendForum(); }
+});
+$("fMsgs").addEventListener("click", (e) => {
+  const r = e.target.closest("[data-r]"), d = e.target.closest("[data-d]");
+  if (r) setForumReply(+r.dataset.r);
+  else if (d) deleteForum(+d.dataset.d);
+});
+renderForum(false);
+
+/* ---------- boot ---------- */
+fetch(API + "/api/status", { cache: "no-store" }).then((r) => r.json())
+  .then((d) => { if (d.maintenance) showMaint(d.message); }).catch(() => {});
+if (token) initApp(); else $("login").classList.remove("hidden");
+</script>
+</body>
+</html>
