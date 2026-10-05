@@ -312,14 +312,14 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <form id="authForm">
 <div class="field"><label for="username">Username</label><input class="input" id="username" required autocomplete="username" autocapitalize="none" placeholder="Masukkan username"></div>
 <div class="field hidden" id="nameWrap"><label for="fullName">Nama lengkap</label><input class="input" id="fullName" autocomplete="name" placeholder="Contoh: Andi Saputra"></div>
-<div class="field hidden" id="nimWrap"><label for="nim">NIM</label><input class="input" id="nim" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="Contoh: 24.230.0000"></div>
+<div class="field hidden" id="nimWrap"><label for="nim">NIM</label><input class="input" id="nim" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="Masukkan NIM"></div>
 <div class="field"><label for="password">Password</label><div class="pwd"><input class="input" type="password" id="password" required autocomplete="current-password" placeholder="Masukkan password"><button type="button" data-pwd="password" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
 <div class="field hidden" id="confirmWrap"><label for="confirmPassword">Ulangi password</label><div class="pwd"><input class="input" type="password" id="confirmPassword" autocomplete="new-password" placeholder="Ketik ulang password"><button type="button" data-pwd="confirmPassword" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
 <button class="btn btn-primary" id="loginButton" type="submit">Masuk</button>
 </form>
 <form id="forgotForm" class="hidden">
 <div class="field"><label for="fgUsername">Username</label><input class="input" id="fgUsername" required autocapitalize="none"></div>
-<div class="field"><label for="fgNim">NIM (sesuai saat daftar)</label><input class="input" id="fgNim" required inputmode="numeric" autocomplete="off" maxlength="12" placeholder="Contoh: 24.230.0000"></div>
+<div class="field"><label for="fgNim">NIM (sesuai saat daftar)</label><input class="input" id="fgNim" required inputmode="numeric" autocomplete="off" maxlength="12" placeholder="Masukkan NIM"></div>
 <div class="field"><label for="fgPassword">Password baru</label><div class="pwd"><input class="input" type="password" id="fgPassword" required placeholder="Minimal 6 karakter"><button type="button" data-pwd="fgPassword" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
 <button class="btn btn-primary" id="forgotBtn" type="submit">Simpan password baru</button>
 </form>
@@ -691,7 +691,7 @@ $("authForm").addEventListener("submit", async (e) => {
     if (registerMode) {
       btn.textContent = "Membuat akun…";
       const nim = $("nim").value.trim();
-      if (!NIM_RE.test(nim)) throw new Error("Format NIM salah. Contoh: 24.230.0000");
+      if (!NIM_RE.test(nim)) throw new Error("NIM tidak valid.");
       const { res, data } = await postJSON("/api/register", {
         username, password, confirm: $("confirmPassword").value,
         full_name: $("fullName").value.trim(), nim });
@@ -723,7 +723,7 @@ $("forgotForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const btn = $("forgotBtn"), np = $("fgPassword").value, nim = $("fgNim").value.trim();
   setLoginError("");
-  if (!NIM_RE.test(nim)) return setLoginError("Format NIM salah. Contoh: 24.230.0000");
+  if (!NIM_RE.test(nim)) return setLoginError("NIM tidak valid.");
   if (np.length < 6) return setLoginError("Password baru minimal 6 karakter.");
   btn.disabled = true;
   btn.textContent = "Menyimpan…";
