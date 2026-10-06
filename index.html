@@ -448,7 +448,7 @@ let token = localStorage.getItem("semester5_token") || "";
 let currentUser = "", fullUserName = "", isAdmin = false;
 let topicsList = [], selectedTopicId = "", lastMaterials = [];
 let registerMode = false, forgotMode = false, uploadType = "file";
-let syncTimer = null, clockTimer = null, activeView = "home", chosenDay = null;
+let syncTimer = null, clockTimer = null, activeView = "home", chosenDay = null, lastInitError = "";
 const readJSON = (k) => { try { return JSON.parse(localStorage.getItem(k) || "[]"); } catch (e) { return []; } };
 let pinnedTopics = readJSON("semester5_pinned_topics").map(String);
 let pinnedMaterials = readJSON("semester5_pinned_materials").map(String);
@@ -708,7 +708,7 @@ $("authForm").addEventListener("submit", async (e) => {
       localStorage.setItem("semester5_token", token);
       $("maint").classList.add("hidden");
       clearInterval(maintTimer);
-      await initApp();
+      if (!(await initApp())) throw new Error(lastInitError || "Gagal memuat akun. Coba lagi.");
       showToast("Berhasil masuk.");
     }
   } catch (err) {
@@ -788,11 +788,13 @@ $("navLogout").addEventListener("click", () => logout());
 $("mobileLogout").addEventListener("click", () => logout());
 
 async function initApp() {
-  if (!token) return;
+  if (!token) return false;
+  lastInitError = "";
   try {
-    const res = await apiCall("/api/me");
-    const data = await res.json();
-    if (!res.ok || !data.ok) throw new Error("Sesi tidak valid");
+    const res = await fetch(API + "/api/me", { headers: { Authorization: "Bearer " + token } });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 503 && data.maintenance) { showMaint(data.message); return false; }
+    if (!res.ok || !data.ok) throw new Error(data.error || "Sesi tidak valid.");
     currentUser = data.username;
     fullUserName = data.full_name || currentUser;
     const isOwner = currentUser.toLowerCase() === "admin";
@@ -820,12 +822,15 @@ async function initApp() {
     syncTimer = setInterval(() => {
       if (!document.hidden && token && selectedTopicId && activeView === "materi") loadMaterials(true);
     }, 15000);
+    return true;
   } catch (err) {
     console.error(err);
+    lastInitError = err.message || "";
     // Saat maintenance, jangan hapus token: sesi tetap valid setelah maintenance selesai.
-    if (!$("maint").classList.contains("hidden")) return;
+    if (!$("maint").classList.contains("hidden")) return false;
     logout(false);
     showToast("Sesi gagal dimuat. Silakan masuk lagi.", true);
+    return false;
   }
 }
 
