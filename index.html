@@ -203,7 +203,9 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .fmsg.me{justify-content:flex-end}
 .fbub{max-width:82%;background:var(--bg);border-radius:16px 16px 16px 4px;padding:8px 12px}
 .fmsg.me .fbub{background:var(--brand-soft);border-radius:16px 16px 4px 16px}
-.fname{font-size:12px;font-weight:700;color:var(--mute);margin-bottom:2px}
+.fname{font-size:12px;font-weight:700;color:var(--mute);margin-bottom:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fname small{font-weight:500;opacity:.75;margin-left:5px;font-size:11px}
+.uname{color:var(--mute);font-weight:500}
 .fname.crown{color:var(--amber)}
 .ftext{white-space:pre-wrap;word-break:break-word;font-size:15px}
 .fquote{border-left:3px solid var(--brand);padding:2px 8px;margin-bottom:4px;font-size:12px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -484,6 +486,29 @@ function formatNim(s) {
   return o;
 }
 ["nim", "fgNim", "adNewNim"].forEach((id) => $(id).addEventListener("input", (e) => { e.target.value = formatNim(e.target.value); }));
+
+/* ---------- nama tampilan (nama lengkap + @username) ---------- */
+let nameMap = {}, namesAt = 0;
+const OWNER_USERS = ["admin", "brownmatcha"];
+function isOwnerUser(u) { return OWNER_USERS.includes(String(u || "").replace(/^@/, "").toLowerCase()); }
+function shortName(n) { return String(n || "").trim().split(/\s+/).slice(0, 2).join(" "); }
+function displayName(username, short) {
+  const u = String(username || "").replace(/^@/, "");
+  if (isOwnerUser(u)) return "Padil 👑";
+  const full = nameMap[u.toLowerCase()];
+  if (!full) return "@" + u;
+  return short ? shortName(full) : full;
+}
+async function loadNames(force) {
+  if (!token) return;
+  if (!force && Date.now() - namesAt < 30000) return;
+  namesAt = Date.now();
+  try {
+    const res = await apiCall("/api/names");
+    const d = await res.json();
+    if (res.ok && d.ok) nameMap = d.names || {};
+  } catch (e) { /* nama tidak kritis, pakai @username kalau gagal */ }
+}
 
 let toastTimer;
 function showToast(msg, isErr) {
@@ -811,6 +836,7 @@ async function initApp() {
     $("login").classList.add("hidden");
     $("app").classList.remove("hidden");
     renderJadwal();
+    await loadNames(true);
     await loadTopics();
     switchView("home");
     clearInterval(clockTimer);
@@ -1040,7 +1066,8 @@ function renderMaterials() {
     } else if (!isProxy && kind !== "document") {
       preview = `<div class="mnote warn">File masih diproses Telegram. Buka lewat tombol Telegram di bawah.</div>`;
     }
-    const sender = formatSenderName(m.sender), owner = sender.includes("👑");
+    const su = m.sender_user || "", owner = isOwnerUser(su) || isOwnerUser(m.sender);
+    const sname = owner ? "Padil 👑" : (m.sender_name || formatSenderName(m.sender));
     const pinned = pinnedMaterials.includes(m.id), id = esc(m.id);
     const btns = [
       `<button class="mbtn ${pinned ? "on" : ""}" data-act="pin" data-id="${id}">${svg("pin", 15)} ${pinned ? "Lepas pin" : "Pin"}</button>`,
@@ -1052,7 +1079,7 @@ function renderMaterials() {
     ].join("");
     return `<article class="mitem ${pinned ? "pinned" : ""}">
       <div><div class="mname">${isText ? "Catatan" : esc(m.name)}</div>
-        <div class="mmeta"><span class="${owner ? "owner" : ""}">${esc(sender)}</span>
+        <div class="mmeta"><span class="${owner ? "owner" : ""}">${esc(sname)}</span>${!owner && su ? `<span class="uname">@${esc(su)}</span>` : ""}
           <span>${m.date ? esc(new Date(m.date).toLocaleString("id-ID")) : ""}</span>
           <span class="tag">${m.source === "website" ? "Web" : "Telegram"}</span>
           ${!isText ? `<span>${formatBytes(m.size)}</span>` : ""}</div></div>
@@ -1585,13 +1612,13 @@ function renderForum(stick) {
   }
   let prevDay = "";
   box.innerHTML = fMsgs.map((m) => {
-    const mine = m.user === currentUser, name = formatSenderName(m.user), crown = name.includes("👑");
+    const mine = m.user === currentUser, name = displayName(m.user, true), crown = isOwnerUser(m.user);
     const day = fDay(m.ts), sep = day !== prevDay ? `<div class="fday">${esc(day)}</div>` : "";
     prevDay = day;
-    const quote = m.reply ? `<div class="fquote"><b>${esc(formatSenderName(m.reply.user))}</b>${esc(m.reply.text)}</div>` : "";
+    const quote = m.reply ? `<div class="fquote"><b>${esc(displayName(m.reply.user, true))}</b>${esc(m.reply.text)}</div>` : "";
     const canDel = mine || isAdmin;
     return `${sep}<div class="fmsg ${mine ? "me" : ""}"><div class="fbub">
-      ${mine ? "" : `<div class="fname ${crown ? "crown" : ""}">${esc(name)}</div>`}${quote}
+      ${mine ? "" : `<div class="fname ${crown ? "crown" : ""}">${esc(name)}${crown || nameMap[String(m.user).toLowerCase()] === undefined ? "" : `<small>@${esc(m.user)}</small>`}</div>`}${quote}
       <div class="ftext">${esc(m.text)}</div>
       <div class="fmeta"><span>${esc(fTime(m.ts))}</span><button type="button" data-r="${m.id}">Balas</button>${canDel ? `<button type="button" data-d="${m.id}">Hapus</button>` : ""}</div>
     </div></div>`;
@@ -1627,6 +1654,9 @@ async function pollForum() {
     });
     fMsgs.sort((a, b) => a.id - b.id);
     if (fresh && fLoaded && activeView !== "forum") $("fDot").classList.remove("hidden");
+    if ((d.messages || []).some((m) => !isOwnerUser(m.user) && nameMap[String(m.user).toLowerCase()] === undefined)) {
+      await loadNames(); changed = true;
+    }
     const first = !fLoaded;
     fLoaded = true;
     if (changed || first) renderForum(atBottom || first);
@@ -1635,6 +1665,7 @@ async function pollForum() {
 }
 async function openForum() {
   $("fDot").classList.add("hidden");
+  loadNames();
   await pollForum();
   renderForum(true);
 }
@@ -1666,7 +1697,7 @@ function setForumReply(id) {
   if (!m) return;
   fReplyTo = id;
   const r = $("fReply");
-  r.innerHTML = `<span><b>${esc(formatSenderName(m.user))}</b>: ${esc(m.text.slice(0, 80))}</span><button type="button" aria-label="Batalkan balasan">✕</button>`;
+  r.innerHTML = `<span><b>${esc(displayName(m.user, true))}</b>: ${esc(m.text.slice(0, 80))}</span><button type="button" aria-label="Batalkan balasan">✕</button>`;
   r.classList.remove("hidden");
   r.querySelector("button").onclick = clearForumReply;
   $("fInput").focus();
