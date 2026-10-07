@@ -404,11 +404,13 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <div class="card"><h3>User Telegram</h3><div id="adTg"></div></div>
 <div class="card"><h3>Log aktivitas</h3>
 <input class="input search" id="actSearch" type="search" placeholder="Cari username, IP, atau kata kunci">
-<div class="chips" id="actFilters"><button type="button" class="chip active" data-k="">Semua</button><button type="button" class="chip" data-k="login,login_fail">Login</button><button type="button" class="chip" data-k="register">Daftar</button><button type="button" class="chip" data-k="upload,delete">Materi</button><button type="button" class="chip" data-k="admin,forum">Admin</button><button type="button" class="chip" data-k="security,reset_pw,change_pw">Keamanan</button></div>
+<div class="chips" id="actFilters"><button type="button" class="chip active" data-k="">Semua</button><button type="button" class="chip" data-k="login,login_fail">Login</button><button type="button" class="chip" data-k="register,profile">Akun</button><button type="button" class="chip" data-k="upload,delete">Materi</button><button type="button" class="chip" data-k="admin,forum">Admin</button><button type="button" class="chip" data-k="security,reset_pw,change_pw">Keamanan</button></div>
 <div id="actList"></div></div></section>
 
 <section class="view" id="view-settings"><h2 class="page-title">Akun</h2><p class="page-sub">Kelola profil dan keamanan akunmu.</p>
 <div class="card row"><div class="avatar" id="setAvatar">US</div><div><div id="setName" style="font-weight:700;font-size:18px">Nama</div><div id="setUser" style="color:var(--mute);font-size:14px">@username</div><div id="setNim" class="set-nim hidden"></div></div></div>
+<div class="card" id="nameCard"><h3>Nama tampilan</h3><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Nama ini tampil di forum dan materi yang kamu kirim, dengan username yang disamarkan. Bisa diganti sekali tiap 7 hari.</p>
+<form id="nameForm"><div class="field"><input class="input" id="newName" maxlength="60" autocomplete="name" placeholder="Nama lengkap"></div><button class="btn btn-primary" id="nameBtn" type="submit">Simpan nama</button></form></div>
 <button class="btn btn-soft hidden" id="setAdminBtn" data-go="admin" type="button" style="width:100%;margin-bottom:16px">Buka panel admin</button>
 <div class="card"><h3>Tampilan</h3><div class="opt-row"><button type="button" data-theme-set="auto">Otomatis</button><button type="button" data-theme-set="light">Terang</button><button type="button" data-theme-set="dark">Gelap</button></div><div class="swatches" id="swatches"></div></div>
 <div class="card" id="installCard"><h3>Pasang aplikasi</h3><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Pasang ke layar utama HP supaya terbuka seperti aplikasi. iPhone: buka lewat Safari, ketuk Bagikan, lalu Tambahkan ke Layar Utama (perlu iOS 16.4 atau lebih baru untuk notifikasi).</p><button type="button" class="btn btn-soft" id="installBtn">Pasang aplikasi</button></div>
@@ -497,28 +499,7 @@ function formatNim(s) {
 }
 ["nim", "fgNim", "adNewNim"].forEach((id) => $(id).addEventListener("input", (e) => { e.target.value = formatNim(e.target.value); }));
 
-/* ---------- nama tampilan (nama lengkap + @username) ---------- */
-let nameMap = {}, namesAt = 0;
-const OWNER_USERS = ["admin", "brownmatcha"];
-function isOwnerUser(u) { return OWNER_USERS.includes(String(u || "").replace(/^@/, "").toLowerCase()); }
-function shortName(n) { return String(n || "").trim().split(/\s+/).slice(0, 2).join(" "); }
-function displayName(username, short) {
-  const u = String(username || "").replace(/^@/, "");
-  if (isOwnerUser(u)) return "Padil 👑";
-  const full = nameMap[u.toLowerCase()];
-  if (!full) return "@" + u;
-  return short ? shortName(full) : full;
-}
-async function loadNames(force) {
-  if (!token) return;
-  if (!force && Date.now() - namesAt < 30000) return;
-  namesAt = Date.now();
-  try {
-    const res = await apiCall("/api/names");
-    const d = await res.json();
-    if (res.ok && d.ok) nameMap = d.names || {};
-  } catch (e) { /* nama tidak kritis, pakai @username kalau gagal */ }
-}
+const shortName = (n) => String(n || "").trim().split(/\s+/).slice(0, 2).join(" ");
 
 let toastTimer;
 function showToast(msg, isErr) {
@@ -777,6 +758,32 @@ $("forgotForm").addEventListener("submit", async (e) => {
   }
 });
 
+$("nameForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = $("newName").value.trim(), btn = $("nameBtn");
+  if (!name || name === fullUserName) return showToast("Nama belum berubah.", true);
+  btn.disabled = true;
+  btn.textContent = "Menyimpan…";
+  try {
+    const { res, data } = await postJSON("/api/change_name", { full_name: name }, true);
+    if (!res.ok || !data.ok) throw new Error(data.error || "Gagal mengganti nama.");
+    fullUserName = data.full_name;
+    $("navName").textContent = fullUserName;
+    $("setName").textContent = fullUserName;
+    ["navAvatar", "setAvatar"].forEach((id) => { $(id).textContent = initials(); });
+    $("newName").value = fullUserName;
+    updateGreeting();
+    forumReset(); pollForum();
+    if (selectedTopicId) loadMaterials(true);
+    showToast("Nama diganti. Forum dan materi ikut berubah.");
+  } catch (err) {
+    showToast(err.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Simpan nama";
+  }
+});
+
 $("changePasswordForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const op = $("cpOld").value, np = $("cpNew").value, cp = $("cpConfirm").value;
@@ -839,6 +846,8 @@ async function initApp() {
     $("navName").textContent = display;
     $("setName").textContent = display;
     $("setUser").textContent = "@" + currentUser;
+    $("nameCard").classList.toggle("hidden", isOwner);
+    $("newName").value = fullUserName;
     $("setNim").textContent = "NIM " + (data.nim || "");
     $("setNim").classList.toggle("hidden", !data.nim);
     ["navAvatar", "setAvatar"].forEach((id) => {
@@ -848,7 +857,6 @@ async function initApp() {
     $("login").classList.add("hidden");
     $("app").classList.remove("hidden");
     renderJadwal();
-    await loadNames(true);
     await loadTopics();
     switchView("home");
     clearInterval(clockTimer);
@@ -1079,8 +1087,7 @@ function renderMaterials() {
     } else if (!isProxy && kind !== "document") {
       preview = `<div class="mnote warn">File masih diproses Telegram. Buka lewat tombol Telegram di bawah.</div>`;
     }
-    const su = m.sender_user || "", owner = isOwnerUser(su) || isOwnerUser(m.sender);
-    const sname = owner ? "Padil 👑" : (m.sender_name || formatSenderName(m.sender));
+    const owner = !!m.owner, sname = owner ? "Padil 👑" : (m.sender_name || "Pengguna");
     const pinned = pinnedMaterials.includes(m.id), id = esc(m.id);
     const btns = [
       `<button class="mbtn ${pinned ? "on" : ""}" data-act="pin" data-id="${id}">${svg("pin", 15)} ${pinned ? "Lepas pin" : "Pin"}</button>`,
@@ -1092,7 +1099,7 @@ function renderMaterials() {
     ].join("");
     return `<article class="mitem ${pinned ? "pinned" : ""}">
       <div><div class="mname">${isText ? "Catatan" : esc(m.name)}</div>
-        <div class="mmeta"><span class="${owner ? "owner" : ""}">${esc(sname)}</span>${!owner && su ? `<span class="uname">@${esc(su)}</span>` : ""}
+        <div class="mmeta"><span class="${owner ? "owner" : ""}">${esc(sname)}</span>${!owner && m.sender_tag ? `<span class="uname">${esc(m.sender_tag)}</span>` : ""}
           <span>${m.date ? esc(new Date(m.date).toLocaleString("id-ID")) : ""}</span>
           <span class="tag">${m.source === "website" ? "Web" : "Telegram"}</span>
           ${!isText ? `<span>${formatBytes(m.size)}</span>` : ""}</div></div>
@@ -1601,7 +1608,7 @@ async function loadAdmin() {
   } catch (err) { showToast(err.message, true); }
 }
 let actKinds = "", actDebounce = null;
-const ACT_ICON = { login: "🔐", login_fail: "🚨", register: "🆕", upload: "📤", delete: "🗑️", admin: "🛠️", forum: "💬", security: "⛔", reset_pw: "🔑", change_pw: "🔑" };
+const ACT_ICON = { login: "🔐", login_fail: "🚨", register: "🆕", upload: "📤", delete: "🗑️", admin: "🛠️", forum: "💬", profile: "✏️", security: "⛔", reset_pw: "🔑", change_pw: "🔑" };
 async function loadActivity() {
   try {
     const q = encodeURIComponent($("actSearch").value.trim());
@@ -1691,13 +1698,13 @@ function renderForum(stick) {
   }
   let prevDay = "";
   box.innerHTML = list.map((m) => {
-    const mine = m.user === currentUser, name = displayName(m.user, true), crown = isOwnerUser(m.user);
+    const mine = !!m.mine, name = shortName(m.name), crown = !!m.owner;
     const day = fDay(m.ts), sep = day !== prevDay ? `<div class="fday">${esc(day)}</div>` : "";
     prevDay = day;
-    const quote = m.reply ? `<div class="fquote"><b>${esc(displayName(m.reply.user, true))}</b>${esc(m.reply.text)}</div>` : "";
+    const quote = m.reply ? `<div class="fquote"><b>${esc(shortName(m.reply.name))}</b>${esc(m.reply.text)}</div>` : "";
     const canDel = true; // semua orang bisa menghapus; aturan "untuk semua" atau "untuk saya" ada di deleteForum
     return `${sep}<div class="fmsg ${mine ? "me" : ""}"><div class="fbub">
-      ${mine ? "" : `<div class="fname ${crown ? "crown" : ""}">${esc(name)}${crown || nameMap[String(m.user).toLowerCase()] === undefined ? "" : `<small>@${esc(m.user)}</small>`}</div>`}${quote}
+      ${mine ? "" : `<div class="fname ${crown ? "crown" : ""}">${esc(name)}${crown ? "" : `<small>${esc(m.real ? "@" + m.real : m.mask)}</small>`}</div>`}${quote}
       <div class="ftext">${esc(m.text)}</div>
       <div class="fmeta"><span>${esc(fTime(m.ts))}</span><button type="button" data-r="${m.id}">Balas</button>${canDel ? `<button type="button" data-d="${m.id}">Hapus</button>` : ""}</div>
     </div></div>`;
@@ -1729,13 +1736,10 @@ async function pollForum() {
       fLastId = Math.max(fLastId, m.id);
       if (known.has(m.id)) return;
       fMsgs.push(m); changed = true;
-      if (m.user !== currentUser) fresh++;
+      if (!m.mine) fresh++;
     });
     fMsgs.sort((a, b) => a.id - b.id);
     if (fresh && fLoaded && activeView !== "forum") $("fDot").classList.remove("hidden");
-    if ((d.messages || []).some((m) => !isOwnerUser(m.user) && nameMap[String(m.user).toLowerCase()] === undefined)) {
-      await loadNames(); changed = true;
-    }
     const first = !fLoaded;
     fLoaded = true;
     if (changed || first) renderForum(atBottom || first);
@@ -1744,7 +1748,6 @@ async function pollForum() {
 }
 async function openForum() {
   $("fDot").classList.add("hidden");
-  loadNames();
   await pollForum();
   renderForum(true);
 }
@@ -1776,7 +1779,7 @@ function setForumReply(id) {
   if (!m) return;
   fReplyTo = id;
   const r = $("fReply");
-  r.innerHTML = `<span><b>${esc(displayName(m.user, true))}</b>: ${esc(m.text.slice(0, 80))}</span><button type="button" aria-label="Batalkan balasan">✕</button>`;
+  r.innerHTML = `<span><b>${esc(shortName(m.name))}</b>: ${esc(m.text.slice(0, 80))}</span><button type="button" aria-label="Batalkan balasan">✕</button>`;
   r.classList.remove("hidden");
   r.querySelector("button").onclick = clearForumReply;
   $("fInput").focus();
@@ -1813,14 +1816,14 @@ async function deleteForum(id) {
   const m = fMsgs.find((x) => x.id === id);
   if (!m) return;
   const young = Date.now() - new Date(m.ts).getTime() < FORUM_DEL_MS;
-  const forAll = isAdmin || (m.user === currentUser && young);
+  const forAll = isAdmin || (m.mine && young);
   let choice;
   if (forAll) {
     choice = await openModal({ title: "Hapus pesan ini?", ok: "Hapus untuk semua", extra: "Hapus untuk saya", icon: "trash", danger: true,
       text: isAdmin ? "Sebagai admin, kamu bisa menghapusnya untuk semua orang." : "Pesan ini belum lewat 1 jam, jadi bisa dihapus untuk semua orang." });
   } else {
     const yes = await openModal({ title: "Hapus untuk saya?", ok: "Hapus untuk saya", icon: "trash", danger: true,
-      text: m.user === currentUser ? "Pesan ini sudah lewat 1 jam, jadi hanya hilang dari tampilanmu. Orang lain masih bisa melihatnya." : "Pesan ini hanya disembunyikan dari tampilanmu." });
+      text: m.mine ? "Pesan ini sudah lewat 1 jam, jadi hanya hilang dari tampilanmu. Orang lain masih bisa melihatnya." : "Pesan ini hanya disembunyikan dari tampilanmu." });
     choice = yes ? "extra" : null;
   }
   if (!choice) return;
