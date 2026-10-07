@@ -236,6 +236,9 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .modal .m-btns{display:flex;gap:10px;margin-top:18px}
 .modal .m-btns .btn{flex:1}
 .modal .m-btns.stack{flex-direction:column}
+#adTabs{position:sticky;top:calc(6px + env(safe-area-inset-top));z-index:5;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+#adTabs button{padding:10px 4px}
+.btn-more{width:100%;margin-top:10px}
 .btn-del{background:var(--red);color:#fff}
 .btn-del:hover{filter:brightness(.92)}
 #toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-140px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:700;font-size:14px;z-index:1200;max-width:90vw;transition:transform .35s cubic-bezier(.34,1.4,.64,1)}
@@ -395,17 +398,31 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <div class="prog hidden" id="prog"><i id="progBar"></i></div>
 <button class="btn btn-primary" id="uploadBtn" type="button">Kirim materi</button></div></section>
 
-<section class="view" id="view-admin"><h2 class="page-title">Panel admin</h2><p class="page-sub">Kelola akun, ban, dan IP tanpa Telegram.</p>
+<section class="view" id="view-admin"><h2 class="page-title">Panel admin</h2><p class="page-sub">Kelola akun, blokir, log, dan forum tanpa Telegram.</p>
 <div class="stats" id="adStats"></div>
+<div class="seg" id="adTabs"><button type="button" class="active" data-tab="akun">Akun</button><button type="button" data-tab="blokir">Blokir</button><button type="button" data-tab="log">Log</button><button type="button" data-tab="forum">Forum</button></div>
+
+<div class="adpane" data-pane="akun">
 <div class="card"><h3>Buat akun</h3><div class="field"><input class="input" id="adNewUser" placeholder="Username" autocapitalize="none"></div><div class="field"><input class="input" id="adNewName" placeholder="Nama lengkap"></div><div class="field"><input class="input" id="adNewNim" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="NIM (24.230.0000)"></div><button class="btn btn-primary" id="adCreate" type="button">Buat akun</button></div>
-<div class="card"><h3>Forum</h3><button class="btn btn-danger" id="adForumClear" type="button">Bersihkan semua pesan forum</button></div>
-<div class="card"><h3>Akun website</h3><div id="adUsers"></div></div>
-<div class="card"><h3>IP diblokir</h3><div class="field"><input class="input" id="adIpInput" placeholder="Contoh: 123.123.123.123"></div><button class="btn btn-soft" id="adIpBan" type="button" style="margin-bottom:12px">Blokir IP</button><div id="adIps"></div></div>
-<div class="card"><h3>User Telegram</h3><div id="adTg"></div></div>
+<div class="card"><h3>Akun website <span class="tag" id="adUserCount"></span></h3><input class="input search" id="adUserSearch" type="search" placeholder="Cari username, nama, atau NIM"><div id="adUsers"></div></div>
+</div>
+
+<div class="adpane hidden" data-pane="blokir">
+<div class="card"><h3>IP diblokir <span class="tag" id="adIpCount"></span></h3><div class="field"><input class="input" id="adIpInput" placeholder="Contoh: 123.123.123.123"></div><button class="btn btn-soft" id="adIpBan" type="button" style="margin-bottom:12px">Blokir IP</button><div id="adIps"></div></div>
+<div class="card"><h3>User Telegram <span class="tag" id="adTgCount"></span></h3><input class="input search" id="adTgSearch" type="search" placeholder="Cari nama, username, atau ID"><div id="adTg"></div></div>
+</div>
+
+<div class="adpane hidden" data-pane="log">
 <div class="card"><h3>Log aktivitas</h3>
 <input class="input search" id="actSearch" type="search" placeholder="Cari username, IP, atau kata kunci">
 <div class="chips" id="actFilters"><button type="button" class="chip active" data-k="">Semua</button><button type="button" class="chip" data-k="login,login_fail">Login</button><button type="button" class="chip" data-k="register,profile">Akun</button><button type="button" class="chip" data-k="upload,delete">Materi</button><button type="button" class="chip" data-k="admin,forum">Admin</button><button type="button" class="chip" data-k="security,reset_pw,change_pw">Keamanan</button></div>
-<div id="actList"></div></div></section>
+<div id="actList"></div></div>
+</div>
+
+<div class="adpane hidden" data-pane="forum">
+<div class="card"><h3>Forum</h3><button class="btn btn-danger" id="adForumClear" type="button">Bersihkan semua pesan forum</button></div>
+</div>
+</section>
 
 <section class="view" id="view-settings"><h2 class="page-title">Akun</h2><p class="page-sub">Kelola profil dan keamanan akunmu.</p>
 <div class="card row"><div class="avatar" id="setAvatar">US</div><div><div id="setName" style="font-weight:700;font-size:18px">Nama</div><div id="setUser" style="color:var(--mute);font-size:14px">@username</div><div id="setNim" class="set-nim hidden"></div></div></div>
@@ -1576,6 +1593,65 @@ async function adminAct(action, target, value, nim) {
   if (!data.ok) throw new Error(data.error || "Gagal.");
   return data;
 }
+/* ---------- panel admin: tab, pencarian, dan daftar bertahap ---------- */
+let adData = { web_users: [], tg_users: [], banned_ips: [] };
+let adTab = localStorage.getItem("s5_adtab") || "akun";
+const adLimit = { users: 10, tg: 10, ips: 10 };
+const moreBtn = (kind, label) => `<button type="button" class="btn btn-line btn-more" data-more="${kind}">${label}</button>`;
+function setAdTab(t) {
+  if (!["akun", "blokir", "log", "forum"].includes(t)) t = "akun";
+  adTab = t;
+  try { localStorage.setItem("s5_adtab", t); } catch (e) {}
+  document.querySelectorAll("#adTabs button").forEach((b) => b.classList.toggle("active", b.dataset.tab === t));
+  document.querySelectorAll(".adpane").forEach((p) => p.classList.toggle("hidden", p.dataset.pane !== t));
+  if (t === "log") loadActivity();
+}
+$("adTabs").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-tab]");
+  if (b) setAdTab(b.dataset.tab);
+});
+function adUserHtml(u) {
+  const me = u.username === "admin", un = esc(u.username);
+  return `<div class="au"><div class="n">${esc(u.full_name || u.username)} <span class="tag">@${un}</span>${u.banned ? '<span class="vis priv">Banned</span>' : ""}</div>
+    <div class="m">NIM ${esc(u.nim || "belum diisi")} · Login ${u.login_count || 0} · Upload ${u.upload_count || 0} · IP ${esc(u.last_ip || "-")} · ${esc(u.last_device || "-")}</div>
+    <div class="mbtns">
+      ${me ? "" : `<button class="mbtn" data-ad="${u.banned ? "unban_web" : "ban_web"}" data-t="${un}">${u.banned ? "Unban" : "Ban"}</button>`}
+      <button class="mbtn" data-ad="reset_web" data-t="${un}">Reset password</button>
+      <button class="mbtn" data-ad="set_name" data-t="${un}">Ubah nama</button>
+      <button class="mbtn" data-ad="set_nim" data-t="${un}">Ubah NIM</button>
+      ${u.last_ip && !me ? `<button class="mbtn" data-ad="ban_ip" data-t="${esc(u.last_ip)}">Ban IP</button>` : ""}
+      ${me ? "" : `<button class="mbtn del" data-ad="delete_web" data-t="${un}">Hapus</button>`}
+    </div></div>`;
+}
+function renderAdUsers() {
+  const q = $("adUserSearch").value.trim().toLowerCase();
+  const all = [...adData.web_users].reverse(); // pendaftar terbaru di atas
+  const list = all.filter((u) => !q || `${u.username} ${u.full_name} ${u.nim}`.toLowerCase().includes(q));
+  const shown = list.slice(0, adLimit.users);
+  $("adUserCount").textContent = q ? `${list.length}/${all.length}` : all.length;
+  $("adUsers").innerHTML = (shown.map(adUserHtml).join("") || `<div class="empty" style="padding:16px">${q ? "Tidak ada akun yang cocok." : "Belum ada akun."}</div>`)
+    + (list.length > shown.length ? moreBtn("users", `Tampilkan lebih banyak (${list.length - shown.length} lagi)`) : "");
+}
+function renderAdTg() {
+  const q = $("adTgSearch").value.trim().toLowerCase();
+  const all = adData.tg_users;
+  const list = all.filter((u) => !q || `${u.name} ${u.username} ${u.id}`.toLowerCase().includes(q));
+  const shown = list.slice(0, adLimit.tg);
+  $("adTgCount").textContent = q ? `${list.length}/${all.length}` : all.length;
+  $("adTg").innerHTML = (shown.map((u) =>
+    `<div class="adm-row"><span>${esc(u.name)} ${u.username ? "@" + esc(u.username) : ""}<br><small style="color:var(--mute)">ID ${esc(u.id)}</small></span>
+     <button class="mbtn ${u.banned ? "" : "del"}" data-ad="${u.banned ? "unban_tg" : "ban_tg"}" data-t="${esc(u.id)}">${u.banned ? "Unban" : "Ban"}</button></div>`).join("")
+    || `<div class="empty" style="padding:12px">${q ? "Tidak ada yang cocok." : "Belum ada user Telegram."}</div>`)
+    + (list.length > shown.length ? moreBtn("tg", `Tampilkan lebih banyak (${list.length - shown.length} lagi)`) : "");
+}
+function renderAdIps() {
+  const all = adData.banned_ips, shown = all.slice(0, adLimit.ips);
+  $("adIpCount").textContent = all.length;
+  $("adIps").innerHTML = (shown.map((ip) =>
+    `<div class="adm-row"><span>${esc(ip)}</span><button class="mbtn" data-ad="unban_ip" data-t="${esc(ip)}">Buka</button></div>`).join("")
+    || `<div class="empty" style="padding:12px">Tidak ada IP diblokir.</div>`)
+    + (all.length > shown.length ? moreBtn("ips", `Tampilkan lebih banyak (${all.length - shown.length} lagi)`) : "");
+}
 async function loadAdmin() {
   try {
     const res = await apiCall("/api/admin/overview");
@@ -1584,51 +1660,47 @@ async function loadAdmin() {
     const s = d.stats;
     $("adStats").innerHTML = [["Akun", s.accounts], ["Materi", s.materials], ["Topik", s.topics]]
       .map(([l, v]) => `<div class="stat"><b>${v}</b><small>${l}</small></div>`).join("");
-    $("adUsers").innerHTML = d.web_users.map((u) => {
-      const me = u.username === "admin", un = esc(u.username);
-      return `<div class="au"><div class="n">${esc(u.full_name || u.username)} <span class="tag">@${un}</span>${u.banned ? '<span class="vis priv">Banned</span>' : ""}</div>
-        <div class="m">NIM ${esc(u.nim || "belum diisi")} · Login ${u.login_count || 0} · Upload ${u.upload_count || 0} · IP ${esc(u.last_ip || "-")} · ${esc(u.last_device || "-")}</div>
-        <div class="mbtns">
-          ${me ? "" : `<button class="mbtn" data-ad="${u.banned ? "unban_web" : "ban_web"}" data-t="${un}">${u.banned ? "Unban" : "Ban"}</button>`}
-          <button class="mbtn" data-ad="reset_web" data-t="${un}">Reset password</button>
-          <button class="mbtn" data-ad="set_name" data-t="${un}">Ubah nama</button>
-          <button class="mbtn" data-ad="set_nim" data-t="${un}">Ubah NIM</button>
-          ${u.last_ip && !me ? `<button class="mbtn" data-ad="ban_ip" data-t="${esc(u.last_ip)}">Ban IP</button>` : ""}
-          ${me ? "" : `<button class="mbtn del" data-ad="delete_web" data-t="${un}">Hapus</button>`}
-        </div></div>`;
-    }).join("") || `<div class="empty">Belum ada akun.</div>`;
-    $("adIps").innerHTML = d.banned_ips.map((ip) =>
-      `<div class="adm-row"><span>${esc(ip)}</span><button class="mbtn" data-ad="unban_ip" data-t="${esc(ip)}">Buka</button></div>`).join("")
-      || `<div class="empty" style="padding:12px">Tidak ada IP diblokir.</div>`;
-    $("adTg").innerHTML = d.tg_users.map((u) =>
-      `<div class="adm-row"><span>${esc(u.name)} ${u.username ? "@" + esc(u.username) : ""}<br><small style="color:var(--mute)">ID ${esc(u.id)}</small></span>
-       <button class="mbtn ${u.banned ? "" : "del"}" data-ad="${u.banned ? "unban_tg" : "ban_tg"}" data-t="${esc(u.id)}">${u.banned ? "Unban" : "Ban"}</button></div>`).join("")
-      || `<div class="empty" style="padding:12px">Belum ada user Telegram.</div>`;
-    loadActivity();
+    adData = d;
+    renderAdUsers(); renderAdTg(); renderAdIps();
+    setAdTab(adTab);
   } catch (err) { showToast(err.message, true); }
 }
-let actKinds = "", actDebounce = null;
+$("adUserSearch").addEventListener("input", () => { adLimit.users = 10; renderAdUsers(); });
+$("adTgSearch").addEventListener("input", () => { adLimit.tg = 10; renderAdTg(); });
+
+/* ---------- log aktivitas ---------- */
+let actKinds = "", actLimit = 50, actDebounce = null;
 const ACT_ICON = { login: "🔐", login_fail: "🚨", register: "🆕", upload: "📤", delete: "🗑️", admin: "🛠️", forum: "💬", profile: "✏️", security: "⛔", reset_pw: "🔑", change_pw: "🔑" };
 async function loadActivity() {
   try {
     const q = encodeURIComponent($("actSearch").value.trim());
-    const res = await apiCall(`/api/admin/activity?kinds=${encodeURIComponent(actKinds)}&q=${q}&limit=150`);
+    const res = await apiCall(`/api/admin/activity?kinds=${encodeURIComponent(actKinds)}&q=${q}&limit=${actLimit}`);
     const d = await res.json();
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat log aktivitas.");
-    $("actList").innerHTML = d.items.map((a) => `<div class="au"><div class="n">${ACT_ICON[a.kind] || "•"} ${esc(a.user || "-")} <span class="tag">${esc(a.kind)}</span></div>
+    $("actList").innerHTML = (d.items.map((a) => `<div class="au"><div class="n">${ACT_ICON[a.kind] || "•"} ${esc(a.user || "-")} <span class="tag">${esc(a.kind)}</span></div>
       <div class="m" style="color:var(--ink)">${esc(a.detail)}</div>
       <div class="m">${esc(new Date(a.ts).toLocaleString("id-ID"))} · IP ${esc(a.ip || "-")} · ${esc(a.device || "-")}</div></div>`).join("")
-      || `<div class="empty" style="padding:12px">Belum ada aktivitas.</div>`;
+      || `<div class="empty" style="padding:12px">Belum ada aktivitas.</div>`)
+      + (d.items.length >= actLimit && actLimit < 500 ? moreBtn("log", "Tampilkan lebih banyak") : "");
   } catch (err) { showToast(err.message, true); }
 }
 $("actFilters").addEventListener("click", (e) => {
   const b = e.target.closest("[data-k]");
   if (!b) return;
   actKinds = b.dataset.k;
+  actLimit = 50;
   document.querySelectorAll("#actFilters .chip").forEach((c) => c.classList.toggle("active", c === b));
   loadActivity();
 });
-$("actSearch").addEventListener("input", () => { clearTimeout(actDebounce); actDebounce = setTimeout(loadActivity, 350); });
+$("actSearch").addEventListener("input", () => { actLimit = 50; clearTimeout(actDebounce); actDebounce = setTimeout(loadActivity, 350); });
+$("view-admin").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-more]");
+  if (!b) return;
+  const k = b.dataset.more;
+  if (k === "log") { actLimit = Math.min(actLimit + 50, 500); loadActivity(); return; }
+  adLimit[k] += 10;
+  ({ users: renderAdUsers, tg: renderAdTg, ips: renderAdIps })[k]();
+});
 $("view-admin").addEventListener("click", async (e) => {
   const b = e.target.closest("[data-ad]");
   if (!b) return;
