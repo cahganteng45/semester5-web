@@ -415,7 +415,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <div class="adpane hidden" data-pane="log">
 <div class="card"><h3>Log aktivitas</h3>
 <input class="input search" id="actSearch" type="search" placeholder="Cari username, IP, atau kata kunci">
-<div class="chips" id="actFilters"><button type="button" class="chip active" data-k="">Semua</button><button type="button" class="chip" data-k="login,login_fail">Login</button><button type="button" class="chip" data-k="register,profile">Akun</button><button type="button" class="chip" data-k="upload,delete">Materi</button><button type="button" class="chip" data-k="admin,forum">Admin</button><button type="button" class="chip" data-k="security,reset_pw,change_pw">Keamanan</button></div>
+<div class="chips" id="actFilters"><button type="button" class="chip active" data-k="">Semua</button><button type="button" class="chip" data-k="login,login_fail">Login</button><button type="button" class="chip" data-k="register,profile">Akun</button><button type="button" class="chip" data-k="upload,delete,topic">Materi</button><button type="button" class="chip" data-k="admin,forum">Admin</button><button type="button" class="chip" data-k="security,reset_pw,change_pw">Keamanan</button></div>
 <div id="actList"></div></div>
 </div>
 
@@ -941,7 +941,7 @@ function renderTopicsGrid() {
     const pinned = pinnedTopics.includes(t.id);
     return `<div class="tcard ${pinned ? "pin" : ""}" data-id="${esc(t.id)}" role="button" tabindex="0">
       <div class="ticon">${ICONS[t.name] || "📚"}</div>
-      <div class="tinfo"><b>${esc(t.name || "Mata kuliah")}</b><small>${pinned ? "Dipin" : "Ketuk untuk membuka"}</small></div>
+      <div class="tinfo"><b>${t.locked && !t.unlocked ? "🔒 " : ""}${esc(t.name || "Mata kuliah")}</b><small>${t.locked && !t.unlocked ? "🔒 Terkunci · ketuk lalu masukkan password" : t.locked ? "🔓 Terbuka" : pinned ? "Dipin" : "Ketuk untuk membuka"}</small></div>
       <button type="button" class="pinbtn" data-pin="${esc(t.id)}" aria-label="${pinned ? "Lepas pin" : "Pin"}">${svg("pin", 22)}</button>
     </div>`;
   }).join("");
@@ -961,7 +961,7 @@ $("topicsGrid").addEventListener("keydown", (e) => {
 function renderUploadSelect() {
   const keep = $("topicSelect").value;
   $("topicSelect").innerHTML = `<option value="">Pilih mata kuliah</option>` +
-    topicsList.map((t) => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join("");
+    topicsList.map((t) => `<option value="${esc(t.id)}">${t.locked && !t.unlocked ? "🔒 " : ""}${esc(t.name)}</option>`).join("");
   $("topicSelect").value = keep;
   suggestUploadTopic();
 }
@@ -1017,9 +1017,27 @@ function renderAdminPanel() {
   $("adminTopics").innerHTML = topicsList.map((t) => {
     const pub = t.visible !== false;
     return `<div class="adm-row"><span>${ICONS[t.name] || "📚"} ${esc(t.name)}</span>
-      <button class="vis ${pub ? "pub" : "priv"}" data-vis="${esc(t.id)}" data-make="${pub ? "0" : "1"}">${pub ? "Publik" : "Privat"}</button></div>`;
+      <span class="row" style="gap:6px"><button class="vis ${t.locked ? "priv" : "pub"}" data-lock="${esc(t.id)}">${t.locked ? "🔒 Terkunci" : "Kunci"}</button>
+      <button class="vis ${pub ? "pub" : "priv"}" data-vis="${esc(t.id)}" data-make="${pub ? "0" : "1"}">${pub ? "Publik" : "Privat"}</button></span></div>`;
   }).join("");
 }
+$("adminTopics").addEventListener("click", async (e) => {
+  const lb = e.target.closest("[data-lock]");
+  if (!lb) return;
+  const t = topicsList.find((x) => x.id === lb.dataset.lock);
+  if (!t) return;
+  const r = await openModal({ title: t.locked ? "Ubah kunci topik" : "Kunci topik", icon: "key", ok: "Simpan",
+    text: t.locked ? "Isi password baru: semua orang harus memasukkannya lagi. Atau hapus kunci sepenuhnya." : `Hanya yang tahu password yang bisa membuka materi ${t.name}.`,
+    extra: t.locked ? "Hapus kunci" : undefined,
+    fields: [{ key: "pw", label: t.locked ? "Password baru" : "Password topik", placeholder: "4-64 karakter", required: true }] });
+  if (!r) return;
+  try {
+    const { res, data } = await postJSON("/api/topics/lock", { topic: t.id, password: r === "extra" ? "" : r.pw }, true);
+    if (!res.ok || !data.ok) throw new Error(data.error || "Gagal.");
+    showToast(data.locked ? "Topik dikunci." : "Kunci dihapus.");
+    loadTopics();
+  } catch (err) { showToast(err.message, true); }
+});
 $("adminTopics").addEventListener("click", async (e) => {
   const b = e.target.closest("[data-vis]");
   if (!b) return;
@@ -1032,9 +1050,23 @@ $("adminTopics").addEventListener("click", async (e) => {
   } catch (err) { showToast(err.message, true); }
 });
 
-function openTopic(id) {
+async function askUnlock(t) {
+  const r = await openModal({ title: "Topik terkunci", text: `Masukkan password untuk membuka ${t.name}.`, icon: "key", ok: "Buka",
+    fields: [{ key: "pw", label: "Password topik", type: "password", required: true }] });
+  if (!r) return false;
+  try {
+    const { res, data } = await postJSON("/api/topics/unlock", { topic: t.id, password: r.pw }, true);
+    if (!res.ok || !data.ok) throw new Error(data.error || "Password salah.");
+    t.unlocked = true;
+    renderTopicsGrid();
+    showToast("Topik terbuka.");
+    return true;
+  } catch (err) { showToast(err.message, true); return false; }
+}
+async function openTopic(id) {
   const t = topicsList.find((x) => x.id === id);
   if (!t) return;
+  if (t.locked && !t.unlocked && !(await askUnlock(t))) return;
   selectedTopicId = id;
   lastMaterials = [];
   $("matSearch").value = "";
@@ -1062,6 +1094,12 @@ async function loadMaterials(silent) {
   try {
     const res = await apiCall("/api/materials?topic=" + encodeURIComponent(topicAtCall));
     const data = await res.json();
+    if (res.status === 403 && data.locked) {
+      const lt = topicsList.find((x) => x.id === topicAtCall);
+      if (lt) lt.unlocked = false;
+      renderTopicsGrid(); backToTopics(); showToast(data.error, true);
+      return;
+    }
     if (!res.ok) throw new Error(data.error);
     if (topicAtCall !== selectedTopicId) return;
     const next = (data.materials || []).map((m) => ({ ...m, id: String(m.id) }));
@@ -1186,6 +1224,8 @@ $("uploadBtn").addEventListener("click", async () => {
   let caption = $("captionInput").value.trim();
   const deadline = $("deadlineInput").value;
   if (!topic) return showToast("Pilih mata kuliah dulu.", true);
+  const tt = topicsList.find((x) => x.id === topic);
+  if (tt && tt.locked && !tt.unlocked) return showToast("Topik ini terkunci. Buka dulu lewat menu Materi.", true);
   const fd = new FormData();
   fd.append("topic", topic);
   if (uploadType === "note") {
@@ -1539,7 +1579,7 @@ function openModal(o) {
     const bg = document.createElement("div");
     bg.className = "modal-bg";
     const fields = (o.fields || []).map((f, i) =>
-      `<div class="field"><label for="mf${i}">${esc(f.label)}</label><input class="input" id="mf${i}" value="${esc(f.value || "")}" placeholder="${esc(f.placeholder || "")}" autocapitalize="none" autocomplete="off"></div>`).join("");
+      `<div class="field"><label for="mf${i}">${esc(f.label)}</label><input class="input" type="${esc(f.type || "text")}" id="mf${i}" value="${esc(f.value || "")}" placeholder="${esc(f.placeholder || "")}" autocapitalize="none" autocomplete="off"></div>`).join("");
     const secret = o.secret ? `<div class="secret"><input class="input" id="mSecret" value="${esc(o.secret)}" readonly><button type="button" class="btn btn-soft" id="mCopy">Salin</button></div>` : "";
     bg.innerHTML = `<form class="modal" role="dialog" aria-modal="true">
       <div class="m-ic ${o.danger ? "danger" : ""}">${svg(o.icon || "shield", 24)}</div>
@@ -1670,7 +1710,7 @@ $("adTgSearch").addEventListener("input", () => { adLimit.tg = 10; renderAdTg();
 
 /* ---------- log aktivitas ---------- */
 let actKinds = "", actLimit = 50, actDebounce = null;
-const ACT_ICON = { login: "🔐", login_fail: "🚨", register: "🆕", upload: "📤", delete: "🗑️", admin: "🛠️", forum: "💬", profile: "✏️", security: "⛔", reset_pw: "🔑", change_pw: "🔑" };
+const ACT_ICON = { login: "🔐", login_fail: "🚨", register: "🆕", upload: "📤", delete: "🗑️", admin: "🛠️", forum: "💬", topic: "🔓", profile: "✏️", security: "⛔", reset_pw: "🔑", change_pw: "🔑" };
 async function loadActivity() {
   try {
     const q = encodeURIComponent($("actSearch").value.trim());
