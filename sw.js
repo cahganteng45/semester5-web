@@ -33,13 +33,17 @@ self.addEventListener("fetch", (e) => {
 self.addEventListener("push", (e) => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; } catch (_) { d = { body: e.data ? e.data.text() : "" }; }
-  e.waitUntil(self.registration.showNotification(d.title || "Semester 5", {
+  const show = () => self.registration.showNotification(d.title || "Semester 5", {
     body: d.body || "",
     icon: "icon-192.png",
     badge: "icon-192.png",
     tag: d.tag || undefined,
     data: { url: d.url || "./" }
-  }));
+  });
+  // Pesan forum: kalau aplikasi sedang terlihat, cukup tampil di dalam aplikasi (hindari dobel).
+  e.waitUntil(d.tag === "forum"
+    ? self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => (list.some((c) => c.visibilityState === "visible") ? null : show()))
+    : show());
 });
 
 self.addEventListener("notificationclick", (e) => {
