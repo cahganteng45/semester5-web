@@ -158,7 +158,8 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .sch .time{font-family:var(--font-d);font-weight:600;color:var(--brand);font-size:15px}
 .sch .name{font-weight:700;font-size:16px;margin:4px 0}
 .sch .info{font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 14px}
-.avatar{width:60px;height:60px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-family:var(--font-d);font-weight:800;font-size:20px;flex-shrink:0}
+.avatar{width:60px;height:60px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-family:var(--font-d);font-weight:800;font-size:20px;flex-shrink:0;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .avatar.owner{background:var(--amber-soft);color:var(--amber)}
 .favs{display:flex;flex-direction:column;gap:8px}
 .fav{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-s);background:var(--bg);width:100%;text-align:left;font-weight:700;font-size:14px}
@@ -179,6 +180,14 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .sw{width:44px;height:44px;border-radius:50%;border:3px solid var(--surface);box-shadow:0 0 0 2px var(--line)}
 .sw.active{box-shadow:0 0 0 3px var(--ink)}
 .set-nim{color:var(--mute);font-size:14px;margin-top:2px}
+.vbadge{width:1.05em;height:1.05em;vertical-align:-.17em;margin-left:3px;flex-shrink:0}
+.av{border-radius:50%;object-fit:cover;background:var(--brand-soft);color:var(--brand);display:inline-grid;place-items:center;font-family:var(--font-d);font-weight:800;flex-shrink:0;overflow:hidden;vertical-align:middle}
+.av.xs{width:20px;height:20px;font-size:9px;margin-right:6px}
+.av.s{width:30px;height:30px;font-size:11px}
+.av.l{width:104px;height:104px;font-size:32px}
+.fmsg{align-items:flex-end;gap:6px}
+.fmsg .av{cursor:pointer;margin-bottom:2px}
+[data-p]{cursor:pointer}
 .mfilter{margin-bottom:12px}
 .task{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);width:100%;text-align:left}
 .task:first-child{border-top:0;padding-top:0}
@@ -210,7 +219,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .fname{font-size:12px;font-weight:700;color:var(--mute);margin-bottom:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fname small{font-weight:500;opacity:.75;margin-left:5px;font-size:11px}
 .uname{color:var(--mute);font-weight:500}
-.fname.crown{color:var(--amber)}
+.fname.crown{color:var(--ink)}
 .ftext{white-space:pre-wrap;word-break:break-word;font-size:15px}
 .fquote{border-left:3px solid var(--brand);padding:2px 8px;margin-bottom:4px;font-size:12px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fquote b{display:block;color:var(--brand)}
@@ -426,8 +435,14 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 
 <section class="view" id="view-settings"><h2 class="page-title">Akun</h2><p class="page-sub">Kelola profil dan keamanan akunmu.</p>
 <div class="card row"><div class="avatar" id="setAvatar">US</div><div><div id="setName" style="font-weight:700;font-size:18px">Nama</div><div id="setUser" style="color:var(--mute);font-size:14px">@username</div><div id="setNim" class="set-nim hidden"></div></div></div>
-<div class="card" id="nameCard"><h3>Nama tampilan</h3><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Nama ini tampil di forum dan materi yang kamu kirim, dengan username yang disamarkan. Bisa diganti sekali tiap 7 hari.</p>
-<form id="nameForm"><div class="field"><input class="input" id="newName" maxlength="60" autocomplete="name" placeholder="Nama lengkap"></div><button class="btn btn-primary" id="nameBtn" type="submit">Simpan nama</button></form></div>
+<div class="card" id="profileCard"><h3>Profil</h3>
+<div class="row" style="margin-bottom:16px"><div class="avatar" id="profAvatar" style="width:84px;height:84px;font-size:28px"></div>
+<div style="min-width:0"><div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-soft" id="avPick" style="padding:9px 14px;font-size:13px">Ganti foto</button><button type="button" class="btn btn-line" id="avDel" style="padding:9px 14px;font-size:13px">Hapus</button></div>
+<input type="file" id="avFile" accept="image/*" class="hidden"><p style="color:var(--mute);font-size:12px;margin-top:6px">Foto otomatis dikecilkan (sekitar 6 KB), jadi hemat penyimpanan.</p></div></div>
+<form id="nameForm"><div class="field"><label for="newName">Nama tampilan</label><input class="input" id="newName" maxlength="60" autocomplete="name" placeholder="Nama lengkap"></div>
+<div class="field"><label for="newBio">Bio (opsional)</label><input class="input" id="newBio" maxlength="80" placeholder="Contoh: Suka ngoding, anak kos"></div>
+<p style="color:var(--mute);font-size:13px;margin-bottom:12px">Nama bisa diganti sekali tiap 7 hari (admin tanpa batas). Username kamu tampil disamarkan.</p>
+<button class="btn btn-primary" id="nameBtn" type="submit">Simpan profil</button></form></div>
 <button class="btn btn-soft hidden" id="setAdminBtn" data-go="admin" type="button" style="width:100%;margin-bottom:16px">Buka panel admin</button>
 <div class="card"><h3>Tampilan</h3><div class="opt-row"><button type="button" data-theme-set="auto">Otomatis</button><button type="button" data-theme-set="light">Terang</button><button type="button" data-theme-set="dark">Gelap</button></div><div class="swatches" id="swatches"></div></div>
 <div class="card" id="installCard"><h3>Pasang aplikasi</h3><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Pasang ke layar utama HP supaya terbuka seperti aplikasi. iPhone: buka lewat Safari, ketuk Bagikan, lalu Tambahkan ke Layar Utama (perlu iOS 16.4 atau lebih baru untuk notifikasi).</p><button type="button" class="btn btn-soft" id="installBtn">Pasang aplikasi</button></div>
@@ -490,15 +505,6 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (m) => ({"&":"&amp;","<":
 const svg = (id, size) => `<svg class="i"${size ? ` style="width:${size}px;height:${size}px"` : ""}><use href="#i-${id}"/></svg>`;
 const pad = (n) => String(n).padStart(2, "0");
 
-function formatSenderName(raw) {
-  if (!raw) return "Unknown";
-  let t = String(raw).trim();
-  const m = t.match(/\(@?([A-Za-z0-9_.]{2,})\)\s*$/);
-  if (m) t = "@" + m[1];
-  const low = t.replace(/^@/, "").toLowerCase();
-  if (["admin", "brownmatcha"].includes(low)) return "Padil 👑";
-  return t.startsWith("@") ? t : "@" + t;
-}
 function formatBytes(b) {
   if (!b) return "0 B";
   const u = ["B", "KB", "MB", "GB"], i = Math.min(Math.floor(Math.log(b) / Math.log(1024)), 3);
@@ -517,6 +523,53 @@ function formatNim(s) {
 ["nim", "fgNim", "adNewNim"].forEach((id) => $(id).addEventListener("input", (e) => { e.target.value = formatNim(e.target.value); }));
 
 const shortName = (n) => String(n || "").trim().split(/\s+/).slice(0, 2).join(" ");
+const BADGE = '<svg class="vbadge" viewBox="0 0 24 24" role="img" aria-label="Terverifikasi"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#1d9bf0"/><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#1d9bf0" transform="rotate(45 12 12)"/><path d="M7.4 12.4l3.1 3.1 6.1-6.6" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const nameHtml = (name, owner) => esc(name) + (owner ? BADGE : "");
+const initialsOf = (n) => String(n || "?").replace(/[^\p{L}\p{N} ]/gu, "").trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "?";
+function avatarHtml(o, size) {
+  const cls = "av " + (size || "s");
+  return o.av && o.pid
+    ? `<img class="${cls}" src="${esc(API)}/api/avatar/${esc(o.pid)}?v=${esc(o.avv || 0)}" alt="" loading="lazy">`
+    : `<span class="${cls}">${esc(initialsOf(o.name))}</span>`;
+}
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); }
+  catch (e) {
+    const ta = document.createElement("textarea");
+    ta.value = t; ta.style.cssText = "position:fixed;opacity:0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); } catch (_) {}
+    ta.remove();
+  }
+  showToast("Pesan disalin.");
+}
+async function openProfile(pid) {
+  if (!pid) return;
+  let d;
+  try {
+    const res = await apiCall("/api/profile/" + encodeURIComponent(pid));
+    d = await res.json();
+    if (!res.ok || !d.ok) throw new Error(d.error || "Profil tidak ditemukan.");
+  } catch (err) { return showToast(err.message, true); }
+  const bg = document.createElement("div");
+  bg.className = "modal-bg";
+  bg.innerHTML = `<div class="modal" role="dialog" aria-modal="true" style="text-align:center">
+    <div style="display:flex;justify-content:center;margin-bottom:12px">${avatarHtml(d, "l")}</div>
+    <h3>${nameHtml(d.name, d.owner)}</h3>
+    <p style="margin-bottom:6px">${d.owner ? "Admin" : esc(d.real ? "@" + d.real : d.mask)}</p>
+    ${d.bio ? `<p style="color:var(--ink)">${esc(d.bio)}</p>` : ""}
+    <div class="m-btns"><button type="button" class="btn btn-line">Tutup</button></div></div>`;
+  document.body.appendChild(bg);
+  const close = () => bg.remove();
+  bg.addEventListener("click", (e) => { if (e.target === bg) close(); });
+  bg.querySelector("button").addEventListener("click", close);
+}
+let myProfile = { pid: "", av: false, avv: 0, bio: "" };
+function setMyAvatars() {
+  const html = myProfile.av && myProfile.pid
+    ? `<img src="${API}/api/avatar/${myProfile.pid}?v=${myProfile.avv}" alt="">` : esc(initials());
+  ["navAvatar", "setAvatar", "profAvatar"].forEach((id) => { $(id).innerHTML = html; });
+}
 
 let toastTimer;
 function showToast(msg, isErr) {
@@ -527,14 +580,8 @@ function showToast(msg, isErr) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove("show"), 3200);
 }
-function callName() {
-  if (currentUser.toLowerCase() === "admin") return "Padil";
-  return (fullUserName || currentUser).trim();
-}
-function initials() {
-  if (currentUser.toLowerCase() === "admin") return "PD";
-  return (fullUserName || currentUser).trim().substring(0, 2).toUpperCase();
-}
+function callName() { return (fullUserName || currentUser).trim(); }
+function initials() { return initialsOf(fullUserName || currentUser); }
 
 /* ---------- maintenance ---------- */
 let maintTimer = null;
@@ -775,30 +822,76 @@ $("forgotForm").addEventListener("submit", async (e) => {
   }
 });
 
+function refreshPeople() { forumReset(); pollForum(); if (selectedTopicId) loadMaterials(true); }
 $("nameForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const name = $("newName").value.trim(), btn = $("nameBtn");
-  if (!name || name === fullUserName) return showToast("Nama belum berubah.", true);
+  const name = $("newName").value.trim(), bio = $("newBio").value.trim(), btn = $("nameBtn");
+  if (name === fullUserName && bio === myProfile.bio) return showToast("Belum ada perubahan.", true);
   btn.disabled = true;
   btn.textContent = "Menyimpan…";
   try {
-    const { res, data } = await postJSON("/api/change_name", { full_name: name }, true);
-    if (!res.ok || !data.ok) throw new Error(data.error || "Gagal mengganti nama.");
+    const { res, data } = await postJSON("/api/profile", { full_name: name, bio }, true);
+    if (!res.ok || !data.ok) throw new Error(data.error || "Gagal menyimpan profil.");
     fullUserName = data.full_name;
-    $("navName").textContent = fullUserName;
-    $("setName").textContent = fullUserName;
-    ["navAvatar", "setAvatar"].forEach((id) => { $(id).textContent = initials(); });
+    myProfile.bio = data.bio || "";
+    const owner = currentUser.toLowerCase() === "admin";
+    $("navName").innerHTML = nameHtml(fullUserName, owner);
+    $("setName").innerHTML = nameHtml(fullUserName, owner);
     $("newName").value = fullUserName;
-    updateGreeting();
-    forumReset(); pollForum();
-    if (selectedTopicId) loadMaterials(true);
-    showToast("Nama diganti. Forum dan materi ikut berubah.");
+    $("newBio").value = myProfile.bio;
+    setMyAvatars(); updateGreeting(); refreshPeople();
+    showToast("Profil disimpan.");
   } catch (err) {
     showToast(err.message, true);
   } finally {
     btn.disabled = false;
-    btn.textContent = "Simpan nama";
+    btn.textContent = "Simpan profil";
   }
+});
+function loadImg(file) {
+  return new Promise((resolve, reject) => {
+    const u = URL.createObjectURL(file), i = new Image();
+    i.onload = () => { URL.revokeObjectURL(u); resolve(i); };
+    i.onerror = () => { URL.revokeObjectURL(u); reject(new Error("File itu bukan gambar yang bisa dibaca.")); };
+    i.src = u;
+  });
+}
+async function compressAvatar(file) {
+  const img = await loadImg(file), S = 128, c = document.createElement("canvas");
+  c.width = c.height = S;
+  const ctx = c.getContext("2d"), side = Math.min(img.width, img.height);
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, S, S);
+  ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, S, S);
+  for (const q of [0.8, 0.7, 0.6, 0.5]) {
+    const d = c.toDataURL("image/jpeg", q);
+    if (d.length < 30000) return d;
+  }
+  throw new Error("Foto terlalu rumit untuk dikecilkan. Pilih foto lain.");
+}
+$("avPick").addEventListener("click", () => $("avFile").click());
+$("avFile").addEventListener("change", async () => {
+  const f = $("avFile").files[0];
+  $("avFile").value = "";
+  if (!f) return;
+  try {
+    showToast("Memproses foto…");
+    const image = await compressAvatar(f);
+    const { res, data } = await postJSON("/api/profile/avatar", { image }, true);
+    if (!res.ok || !data.ok) throw new Error(data.error || "Gagal mengunggah foto.");
+    myProfile.av = true; myProfile.avv = data.avv;
+    setMyAvatars(); refreshPeople();
+    showToast("Foto profil diganti.");
+  } catch (err) { showToast(err.message, true); }
+});
+$("avDel").addEventListener("click", async () => {
+  if (!myProfile.av) return showToast("Belum ada foto.", true);
+  try {
+    const { res, data } = await postJSON("/api/profile/avatar", { image: "" }, true);
+    if (!res.ok || !data.ok) throw new Error(data.error || "Gagal menghapus foto.");
+    myProfile.av = false;
+    setMyAvatars(); refreshPeople();
+    showToast("Foto dihapus.");
+  } catch (err) { showToast(err.message, true); }
 });
 
 $("changePasswordForm").addEventListener("submit", async (e) => {
@@ -859,18 +952,15 @@ async function initApp() {
     currentUser = data.username;
     fullUserName = data.full_name || currentUser;
     const isOwner = currentUser.toLowerCase() === "admin";
-    const display = isOwner ? "Padil 👑" : fullUserName;
-    $("navName").textContent = display;
-    $("setName").textContent = display;
+    myProfile = { pid: data.pid || "", av: !!data.av, avv: data.avv || 0, bio: data.bio || "" };
+    $("navName").innerHTML = nameHtml(fullUserName, isOwner);
+    $("setName").innerHTML = nameHtml(fullUserName, isOwner);
     $("setUser").textContent = "@" + currentUser;
-    $("nameCard").classList.toggle("hidden", isOwner);
     $("newName").value = fullUserName;
+    $("newBio").value = myProfile.bio;
     $("setNim").textContent = "NIM " + (data.nim || "");
     $("setNim").classList.toggle("hidden", !data.nim);
-    ["navAvatar", "setAvatar"].forEach((id) => {
-      $(id).textContent = initials();
-      $(id).classList.toggle("owner", isOwner);
-    });
+    setMyAvatars();
     $("login").classList.add("hidden");
     $("app").classList.remove("hidden");
     renderJadwal();
@@ -1142,7 +1232,7 @@ function renderMaterials() {
     } else if (!isProxy && kind !== "document") {
       preview = `<div class="mnote warn">File masih diproses Telegram. Buka lewat tombol Telegram di bawah.</div>`;
     }
-    const owner = !!m.owner, sname = owner ? "Padil 👑" : (m.sender_name || "Pengguna");
+    const owner = !!m.owner, sname = m.sender_name || "Pengguna";
     const pinned = pinnedMaterials.includes(m.id), id = esc(m.id);
     const btns = [
       `<button class="mbtn ${pinned ? "on" : ""}" data-act="pin" data-id="${id}">${svg("pin", 15)} ${pinned ? "Lepas pin" : "Pin"}</button>`,
@@ -1154,7 +1244,7 @@ function renderMaterials() {
     ].join("");
     return `<article class="mitem ${pinned ? "pinned" : ""}">
       <div><div class="mname">${isText ? "Catatan" : esc(m.name)}</div>
-        <div class="mmeta"><span class="${owner ? "owner" : ""}">${esc(sname)}</span>${!owner && m.sender_tag ? `<span class="uname">${esc(m.sender_tag)}</span>` : ""}
+        <div class="mmeta">${m.sender_pid ? `<span data-p="${esc(m.sender_pid)}">${avatarHtml({ pid: m.sender_pid, av: m.sender_av, avv: m.sender_avv, name: sname }, "xs")}</span>` : ""}<span class="${owner ? "owner" : ""}"${m.sender_pid ? ` data-p="${esc(m.sender_pid)}"` : ""}>${nameHtml(sname, owner)}</span>${!owner && m.sender_tag ? `<span class="uname">${esc(m.sender_tag)}</span>` : ""}
           <span>${m.date ? esc(new Date(m.date).toLocaleString("id-ID")) : ""}</span>
           <span class="tag">${m.source === "website" ? "Web" : "Telegram"}</span>
           ${!isText ? `<span>${formatBytes(m.size)}</span>` : ""}</div></div>
@@ -1164,6 +1254,8 @@ function renderMaterials() {
   }).join("");
 }
 $("materialsList").addEventListener("click", async (e) => {
+  const pp = e.target.closest("[data-p]");
+  if (pp) return openProfile(pp.dataset.p);
   const b = e.target.closest("[data-act]");
   if (!b) return;
   const act = b.dataset.act;
@@ -1659,6 +1751,7 @@ function adUserHtml(u) {
       <button class="mbtn" data-ad="reset_web" data-t="${un}">Reset password</button>
       <button class="mbtn" data-ad="set_name" data-t="${un}">Ubah nama</button>
       <button class="mbtn" data-ad="set_nim" data-t="${un}">Ubah NIM</button>
+      ${u.has_avatar ? `<button class="mbtn" data-ad="remove_avatar" data-t="${un}">Hapus foto</button>` : ""}
       ${u.last_ip && !me ? `<button class="mbtn" data-ad="ban_ip" data-t="${esc(u.last_ip)}">Ban IP</button>` : ""}
       ${me ? "" : `<button class="mbtn del" data-ad="delete_web" data-t="${un}">Hapus</button>`}
     </div></div>`;
@@ -1813,12 +1906,13 @@ function renderForum(stick) {
     const mine = !!m.mine, name = shortName(m.name), crown = !!m.owner;
     const day = fDay(m.ts), sep = day !== prevDay ? `<div class="fday">${esc(day)}</div>` : "";
     prevDay = day;
-    const quote = m.reply ? `<div class="fquote"><b>${esc(shortName(m.reply.name))}</b>${esc(m.reply.text)}</div>` : "";
+    const quote = m.reply ? `<div class="fquote"><b>${nameHtml(shortName(m.reply.name), m.reply.owner)}</b>${esc(m.reply.text)}</div>` : "";
     const canDel = true; // semua orang bisa menghapus; aturan "untuk semua" atau "untuk saya" ada di deleteForum
-    return `${sep}<div class="fmsg ${mine ? "me" : ""}"><div class="fbub">
-      ${mine ? "" : `<div class="fname ${crown ? "crown" : ""}">${esc(name)}${crown ? "" : `<small>${esc(m.real ? "@" + m.real : m.mask)}</small>`}</div>`}${quote}
+    const tag = crown ? "" : `<small>${esc(m.real ? "@" + m.real : m.mask)}</small>`;
+    return `${sep}<div class="fmsg ${mine ? "me" : ""}">${mine ? "" : `<span data-p="${esc(m.pid)}">${avatarHtml(m, "s")}</span>`}<div class="fbub">
+      ${mine ? "" : `<div class="fname" data-p="${esc(m.pid)}">${nameHtml(name, crown)}${tag}</div>`}${quote}
       <div class="ftext">${esc(m.text)}</div>
-      <div class="fmeta"><span>${esc(fTime(m.ts))}</span><button type="button" data-r="${m.id}">Balas</button>${canDel ? `<button type="button" data-d="${m.id}">Hapus</button>` : ""}</div>
+      <div class="fmeta"><span>${esc(fTime(m.ts))}</span><button type="button" data-r="${m.id}">Balas</button><button type="button" data-c="${m.id}">Salin</button>${canDel ? `<button type="button" data-d="${m.id}">Hapus</button>` : ""}</div>
     </div></div>`;
   }).join("");
   if (stick) box.scrollTop = box.scrollHeight;
@@ -1955,9 +2049,11 @@ $("fInput").addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches) { e.preventDefault(); sendForum(); }
 });
 $("fMsgs").addEventListener("click", (e) => {
-  const r = e.target.closest("[data-r]"), d = e.target.closest("[data-d]");
+  const r = e.target.closest("[data-r]"), d = e.target.closest("[data-d]"), c = e.target.closest("[data-c]"), pf = e.target.closest("[data-p]");
   if (r) setForumReply(+r.dataset.r);
   else if (d) deleteForum(+d.dataset.d);
+  else if (c) { const fm = fMsgs.find((x) => x.id === +c.dataset.c); if (fm) copyText(fm.text); }
+  else if (pf) openProfile(pf.dataset.p);
 });
 renderForum(false);
 
