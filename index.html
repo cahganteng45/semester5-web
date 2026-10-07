@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f766e">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Semester 5">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Semester 5 — Study Hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -231,6 +235,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .modal .secret .btn{padding:0 16px;flex-shrink:0}
 .modal .m-btns{display:flex;gap:10px;margin-top:18px}
 .modal .m-btns .btn{flex:1}
+.modal .m-btns.stack{flex-direction:column}
 .btn-del{background:var(--red);color:#fff}
 .btn-del:hover{filter:brightness(.92)}
 #toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-140px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:700;font-size:14px;z-index:1200;max-width:90vw;transition:transform .35s cubic-bezier(.34,1.4,.64,1)}
@@ -396,13 +401,18 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <div class="card"><h3>Forum</h3><button class="btn btn-danger" id="adForumClear" type="button">Bersihkan semua pesan forum</button></div>
 <div class="card"><h3>Akun website</h3><div id="adUsers"></div></div>
 <div class="card"><h3>IP diblokir</h3><div class="field"><input class="input" id="adIpInput" placeholder="Contoh: 123.123.123.123"></div><button class="btn btn-soft" id="adIpBan" type="button" style="margin-bottom:12px">Blokir IP</button><div id="adIps"></div></div>
-<div class="card"><h3>User Telegram</h3><div id="adTg"></div></div></section>
+<div class="card"><h3>User Telegram</h3><div id="adTg"></div></div>
+<div class="card"><h3>Log aktivitas</h3>
+<input class="input search" id="actSearch" type="search" placeholder="Cari username, IP, atau kata kunci">
+<div class="chips" id="actFilters"><button type="button" class="chip active" data-k="">Semua</button><button type="button" class="chip" data-k="login,login_fail">Login</button><button type="button" class="chip" data-k="register">Daftar</button><button type="button" class="chip" data-k="upload,delete">Materi</button><button type="button" class="chip" data-k="admin,forum">Admin</button><button type="button" class="chip" data-k="security,reset_pw,change_pw">Keamanan</button></div>
+<div id="actList"></div></div></section>
 
 <section class="view" id="view-settings"><h2 class="page-title">Akun</h2><p class="page-sub">Kelola profil dan keamanan akunmu.</p>
 <div class="card row"><div class="avatar" id="setAvatar">US</div><div><div id="setName" style="font-weight:700;font-size:18px">Nama</div><div id="setUser" style="color:var(--mute);font-size:14px">@username</div><div id="setNim" class="set-nim hidden"></div></div></div>
 <button class="btn btn-soft hidden" id="setAdminBtn" data-go="admin" type="button" style="width:100%;margin-bottom:16px">Buka panel admin</button>
 <div class="card"><h3>Tampilan</h3><div class="opt-row"><button type="button" data-theme-set="auto">Otomatis</button><button type="button" data-theme-set="light">Terang</button><button type="button" data-theme-set="dark">Gelap</button></div><div class="swatches" id="swatches"></div></div>
-<div class="card"><h3>Pengingat deadline</h3><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Kamu diberi tahu 24 jam, 3 jam, 1 jam, dan 5 menit sebelum deadline selama web ini terbuka. Tugas yang sudah kamu tandai selesai tidak akan diingatkan lagi (tersimpan di perangkat ini). Aktifkan notifikasi browser agar muncul juga di layar HP.</p><button type="button" class="btn btn-soft" id="notifBtn">Aktifkan notifikasi browser</button></div>
+<div class="card" id="installCard"><h3>Pasang aplikasi</h3><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Pasang ke layar utama HP supaya terbuka seperti aplikasi. iPhone: buka lewat Safari, ketuk Bagikan, lalu Tambahkan ke Layar Utama (perlu iOS 16.4 atau lebih baru untuk notifikasi).</p><button type="button" class="btn btn-soft" id="installBtn">Pasang aplikasi</button></div>
+<div class="card"><h3>Notifikasi</h3><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Dapat pemberitahuan materi baru dan pengingat deadline (24 jam, 3 jam, 1 jam, dan 5 menit sebelumnya) walau web ditutup. Tanda selesai yang kamu pasang hanya berlaku di tampilan web, jadi notifikasi tugas tetap datang dari server.</p><button type="button" class="btn btn-soft" id="notifBtn">Aktifkan notifikasi</button></div>
 <div class="card"><h3>Ganti password</h3>
 <form id="changePasswordForm">
 <div class="field"><label for="cpOld">Password lama</label><div class="pwd"><input class="input" type="password" id="cpOld" required autocomplete="current-password"><button type="button" data-pwd="cpOld" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
@@ -791,6 +801,8 @@ $("changePasswordForm").addEventListener("submit", async (e) => {
 });
 
 function logout(manual = true) {
+  if (manual && token) pushUnsubscribe(token);
+  pushOn = false;
   token = "";
   isAdmin = false;
   localStorage.removeItem("semester5_token");
@@ -845,6 +857,7 @@ async function initApp() {
     clockTimer = setInterval(tickClock, 1000);
     startReminders();
     startForum();
+    syncPush(false).then(updateNotifBtn);
     syncTimer = setInterval(() => {
       if (!document.hidden && token && selectedTopicId && activeView === "materi") loadMaterials(true);
     }, 15000);
@@ -1406,8 +1419,8 @@ function checkReminders() {
     seen[id] = lvl[0];
     const msg = `⏰ ${k.title} (${k.topicName}) · ${relTime(k.due)}`;
     showToast(msg, true);
-    if (window.Notification && Notification.permission === "granted") {
-      try { new Notification("Deadline tugas", { body: msg }); } catch (e) {}
+    if (!pushOn && window.Notification && Notification.permission === "granted") {
+      try { navigator.serviceWorker.ready.then((r) => r.showNotification("Deadline tugas", { body: msg, icon: "icon-192.png" })); } catch (e) {}
     }
     if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
   });
@@ -1425,19 +1438,58 @@ $("dueBanner").addEventListener("click", () => {
   switchView("materi");
   openTopic(id);
 });
+/* ---------- PWA: pasang aplikasi & notifikasi push ---------- */
+let pushOn = false, deferredInstall = null;
+const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const pushSupported = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+const b64ToU8 = (b) => {
+  const r = atob((b + "=".repeat((4 - (b.length % 4)) % 4)).replace(/-/g, "+").replace(/_/g, "/"));
+  return Uint8Array.from(r, (c) => c.charCodeAt(0));
+};
+async function syncPush(ask) {
+  if (!token || !pushSupported()) return false;
+  if (Notification.permission === "default" && ask) await Notification.requestPermission();
+  if (Notification.permission !== "granted") return false;
+  try {
+    const k = await (await apiCall("/api/push/key")).json();
+    if (!k.enabled) { if (ask) showToast("Notifikasi belum diaktifkan di server.", true); return false; }
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(k.key) });
+    const { data } = await postJSON("/api/push/subscribe", { subscription: sub.toJSON() }, true);
+    pushOn = !!data.ok;
+    return pushOn;
+  } catch (e) { console.error(e); return false; }
+}
+async function pushUnsubscribe(tk) {
+  try {
+    const sub = await (await navigator.serviceWorker.ready).pushManager.getSubscription();
+    if (sub) await fetch(API + "/api/push/unsubscribe", { method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + tk }, body: JSON.stringify({ endpoint: sub.endpoint }) });
+  } catch (e) { /* tidak kritis */ }
+}
 function updateNotifBtn() {
   const b = $("notifBtn");
-  if (!window.Notification) { b.textContent = "Tidak didukung di browser ini"; b.disabled = true; return; }
-  if (Notification.permission === "granted") { b.textContent = "Notifikasi browser aktif ✓"; b.disabled = true; }
+  if (!pushSupported()) { b.textContent = "Tidak didukung di browser ini"; b.disabled = true; return; }
+  if (pushOn) { b.textContent = "Notifikasi aktif ✓"; b.disabled = true; return; }
+  b.disabled = false;
+  b.textContent = Notification.permission === "denied" ? "Notifikasi diblokir (atur di browser)" : "Aktifkan notifikasi";
 }
 $("notifBtn").addEventListener("click", async () => {
-  if (!window.Notification) return showToast("Browser ini tidak mendukung notifikasi.", true);
   if (Notification.permission === "denied") return showToast("Notifikasi diblokir. Aktifkan lewat pengaturan situs di browser.", true);
-  const r = await Notification.requestPermission();
-  showToast(r === "granted" ? "Notifikasi browser aktif." : "Notifikasi tidak diizinkan.", r !== "granted");
+  const ok = await syncPush(true);
+  showToast(ok ? "Notifikasi aktif." : "Notifikasi belum aktif.", !ok);
   updateNotifBtn();
 });
 updateNotifBtn();
+$("installCard").classList.toggle("hidden", standalone);
+window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferredInstall = e; });
+window.addEventListener("appinstalled", () => { deferredInstall = null; $("installCard").classList.add("hidden"); showToast("Aplikasi terpasang."); });
+$("installBtn").addEventListener("click", async () => {
+  if (deferredInstall) { deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall = null; return; }
+  showToast("Buka menu browser lalu pilih Pasang aplikasi / Tambahkan ke Layar Utama.");
+});
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 
 $("taskList").addEventListener("click", (e) => {
   const d = e.target.closest("[data-done]");
@@ -1468,7 +1520,8 @@ function openModal(o) {
     bg.innerHTML = `<form class="modal" role="dialog" aria-modal="true">
       <div class="m-ic ${o.danger ? "danger" : ""}">${svg(o.icon || "shield", 24)}</div>
       <h3>${esc(o.title)}</h3>${o.text ? `<p>${esc(o.text)}</p>` : ""}${fields}${secret}
-      <div class="m-btns">${o.cancel === false ? "" : `<button type="button" class="btn btn-line" data-m="cancel">${esc(o.cancel || "Batal")}</button>`}
+      <div class="m-btns${o.extra ? " stack" : ""}">${o.cancel === false ? "" : `<button type="button" class="btn btn-line" data-m="cancel">${esc(o.cancel || "Batal")}</button>`}
+      ${o.extra ? `<button type="button" class="btn btn-line" data-m="extra">${esc(o.extra)}</button>` : ""}
       <button type="submit" class="btn ${o.danger ? "btn-del" : "btn-primary"}">${esc(o.ok || "OK")}</button></div></form>`;
     document.body.appendChild(bg);
     const form = bg.firstElementChild;
@@ -1478,6 +1531,8 @@ function openModal(o) {
     bg.addEventListener("click", (e) => { if (e.target === bg && !o.secret) close(null); });
     const cancel = form.querySelector('[data-m="cancel"]');
     if (cancel) cancel.addEventListener("click", () => close(null));
+    const extraBtn = form.querySelector('[data-m="extra"]');
+    if (extraBtn) extraBtn.addEventListener("click", () => close("extra"));
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       const vals = {};
@@ -1542,8 +1597,31 @@ async function loadAdmin() {
       `<div class="adm-row"><span>${esc(u.name)} ${u.username ? "@" + esc(u.username) : ""}<br><small style="color:var(--mute)">ID ${esc(u.id)}</small></span>
        <button class="mbtn ${u.banned ? "" : "del"}" data-ad="${u.banned ? "unban_tg" : "ban_tg"}" data-t="${esc(u.id)}">${u.banned ? "Unban" : "Ban"}</button></div>`).join("")
       || `<div class="empty" style="padding:12px">Belum ada user Telegram.</div>`;
+    loadActivity();
   } catch (err) { showToast(err.message, true); }
 }
+let actKinds = "", actDebounce = null;
+const ACT_ICON = { login: "🔐", login_fail: "🚨", register: "🆕", upload: "📤", delete: "🗑️", admin: "🛠️", forum: "💬", security: "⛔", reset_pw: "🔑", change_pw: "🔑" };
+async function loadActivity() {
+  try {
+    const q = encodeURIComponent($("actSearch").value.trim());
+    const res = await apiCall(`/api/admin/activity?kinds=${encodeURIComponent(actKinds)}&q=${q}&limit=150`);
+    const d = await res.json();
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat log aktivitas.");
+    $("actList").innerHTML = d.items.map((a) => `<div class="au"><div class="n">${ACT_ICON[a.kind] || "•"} ${esc(a.user || "-")} <span class="tag">${esc(a.kind)}</span></div>
+      <div class="m" style="color:var(--ink)">${esc(a.detail)}</div>
+      <div class="m">${esc(new Date(a.ts).toLocaleString("id-ID"))} · IP ${esc(a.ip || "-")} · ${esc(a.device || "-")}</div></div>`).join("")
+      || `<div class="empty" style="padding:12px">Belum ada aktivitas.</div>`;
+  } catch (err) { showToast(err.message, true); }
+}
+$("actFilters").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-k]");
+  if (!b) return;
+  actKinds = b.dataset.k;
+  document.querySelectorAll("#actFilters .chip").forEach((c) => c.classList.toggle("active", c === b));
+  loadActivity();
+});
+$("actSearch").addEventListener("input", () => { clearTimeout(actDebounce); actDebounce = setTimeout(loadActivity, 350); });
 $("view-admin").addEventListener("click", async (e) => {
   const b = e.target.closest("[data-ad]");
   if (!b) return;
@@ -1606,17 +1684,18 @@ const fDay = (iso) => new Date(iso).toLocaleDateString("id-ID", { weekday: "long
 
 function renderForum(stick) {
   const box = $("fMsgs");
-  if (!fMsgs.length) {
+  const list = fMsgs.filter((m) => !isFHidden(m.id));
+  if (!list.length) {
     box.innerHTML = `<div class="empty"><span class="big">💬</span>Belum ada pesan. Kirim pesan pertama untuk memulai obrolan.</div>`;
     return;
   }
   let prevDay = "";
-  box.innerHTML = fMsgs.map((m) => {
+  box.innerHTML = list.map((m) => {
     const mine = m.user === currentUser, name = displayName(m.user, true), crown = isOwnerUser(m.user);
     const day = fDay(m.ts), sep = day !== prevDay ? `<div class="fday">${esc(day)}</div>` : "";
     prevDay = day;
     const quote = m.reply ? `<div class="fquote"><b>${esc(displayName(m.reply.user, true))}</b>${esc(m.reply.text)}</div>` : "";
-    const canDel = mine || isAdmin;
+    const canDel = true; // semua orang bisa menghapus; aturan "untuk semua" atau "untuk saya" ada di deleteForum
     return `${sep}<div class="fmsg ${mine ? "me" : ""}"><div class="fbub">
       ${mine ? "" : `<div class="fname ${crown ? "crown" : ""}">${esc(name)}${crown || nameMap[String(m.user).toLowerCase()] === undefined ? "" : `<small>@${esc(m.user)}</small>`}</div>`}${quote}
       <div class="ftext">${esc(m.text)}</div>
@@ -1721,13 +1800,36 @@ async function sendForum() {
   } catch (e) { showToast(e.message, true); }
   finally { btn.disabled = false; inp.focus(); }
 }
+const FORUM_DEL_MS = 3600e3; // lewat 1 jam: hanya bisa hapus untuk diri sendiri (admin tetap bisa hapus untuk semua)
+const fHideKey = () => "s5_fhide_" + currentUser;
+function getFHidden() { try { return JSON.parse(localStorage.getItem(fHideKey()) || "[]"); } catch (e) { return []; } }
+function isFHidden(id) { return getFHidden().includes(id); }
+function hideForMe(id) {
+  const a = getFHidden().filter((x) => x !== id);
+  a.push(id);
+  try { localStorage.setItem(fHideKey(), JSON.stringify(a.slice(-500))); } catch (e) {}
+}
 async function deleteForum(id) {
-  if (!(await openModal({ title: "Hapus pesan ini?", text: "Pesan ini hilang untuk semua orang.", ok: "Hapus", icon: "trash", danger: true }))) return;
+  const m = fMsgs.find((x) => x.id === id);
+  if (!m) return;
+  const young = Date.now() - new Date(m.ts).getTime() < FORUM_DEL_MS;
+  const forAll = isAdmin || (m.user === currentUser && young);
+  let choice;
+  if (forAll) {
+    choice = await openModal({ title: "Hapus pesan ini?", ok: "Hapus untuk semua", extra: "Hapus untuk saya", icon: "trash", danger: true,
+      text: isAdmin ? "Sebagai admin, kamu bisa menghapusnya untuk semua orang." : "Pesan ini belum lewat 1 jam, jadi bisa dihapus untuk semua orang." });
+  } else {
+    const yes = await openModal({ title: "Hapus untuk saya?", ok: "Hapus untuk saya", icon: "trash", danger: true,
+      text: m.user === currentUser ? "Pesan ini sudah lewat 1 jam, jadi hanya hilang dari tampilanmu. Orang lain masih bisa melihatnya." : "Pesan ini hanya disembunyikan dari tampilanmu." });
+    choice = yes ? "extra" : null;
+  }
+  if (!choice) return;
+  if (choice === "extra") { hideForMe(id); renderForum(false); showToast("Pesan disembunyikan dari tampilanmu."); return; }
   try {
     const res = await apiCall("/api/forum/message/" + id, { method: "DELETE" });
     const d = await res.json().catch(() => ({}));
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menghapus pesan.");
-    fMsgs = fMsgs.filter((m) => m.id !== id);
+    fMsgs = fMsgs.filter((x) => x.id !== id);
     renderForum(false);
   } catch (e) { showToast(e.message, true); }
 }
