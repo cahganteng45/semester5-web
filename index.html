@@ -533,6 +533,31 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .inwho small.inon{color:#1a9e5c;font-weight:700}
 .ityp{align-items:flex-end;gap:6px}
 </style>
+<style>
+.fpinbar{display:flex;align-items:center;gap:8px;padding:8px 12px;margin-bottom:8px;background:var(--amber-soft);color:var(--ink);border-radius:var(--r-s);font-size:13px;cursor:pointer}
+.fpinbar span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fpinbar small{color:var(--mute);font-weight:700}
+.fpoll{display:flex;flex-direction:column;gap:6px;margin-top:6px;min-width:200px}
+.fpo{position:relative;display:flex;justify-content:space-between;gap:10px;text-align:left;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-s);overflow:hidden;font-size:14px}
+.fpo i{position:absolute;inset:0 auto 0 0;background:var(--brand-soft);z-index:0;transition:width .3s}
+.fpo span,.fpo b{position:relative;z-index:1}
+.fpo.me{border-color:var(--brand)}
+.fpoll small{color:var(--mute);font-size:11px}
+.flink{display:block;margin-top:6px;padding:8px 10px;border-left:3px solid var(--brand);background:var(--brand-soft);border-radius:var(--r-s);color:inherit;text-decoration:none;font-size:13px}
+.flink b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.flink span{display:block;color:var(--mute);max-height:2.6em;overflow:hidden}
+.flink small{color:var(--brand);font-weight:700}
+.fed{color:var(--mute);font-style:italic}
+.fsrch{padding:4px 14px}
+.fsrch input{width:100%;margin-bottom:6px}
+.fsr{display:block;width:100%;text-align:left;padding:9px 4px;border-top:1px solid var(--line);font-size:14px}
+.fsr small{display:block;color:var(--mute)}
+.fsr span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fsrl{overflow-y:auto;max-height:48vh}
+.arep{border-top:1px solid var(--line);padding:10px 0;font-size:14px}
+.arep q{display:block;margin:4px 0;color:var(--mute)}
+.arep .row{display:flex;gap:8px;margin-top:8px}
+</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -629,9 +654,9 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 
 <section class="view" id="view-jadwal"><h2 class="page-title">Jadwal kuliah</h2><p class="page-sub">Sistem Informasi, kelas 5P52 dan 5P52A. Semester Gasal 2026/2027.</p><div class="chips" id="dayChips"></div><div id="scheduleList"></div></section>
 
-<section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div><button type="button" class="fgchat hidden" id="fInboxBtn">💬 Admin</button></div>
-<div class="fmsgs" id="fMsgs"></div><div class="freply hidden" id="fReply"></div>
-<div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fbar"><textarea class="input" id="fInput" rows="1" maxlength="1000" placeholder="Tulis pesan…"></textarea><button class="btn btn-primary" id="fSend" type="button">Kirim</button></div></div></section>
+<section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div><button type="button" class="fgchat" id="fSearchBtn" aria-label="Cari pesan">🔍</button><button type="button" class="fgchat hidden" id="fInboxBtn">💬 Admin</button></div>
+<div class="fpinbar hidden" id="fPinBar"></div><div class="fmsgs" id="fMsgs"></div><div class="freply hidden" id="fReply"></div>
+<div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fbar"><textarea class="input" id="fInput" rows="1" maxlength="1000" placeholder="Tulis pesan…"></textarea><button class="btn btn-line" id="fPollBtn" type="button" aria-label="Buat polling">📊</button><button class="btn btn-primary" id="fSend" type="button">Kirim</button></div></div></section>
 
 <section class="view" id="view-upload"><h2 class="page-title">Tambah materi</h2><p class="page-sub">Unggah file atau tulis catatan. Hasilnya langsung terkirim ke Telegram.</p>
 <div class="card">
@@ -667,6 +692,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 </div>
 
 <div class="adpane hidden" data-pane="forum">
+<div class="card"><h3>Laporan pesan <span id="adRepN"></span></h3><div id="adReports"><p class="page-sub">Memuat…</p></div></div>
 <div class="card"><h3>Forum</h3><button class="btn btn-danger" id="adForumClear" type="button">Bersihkan semua pesan forum</button></div>
 </div>
 </section>
@@ -2300,6 +2326,7 @@ $("adForumClear").addEventListener("click", async () => {
 
 /* ---------- forum kelas ---------- */
 let fMsgs = [], fLastId = 0, fReplyTo = null, fBusy = false, fLoaded = false, fTimer = null, fTicks = 0;
+let fPins = [], fPinIdx = 0, fPrev = {}, fRepSeen = 0;
 let fDivId = 0, fDivCount = 0;   // pembatas "pesan belum dibaca"
 let inUnread = 0, inUnreadSeen = null;   // pesan belum dibaca di chat admin (dari server)
 const fTime = (iso) => new Date(iso).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
@@ -2359,8 +2386,8 @@ function renderForum(stick) {
     const divider = fDivId && m.id === fDivId ? `<div class="funread" id="fUnread"><span>${fDivCount} pesan belum dibaca</span></div>` : "";
     return `${sep}${divider}<div class="fmsg ${mine ? "me" : ""} ${m.mentioned && !mine ? "mentioned" : ""}" id="fm-${m.id}">${mine ? "" : `<span data-p="${esc(m.pid)}">${avatarHtml(m, "s")}</span>`}<div class="fbub">
       ${mine ? "" : `<div class="fname" data-p="${esc(m.pid)}">${nameHtml(name, crown, verOf(m.pid))}${tag}</div>`}${quote}
-      <div class="ftext">${fmtText(m)}</div>${reactsHtml(m)}
-      <div class="fmeta"><span>${esc(fTime(m.ts))}</span><button type="button" class="fmore" data-m="${m.id}" aria-label="Menu pesan">•••</button></div>
+      <div class="ftext">${fmtText(m)}</div>${pollHtml(m)}${linkHtml(m)}${reactsHtml(m)}
+      <div class="fmeta"><span>${m.pinned ? "📌 " : ""}${m.edited ? '<i class="fed">diedit</i> · ' : ""}${esc(fTime(m.ts))}</span><button type="button" class="fmore" data-m="${m.id}" aria-label="Menu pesan">•••</button></div>
     </div></div>`;
   }).join("");
   fPaintTyping();
@@ -2371,7 +2398,7 @@ function forumReset() {
   if (inEl) { clearInterval(inTimer); inEl.remove(); inEl = null; }
   fGroupMembers = []; fGroup = { name: "Forum Kelas", av: false, avv: 0, n: 0 }; fGroupAt = 0;
   if (fgEl) { fgEl.remove(); fgEl = null; }
-  fMsgs = []; fLastId = 0; fLoaded = false; fReplyTo = null; fDivId = 0; fDivCount = 0;
+  fMsgs = []; fLastId = 0; fLoaded = false; fReplyTo = null; fDivId = 0; fDivCount = 0; fPins = []; fPinIdx = 0; fRepSeen = 0; fPaintPins();
   updateForumBadge();
   $("fReply").classList.add("hidden");
   renderForum(false);
@@ -2399,6 +2426,8 @@ async function pollForum() {
     });
     fMsgs.sort((a, b) => a.id - b.id);
     if (d.reacts && fApplyReacts(d.reacts)) changed = true;
+    if (fApplyMeta(d)) changed = true;
+    if (typeof d.reports === "number") { if (fLoaded && d.reports > fRepSeen) showToast("🚩 Ada laporan baru: Panel admin → Forum"); fRepSeen = d.reports; }
     fSetTyping(d.typing || []);
     fApplyGroup(d.group);
     fApplyInbox(d.inbox, d.inbox_unread);
@@ -3379,6 +3408,11 @@ function openFPress(bub, id) {
   menu.innerHTML = fReactBar(m) + `<button type="button" data-a="reply">Balas<svg class="i"><use href="#i-chat"/></svg></button>
     <button type="button" data-a="copy">Salin<svg class="i"><use href="#i-edit"/></svg></button>
     <button type="button" data-a="del" class="danger">Hapus<svg class="i"><use href="#i-trash"/></svg></button>`;
+  const canEdit = m.mine && !m.poll && Date.now() - new Date(m.ts).getTime() < FORUM_EDIT_MS;
+  menu.querySelector('[data-a="del"]').insertAdjacentHTML("beforebegin",
+    (canEdit ? '<button type="button" data-a="edit">Edit<svg class="i"><use href="#i-edit"/></svg></button>' : "") +
+    (isAdmin ? `<button type="button" data-a="pin">${m.pinned ? "Lepas sematan" : "Sematkan"}<svg class="i"><use href="#i-pin"/></svg></button>` : "") +
+    (!m.mine ? '<button type="button" data-a="report" class="danger">Laporkan<svg class="i"><use href="#i-shield"/></svg></button>' : ""));
   ov.append(clone, menu);
   document.body.append(ov);
   fPressOpen = ov;
@@ -3402,6 +3436,9 @@ function openFPress(bub, id) {
     if (a === "reply") setForumReply(id);
     else if (a === "copy") copyText(m.text);
     else if (a === "del") deleteForum(id);
+    else if (a === "edit") editForum(id);
+    else if (a === "pin") pinForum(id, !m.pinned);
+    else if (a === "report") reportForum(id);
   });
   ov.addEventListener("contextmenu", (e) => e.preventDefault());
 }
@@ -3492,6 +3529,170 @@ function cancelFPress() {
   box.addEventListener("pointerup", end);
   box.addEventListener("pointercancel", end);
 })();
+
+
+/* ---------- fitur forum: edit, sematkan, cari, polling, preview link, laporan ---------- */
+const FORUM_EDIT_MS = 20 * 60e3;   // sama dengan FORUM_EDIT_WINDOW di server
+async function fjCall(path, body) {
+  const res = await apiCall(path, body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const d = await res.json().catch(() => ({}));
+  if (!res.ok || !d.ok) throw new Error(d.error || "Terjadi kesalahan.");
+  return d;
+}
+function fModal(title, hint, bodyHtml, ok, collect) {
+  return new Promise((resolve) => {
+    const bg = document.createElement("div");
+    bg.className = "modal-bg";
+    bg.innerHTML = `<form class="modal"><h3>${esc(title)}</h3>${hint ? `<p>${esc(hint)}</p>` : ""}<div class="field">${bodyHtml}</div><div class="m-btns"><button type="button" class="btn btn-line" data-c>Batal</button><button type="submit" class="btn btn-primary">${esc(ok)}</button></div></form>`;
+    document.body.appendChild(bg);
+    const form = bg.firstElementChild, close = (v) => { bg.remove(); resolve(v); };
+    bg.addEventListener("click", (e) => { if (e.target === bg) close(null); });
+    form.querySelector("[data-c]").onclick = () => close(null);
+    form.addEventListener("submit", (e) => { e.preventDefault(); const v = collect(form); if (v) close(v); });
+    const f = form.querySelector("input,textarea"); if (f) f.focus();
+  });
+}
+async function editForum(id) {
+  const m = fMsgs.find((x) => x.id === id);
+  if (!m) return;
+  const v = await fModal("Edit pesan", "Pesan hanya bisa diedit sampai 20 menit setelah dikirim.",
+    `<textarea class="input" rows="4" maxlength="1000">${esc(m.text)}</textarea>`, "Simpan", (f) => f.querySelector("textarea").value.trim());
+  if (!v || v === m.text) return;
+  try { const d = await fjCall("/api/forum/edit", { id, text: v }); Object.assign(m, d.message); renderForum(false); showToast("Pesan diedit."); }
+  catch (e) { showToast(e.message, true); }
+}
+async function pinForum(id, on) {
+  try { await fjCall("/api/forum/pin", { id, on }); showToast(on ? "Pesan disematkan." : "Sematan dilepas."); pollForum(); }
+  catch (e) { showToast(e.message, true); }
+}
+function fApplyMeta(d) {
+  let ch = false;
+  const ed = d.edits || {}, pl = d.polls || {}, pins = d.pins || [], pset = new Set(pins.map((p) => p.id));
+  fMsgs.forEach((m) => {
+    const p = pset.has(m.id);
+    if (!!m.pinned !== p) { m.pinned = p; ch = true; }
+    const e = ed[String(m.id)];
+    if (e && (m.text !== e.t || !m.edited)) { m.text = e.t; m.edited = true; ch = true; }
+    const q = pl[String(m.id)];
+    if (q && JSON.stringify(q) !== JSON.stringify(m.poll)) { m.poll = q; ch = true; }
+  });
+  if (JSON.stringify(pins.map((p) => [p.id, p.text])) !== JSON.stringify(fPins.map((p) => [p.id, p.text]))) { fPins = pins; fPaintPins(); }
+  return ch;
+}
+function fPaintPins() {
+  const bar = $("fPinBar");
+  if (!bar) return;
+  if (!fPins.length) { bar.classList.add("hidden"); return; }
+  const i = fPinIdx % fPins.length, m = fPins[fPins.length - 1 - i];
+  bar.dataset.id = m.id;
+  bar.innerHTML = `<span>📌 <b>${esc(shortName(m.name))}:</b> ${esc(m.text)}</span>${fPins.length > 1 ? `<small>${i + 1}/${fPins.length}</small>` : ""}`;
+  bar.classList.remove("hidden");
+}
+$("fPinBar").addEventListener("click", () => { jumpToMessage(+$("fPinBar").dataset.id); fPinIdx++; fPaintPins(); });
+
+/* polling */
+function pollHtml(m) {
+  if (!m.poll) return "";
+  const p = m.poll;
+  return `<div class="fpoll">${p.opts.map((o, i) => `<button type="button" class="fpo ${o.me ? "me" : ""}" data-v="${m.id}|${i}"><i style="width:${p.total ? Math.round(o.n * 100 / p.total) : 0}%"></i><span>${esc(o.t)}</span><b>${o.n}</b></button>`).join("")}<small>${p.total} suara · ketuk lagi untuk membatalkan</small></div>`;
+}
+$("fMsgs").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-v]");
+  if (!b || Date.now() - fPressAt < 700) return;
+  const [id, opt] = b.dataset.v.split("|").map(Number);
+  try { const d = await fjCall("/api/forum/vote", { id, opt }); const m = fMsgs.find((x) => x.id === id); if (m) { m.poll = d.poll; renderForum(false); } }
+  catch (err) { showToast(err.message, true); }
+});
+$("fPollBtn").addEventListener("click", async () => {
+  const v = await fModal("Buat polling", "Satu pilihan per baris (2–6 pilihan).",
+    `<input class="input" maxlength="200" placeholder="Pertanyaan" style="margin-bottom:8px"><textarea class="input" rows="4" placeholder="Pilihan A&#10;Pilihan B"></textarea>`,
+    "Kirim", (f) => {
+      const q = f.querySelector("input").value.trim(), o = f.querySelector("textarea").value.split("\n").map((x) => x.trim()).filter(Boolean);
+      if (!q || o.length < 2) { showToast("Isi pertanyaan dan minimal 2 pilihan.", true); return null; }
+      return { q, o };
+    });
+  if (!v) return;
+  try {
+    const d = await fjCall("/api/forum/send", { text: v.q, poll: { options: v.o }, push_endpoint: myPushEndpoint });
+    if (!fMsgs.some((m) => m.id === d.message.id)) fMsgs.push(d.message);
+    fMsgs.sort((a, b) => a.id - b.id); renderForum(true);
+  } catch (err) { showToast(err.message, true); }
+});
+
+/* preview link */
+function linkHtml(m) {
+  const u = ((m.text || "").match(/https?:\/\/[^\s<>"']+/i) || [])[0];
+  if (!u) return "";
+  const url = u.replace(/[).,!?]+$/, ""), p = fPrev[url];
+  if (p === undefined) {
+    fPrev[url] = null;
+    fjCall("/api/forum/preview?url=" + encodeURIComponent(url)).then((d) => { fPrev[url] = d.preview || false; if (d.preview) renderForum(false); }).catch(() => { fPrev[url] = false; });
+    return "";
+  }
+  if (!p) return "";
+  return `<a class="flink" href="${esc(url)}" target="_blank" rel="noopener noreferrer"><b>${esc(p.title)}</b>${p.desc ? `<span>${esc(p.desc)}</span>` : ""}<small>${esc(p.site)}</small></a>`;
+}
+
+/* cari pesan */
+$("fSearchBtn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  const bg = document.createElement("div");
+  bg.className = "rsheet-bg";
+  bg.innerHTML = `<div class="rsheet"><div class="grab"></div><div class="fsrch"><input class="input" placeholder="Cari pesan…" autocomplete="off"><div class="fsrl"></div></div></div>`;
+  document.body.appendChild(bg);
+  const inp = bg.querySelector("input"), box = bg.querySelector(".fsrl"); let t = null;
+  inp.focus();
+  bg.addEventListener("click", (ev) => {
+    if (ev.target === bg) return bg.remove();
+    const r = ev.target.closest("[data-j]");
+    if (r) { bg.remove(); jumpToMessage(+r.dataset.j); }
+  });
+  inp.addEventListener("input", () => {
+    clearTimeout(t);
+    const q = inp.value.trim();
+    if (q.length < 2) { box.innerHTML = ""; return; }
+    t = setTimeout(async () => {
+      try {
+        const d = await fjCall("/api/forum/search?q=" + encodeURIComponent(q));
+        box.innerHTML = d.results.length ? d.results.map((m) => `<button type="button" class="fsr" data-j="${m.id}"><small>${esc(shortName(m.name))} · ${esc(fDay(m.ts))}, ${esc(fTime(m.ts))}</small><span>${esc(m.text)}</span></button>`).join("") : '<p class="page-sub">Tidak ada hasil.</p>';
+      } catch (err) { box.innerHTML = `<p class="page-sub">${esc(err.message)}</p>`; }
+    }, 300);
+  });
+});
+
+/* lapor pesan */
+function reportForum(id) {
+  const bg = document.createElement("div");
+  bg.className = "rsheet-bg";
+  const reasons = ["Spam", "Kasar / pelecehan", "SARA / ujaran kebencian", "Hoaks", "Lainnya"];
+  bg.innerHTML = `<div class="rsheet"><div class="grab"></div><div class="rlist">${reasons.map((r) => `<button type="button" class="rrow" data-r="${esc(r)}"><span class="rn">${esc(r)}</span></button>`).join("")}</div></div>`;
+  document.body.appendChild(bg);
+  bg.addEventListener("click", async (ev) => {
+    if (ev.target === bg) return bg.remove();
+    const b = ev.target.closest("[data-r]");
+    if (!b) return;
+    bg.remove();
+    try { await fjCall("/api/forum/report", { id, reason: b.dataset.r }); showToast("Laporan terkirim. Admin akan meninjau."); }
+    catch (e) { showToast(e.message, true); }
+  });
+}
+async function loadReports() {
+  const box = $("adReports");
+  try {
+    const d = await fjCall("/api/forum/reports");
+    $("adRepN").textContent = d.reports.length ? `(${d.reports.length})` : "";
+    box.innerHTML = d.reports.length ? d.reports.map((r) => `<div class="arep"><b>${esc(r.name)}</b> <small>@${esc(r.real)} · ${r.n} laporan</small><q>${esc(r.text)}</q><small>${esc(r.reasons.join(", "))}</small><div class="row">${r.exists ? `<button type="button" class="btn btn-danger" data-rd="${r.mid}">Hapus pesan</button>` : "<small>Pesan sudah dihapus</small>"}<button type="button" class="btn btn-line" data-ri="${r.mid}">Abaikan</button></div></div>`).join("") : '<p class="page-sub">Tidak ada laporan.</p>';
+  } catch (e) { box.innerHTML = `<p class="page-sub">${esc(e.message)}</p>`; }
+}
+$("adReports").addEventListener("click", async (e) => {
+  const del = e.target.closest("[data-rd]"), ign = e.target.closest("[data-ri]");
+  const mid = +((del || ign || {}).dataset ? (del ? del.dataset.rd : ign.dataset.ri) : 0);
+  if (!mid) return;
+  if (del && !(await openModal({ title: "Hapus pesan ini?", text: "Pesan dihapus untuk semua orang dan laporan ditutup.", ok: "Hapus", icon: "trash", danger: true }))) return;
+  try { await fjCall("/api/forum/report/resolve", { mid, action: del ? "delete" : "dismiss" }); fMsgs = fMsgs.filter((m) => m.id !== mid || !del); renderForum(false); loadReports(); }
+  catch (err) { showToast(err.message, true); }
+});
+$("adTabs").addEventListener("click", (e) => { const b = e.target.closest("[data-tab]"); if (b && b.dataset.tab === "forum") loadReports(); });
 
 renderForum(false);
 
