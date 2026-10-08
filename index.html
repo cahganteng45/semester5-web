@@ -1518,4 +1518,889 @@ function visibleMaterials() {
     return !q || text.includes(q);
   });
 }
-$("matSearch").addEventListener("input", renderMat
+$("matSearch").addEventListener("input", renderMaterials);
+$("matFilters").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-filter]");
+  if (!b) return;
+  matFilter = b.dataset.filter;
+  document.querySelectorAll("#matFilters .chip").forEach((c) => c.classList.toggle("active", c === b));
+  renderMaterials();
+});
+
+/* ---------- beranda: favorit ---------- */
+function renderHomeExtras() {
+  const pins = topicsList.filter((t) => pinnedTopics.includes(t.id));
+  $("favCard").classList.toggle("hidden", !pins.length);
+  $("favList").innerHTML = pins.map((t) =>
+    `<button type="button" class="fav" data-open="${esc(t.id)}"><span class="ticon">${ICONS[t.name] || "📚"}</span>${esc(t.name)}</button>`).join("");
+}
+$("favList").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-open]");
+  if (!b) return;
+  switchView("materi");
+  openTopic(b.dataset.open);
+});
+
+/* ---------- tema & warna aksen ---------- */
+/* [warna mode terang, warna mode gelap, warna bulatan pilihan (opsional)] */
+const ACCENTS = {
+  teal: ["#0f766e", "#3ec2b1"], biru: ["#1d4ed8", "#60a5fa"], indigo: ["#4f46e5", "#9a97ff"], ungu: ["#7e22ce", "#c084fc"],
+  pink: ["#be185d", "#f472b6"], merah: ["#b91c1c", "#f87171"], oranye: ["#c2410c", "#fb923c"], kuning: ["#a16207", "#facc15"],
+  hijau: ["#15803d", "#4ade80"], hitam: ["#111111", "#e5e5e5", "#111111"], putih: ["#64748b", "#ffffff", "#ffffff"]
+};
+const LEGACY_ACCENT = { rose: "pink", orange: "oranye" };
+let themeMode = localStorage.getItem("s5_theme") || "auto";
+let accentKey = localStorage.getItem("s5_accent") || "teal";
+if (LEGACY_ACCENT[accentKey]) accentKey = LEGACY_ACCENT[accentKey];
+if (!ACCENTS[accentKey]) accentKey = "teal";
+function onColor(hex) {
+  const n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.62 ? "#111111" : "#ffffff";
+}
+const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+$("swatches").innerHTML = Object.keys(ACCENTS).map((k) =>
+  `<button type="button" class="sw" data-accent="${k}" style="background:${ACCENTS[k][2] || ACCENTS[k][0]}" title="${k}" aria-label="Warna ${k}"></button>`).join("");
+function applyTheme() {
+  const root = document.documentElement;
+  if (themeMode === "auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", themeMode);
+  const dark = themeMode === "dark" || (themeMode === "auto" && darkQuery.matches);
+  const pair = ACCENTS[accentKey];
+  root.style.setProperty("--brand", dark ? pair[1] : pair[0]);
+  const brand = dark ? pair[1] : pair[0];
+  root.style.setProperty("--on-brand", onColor(brand));
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = dark ? "#0d1714" : pair[0];
+  document.querySelectorAll("[data-theme-set]").forEach((b) => b.classList.toggle("active", b.dataset.themeSet === themeMode));
+  document.querySelectorAll("[data-accent]").forEach((b) => b.classList.toggle("active", b.dataset.accent === accentKey));
+}
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("[data-theme-set]"), a = e.target.closest("[data-accent]");
+  if (t) { themeMode = t.dataset.themeSet; localStorage.setItem("s5_theme", themeMode); applyTheme(); }
+  if (a) { accentKey = a.dataset.accent; localStorage.setItem("s5_accent", accentKey); applyTheme(); }
+});
+try { darkQuery.addEventListener("change", applyTheme); } catch (err) { darkQuery.addListener(applyTheme); }
+applyTheme();
+
+/* ---------- upload dengan progres ---------- */
+function xhrUpload(fd) {
+  return new Promise((resolve, reject) => {
+    const x = new XMLHttpRequest();
+    const box = $("prog"), bar = $("progBar");
+    x.open("POST", API + "/api/upload");
+    if (token) x.setRequestHeader("Authorization", "Bearer " + token);
+    box.classList.remove("hidden");
+    bar.style.width = "0";
+    x.upload.onprogress = (e) => {
+      if (!e.lengthComputable) return;
+      const p = Math.round((e.loaded / e.total) * 100);
+      bar.style.width = p + "%";
+      $("uploadBtn").textContent = "Mengirim " + p + "%";
+    };
+    x.onload = () => {
+      box.classList.add("hidden");
+      if (x.status === 401) { logout(false); return reject(new Error("Sesi berakhir, silakan masuk lagi.")); }
+      let d = {};
+      try { d = JSON.parse(x.responseText); } catch (err) {}
+      if (x.status === 503 && d.maintenance) { showMaint(d.message); return reject(new Error("Website sedang maintenance.")); }
+      if (x.status >= 200 && x.status < 300) resolve(d);
+      else reject(new Error(d.error || "Gagal mengunggah (kode " + x.status + ")."));
+    };
+    x.onerror = () => { box.classList.add("hidden"); reject(new Error("Koneksi terputus saat mengunggah.")); };
+    x.send(fd);
+  });
+}
+
+/* ---------- pratinjau gambar & status offline ---------- */
+$("materialsList").addEventListener("click", (e) => {
+  const img = e.target.closest(".mprev img");
+  if (!img) return;
+  const lb = document.createElement("div");
+  lb.className = "lb";
+  lb.innerHTML = `<img src="${esc(img.src)}" alt=""><button type="button" aria-label="Tutup">✕</button>`;
+  lb.addEventListener("click", () => lb.remove());
+  document.body.appendChild(lb);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") document.querySelectorAll(".lb").forEach((l) => l.remove());
+});
+window.addEventListener("online", () => { $("offline").classList.add("hidden"); showToast("Kembali online."); });
+window.addEventListener("offline", () => $("offline").classList.remove("hidden"));
+if (!navigator.onLine) $("offline").classList.remove("hidden");
+
+/* ---------- tugas mendatang ---------- */
+const MONTHS = { januari: 0, februari: 1, maret: 2, april: 3, mei: 4, juni: 5, juli: 6, agustus: 7, september: 8, oktober: 9, november: 10, desember: 11 };
+let tasksCache = { at: 0, user: "", list: [] }, tasksBusy = false, tasksAll = [], remindTimer = null, refreshTimer = null;
+function parseDeadline(text) {
+  const i = String(text).indexOf("DEADLINE:");
+  if (i < 0) return null;
+  const m = String(text).slice(i).match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4}).*?(\d{1,2})[.:](\d{2})/);
+  if (!m) return null;
+  const mo = MONTHS[m[2].toLowerCase()];
+  if (mo === undefined) return null;
+  return new Date(+m[3], mo, +m[1], +m[4], +m[5]);
+}
+function relTime(d) {
+  const diff = d.getTime() - Date.now(), mins = Math.floor(Math.abs(diff) / 60000);
+  const hrs = Math.floor(mins / 60), days = Math.floor(hrs / 24);
+  const t = days >= 1 ? days + " hari" : hrs >= 1 ? hrs + " jam" : Math.max(mins, 1) + " menit";
+  return diff >= 0 ? t + " lagi" : "lewat " + t;
+}
+function renderTasks() {
+  const list = tasksCache.list;
+  if (!list.length) {
+    $("taskList").innerHTML = `<div class="empty" style="padding:16px 8px"><span class="big">🎉</span>Tidak ada tugas mendatang.</div>`;
+    return;
+  }
+  $("taskList").innerHTML = list.map((k) => {
+    const soon = k.due.getTime() - Date.now() < 24 * 3600 * 1000;
+    return `<div class="task">
+      <button type="button" class="tt" data-open="${esc(k.topicId)}"><b>${esc(k.title)}</b><small>${esc(k.topicName)}</small></button>
+      <span class="due ${soon ? "soon" : ""}">${esc(relTime(k.due))}</span>
+      <button type="button" class="donebtn" data-done="${esc(k.mid)}" aria-label="Tandai selesai" title="Tandai selesai">✓</button></div>`;
+  }).join("");
+}
+async function loadTasks(force) {
+  if (!token || tasksBusy || !topicsList.length) return;
+  if (!force && tasksCache.user === currentUser && Date.now() - tasksCache.at < 120000) return renderTasks();
+  tasksBusy = true;
+  try {
+    const results = await Promise.all(topicsList.map((t) =>
+      apiCall("/api/materials?topic=" + encodeURIComponent(t.id))
+        .then((r) => (r.ok ? r.json() : { materials: [] }))
+        .catch(() => ({ materials: [] }))
+        .then((d) => ({ t, items: d.materials || [] }))));
+    const out = [];
+    results.forEach(({ t, items }) => items.forEach((m) => {
+      const raw = String(m.content || m.caption || "");
+      const due = parseDeadline(raw);
+      if (!due || due.getTime() < Date.now() || isDone(m.id)) return;
+      const head = raw.split("⏰")[0].trim().split("\n")[0].trim();
+      const title = (head || (m.name && String(m.kind).toLowerCase() !== "text" ? m.name : "Tugas")).slice(0, 70);
+      out.push({ mid: String(m.id), title, due, topicId: String(t.id), topicName: t.name || "Mata kuliah" });
+    }));
+    out.sort((a, b) => a.due - b.due);
+    tasksAll = out;
+    tasksCache = { at: Date.now(), user: currentUser, list: out.slice(0, 4) };
+    renderTasks();
+    checkReminders();
+  } finally {
+    tasksBusy = false;
+  }
+}
+/* ---------- tandai selesai ---------- */
+function doneKey() { return "s5_done_" + currentUser; }
+function getDone() { try { return JSON.parse(localStorage.getItem(doneKey()) || "[]"); } catch (e) { return []; } }
+function isDone(id) { return getDone().includes(String(id)); }
+function setDone(id, val) {
+  const a = getDone().filter((x) => x !== String(id));
+  if (val) a.push(String(id));
+  try { localStorage.setItem(doneKey(), JSON.stringify(a.slice(-300))); } catch (e) {}
+}
+
+/* ---------- pengingat deadline ---------- */
+const REMIND_LEVELS = [[5 * 60e3, "5 menit"], [3600e3, "1 jam"], [3 * 3600e3, "3 jam"], [24 * 3600e3, "24 jam"]];
+function checkReminders() {
+  const banner = $("dueBanner");
+  if (!token || !currentUser) { banner.classList.add("hidden"); return; }
+  const now = Date.now();
+  const soon = tasksAll.filter((k) => k.due.getTime() > now && k.due.getTime() - now <= 24 * 3600e3);
+  if (!soon.length) banner.classList.add("hidden");
+  else {
+    const f = soon[0];
+    banner.dataset.open = f.topicId;
+    banner.innerHTML = `${svg("clock", 20)}<span>${soon.length} tugas deadline kurang dari 24 jam<small>${esc(f.title)} · ${esc(relTime(f.due))}</small></span>`;
+    banner.classList.remove("hidden");
+  }
+  const key = "s5_remind_" + currentUser;
+  let seen = {};
+  try { seen = JSON.parse(localStorage.getItem(key) || "{}"); } catch (e) {}
+  soon.forEach((k) => {
+    const left = k.due.getTime() - now;
+    const lvl = REMIND_LEVELS.find(([ms]) => left <= ms);
+    if (!lvl) return;
+    const id = k.topicId + "|" + k.due.getTime() + "|" + k.title;
+    if (seen[id] !== undefined && seen[id] <= lvl[0]) return;
+    seen[id] = lvl[0];
+    const msg = `⏰ ${k.title} (${k.topicName}) · ${relTime(k.due)}`;
+    showToast(msg, true);
+    if (!pushOn && window.Notification && Notification.permission === "granted") {
+      try { navigator.serviceWorker.ready.then((r) => r.showNotification("Deadline tugas", { body: msg, icon: "icon-192.png" })); } catch (e) {}
+    }
+    if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
+  });
+  Object.keys(seen).forEach((id) => { if (+id.split("|")[1] < now) delete seen[id]; });
+  try { localStorage.setItem(key, JSON.stringify(seen)); } catch (e) {}
+}
+function startReminders() {
+  clearInterval(remindTimer); clearInterval(refreshTimer);
+  remindTimer = setInterval(checkReminders, 60000);
+  refreshTimer = setInterval(() => { if (!document.hidden) loadTasks(true); }, 5 * 60000);
+}
+$("dueBanner").addEventListener("click", () => {
+  const id = $("dueBanner").dataset.open;
+  if (!id) return;
+  switchView("materi");
+  openTopic(id);
+});
+/* ---------- PWA: pasang aplikasi & notifikasi push ---------- */
+let pushOn = false, deferredInstall = null;
+const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const pushSupported = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+const b64ToU8 = (b) => {
+  const r = atob((b + "=".repeat((4 - (b.length % 4)) % 4)).replace(/-/g, "+").replace(/_/g, "/"));
+  return Uint8Array.from(r, (c) => c.charCodeAt(0));
+};
+async function syncPush(ask) {
+  if (!token || !pushSupported()) return false;
+  if (Notification.permission === "default" && ask) await Notification.requestPermission();
+  if (Notification.permission !== "granted") return false;
+  try {
+    const k = await (await apiCall("/api/push/key")).json();
+    if (!k.enabled) { if (ask) showToast(k.reason || "Notifikasi belum diaktifkan di server.", true); return false; }
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(k.key) });
+    const { data } = await postJSON("/api/push/subscribe", { subscription: sub.toJSON() }, true);
+    pushOn = !!data.ok;
+    if (pushOn) myPushEndpoint = sub.endpoint;
+    return pushOn;
+  } catch (e) { console.error(e); return false; }
+}
+async function pushUnsubscribe(tk) {
+  try {
+    const sub = await (await navigator.serviceWorker.ready).pushManager.getSubscription();
+    if (sub) await fetch(API + "/api/push/unsubscribe", { method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + tk }, body: JSON.stringify({ endpoint: sub.endpoint }) });
+  } catch (e) { /* tidak kritis */ }
+}
+let myPushEndpoint = "";
+async function notifDiag() {
+  const sup = pushSupported(), perm = sup ? Notification.permission : "denied";
+  let sw = false, srv = null;
+  try { const reg = await navigator.serviceWorker.getRegistration(); sw = !!(reg && reg.active); } catch (e) {}
+  try { srv = await (await apiCall("/api/push/key")).json(); } catch (e) {}
+  const rows = [
+    [sup, "Browser mendukung notifikasi", sup ? "" : "Pakai Chrome terbaru (iPhone: pasang ke layar utama dulu)."],
+    [perm === "granted", "Izin notifikasi", perm === "granted" ? "Diizinkan" : perm === "denied" ? "Diblokir: izinkan lewat pengaturan situs atau aplikasi" : "Belum diminta: tekan Aktifkan notifikasi"],
+    [sw, "Service worker aktif", sw ? "" : "Pastikan sw.js ada di folder yang sama dengan index.html"],
+    [!!(srv && srv.enabled), "Server siap mengirim", srv ? (srv.enabled ? "" : srv.reason || "Push belum aktif di server") : "Tidak bisa menghubungi server"],
+    [pushOn, "Perangkat ini terdaftar", pushOn ? "" : "Tekan Aktifkan notifikasi"]
+  ];
+  $("notifDiag").innerHTML = rows.map(([good, t, note]) =>
+    `<div class="adm-row" style="align-items:flex-start"><span>${good ? "✅" : "❌"} ${esc(t)}${note ? `<br><small style="color:var(--mute)">${esc(note)}</small>` : ""}</span></div>`).join("");
+}
+$("notifTestLocal").addEventListener("click", async () => {
+  if (!pushSupported() || Notification.permission !== "granted") return showToast("Izinkan notifikasi dulu.", true);
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    await reg.showNotification("🔔 Tes di HP ini", { body: "Kalau ini muncul, HP-mu bisa menampilkan notifikasi.", icon: "icon-192.png", badge: "icon-192.png", tag: "tes-lokal" });
+    $("notifTestMsg").textContent = "Tes tampilan dikirim. Turunkan bilah notifikasi HP untuk melihatnya.";
+  } catch (e) { $("notifTestMsg").textContent = "Gagal menampilkan: " + e.message; }
+});
+$("notifTestServer").addEventListener("click", async () => {
+  const msg = $("notifTestMsg");
+  msg.textContent = "Mengirim…";
+  try {
+    const { res, data } = await postJSON("/api/push/test", {}, true);
+    if (!res.ok || !data.ok) {
+      msg.textContent = data.error || (data.results ? "Server gagal mengirim: " + data.results.map((r) => `${r.host} → ${r.status || "?"} ${r.error}`).join("; ") : "Gagal.");
+      return;
+    }
+    msg.textContent = `Terkirim ke ${data.results.length} perangkat (kode ${data.results.map((r) => r.status).join(", ")}). Cek pusat notifikasi dalam beberapa detik.`;
+  } catch (e) { msg.textContent = e.message; }
+});
+function updateNotifBtn() {
+  const b = $("notifBtn");
+  $("notifSub").textContent = !pushSupported() ? "Tidak didukung di browser ini" : pushOn ? "Aktif" : "Belum aktif";
+  if (!pushSupported()) { b.textContent = "Tidak didukung di browser ini"; b.disabled = true; return; }
+  if (pushOn) { b.textContent = "Notifikasi aktif ✓"; b.disabled = true; return; }
+  b.disabled = false;
+  b.textContent = Notification.permission === "denied" ? "Notifikasi diblokir (atur di browser)" : "Aktifkan notifikasi";
+}
+$("notifBtn").addEventListener("click", async () => {
+  if (Notification.permission === "denied") return showToast("Notifikasi diblokir. Aktifkan lewat pengaturan situs di browser.", true);
+  const ok = await syncPush(true);
+  showToast(ok ? "Notifikasi aktif." : "Notifikasi belum aktif.", !ok);
+  updateNotifBtn(); notifDiag();
+});
+updateNotifBtn();
+$("rowInstall").classList.toggle("hidden", standalone);
+window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferredInstall = e; });
+window.addEventListener("appinstalled", () => { deferredInstall = null; $("rowInstall").classList.add("hidden"); showToast("Aplikasi terpasang."); });
+$("installBtn").addEventListener("click", async () => {
+  if (deferredInstall) { deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall = null; return; }
+  showToast("Buka menu browser lalu pilih Pasang aplikasi / Tambahkan ke Layar Utama.");
+});
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+
+$("taskList").addEventListener("click", (e) => {
+  const d = e.target.closest("[data-done]");
+  if (!d) return;
+  const mid = d.dataset.done;
+  setDone(mid, true);
+  tasksAll = tasksAll.filter((k) => k.mid !== mid);
+  tasksCache.list = tasksAll.slice(0, 4);
+  renderTasks();
+  checkReminders();
+  showToast("Ditandai selesai. Pengingat dimatikan.");
+});
+$("taskList").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-open]");
+  if (!b) return;
+  switchView("materi");
+  openTopic(b.dataset.open);
+});
+
+/* ---------- modal (pengganti prompt/confirm bawaan browser) ---------- */
+function openModal(o) {
+  return new Promise((resolve) => {
+    const bg = document.createElement("div");
+    bg.className = "modal-bg";
+    const fields = (o.fields || []).map((f, i) =>
+      `<div class="field"><label for="mf${i}">${esc(f.label)}</label><input class="input" type="${esc(f.type || "text")}" id="mf${i}" value="${esc(f.value || "")}" placeholder="${esc(f.placeholder || "")}" autocapitalize="none" autocomplete="off"></div>`).join("");
+    const secret = o.secret ? `<div class="secret"><input class="input" id="mSecret" value="${esc(o.secret)}" readonly><button type="button" class="btn btn-soft" id="mCopy">Salin</button></div>` : "";
+    bg.innerHTML = `<form class="modal" role="dialog" aria-modal="true">
+      <div class="m-ic ${o.danger ? "danger" : ""}">${svg(o.icon || "shield", 24)}</div>
+      <h3>${esc(o.title)}</h3>${o.text ? `<p>${esc(o.text)}</p>` : ""}${fields}${secret}
+      <div class="m-btns${o.extra ? " stack" : ""}">${o.cancel === false ? "" : `<button type="button" class="btn btn-line" data-m="cancel">${esc(o.cancel || "Batal")}</button>`}
+      ${o.extra ? `<button type="button" class="btn btn-line" data-m="extra">${esc(o.extra)}</button>` : ""}
+      <button type="submit" class="btn ${o.danger ? "btn-del" : "btn-primary"}">${esc(o.ok || "OK")}</button></div></form>`;
+    document.body.appendChild(bg);
+    const form = bg.firstElementChild;
+    const onKey = (e) => { if (e.key === "Escape" && !o.secret) close(null); };
+    const close = (v) => { document.removeEventListener("keydown", onKey); bg.remove(); resolve(v); };
+    document.addEventListener("keydown", onKey);
+    bg.addEventListener("click", (e) => { if (e.target === bg && !o.secret) close(null); });
+    const cancel = form.querySelector('[data-m="cancel"]');
+    if (cancel) cancel.addEventListener("click", () => close(null));
+    const extraBtn = form.querySelector('[data-m="extra"]');
+    if (extraBtn) extraBtn.addEventListener("click", () => close("extra"));
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const vals = {};
+      for (let i = 0; i < (o.fields || []).length; i++) {
+        const el = form.querySelector("#mf" + i), f = o.fields[i];
+        if (f.required && !el.value.trim()) { el.focus(); el.style.borderColor = "var(--red)"; return; }
+        vals[f.key] = el.value.trim();
+      }
+      close(o.fields ? vals : true);
+    });
+    const copyBtn = form.querySelector("#mCopy");
+    if (copyBtn) copyBtn.addEventListener("click", async () => {
+      const inp = form.querySelector("#mSecret");
+      try { await navigator.clipboard.writeText(inp.value); }
+      catch (err) { inp.select(); document.execCommand("copy"); }
+      copyBtn.textContent = "Tersalin ✓";
+    });
+    const first = form.querySelector("input");
+    if (first) setTimeout(() => (o.secret ? first.select() : first.focus()), 60);
+  });
+}
+const showSecret = (title, text, secret) => openModal({ title, text, secret, icon: "key", ok: "Selesai", cancel: false });
+
+const ADMIN_CONFIRM = {
+  ban_web: ["Ban akun ini?", "tidak akan bisa login lagi sampai kamu unban.", "Ban akun", "shield"],
+  delete_web: ["Hapus akun ini?", "akun dihapus permanen dan tidak bisa dikembalikan.", "Hapus akun", "trash"],
+  ban_ip: ["Blokir IP ini?", "semua akses dari alamat ini akan ditolak.", "Blokir IP", "shield"],
+  ban_tg: ["Ban user Telegram?", "user ini tidak bisa memakai bot lagi.", "Ban user", "shield"]
+};
+
+/* ---------- panel admin ---------- */
+async function adminAct(action, target, value, nim) {
+  const { data } = await postJSON("/api/admin/action", { action, target, value, nim: nim || "" }, true);
+  if (!data.ok) throw new Error(data.error || "Gagal.");
+  return data;
+}
+/* ---------- panel admin: tab, pencarian, dan daftar bertahap ---------- */
+let adData = { web_users: [], tg_users: [], banned_ips: [] };
+let adTab = localStorage.getItem("s5_adtab") || "akun";
+const adLimit = { users: 10, tg: 10, ips: 10 };
+const moreBtn = (kind, label) => `<button type="button" class="btn btn-line btn-more" data-more="${kind}">${label}</button>`;
+function setAdTab(t) {
+  if (!["akun", "blokir", "log", "forum"].includes(t)) t = "akun";
+  adTab = t;
+  try { localStorage.setItem("s5_adtab", t); } catch (e) {}
+  document.querySelectorAll("#adTabs button").forEach((b) => b.classList.toggle("active", b.dataset.tab === t));
+  document.querySelectorAll(".adpane").forEach((p) => p.classList.toggle("hidden", p.dataset.pane !== t));
+  if (t === "log") loadActivity();
+}
+$("adTabs").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-tab]");
+  if (b) setAdTab(b.dataset.tab);
+});
+function adUserHtml(u) {
+  const me = u.username === "admin", un = esc(u.username);
+  return `<div class="au"><div class="n">${esc(u.full_name || u.username)} <span class="tag">@${un}</span>${u.banned ? '<span class="vis priv">Banned</span>' : ""}</div>
+    <div class="m">NIM ${esc(u.nim || "belum diisi")} · Login ${u.login_count || 0} · Upload ${u.upload_count || 0} · IP ${esc(u.last_ip || "-")} · ${esc(u.last_device || "-")}</div>
+    <div class="mbtns">
+      ${me ? "" : `<button class="mbtn" data-ad="${u.banned ? "unban_web" : "ban_web"}" data-t="${un}">${u.banned ? "Unban" : "Ban"}</button>`}
+      <button class="mbtn" data-ad="reset_web" data-t="${un}">Reset password</button>
+      <button class="mbtn" data-ad="set_name" data-t="${un}">Ubah nama</button>
+      <button class="mbtn" data-ad="set_nim" data-t="${un}">Ubah NIM</button>
+      ${u.has_avatar ? `<button class="mbtn" data-ad="remove_avatar" data-t="${un}">Hapus foto</button>` : ""}
+      ${u.last_ip && !me ? `<button class="mbtn" data-ad="ban_ip" data-t="${esc(u.last_ip)}">Ban IP</button>` : ""}
+      ${me ? "" : `<button class="mbtn del" data-ad="delete_web" data-t="${un}">Hapus</button>`}
+    </div></div>`;
+}
+function renderAdUsers() {
+  const q = $("adUserSearch").value.trim().toLowerCase();
+  const all = [...adData.web_users].reverse(); // pendaftar terbaru di atas
+  const list = all.filter((u) => !q || `${u.username} ${u.full_name} ${u.nim}`.toLowerCase().includes(q));
+  const shown = list.slice(0, adLimit.users);
+  $("adUserCount").textContent = q ? `${list.length}/${all.length}` : all.length;
+  $("adUsers").innerHTML = (shown.map(adUserHtml).join("") || `<div class="empty" style="padding:16px">${q ? "Tidak ada akun yang cocok." : "Belum ada akun."}</div>`)
+    + (list.length > shown.length ? moreBtn("users", `Tampilkan lebih banyak (${list.length - shown.length} lagi)`) : "");
+}
+function renderAdTg() {
+  const q = $("adTgSearch").value.trim().toLowerCase();
+  const all = adData.tg_users;
+  const list = all.filter((u) => !q || `${u.name} ${u.username} ${u.id}`.toLowerCase().includes(q));
+  const shown = list.slice(0, adLimit.tg);
+  $("adTgCount").textContent = q ? `${list.length}/${all.length}` : all.length;
+  $("adTg").innerHTML = (shown.map((u) =>
+    `<div class="adm-row"><span>${esc(u.name)} ${u.username ? "@" + esc(u.username) : ""}<br><small style="color:var(--mute)">ID ${esc(u.id)}</small></span>
+     <button class="mbtn ${u.banned ? "" : "del"}" data-ad="${u.banned ? "unban_tg" : "ban_tg"}" data-t="${esc(u.id)}">${u.banned ? "Unban" : "Ban"}</button></div>`).join("")
+    || `<div class="empty" style="padding:12px">${q ? "Tidak ada yang cocok." : "Belum ada user Telegram."}</div>`)
+    + (list.length > shown.length ? moreBtn("tg", `Tampilkan lebih banyak (${list.length - shown.length} lagi)`) : "");
+}
+function renderAdIps() {
+  const all = adData.banned_ips, shown = all.slice(0, adLimit.ips);
+  $("adIpCount").textContent = all.length;
+  $("adIps").innerHTML = (shown.map((ip) =>
+    `<div class="adm-row"><span>${esc(ip)}</span><button class="mbtn" data-ad="unban_ip" data-t="${esc(ip)}">Buka</button></div>`).join("")
+    || `<div class="empty" style="padding:12px">Tidak ada IP diblokir.</div>`)
+    + (all.length > shown.length ? moreBtn("ips", `Tampilkan lebih banyak (${all.length - shown.length} lagi)`) : "");
+}
+async function loadAdmin() {
+  try {
+    const res = await apiCall("/api/admin/overview");
+    const d = await res.json();
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat panel admin.");
+    const s = d.stats;
+    $("adStats").innerHTML = [["Akun", s.accounts], ["Materi", s.materials], ["Topik", s.topics]]
+      .map(([l, v]) => `<div class="stat"><b>${v}</b><small>${l}</small></div>`).join("");
+    adData = d;
+    renderAdUsers(); renderAdTg(); renderAdIps();
+    setAdTab(adTab);
+  } catch (err) { showToast(err.message, true); }
+}
+$("adUserSearch").addEventListener("input", () => { adLimit.users = 10; renderAdUsers(); });
+$("adTgSearch").addEventListener("input", () => { adLimit.tg = 10; renderAdTg(); });
+
+/* ---------- log aktivitas ---------- */
+let actKinds = "", actLimit = 50, actDebounce = null;
+const ACT_ICON = { login: "🔐", login_fail: "🚨", register: "🆕", upload: "📤", delete: "🗑️", admin: "🛠️", forum: "💬", topic: "🔓", profile: "✏️", security: "⛔", reset_pw: "🔑", change_pw: "🔑" };
+async function loadActivity() {
+  try {
+    const q = encodeURIComponent($("actSearch").value.trim());
+    const res = await apiCall(`/api/admin/activity?kinds=${encodeURIComponent(actKinds)}&q=${q}&limit=${actLimit}`);
+    const d = await res.json();
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat log aktivitas.");
+    $("actList").innerHTML = (d.items.map((a) => `<div class="au"><div class="n">${ACT_ICON[a.kind] || "•"} ${esc(a.user || "-")} <span class="tag">${esc(a.kind)}</span></div>
+      <div class="m" style="color:var(--ink)">${esc(a.detail)}</div>
+      <div class="m">${esc(new Date(a.ts).toLocaleString("id-ID"))} · IP ${esc(a.ip || "-")} · ${esc(a.device || "-")}</div></div>`).join("")
+      || `<div class="empty" style="padding:12px">Belum ada aktivitas.</div>`)
+      + (d.items.length >= actLimit && actLimit < 500 ? moreBtn("log", "Tampilkan lebih banyak") : "");
+  } catch (err) { showToast(err.message, true); }
+}
+$("actFilters").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-k]");
+  if (!b) return;
+  actKinds = b.dataset.k;
+  actLimit = 50;
+  document.querySelectorAll("#actFilters .chip").forEach((c) => c.classList.toggle("active", c === b));
+  loadActivity();
+});
+$("actSearch").addEventListener("input", () => { actLimit = 50; clearTimeout(actDebounce); actDebounce = setTimeout(loadActivity, 350); });
+$("view-admin").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-more]");
+  if (!b) return;
+  const k = b.dataset.more;
+  if (k === "log") { actLimit = Math.min(actLimit + 50, 500); loadActivity(); return; }
+  adLimit[k] += 10;
+  ({ users: renderAdUsers, tg: renderAdTg, ips: renderAdIps })[k]();
+});
+$("view-admin").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-ad]");
+  if (!b) return;
+  const a = b.dataset.ad, t = b.dataset.t;
+  let v = "";
+  if (a === "set_name") {
+    const r = await openModal({ title: "Ubah nama lengkap", text: "Akun @" + t, icon: "edit", ok: "Simpan",
+      fields: [{ key: "name", label: "Nama lengkap baru", placeholder: "Contoh: Andi Saputra", required: true }] });
+    if (!r) return;
+    v = r.name;
+  }
+  if (a === "set_nim") {
+    const r = await openModal({ title: "Ubah NIM", text: "Akun @" + t, icon: "edit", ok: "Simpan",
+      fields: [{ key: "nim", label: "NIM", placeholder: "24.230.0000", required: true }] });
+    if (!r) return;
+    v = r.nim;
+  }
+  if (ADMIN_CONFIRM[a]) {
+    const c = ADMIN_CONFIRM[a];
+    if (!(await openModal({ title: c[0], text: t + " " + c[1], ok: c[2], icon: c[3], danger: true }))) return;
+  }
+  try {
+    const d = await adminAct(a, t, v);
+    if (d.password) await showSecret("Password baru", "Salin lalu kirim ke @" + t + ". Password ini tidak akan ditampilkan lagi.", d.password);
+    showToast("Berhasil.");
+    loadAdmin();
+  } catch (err) { showToast(err.message, true); }
+});
+$("adCreate").addEventListener("click", async () => {
+  try {
+    const nim = $("adNewNim").value.trim();
+    if (!NIM_RE.test(nim)) throw new Error("NIM wajib diisi. Format: 24.230.0000");
+    const d = await adminAct("create_web", $("adNewUser").value, $("adNewName").value, nim);
+    await showSecret("Akun berhasil dibuat", "Salin password ini dan kirim ke pemilik akun. Tidak akan ditampilkan lagi.", d.password);
+    $("adNewUser").value = ""; $("adNewName").value = ""; $("adNewNim").value = "";
+    loadAdmin();
+  } catch (err) { showToast(err.message, true); }
+});
+$("adIpBan").addEventListener("click", async () => {
+  const ip = $("adIpInput").value.trim();
+  if (!ip) return;
+  try { await adminAct("ban_ip", ip, ""); $("adIpInput").value = ""; showToast("IP diblokir."); loadAdmin(); }
+  catch (err) { showToast(err.message, true); }
+});
+$("adForumClear").addEventListener("click", async () => {
+  if (!(await openModal({ title: "Bersihkan forum?", text: "Semua pesan forum dihapus permanen untuk semua orang.", ok: "Bersihkan", icon: "trash", danger: true }))) return;
+  try {
+    const res = await apiCall("/api/forum/clear", { method: "POST" });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal membersihkan forum.");
+    forumReset();
+    showToast("Forum dibersihkan.");
+  } catch (err) { showToast(err.message, true); }
+});
+
+/* ---------- forum kelas ---------- */
+let fMsgs = [], fLastId = 0, fReplyTo = null, fBusy = false, fLoaded = false, fTimer = null, fTicks = 0;
+let fDivId = 0, fDivCount = 0;   // pembatas "pesan belum dibaca"
+const fTime = (iso) => new Date(iso).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+/* ---- pesan belum dibaca + lompat ke pesan asli ---- */
+const fSeenKey = () => "s5_fseen_" + currentUser;
+function setFSeen(id) { try { localStorage.setItem(fSeenKey(), String(id)); } catch (e) {} }
+function unreadForum() {
+  const seen = +(localStorage.getItem(fSeenKey()) || 0);
+  return fMsgs.filter((m) => m.id > seen && !m.mine && !isFHidden(m.id)).length;
+}
+function updateForumBadge() {
+  const n = unreadForum(), b = $("fDot");
+  b.textContent = n > 99 ? "99+" : String(n);
+  b.classList.toggle("hidden", n === 0);
+  document.title = (n ? `(${n > 99 ? "99+" : n}) ` : "") + "Semester 5 — Study Hub";
+  if (navigator.setAppBadge) { try { if (n) navigator.setAppBadge(n); else navigator.clearAppBadge(); } catch (e) {} }
+}
+function markForumSeen() {
+  setFSeen(fMsgs.reduce((a, m) => Math.max(a, m.id), 0));
+  updateForumBadge();
+}
+function jumpToMessage(id) {
+  const el = document.getElementById("fm-" + id);
+  if (!el) return showToast("Pesan aslinya sudah dihapus atau terlalu lama.", true);
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+  el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+  setTimeout(() => el.classList.remove("flash"), 1700);
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden || !token) return;
+  if (activeView === "forum") {
+    const seen = +(localStorage.getItem(fSeenKey()) || 0);
+    pollForum().then(() => { fUnreadSince(seen); markForumSeen(); renderForum(false); });
+    return;
+  }
+  pollForum().then(() => { if (activeView === "forum") markForumSeen(); });   // kembali ke aplikasi: langsung cek pesan baru
+});
+window.addEventListener("focus", () => { if (token) pollForum(); });
+window.addEventListener("online", () => { if (token) pollForum(); });
+const fDay = (iso) => new Date(iso).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" });
+
+function renderForum(stick) {
+  const box = $("fMsgs");
+  const list = fMsgs.filter((m) => !isFHidden(m.id));
+  if (!list.length) {
+    box.innerHTML = `<div class="empty"><span class="big">💬</span>Belum ada pesan. Kirim pesan pertama untuk memulai obrolan.</div>`;
+    return;
+  }
+  let prevDay = "";
+  box.innerHTML = list.map((m) => {
+    const mine = !!m.mine, name = shortName(m.name), crown = !!m.owner;
+    const day = fDay(m.ts), sep = day !== prevDay ? `<div class="fday">${esc(day)}</div>` : "";
+    prevDay = day;
+    const quote = m.reply ? `<div class="fquote" data-q="${m.reply.id}"><b>${nameHtml(shortName(m.reply.name), m.reply.owner)}</b>${esc(m.reply.text)}</div>` : "";
+    const canDel = true; // semua orang bisa menghapus; aturan "untuk semua" atau "untuk saya" ada di deleteForum
+    const tag = crown ? "" : `<small>${esc(m.real ? "@" + m.real : m.mask)}</small>`;
+    const divider = fDivId && m.id === fDivId ? `<div class="funread" id="fUnread"><span>${fDivCount} pesan belum dibaca</span></div>` : "";
+    return `${sep}${divider}<div class="fmsg ${mine ? "me" : ""}" id="fm-${m.id}">${mine ? "" : `<span data-p="${esc(m.pid)}">${avatarHtml(m, "s")}</span>`}<div class="fbub">
+      ${mine ? "" : `<div class="fname" data-p="${esc(m.pid)}">${nameHtml(name, crown)}${tag}</div>`}${quote}
+      <div class="ftext">${esc(m.text)}</div>
+      <div class="fmeta"><span>${esc(fTime(m.ts))}</span><button type="button" class="fmore" data-m="${m.id}" aria-label="Menu pesan">•••</button></div>
+    </div></div>`;
+  }).join("");
+  if (stick) box.scrollTop = box.scrollHeight;
+}
+function forumReset() {
+  fMsgs = []; fLastId = 0; fLoaded = false; fReplyTo = null; fDivId = 0; fDivCount = 0;
+  updateForumBadge();
+  $("fReply").classList.add("hidden");
+  renderForum(false);
+}
+async function pollForum() {
+  if (fBusy || !token || !currentUser) return;
+  fBusy = true;
+  try {
+    const res = await apiCall("/api/forum/messages?after=" + fLastId);
+    const d = await res.json();
+    if (!res.ok || !d.ok) return;
+    const box = $("fMsgs");
+    const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+    let changed = false, fresh = 0;
+    if (d.reset) { fMsgs = []; fLastId = 0; changed = true; }
+    const alive = new Set(d.ids);
+    const kept = fMsgs.filter((m) => alive.has(m.id));
+    if (kept.length !== fMsgs.length) { fMsgs = kept; changed = true; }
+    const known = new Set(fMsgs.map((m) => m.id));
+    (d.messages || []).forEach((m) => {
+      fLastId = Math.max(fLastId, m.id);
+      if (known.has(m.id)) return;
+      fMsgs.push(m); changed = true;
+      if (!m.mine) fresh++;
+    });
+    fMsgs.sort((a, b) => a.id - b.id);
+    const maxId = fMsgs.reduce((a, m) => Math.max(a, m.id), 0);
+    if (localStorage.getItem(fSeenKey()) === null) setFSeen(maxId);   // pertama kali: tidak ada tumpukan "belum dibaca"
+    if (fresh && fLoaded && activeView !== "forum") {
+      const last = [...fMsgs].reverse().find((m) => !m.mine && !isFHidden(m.id));
+      if (last) showToast("💬 " + shortName(last.name) + ": " + last.text.slice(0, 60));
+    }
+    if (activeView === "forum" && !document.hidden) setFSeen(maxId);
+    updateForumBadge();
+    const first = !fLoaded;
+    fLoaded = true;
+    if (changed || first) renderForum(atBottom || first);
+  } catch (e) { /* koneksi putus, coba lagi di putaran berikutnya */ }
+  finally { fBusy = false; }
+}
+function fUnreadSince(seen) {
+  const un = fMsgs.filter((m) => m.id > seen && !m.mine && !isFHidden(m.id));
+  fDivId = un.length ? un[0].id : 0;
+  fDivCount = un.length;
+}
+function scrollToUnread() {
+  const box = $("fMsgs"), el = $("fUnread");
+  if (!el) { box.scrollTop = box.scrollHeight; return; }
+  box.scrollTop += el.getBoundingClientRect().top - box.getBoundingClientRect().top - 50;
+}
+async function openForum() {
+  const seen = +(localStorage.getItem(fSeenKey()) || 0);   // ambil SEBELUM pollForum menandai semua sudah dibaca
+  await pollForum();
+  fUnreadSince(seen);
+  markForumSeen();
+  renderForum(true);
+  scrollToUnread();
+}
+function closeForum() { fDivId = 0; fDivCount = 0; closeFPress(true); }
+function startForum() {
+  clearInterval(fTimer);
+  forumReset();
+  fTicks = 0;
+  // 3 detik saat forum dibuka, 6 detik di halaman lain (agar badge angka di menu cepat berubah).
+  fTimer = setInterval(() => {
+    if (!token || !currentUser || document.hidden) return;
+    fTicks++;
+    if (activeView === "forum" || fTicks % 2 === 0) pollForum();
+  }, 3000);
+  pollForum();
+}
+function stopForum() {
+  clearInterval(fTimer);
+  fTimer = null;
+  forumReset();
+}
+function forumAutosize() {
+  const el = $("fInput");
+  el.style.height = "auto";
+  el.style.height = Math.min(el.scrollHeight, 120) + "px";
+}
+function clearForumReply() { fReplyTo = null; $("fReply").classList.add("hidden"); }
+function setForumReply(id) {
+  const m = fMsgs.find((x) => x.id === id);
+  if (!m) return;
+  fReplyTo = id;
+  const r = $("fReply");
+  r.innerHTML = `<span><b>${esc(shortName(m.name))}</b>: ${esc(m.text.slice(0, 80))}</span><button type="button" aria-label="Batalkan balasan">✕</button>`;
+  r.classList.remove("hidden");
+  r.querySelector("button").onclick = clearForumReply;
+  $("fInput").focus();
+}
+async function sendForum() {
+  const inp = $("fInput"), text = inp.value.trim();
+  if (!text) return;
+  const btn = $("fSend");
+  btn.disabled = true;
+  try {
+    const res = await apiCall("/api/forum/send", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, reply_to: fReplyTo, push_endpoint: myPushEndpoint }) });
+    const d = await res.json();
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim pesan.");
+    inp.value = ""; forumAutosize(); clearForumReply();
+    if (!fMsgs.some((m) => m.id === d.message.id)) fMsgs.push(d.message);
+    fMsgs.sort((a, b) => a.id - b.id);
+    renderForum(true);
+    pollForum(); // ambil pesan orang lain yang masuk sebelum pesanmu
+  } catch (e) { showToast(e.message, true); }
+  finally { btn.disabled = false; inp.focus(); }
+}
+const FORUM_DEL_MS = 3600e3; // lewat 1 jam: hanya bisa hapus untuk diri sendiri (admin tetap bisa hapus untuk semua)
+const fHideKey = () => "s5_fhide_" + currentUser;
+function getFHidden() { try { return JSON.parse(localStorage.getItem(fHideKey()) || "[]"); } catch (e) { return []; } }
+function isFHidden(id) { return getFHidden().includes(id); }
+function hideForMe(id) {
+  const a = getFHidden().filter((x) => x !== id);
+  a.push(id);
+  try { localStorage.setItem(fHideKey(), JSON.stringify(a.slice(-500))); } catch (e) {}
+}
+async function deleteForum(id) {
+  const m = fMsgs.find((x) => x.id === id);
+  if (!m) return;
+  const young = Date.now() - new Date(m.ts).getTime() < FORUM_DEL_MS;
+  const forAll = isAdmin || (m.mine && young);
+  let choice;
+  if (forAll) {
+    choice = await openModal({ title: "Hapus pesan ini?", ok: "Hapus untuk semua", extra: "Hapus untuk saya", icon: "trash", danger: true,
+      text: isAdmin ? "Sebagai admin, kamu bisa menghapusnya untuk semua orang." : "Pesan ini belum lewat 1 jam, jadi bisa dihapus untuk semua orang." });
+  } else {
+    const yes = await openModal({ title: "Hapus untuk saya?", ok: "Hapus untuk saya", icon: "trash", danger: true,
+      text: m.mine ? "Pesan ini sudah lewat 1 jam, jadi hanya hilang dari tampilanmu. Orang lain masih bisa melihatnya." : "Pesan ini hanya disembunyikan dari tampilanmu." });
+    choice = yes ? "extra" : null;
+  }
+  if (!choice) return;
+  if (choice === "extra") { hideForMe(id); renderForum(false); updateForumBadge(); showToast("Pesan disembunyikan dari tampilanmu."); return; }
+  try {
+    const res = await apiCall("/api/forum/message/" + id, { method: "DELETE" });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menghapus pesan.");
+    fMsgs = fMsgs.filter((x) => x.id !== id);
+    renderForum(false);
+  } catch (e) { showToast(e.message, true); }
+}
+$("fSend").addEventListener("click", sendForum);
+$("fInput").addEventListener("input", forumAutosize);
+$("fInput").addEventListener("keydown", (e) => {
+  // Di HP, Enter = baris baru. Di komputer, Enter = kirim (Shift+Enter = baris baru).
+  if (e.key === "Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches) { e.preventDefault(); sendForum(); }
+});
+$("fMsgs").addEventListener("click", (e) => {
+  if (Date.now() - fPressAt < 700) { e.preventDefault(); return; }
+  const mm = e.target.closest("[data-m]");
+  if (mm) { const b = mm.closest(".fbub"); if (b) openFPress(b, +mm.dataset.m); return; }
+  const r = e.target.closest("[data-r]"), d = e.target.closest("[data-d]"), c = e.target.closest("[data-c]"), pf = e.target.closest("[data-p]"), qq = e.target.closest("[data-q]");
+  if (r) setForumReply(+r.dataset.r);
+  else if (d) deleteForum(+d.dataset.d);
+  else if (c) { const fm = fMsgs.find((x) => x.id === +c.dataset.c); if (fm) copyText(fm.text); }
+  else if (qq) jumpToMessage(+qq.dataset.q);
+  else if (pf) openProfile(pf.dataset.p);
+});
+
+/* ---------- tekan lama pesan: latar blur + menu (gaya iOS WhatsApp) ---------- */
+let fPressAt = 0, fPressTimer = null, fPressStart = null, fPressEl = null, fPressOpen = null;
+function closeFPress(instant) {
+  const o = fPressOpen;
+  if (!o) return;
+  fPressOpen = null;
+  if (instant) { o.remove(); return; }
+  o.classList.add("out");
+  setTimeout(() => o.remove(), 160);
+}
+function openFPress(bub, id) {
+  const m = fMsgs.find((x) => x.id === id);
+  if (!m || fPressOpen) return;
+  fPressAt = Date.now();
+  if (navigator.vibrate) navigator.vibrate(12);
+  const rect = bub.getBoundingClientRect();
+  const ov = document.createElement("div");
+  ov.className = "fpress";
+  const clone = bub.cloneNode(true);
+  clone.removeAttribute("id");
+  clone.classList.remove("pressing");
+  clone.classList.add("fclone");
+  const menu = document.createElement("div");
+  menu.className = "fmenu";
+  const forAll = isAdmin || (m.mine && Date.now() - new Date(m.ts).getTime() < FORUM_DEL_MS);
+  menu.innerHTML = `<button type="button" data-a="reply">Balas<svg class="i"><use href="#i-chat"/></svg></button>
+    <button type="button" data-a="copy">Salin<svg class="i"><use href="#i-edit"/></svg></button>
+    <button type="button" data-a="del" class="danger">Hapus<svg class="i"><use href="#i-trash"/></svg></button>`;
+  ov.append(clone, menu);
+  document.body.append(ov);
+  fPressOpen = ov;
+  // posisi: bubble tetap di tempatnya; menu di bawah (atau di atas kalau tidak muat)
+  const vh = innerHeight, vw = innerWidth, gap = 10, pad = 16;
+  const mh = menu.offsetHeight, mw = menu.offsetWidth;
+  const maxB = vh - mh - gap - pad * 2;
+  const bh = Math.min(rect.height, Math.max(maxB, 120));
+  let top = Math.min(Math.max(rect.top, pad), vh - bh - mh - gap - pad);
+  top = Math.max(top, pad);
+  Object.assign(clone.style, { left: rect.left + "px", top: top + "px", width: rect.width + "px", maxHeight: bh + "px", maxWidth: "none" });
+  const left = m.mine ? Math.max(pad, rect.right - mw) : Math.min(rect.left, vw - mw - pad);
+  Object.assign(menu.style, { left: Math.max(pad, left) + "px", top: top + bh + gap + "px" });
+  ov.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-a]");
+    if (!b) { fPressAt = Date.now(); return closeFPress(); }
+    const a = b.dataset.a;
+    closeFPress(true);
+    if (a === "reply") setForumReply(id);
+    else if (a === "copy") copyText(m.text);
+    else if (a === "del") deleteForum(id);
+  });
+  ov.addEventListener("contextmenu", (e) => e.preventDefault());
+}
+function cancelFPress() {
+  clearTimeout(fPressTimer); fPressTimer = null;
+  if (fPressEl) { fPressEl.classList.remove("pressing"); fPressEl = null; }
+}
+(function () {
+  const box = $("fMsgs");
+  box.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "mouse" || e.button > 0) return;
+    if (e.target.closest("button,a")) return;
+    const bub = e.target.closest(".fbub");
+    if (!bub) return;
+    cancelFPress();
+    fPressStart = { x: e.clientX, y: e.clientY };
+    fPressEl = bub;
+    fPressTimer = setTimeout(() => {
+      const el = fPressEl, id = +(el.parentElement.id || "").replace("fm-", "");
+      cancelFPress();
+      if (id) openFPress(el, id);
+    }, 450);
+    setTimeout(() => { if (fPressEl === bub) bub.classList.add("pressing"); }, 120);
+  });
+  box.addEventListener("pointermove", (e) => {
+    if (fPressStart && Math.hypot(e.clientX - fPressStart.x, e.clientY - fPressStart.y) > 10) cancelFPress();
+  });
+  ["pointerup", "pointercancel", "pointerleave"].forEach((ev) => box.addEventListener(ev, cancelFPress));
+  box.addEventListener("scroll", cancelFPress, { passive: true });
+  // klik kanan (komputer) atau long-press bawaan Android -> menu yang sama
+  box.addEventListener("contextmenu", (e) => {
+    const bub = e.target.closest(".fbub");
+    if (!bub) return;
+    e.preventDefault();
+    cancelFPress();
+    const id = +(bub.parentElement.id || "").replace("fm-", "");
+    if (id) openFPress(bub, id);
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeFPress(); });
+})();
+
+renderForum(false);
+
+/* ---------- boot ---------- */
+fetch(API + "/api/status", { cache: "no-store" }).then((r) => r.json())
+  .then((d) => { if (d.maintenance) showMaint(d.message); }).catch(() => {});
+if (token) initApp(); else $("login").classList.remove("hidden");
+</script>
+</body>
+</html>
