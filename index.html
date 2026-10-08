@@ -359,6 +359,13 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .usheet .opt b{display:block;font-size:15px}
 .usheet .opt span span{display:block;font-size:12px;color:var(--mute);font-weight:500}
 @media (min-width:900px){.usheet-bg{align-items:center}.usheet{border-radius:24px;padding-bottom:18px}}
+
+/* geser pesan ke kanan untuk membalas */
+.fmsgs{overflow-x:hidden}
+.fmsg{position:relative;touch-action:pan-y}
+.fmsg.snap{transition:transform .22s ease}
+.fmsg.swiping::before{content:"↩";position:absolute;left:-40px;top:50%;width:30px;height:30px;margin-top:-15px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:16px;background:var(--brand-soft);color:var(--brand);opacity:var(--sw,0);transform:scale(calc(.55 + var(--sw,0) * .45));transition:background .15s,color .15s}
+.fmsg.swiping.ready::before{background:var(--brand);color:var(--on-brand)}
 </style>
 </head>
 <body>
@@ -2391,6 +2398,56 @@ function cancelFPress() {
     if (id) openFPress(bub, id);
   });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeFPress(); });
+})();
+
+/* ---------- geser pesan ke kanan = balas (gaya WhatsApp) ---------- */
+(function () {
+  const box = $("fMsgs"), TH = 64, MAX = 92;
+  let sw = null;
+  box.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "mouse" || e.button > 0 || fPressOpen) return;
+    if (e.target.closest("button,a")) return;
+    const bub = e.target.closest(".fbub");
+    if (!bub) return;
+    const row = bub.closest(".fmsg");
+    sw = { row, x: e.clientX, y: e.clientY, lock: false, dead: false, ready: false, id: +row.id.slice(3) };
+  });
+  box.addEventListener("pointermove", (e) => {
+    if (!sw || sw.dead) return;
+    const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+    if (!sw.lock) {
+      if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { sw.dead = true; return; }   // scroll biasa
+      if (dx < -12) { sw.dead = true; return; }                                           // hanya geser ke kanan
+      if (dx > 12 && dx > Math.abs(dy) * 1.4) {
+        sw.lock = true;
+        cancelFPress();
+        sw.row.classList.remove("snap");
+        sw.row.classList.add("swiping");
+        try { box.setPointerCapture(e.pointerId); } catch (_) {}
+      } else return;
+    }
+    const d = Math.max(0, Math.min(dx, MAX));
+    sw.row.style.transform = `translateX(${d}px)`;
+    sw.row.style.setProperty("--sw", Math.min(d / TH, 1));
+    const ready = d >= TH;
+    if (ready !== sw.ready) {
+      sw.ready = ready;
+      sw.row.classList.toggle("ready", ready);
+      if (ready && navigator.vibrate) navigator.vibrate(10);
+    }
+  });
+  const end = (e) => {
+    if (!sw) return;
+    const s = sw; sw = null;
+    if (!s.lock) return;
+    fPressAt = Date.now();                       // cegah klik/tekan-lama tak sengaja setelah geser
+    s.row.classList.add("snap");
+    s.row.style.transform = "";
+    setTimeout(() => { s.row.classList.remove("swiping", "ready", "snap"); s.row.style.removeProperty("--sw"); }, 240);
+    if (e.type === "pointerup" && s.ready) setForumReply(s.id);
+  };
+  box.addEventListener("pointerup", end);
+  box.addEventListener("pointercancel", end);
 })();
 
 renderForum(false);
