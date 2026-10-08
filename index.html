@@ -687,6 +687,8 @@ async function openProfile(pid) {
     <div class="m-btns"><button type="button" class="btn btn-line">Tutup</button></div></div>`;
   document.body.appendChild(bg);
   const close = () => bg.remove();
+  const pimg = bg.querySelector("img.av");
+  if (pimg) { pimg.style.cursor = "zoom-in"; pimg.addEventListener("click", () => viewPhoto(pimg.src)); }
   bg.addEventListener("click", (e) => { if (e.target === bg) close(); });
   bg.querySelector("button").addEventListener("click", close);
 }
@@ -1041,7 +1043,19 @@ async function compressAvatar(file) {
   throw new Error("Foto terlalu rumit untuk dikecilkan. Pilih foto lain.");
 }
 $("avPick").addEventListener("click", () => $("avFile").click());
-$("profAvatar").addEventListener("click", () => $("avFile").click());
+function viewPhoto(src) {
+  const lb = document.createElement("div");
+  lb.className = "lb";
+  lb.style.zIndex = 1300;
+  lb.innerHTML = `<img src="${esc(src)}" alt="Foto profil" style="width:min(92vw,480px);height:min(92vw,480px);object-fit:cover;border-radius:18px"><button type="button" aria-label="Tutup">✕</button>`;
+  lb.addEventListener("click", () => lb.remove());
+  document.body.appendChild(lb);
+}
+// ketuk foto = lihat besar; kalau belum punya foto, langsung pilih foto
+$("profAvatar").addEventListener("click", () => {
+  const img = $("profAvatar").querySelector("img");
+  if (img) viewPhoto(img.src); else $("avFile").click();
+});
 $("avFile").addEventListener("change", async () => {
   const f = $("avFile").files[0];
   $("avFile").value = "";
