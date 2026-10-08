@@ -447,7 +447,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <input class="input search" id="matSearch" type="search" placeholder="Cari di materi ini">
 <div class="chips mfilter" id="matFilters"><button type="button" class="chip active" data-filter="all">Semua</button><button type="button" class="chip" data-filter="file">File</button><button type="button" class="chip" data-filter="note">Catatan</button><button type="button" class="chip" data-filter="task">Tugas</button></div>
 <div class="mlist" id="materialsList"></div></div>
-<button type="button" class="mfab hidden" id="matFab"><svg class="i"><use href="#i-up"/></svg>Upload</button>
+<button type="button" class="mfab" id="matFab"><svg class="i"><use href="#i-up"/></svg>Upload</button>
 </section>
 
 <section class="view" id="view-jadwal"><h2 class="page-title">Jadwal kuliah</h2><p class="page-sub">Sistem Informasi, kelas 5P52 dan 5P52A. Semester Gasal 2026/2027.</p><div class="chips" id="dayChips"></div><div id="scheduleList"></div></section>
@@ -1273,14 +1273,12 @@ async function openTopic(id) {
   $("activeIcon").textContent = ICONS[t.name] || "📚";
   $("topicSelection").classList.add("hidden");
   $("materialSelection").classList.remove("hidden");
-  $("matFab").classList.remove("hidden");
   loadMaterials();
 }
 function backToTopics() {
   selectedTopicId = "";
   $("topicSelection").classList.remove("hidden");
   $("materialSelection").classList.add("hidden");
-  $("matFab").classList.add("hidden");
 }
 $("backBtn").addEventListener("click", backToTopics);
 $("refreshBtn").addEventListener("click", () => loadMaterials(false));
@@ -1490,7 +1488,7 @@ function openUploadSheet() {
   const bg = document.createElement("div");
   bg.className = "usheet-bg";
   bg.innerHTML = `<div class="usheet" role="dialog" aria-label="Tambah materi"><div class="grab"></div>
-    <h4>Tambah materi</h4><small>${t ? "Ke " + esc(t.name) : "Pilih jenis materi"}</small>
+    <h4>Tambah materi</h4><small>${t ? "Ke " + esc(t.name) : "Mata kuliahnya dipilih di halaman berikutnya"}</small>
     <button type="button" class="opt" data-k="file"><span class="ic">📎</span><span><b>Upload file</b><span>PDF, dokumen, gambar, video</span></span></button>
     <button type="button" class="opt" data-k="photo"><span class="ic">📷</span><span><b>Ambil foto</b><span>Foto papan tulis atau catatan</span></span></button>
     <button type="button" class="opt" data-k="note"><span class="ic">📝</span><span><b>Tulis catatan</b><span>Rangkuman atau info penting</span></span></button></div>`;
