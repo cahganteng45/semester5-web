@@ -516,6 +516,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .inwho{min-width:0}
 .inwho b{display:block;font-family:var(--font-d);font-weight:800;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .inwho small{display:block;font-size:12px;color:var(--mute)}
+.inwho small.inon{color:#1a9e5c;font-weight:700}
 .ityp{align-items:flex-end;gap:6px}
 </style>
 </head>
@@ -2450,7 +2451,14 @@ function forumAutosize() {
   el.style.height = "auto";
   el.style.height = Math.min(el.scrollHeight, 120) + "px";
 }
-function clearForumReply() { fReplyTo = null; $("fReply").classList.add("hidden"); }
+function clearForumReply() { fReplyTo = null; $("fReply").classList.add("hidden"); forumResetScroll(); }
+// Setelah keyboard menutup, kembalikan halaman ke atas supaya judul/header forum tidak tertinggal di luar layar.
+function forumResetScroll() {
+  if (activeView !== "forum") return;
+  setTimeout(() => {
+    if (activeView === "forum" && document.activeElement !== $("fInput") && window.scrollY > 0) window.scrollTo({ top: 0, behavior: "smooth" });
+  }, 250);
+}
 function setForumReply(id) {
   const m = fMsgs.find((x) => x.id === id);
   if (!m) return;
@@ -2459,7 +2467,7 @@ function setForumReply(id) {
   r.innerHTML = `<span><b>${esc(shortName(m.name))}</b>: ${esc(m.text.slice(0, 80))}</span><button type="button" aria-label="Batalkan balasan">✕</button>`;
   r.classList.remove("hidden");
   r.querySelector("button").onclick = clearForumReply;
-  $("fInput").focus();
+  $("fInput").focus({ preventScroll: true });
 }
 async function sendForum() {
   const inp = $("fInput"), text = inp.value.trim();
@@ -2515,6 +2523,7 @@ async function deleteForum(id) {
 }
 $("fSend").addEventListener("click", sendForum);
 $("fInput").addEventListener("input", forumAutosize);
+$("fInput").addEventListener("blur", forumResetScroll);
 $("fInput").addEventListener("keydown", (e) => {
   // Di HP, Enter = baris baru. Di komputer, Enter = kirim (Shift+Enter = baris baru).
   if (e.key === "Enter" && !e.shiftKey && !fMentionOpen() && !matchMedia("(pointer:coarse)").matches) { e.preventDefault(); sendForum(); }
@@ -2804,12 +2813,20 @@ function fOpenMember(pid) {
   if (!m) return;
   const adm = isAdmin;
   const rows = adm
-    ? `<dt>Username</dt><dd>${esc(m.real ? "@" + m.real : "-")}</dd><dt>NIM</dt><dd>${esc(m.nim || "-")}</dd>`
+    ? `<dt>Username</dt><dd>${esc(m.real ? "@" + m.real : "-")}</dd><dt>NIM</dt><dd>${esc(m.nim || "-")}</dd>${m.mine || m.owner ? "" : '<dt>Terakhir online</dt><dd id="fgSeen">memuat…</dd>'}`
     : `<dt>Username</dt><dd>${esc(m.owner ? "Admin" : m.mask)}</dd>`;
   const cur = verOf(m.pid);
   const ctl = adm && !m.owner ? `<div class="fgver"><div class="fgchips">${["Terverifikasi", "Ketua Kelas", "Sekretaris", "Bendahara", "Asisten Lab"].map((x) => `<button type="button" data-pre="${esc(x)}">${esc(x)}</button>`).join("")}</div><input class="input" id="fgVerIn" maxlength="30" placeholder="Keterangan centang" value="${esc(cur)}"><div class="fgrow"><button type="button" class="btn btn-primary" id="fgVerOn">${cur ? "Perbarui centang" : "Beri centang"}</button>${cur ? '<button type="button" class="btn" id="fgVerOff">Cabut</button>' : ""}</div></div>` : "";
   const s = fgSheet(`<div>${avatarHtml(m, "l")}</div><h3>${nameHtml(m.mine ? m.name + " (kamu)" : m.name, m.owner, verOf(m.pid))}</h3>${m.bio ? `<p class="fgsub">${esc(m.bio)}</p>` : ""}<dl>${rows}</dl>${adm ? '<p class="fgnote">Username asli dan NIM hanya terlihat oleh admin.</p>' : ""}${ctl}<button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
   s.querySelector("[data-close]").addEventListener("click", () => s.remove());
+  const seenEl = s.querySelector("#fgSeen");
+  if (seenEl) {
+    apiCall("/api/forum/seen").then((r) => r.json()).then((d) => {
+      const v = d.ok && d.seen && d.seen[m.pid];
+      seenEl.textContent = (v && seenText(v)) || "belum pernah terlihat";
+      if (v && v.online) seenEl.style.color = "#1a9e5c";
+    }).catch(() => { seenEl.textContent = "-"; });
+  }
   if (ctl) {
     const inp = s.querySelector("#fgVerIn");
     s.querySelectorAll("[data-pre]").forEach((b) => b.addEventListener("click", () => { inp.value = b.dataset.pre; }));
@@ -3025,14 +3042,29 @@ async function inProfile() {
     if (!fGroupMembers.length) { try { await fLoadGroup(false); } catch (e) {} }
     if (fGroupMembers.some((x) => x.pid === p.pid)) return fOpenMember(p.pid);   // admin: lengkap dengan kontrol centang
   }
-  const s = fgSheet(`<div>${avatarHtml(p, "l")}</div><h3>${nameHtml(p.name, p.owner, verOf(p.pid))}</h3><p class="fgsub">${esc(p.sub || "")}</p><dl><dt>Peran</dt><dd>${p.owner ? "Admin" : "Anggota"}</dd></dl><button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
+  const s = fgSheet(`<div>${avatarHtml(p, "l")}</div><h3>${nameHtml(p.name, p.owner, verOf(p.pid))}</h3><p class="fgsub">${esc(inSubText(p))}</p><dl><dt>Peran</dt><dd>${p.owner ? "Admin" : "Anggota"}</dd></dl><button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
   s.querySelector("[data-close]").addEventListener("click", () => s.remove());
+}
+function seenText(p) {
+  if (p.online) return "online";
+  if (!p.seen) return "";
+  const d = new Date(p.seen * 1000), now = new Date();
+  const hm = d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+  const yest = new Date(now); yest.setDate(now.getDate() - 1);
+  if (d.toDateString() === now.toDateString()) return "terakhir online hari ini " + hm;
+  if (d.toDateString() === yest.toDateString()) return "terakhir online kemarin " + hm;
+  return "terakhir online " + d.toLocaleDateString("id-ID", { day: "numeric", month: "short" }) + " " + hm;
+}
+// status online hanya dikirim server ke admin; untuk pengguna biasa teks ini tetap peran saja
+function inSubText(p) {
+  const st = seenText(p);
+  return st ? (p.sub ? p.sub + " · " + st : st) : (p.sub || "");
 }
 function inSetPeer(p) {
   inPeer = p;
   $("inTitle").classList.add("tap");
   $("inTitle").setAttribute("role", "button");
-  $("inTitle").innerHTML = `${avatarHtml(p, "s")}<span class="inwho"><b>${nameHtml(p.name, p.owner, verOf(p.pid))}</b><small>${esc(p.sub || "")}</small></span>`;
+  $("inTitle").innerHTML = `${avatarHtml(p, "s")}<span class="inwho"><b>${nameHtml(p.name, p.owner, verOf(p.pid))}</b><small class="${p.online ? "inon" : ""}">${esc(inSubText(p))}</small></span>`;
 }
 function inPaintTyping(on) {
   const box = $("inList");
