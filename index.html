@@ -402,6 +402,25 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .fmsg.snap{transition:transform .22s ease}
 .fmsg.swiping::before{content:"↩";position:absolute;left:-40px;top:50%;width:30px;height:30px;margin-top:-15px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:16px;background:var(--brand-soft);color:var(--brand);opacity:var(--sw,0);transform:scale(calc(.55 + var(--sw,0) * .45));transition:background .15s,color .15s}
 .fmsg.swiping.ready::before{background:var(--brand);color:var(--on-brand)}
+/* forum: reaksi, mention, mengetik */
+.fwrap{position:relative}
+.ftyping{height:18px;font-size:12px;color:var(--mute);padding:0 4px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftyping:not(:empty)::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brand);margin-right:6px;animation:ftd 1s infinite}
+@keyframes ftd{50%{opacity:.25}}
+.fmention{position:absolute;left:0;right:0;bottom:100%;margin-bottom:6px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,.2);overflow:hidden;z-index:30}
+.fmi{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;text-align:left;font-size:14px;font-weight:600;color:var(--ink)}
+.fmi small{display:block;font-weight:400;color:var(--mute);font-size:11px}
+.fmi.on,.fmi:active{background:var(--brand-soft)}
+.fmen{color:var(--brand);font-weight:700}
+.fmsg.mentioned .fbub{box-shadow:inset 0 0 0 2px var(--brand)}
+.freacts{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.fr{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:13px;line-height:1.5}
+.fr b{font-size:11px;color:var(--mute)}
+.fr.me{background:var(--brand-soft);border-color:var(--brand)}
+.fr.me b{color:var(--brand)}
+.freactbar{display:flex;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--line)}
+.fmenu .freactbar button{width:auto;display:block;padding:4px 6px;border:0;font-size:24px;line-height:1;border-radius:10px}
+.fmenu .freactbar button.on{background:var(--brand-soft)}
 </style>
 </head>
 <body>
@@ -500,8 +519,8 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <section class="view" id="view-jadwal"><h2 class="page-title">Jadwal kuliah</h2><p class="page-sub">Sistem Informasi, kelas 5P52 dan 5P52A. Semester Gasal 2026/2027.</p><div class="chips" id="dayChips"></div><div id="scheduleList"></div></section>
 
 <section class="view" id="view-forum"><h2 class="page-title">Forum kelas</h2><p class="page-sub">Ngobrol dengan teman sekelas. Hanya 300 pesan terakhir yang disimpan.</p>
-<div class="fmsgs" id="fMsgs"></div><div class="freply hidden" id="fReply"></div>
-<div class="fbar"><textarea class="input" id="fInput" rows="1" maxlength="1000" placeholder="Tulis pesan"></textarea><button class="btn btn-primary" id="fSend" type="button">Kirim</button></div></section>
+<div class="fmsgs" id="fMsgs"></div><div class="ftyping" id="fTyping" aria-live="polite"></div><div class="freply hidden" id="fReply"></div>
+<div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fbar"><textarea class="input" id="fInput" rows="1" maxlength="1000" placeholder="Tulis pesan, ketik @ untuk menyebut teman"></textarea><button class="btn btn-primary" id="fSend" type="button">Kirim</button></div></div></section>
 
 <section class="view" id="view-upload"><h2 class="page-title">Tambah materi</h2><p class="page-sub">Unggah file atau tulis catatan. Hasilnya langsung terkirim ke Telegram.</p>
 <div class="card">
@@ -565,7 +584,10 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <button class="btn btn-primary" id="nameBtn" type="submit">Simpan profil</button></form></div>
 </div>
 <div class="subpane hidden" data-sub="tampilan"><div class="card"><div class="opt-row"><button type="button" data-theme-set="auto">Otomatis</button><button type="button" data-theme-set="light">Terang</button><button type="button" data-theme-set="dark">Gelap</button></div><div class="swatches" id="swatches"></div></div></div>
-<div class="subpane hidden" data-sub="notif"><div class="card"><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Dapat pemberitahuan materi baru dan pengingat deadline (24 jam, 3 jam, 1 jam, dan 5 menit sebelumnya) walau web ditutup. Tanda selesai yang kamu pasang hanya berlaku di tampilan web, jadi notifikasi tugas tetap datang dari server.</p><button type="button" class="btn btn-soft" id="notifBtn">Aktifkan notifikasi</button></div><div class="card"><h3>Status dan tes</h3><div id="notifDiag"></div>
+<div class="subpane hidden" data-sub="notif"><div class="card"><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Dapat pemberitahuan materi baru dan pengingat deadline (24 jam, 3 jam, 1 jam, dan 5 menit sebelumnya) walau web ditutup. Tanda selesai yang kamu pasang hanya berlaku di tampilan web, jadi notifikasi tugas tetap datang dari server.</p><button type="button" class="btn btn-soft" id="notifBtn">Aktifkan notifikasi</button></div><div class="card"><h3>Pengingat jadwal kuliah</h3><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Pemberitahuan sebelum kelas mulai. Berjalan selama aplikasi terbuka atau masih aktif di latar belakang.</p>
+<label style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px"><span>Aktifkan pengingat</span><input type="checkbox" id="clsOn"></label>
+<label style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span>Ingatkan</span><select class="input" id="clsLead" style="width:auto"><option value="5">5 menit sebelum</option><option value="10">10 menit sebelum</option><option value="15">15 menit sebelum</option><option value="30">30 menit sebelum</option></select></label></div>
+<div class="card"><h3>Status dan tes</h3><div id="notifDiag"></div>
 <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:12px"><button type="button" class="btn btn-soft" id="notifTestLocal" style="font-size:13px;padding:10px 14px">Tes di HP ini</button><button type="button" class="btn btn-soft" id="notifTestServer" style="font-size:13px;padding:10px 14px">Kirim tes dari server</button></div>
 <p id="notifTestMsg" style="color:var(--mute);font-size:13px;margin-top:10px;word-break:break-word"></p>
 <details style="margin-top:12px;font-size:13px;color:var(--mute)"><summary style="cursor:pointer;font-weight:700;color:var(--ink)">Notifikasi tidak muncul di Xiaomi / HyperOS?</summary>
@@ -1812,7 +1834,8 @@ function checkReminders() {
 }
 function startReminders() {
   clearInterval(remindTimer); clearInterval(refreshTimer);
-  remindTimer = setInterval(checkReminders, 60000);
+  remindTimer = setInterval(() => { checkReminders(); checkClassReminders(); }, 60000);
+  syncClsUi(); checkClassReminders();
   refreshTimer = setInterval(() => { if (!document.hidden) loadTasks(true); }, 5 * 60000);
 }
 $("dueBanner").addEventListener("click", () => {
@@ -2212,9 +2235,9 @@ function renderForum(stick) {
     const canDel = true; // semua orang bisa menghapus; aturan "untuk semua" atau "untuk saya" ada di deleteForum
     const tag = crown ? "" : `<small>${esc(m.real ? "@" + m.real : m.mask)}</small>`;
     const divider = fDivId && m.id === fDivId ? `<div class="funread" id="fUnread"><span>${fDivCount} pesan belum dibaca</span></div>` : "";
-    return `${sep}${divider}<div class="fmsg ${mine ? "me" : ""}" id="fm-${m.id}">${mine ? "" : `<span data-p="${esc(m.pid)}">${avatarHtml(m, "s")}</span>`}<div class="fbub">
+    return `${sep}${divider}<div class="fmsg ${mine ? "me" : ""} ${m.mentioned && !mine ? "mentioned" : ""}" id="fm-${m.id}">${mine ? "" : `<span data-p="${esc(m.pid)}">${avatarHtml(m, "s")}</span>`}<div class="fbub">
       ${mine ? "" : `<div class="fname" data-p="${esc(m.pid)}">${nameHtml(name, crown)}${tag}</div>`}${quote}
-      <div class="ftext">${esc(m.text)}</div>
+      <div class="ftext">${fmtText(m)}</div>${reactsHtml(m)}
       <div class="fmeta"><span>${esc(fTime(m.ts))}</span><button type="button" class="fmore" data-m="${m.id}" aria-label="Menu pesan">•••</button></div>
     </div></div>`;
   }).join("");
@@ -2235,7 +2258,7 @@ async function pollForum() {
     if (!res.ok || !d.ok) return;
     const box = $("fMsgs");
     const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
-    let changed = false, fresh = 0;
+    let changed = false, fresh = 0, ment = null;
     if (d.reset) { fMsgs = []; fLastId = 0; changed = true; }
     const alive = new Set(d.ids);
     const kept = fMsgs.filter((m) => alive.has(m.id));
@@ -2245,12 +2268,18 @@ async function pollForum() {
       fLastId = Math.max(fLastId, m.id);
       if (known.has(m.id)) return;
       fMsgs.push(m); changed = true;
-      if (!m.mine) fresh++;
+      if (!m.mine) { fresh++; if (m.mentioned) ment = m; }
     });
     fMsgs.sort((a, b) => a.id - b.id);
+    if (d.reacts && fApplyReacts(d.reacts)) changed = true;
+    fSetTyping(d.typing || []);
     const maxId = fMsgs.reduce((a, m) => Math.max(a, m.id), 0);
+    if (ment && fLoaded && !(activeView === "forum" && !document.hidden)) {
+      showToast("📣 " + shortName(ment.name) + " menyebutmu: " + ment.text.slice(0, 60));
+      if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+    }
     if (localStorage.getItem(fSeenKey()) === null) setFSeen(maxId);   // pertama kali: tidak ada tumpukan "belum dibaca"
-    if (fresh && fLoaded && activeView !== "forum") {
+    if (fresh && fLoaded && activeView !== "forum" && !ment) {
       const last = [...fMsgs].reverse().find((m) => !m.mine && !isFHidden(m.id));
       if (last) showToast("💬 " + shortName(last.name) + ": " + last.text.slice(0, 60));
     }
@@ -2322,10 +2351,10 @@ async function sendForum() {
   try {
     const res = await apiCall("/api/forum/send", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, reply_to: fReplyTo, push_endpoint: myPushEndpoint }) });
+      body: JSON.stringify({ text, reply_to: fReplyTo, push_endpoint: myPushEndpoint, mentions: fCollectMentions(text) }) });
     const d = await res.json();
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim pesan.");
-    inp.value = ""; forumAutosize(); clearForumReply();
+    inp.value = ""; forumAutosize(); clearForumReply(); fMentionSel = {}; fHideMention(); fTypingAt = 0;
     if (!fMsgs.some((m) => m.id === d.message.id)) fMsgs.push(d.message);
     fMsgs.sort((a, b) => a.id - b.id);
     renderForum(true);
@@ -2370,10 +2399,12 @@ $("fSend").addEventListener("click", sendForum);
 $("fInput").addEventListener("input", forumAutosize);
 $("fInput").addEventListener("keydown", (e) => {
   // Di HP, Enter = baris baru. Di komputer, Enter = kirim (Shift+Enter = baris baru).
-  if (e.key === "Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches) { e.preventDefault(); sendForum(); }
+  if (e.key === "Enter" && !e.shiftKey && !fMentionOpen() && !matchMedia("(pointer:coarse)").matches) { e.preventDefault(); sendForum(); }
 });
 $("fMsgs").addEventListener("click", (e) => {
   if (Date.now() - fPressAt < 700) { e.preventDefault(); return; }
+  const xr = e.target.closest("[data-x]");
+  if (xr) { const [xid, xe] = xr.dataset.x.split("|"); fReact(+xid, xe); return; }
   const mm = e.target.closest("[data-m]");
   if (mm) { const b = mm.closest(".fbub"); if (b) openFPress(b, +mm.dataset.m); return; }
   const r = e.target.closest("[data-r]"), d = e.target.closest("[data-d]"), c = e.target.closest("[data-c]"), pf = e.target.closest("[data-p]"), qq = e.target.closest("[data-q]");
@@ -2383,6 +2414,167 @@ $("fMsgs").addEventListener("click", (e) => {
   else if (qq) jumpToMessage(+qq.dataset.q);
   else if (pf) openProfile(pf.dataset.p);
 });
+
+/* ---------- reaksi, mention, sedang mengetik ---------- */
+const FREACTS = ["👍", "\u2764\ufe0f", "😂", "😮", "😢", "🙏"];
+let fMembers = [], fMembersAt = 0, fMentionSel = {}, fMentionIdx = 0, fMentionList = [], fTypingAt = 0;
+
+function fReactBar(m) {
+  const mine = ((m.reacts || []).find((r) => r.me) || {}).e;
+  return `<div class="freactbar">${FREACTS.map((e) => `<button type="button" data-e="${e}" class="${e === mine ? "on" : ""}">${e}</button>`).join("")}</div>`;
+}
+function reactsHtml(m) {
+  if (!m.reacts || !m.reacts.length) return "";
+  return `<div class="freacts">${m.reacts.map((r) => `<button type="button" class="fr ${r.me ? "me" : ""}" data-x="${m.id}|${r.e}">${r.e}<b>${r.n}</b></button>`).join("")}</div>`;
+}
+function fmtText(m) {
+  let t = esc(m.text);
+  (m.mentions || []).forEach((p) => {
+    const tag = esc("@" + shortName(p.name));
+    t = t.split(tag).join(`<span class="fmen">${tag}</span>`);
+  });
+  return t;
+}
+function fApplyReacts(map) {
+  let changed = false;
+  fMsgs.forEach((m) => {
+    const nr = map[String(m.id)] || [];
+    if (JSON.stringify(nr) !== JSON.stringify(m.reacts || [])) { m.reacts = nr; changed = true; }
+  });
+  return changed;
+}
+async function fReact(id, emoji) {
+  try {
+    const res = await apiCall("/api/forum/react", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, emoji }) });
+    const d = await res.json();
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memberi reaksi.");
+    const m = fMsgs.find((x) => x.id === id);
+    if (m) { m.reacts = d.reacts; renderForum(false); }
+  } catch (e) { showToast(e.message, true); }
+}
+
+/* sedang mengetik */
+function fSetTyping(names) {
+  const n = (names || []).map(shortName), el = $("fTyping");
+  if (!n.length) { el.textContent = ""; return; }
+  const who = n.length === 1 ? n[0] : n.length === 2 ? n[0] + " dan " + n[1] : n[0] + ", " + n[1] + " dan " + (n.length - 2) + " lainnya";
+  el.textContent = who + " sedang mengetik…";
+}
+function fTypePing() {
+  const now = Date.now();
+  if (now - fTypingAt < 2500) return;   // paling sering sekali per 2,5 detik
+  fTypingAt = now;
+  apiCall("/api/forum/typing", { method: "POST" }).catch(() => {});
+}
+
+/* mention @nama */
+async function fLoadMembers() {
+  if (fMembers.length && Date.now() - fMembersAt < 300000) return;
+  try {
+    const res = await apiCall("/api/forum/members");
+    const d = await res.json();
+    if (res.ok && d.ok) { fMembers = d.members || []; fMembersAt = Date.now(); }
+  } catch (e) {}
+}
+function fMentionOpen() { return !$("fMention").classList.contains("hidden"); }
+function fHideMention() { $("fMention").classList.add("hidden"); fMentionList = []; }
+function fMentionQuery() {
+  const inp = $("fInput"), pos = inp.selectionStart, before = inp.value.slice(0, pos);
+  const m = before.match(/(^|\s)@([^\s@]{0,20})$/);
+  return m ? { q: m[2].toLowerCase(), start: pos - m[2].length - 1 } : null;
+}
+function fShowMention() {
+  const mq = fMentionQuery();
+  if (!mq) return fHideMention();
+  if (!fMembers.length) { fLoadMembers().then(() => { if (fMembers.length) fShowMention(); }); return; }
+  const nm = (p) => shortName(p.name).toLowerCase();
+  fMentionList = fMembers.filter((p) => nm(p).includes(mq.q) || String(p.name).toLowerCase().includes(mq.q))
+    .sort((a, b) => (nm(b).startsWith(mq.q) ? 1 : 0) - (nm(a).startsWith(mq.q) ? 1 : 0)).slice(0, 5);
+  if (!fMentionList.length) return fHideMention();
+  fMentionIdx = 0;
+  const box = $("fMention");
+  box.innerHTML = fMentionList.map((p, i) => `<button type="button" class="fmi ${i === 0 ? "on" : ""}" data-i="${i}">${avatarHtml(p, "s")}<span>${esc(shortName(p.name))}<small>${esc(p.mask || "")}</small></span></button>`).join("");
+  box.classList.remove("hidden");
+}
+function fPickMention(i) {
+  const p = fMentionList[i], mq = fMentionQuery();
+  if (!p || !mq) return fHideMention();
+  const inp = $("fInput"), pos = inp.selectionStart, tag = "@" + shortName(p.name) + " ";
+  inp.value = inp.value.slice(0, mq.start) + tag + inp.value.slice(pos);
+  const np = mq.start + tag.length;
+  inp.setSelectionRange(np, np);
+  inp.focus();
+  fMentionSel[p.pid] = p;
+  fHideMention();
+  forumAutosize();
+}
+function fCollectMentions(text) {
+  return Object.keys(fMentionSel).filter((pid) => text.includes("@" + shortName(fMentionSel[pid].name)));
+}
+$("fInput").addEventListener("input", () => {
+  fShowMention();
+  if ($("fInput").value.trim()) fTypePing();
+});
+$("fInput").addEventListener("keydown", (e) => {
+  if (!fMentionOpen()) return;
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    e.preventDefault();
+    fMentionIdx = (fMentionIdx + (e.key === "ArrowDown" ? 1 : -1) + fMentionList.length) % fMentionList.length;
+    $("fMention").querySelectorAll(".fmi").forEach((b, i) => b.classList.toggle("on", i === fMentionIdx));
+  } else if (e.key === "Enter" || e.key === "Tab") { e.preventDefault(); fPickMention(fMentionIdx); }
+  else if (e.key === "Escape") fHideMention();
+});
+$("fInput").addEventListener("blur", () => setTimeout(fHideMention, 150));
+$("fMention").addEventListener("pointerdown", (e) => {
+  const b = e.target.closest("[data-i]");
+  if (b) { e.preventDefault(); fPickMention(+b.dataset.i); }   // preventDefault: keyboard tidak menutup
+});
+
+/* ---------- pengingat jadwal kuliah ---------- */
+const clsKey = () => "s5_cls_" + currentUser;
+function getClsPref() {
+  try {
+    const p = JSON.parse(localStorage.getItem(clsKey()) || "{}");
+    return { on: p.on !== false, lead: [5, 10, 15, 30].includes(p.lead) ? p.lead : 15 };
+  } catch (e) { return { on: true, lead: 15 }; }
+}
+function setClsPref(p) { try { localStorage.setItem(clsKey(), JSON.stringify(p)); } catch (e) {} }
+function syncClsUi() {
+  const p = getClsPref();
+  $("clsOn").checked = p.on;
+  $("clsLead").value = String(p.lead);
+  $("clsLead").disabled = !p.on;
+}
+$("clsOn").addEventListener("change", () => { setClsPref({ ...getClsPref(), on: $("clsOn").checked }); syncClsUi(); });
+$("clsLead").addEventListener("change", () => { setClsPref({ ...getClsPref(), lead: +$("clsLead").value }); showToast("Pengingat kuliah diperbarui."); });
+function checkClassReminders() {
+  if (!token || !currentUser) return;
+  const pref = getClsPref();
+  if (!pref.on) return;
+  const now = new Date(), mins = now.getHours() * 60 + now.getMinutes();
+  const today = JADWAL.find((d) => d.dayNum === now.getDay());
+  if (!today) return;
+  const dayStr = now.toDateString(), key = "s5_clsseen_" + currentUser;
+  let seen = {};
+  try { seen = JSON.parse(localStorage.getItem(key) || "{}"); } catch (e) {}
+  Object.keys(seen).forEach((k) => { if (seen[k] !== dayStr) delete seen[k]; });   // buang catatan hari lain
+  today.classes.forEach((c) => {
+    const [s] = parseRange(c.time), left = s - mins;
+    if (left <= 0 || left > pref.lead) return;
+    const id = c.code + "|" + s;
+    if (seen[id]) return;
+    seen[id] = dayStr;
+    const msg = `${c.name} mulai ${left} menit lagi · Ruang ${c.room}`;
+    showToast("🎓 " + msg);
+    if (window.Notification && Notification.permission === "granted") {
+      try { navigator.serviceWorker.ready.then((r) => r.showNotification("Kuliah sebentar lagi", { body: msg, icon: "icon-192.png", tag: "class-" + id })); } catch (e) {}
+    }
+    if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
+  });
+  try { localStorage.setItem(key, JSON.stringify(seen)); } catch (e) {}
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) checkClassReminders(); });
 
 /* ---------- tekan lama pesan: latar blur + menu (gaya iOS WhatsApp) ---------- */
 let fPressAt = 0, fPressTimer = null, fPressStart = null, fPressEl = null, fPressOpen = null;
@@ -2409,7 +2601,7 @@ function openFPress(bub, id) {
   const menu = document.createElement("div");
   menu.className = "fmenu";
   const forAll = isAdmin || (m.mine && Date.now() - new Date(m.ts).getTime() < FORUM_DEL_MS);
-  menu.innerHTML = `<button type="button" data-a="reply">Balas<svg class="i"><use href="#i-chat"/></svg></button>
+  menu.innerHTML = fReactBar(m) + `<button type="button" data-a="reply">Balas<svg class="i"><use href="#i-chat"/></svg></button>
     <button type="button" data-a="copy">Salin<svg class="i"><use href="#i-edit"/></svg></button>
     <button type="button" data-a="del" class="danger">Hapus<svg class="i"><use href="#i-trash"/></svg></button>`;
   ov.append(clone, menu);
@@ -2426,6 +2618,8 @@ function openFPress(bub, id) {
   const left = m.mine ? Math.max(pad, rect.right - mw) : Math.min(rect.left, vw - mw - pad);
   Object.assign(menu.style, { left: Math.max(pad, left) + "px", top: top + bh + gap + "px" });
   ov.addEventListener("click", (e) => {
+    const ex = e.target.closest("[data-e]");
+    if (ex) { closeFPress(true); fReact(id, ex.dataset.e); return; }
     const b = e.target.closest("[data-a]");
     if (!b) { fPressAt = Date.now(); return closeFPress(); }
     const a = b.dataset.a;
