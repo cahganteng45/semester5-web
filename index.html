@@ -438,6 +438,39 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .nbanner span{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fall{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--brand-soft);font-size:14px;flex-shrink:0}
 .fmen.all{background:var(--brand-soft);padding:0 4px;border-radius:6px}
+/* info grup forum */
+.fghead{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:10px;background:var(--surface);border:1px solid var(--line);border-radius:16px;cursor:pointer}
+.fgtx{min-width:0;flex:1}
+.fgtx b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fgtx small{display:block;color:var(--mute);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fgimg{width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--brand-soft);display:grid;place-items:center;font-size:22px}
+.fgimg.big{width:132px;height:132px;font-size:56px}
+.fgpage{position:fixed;inset:0;z-index:1200;background:var(--bg);overflow-y:auto;padding:calc(env(safe-area-inset-top,0px) + 8px) 16px calc(env(safe-area-inset-bottom,0px) + 28px);transform:translateX(100%);transition:transform .25s ease;visibility:hidden}
+.fgpage.show{transform:none;visibility:visible}
+.fgbar{display:flex;align-items:center;gap:10px;font-size:17px;margin-bottom:8px}
+.fgbar button{font-size:24px;padding:6px 10px;color:var(--ink)}
+.fgtop{text-align:center;padding:8px 0 16px}
+.fgbig{position:relative;display:inline-block}
+.fgbig.edit{cursor:pointer}
+.fgcam{position:absolute;right:0;bottom:4px;width:36px;height:36px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:16px}
+.fgname{font-size:22px;margin:12px 0 2px}
+.fgedit{font-size:16px;padding:4px 8px;color:var(--brand)}
+.fgsub{color:var(--mute);font-size:14px}
+.fgdel{margin-top:8px;color:var(--brand);font-size:13px;font-weight:600}
+.fgcount{color:var(--mute);font-size:13px;font-weight:700;padding:8px 4px}
+.fgm{display:flex;align-items:center;gap:12px;width:100%;padding:8px 4px;text-align:left}
+.fgm .av.s{width:44px;height:44px;font-size:15px}
+.fgmt{flex:1;min-width:0}
+.fgmt b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fgmt small{display:block;color:var(--mute);font-size:13px}
+.fgadm{font-style:normal;font-size:11px;font-weight:700;color:var(--brand);background:var(--brand-soft);padding:3px 8px;border-radius:8px}
+.fgsheet{position:fixed;inset:0;z-index:1250;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center}
+.fgcard{width:100%;max-width:520px;background:var(--surface);border-radius:20px 20px 0 0;padding:20px 20px calc(env(safe-area-inset-bottom,0px) + 20px);text-align:center}
+.fgcard h3{margin:10px 0 2px;font-size:19px}
+.fgcard dl{margin:14px 0 4px;text-align:left}
+.fgcard dt{font-size:12px;color:var(--mute);margin-top:10px}
+.fgcard dd{margin:2px 0 0;font-size:15px;font-weight:600;word-break:break-all}
+.fgcard .fgnote{font-size:12px;color:var(--mute);margin-top:12px}
 </style>
 </head>
 <body>
@@ -535,7 +568,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 
 <section class="view" id="view-jadwal"><h2 class="page-title">Jadwal kuliah</h2><p class="page-sub">Sistem Informasi, kelas 5P52 dan 5P52A. Semester Gasal 2026/2027.</p><div class="chips" id="dayChips"></div><div id="scheduleList"></div></section>
 
-<section class="view" id="view-forum"><h2 class="page-title">Forum kelas</h2><p class="page-sub">Ngobrol dengan teman sekelas. Hanya 300 pesan terakhir yang disimpan.</p>
+<section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div></div>
 <div class="fmsgs" id="fMsgs"></div><div class="freply hidden" id="fReply"></div>
 <div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fbar"><textarea class="input" id="fInput" rows="1" maxlength="1000" placeholder="Tulis pesan, ketik @ untuk menyebut teman"></textarea><button class="btn btn-primary" id="fSend" type="button">Kirim</button></div></div></section>
 
@@ -2262,6 +2295,8 @@ function renderForum(stick) {
   if (stick) box.scrollTop = box.scrollHeight;
 }
 function forumReset() {
+  fGroupMembers = []; fGroup = { name: "Forum Kelas", av: false, avv: 0, n: 0 }; fGroupAt = 0;
+  if (fgEl) { fgEl.remove(); fgEl = null; }
   fMsgs = []; fLastId = 0; fLoaded = false; fReplyTo = null; fDivId = 0; fDivCount = 0;
   updateForumBadge();
   $("fReply").classList.add("hidden");
@@ -2291,6 +2326,7 @@ async function pollForum() {
     fMsgs.sort((a, b) => a.id - b.id);
     if (d.reacts && fApplyReacts(d.reacts)) changed = true;
     fSetTyping(d.typing || []);
+    fApplyGroup(d.group);
     const maxId = fMsgs.reduce((a, m) => Math.max(a, m.id), 0);
     if (ment && fLoaded && !(activeView === "forum" && !document.hidden)) {
       fBanner(ment, true);
@@ -2629,6 +2665,119 @@ function fBanner(m, isMention) {
   clearTimeout(nbTimer);
   nbTimer = setTimeout(hideBanner, isMention ? 6000 : 4000);
 }
+
+/* ---------- info grup forum (gaya WhatsApp) ---------- */
+let fGroup = { name: "Forum Kelas", av: false, avv: 0, n: 0 }, fGroupMembers = [], fGroupAt = 0, fgEl = null;
+
+function fgPhotoHtml(cls) {
+  return fGroup.av
+    ? `<img class="${cls}" src="${esc(API)}/api/forum/group/photo?v=${esc(fGroup.avv)}" alt="">`
+    : `<span class="${cls}">👥</span>`;
+}
+function fPaintGroupHead() {
+  $("fGroupPhoto").innerHTML = fgPhotoHtml("fgimg");
+  $("fGroupName").textContent = fGroup.name;
+  const names = fGroupMembers.map((m) => (m.mine ? "Kamu" : shortName(m.name)));
+  $("fGroupMembers").textContent = names.length ? names.join(", ") : (fGroup.n ? fGroup.n + " anggota" : "Ketuk untuk melihat anggota");
+}
+async function fLoadGroup(force) {
+  if (!force && fGroupMembers.length && Date.now() - fGroupAt < 300000) return;
+  try {
+    const res = await apiCall("/api/forum/group");
+    const d = await res.json();
+    if (!res.ok || !d.ok) return;
+    fGroup = { ...fGroup, ...d.group };
+    fGroupMembers = d.members || [];
+    fGroupAt = Date.now();
+    fPaintGroupHead();
+    if (fgEl && fgEl.classList.contains("show")) fRenderGroupPage();
+  } catch (e) {}
+}
+function fApplyGroup(gr) {
+  if (!gr) return;
+  const diff = gr.name !== fGroup.name || gr.av !== fGroup.av || gr.avv !== fGroup.avv || gr.n !== fGroup.n;
+  if (!diff && fGroupMembers.length) return;
+  fGroup = { ...fGroup, ...gr };
+  fPaintGroupHead();
+  fLoadGroup(true);
+}
+async function fgPost(path, body) {
+  const res = await apiCall(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const d = await res.json();
+  if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menyimpan.");
+  fGroup = { ...fGroup, ...d.group };
+  fPaintGroupHead();
+  fRenderGroupPage();
+  return d;
+}
+function fRenderGroupPage() {
+  if (!fgEl) return;
+  const adm = isAdmin;
+  const row = (m) => `<button type="button" class="fgm" data-pid="${esc(m.pid)}">${avatarHtml(m, "s")}<span class="fgmt"><b>${esc(m.mine ? "Kamu" : m.name)}</b><small>${esc(m.owner ? "Admin" : adm && m.real ? "@" + m.real : m.mask)}</small></span>${m.owner ? '<em class="fgadm">Admin grup</em>' : ""}</button>`;
+  $("fgBody").innerHTML = `<div class="fgtop"><div class="fgbig ${adm ? "edit" : ""}" id="fgPhoto">${fgPhotoHtml("fgimg big")}${adm ? '<span class="fgcam">📷</span>' : ""}</div>
+<h2 class="fgname">${esc(fGroup.name)}${adm ? ' <button type="button" class="fgedit" id="fgRename" aria-label="Ubah nama grup">✎</button>' : ""}</h2>
+<p class="fgsub">Grup · ${fGroupMembers.length || fGroup.n} anggota</p>${adm && fGroup.av ? '<button type="button" class="fgdel" id="fgDelPhoto">Hapus foto grup</button>' : ""}</div>
+<div class="fgcount">${fGroupMembers.length} anggota</div>${fGroupMembers.map(row).join("")}`;
+}
+function fgSheet(html) {
+  const s = document.createElement("div");
+  s.className = "fgsheet";
+  s.innerHTML = `<div class="fgcard">${html}</div>`;
+  s.addEventListener("click", (e) => { if (e.target === s) s.remove(); });
+  document.body.append(s);
+  return s;
+}
+function fOpenMember(pid) {
+  const m = fGroupMembers.find((x) => x.pid === pid);
+  if (!m) return;
+  const adm = isAdmin;
+  const rows = adm
+    ? `<dt>Username</dt><dd>${esc(m.real ? "@" + m.real : "-")}</dd><dt>NIM</dt><dd>${esc(m.nim || "-")}</dd>`
+    : `<dt>Username</dt><dd>${esc(m.owner ? "Admin" : m.mask)}</dd>`;
+  const s = fgSheet(`<div>${avatarHtml(m, "l")}</div><h3>${esc(m.mine ? m.name + " (kamu)" : m.name)}</h3>${m.bio ? `<p class="fgsub">${esc(m.bio)}</p>` : ""}<dl>${rows}</dl>${adm ? '<p class="fgnote">Username asli dan NIM hanya terlihat oleh admin.</p>' : ""}<button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
+  s.querySelector("[data-close]").addEventListener("click", () => s.remove());
+}
+function fRenameGroup() {
+  const s = fgSheet(`<h3>Nama grup</h3><input class="input" id="fgNameIn" maxlength="40" value="${esc(fGroup.name)}" style="margin-top:12px"><button type="button" class="btn btn-primary" id="fgNameOk" style="margin-top:12px;width:100%">Simpan</button>`);
+  const inp = s.querySelector("#fgNameIn");
+  inp.focus(); inp.select();
+  s.querySelector("#fgNameOk").addEventListener("click", async () => {
+    try { await fgPost("/api/forum/group/name", { name: inp.value }); s.remove(); showToast("Nama grup diperbarui."); }
+    catch (e) { showToast(e.message, true); }
+  });
+}
+function fOpenGroup() {
+  if (!fgEl) {
+    fgEl = document.createElement("div");
+    fgEl.className = "fgpage";
+    fgEl.innerHTML = '<div class="fgbar"><button type="button" id="fgBack" aria-label="Kembali">←</button><b>Info grup</b></div><div id="fgBody"></div><input type="file" id="fgFile" accept="image/*" class="hidden">';
+    document.body.append(fgEl);
+    fgEl.addEventListener("click", async (e) => {
+      if (e.target.closest("#fgBack")) { fgEl.classList.remove("show"); return; }
+      const mb = e.target.closest("[data-pid]");
+      if (mb) { fOpenMember(mb.dataset.pid); return; }
+      if (!isAdmin) return;
+      if (e.target.closest("#fgRename")) { fRenameGroup(); return; }
+      if (e.target.closest("#fgPhoto")) { $("fgFile").click(); return; }
+      if (e.target.closest("#fgDelPhoto")) {
+        try { await fgPost("/api/forum/group/photo", { image: "" }); showToast("Foto grup dihapus."); }
+        catch (er) { showToast(er.message, true); }
+      }
+    });
+    $("fgFile").addEventListener("change", async () => {
+      const f = $("fgFile").files[0];
+      $("fgFile").value = "";
+      if (!f) return;
+      try { await fgPost("/api/forum/group/photo", { image: await compressAvatar(f) }); showToast("Foto grup diperbarui."); }
+      catch (er) { showToast(er.message, true); }
+    });
+  }
+  fRenderGroupPage();
+  requestAnimationFrame(() => fgEl.classList.add("show"));
+  fLoadGroup(true);
+}
+$("fGroupHead").addEventListener("click", fOpenGroup);
+$("fGroupHead").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fOpenGroup(); } });
 
 /* ---------- tekan lama pesan: latar blur + menu (gaya iOS WhatsApp) ---------- */
 let fPressAt = 0, fPressTimer = null, fPressStart = null, fPressEl = null, fPressOpen = null;
