@@ -477,7 +477,12 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <button class="btn btn-primary" id="nameBtn" type="submit">Simpan profil</button></form></div>
 </div>
 <div class="subpane hidden" data-sub="tampilan"><div class="card"><div class="opt-row"><button type="button" data-theme-set="auto">Otomatis</button><button type="button" data-theme-set="light">Terang</button><button type="button" data-theme-set="dark">Gelap</button></div><div class="swatches" id="swatches"></div></div></div>
-<div class="subpane hidden" data-sub="notif"><div class="card"><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Dapat pemberitahuan materi baru dan pengingat deadline (24 jam, 3 jam, 1 jam, dan 5 menit sebelumnya) walau web ditutup. Tanda selesai yang kamu pasang hanya berlaku di tampilan web, jadi notifikasi tugas tetap datang dari server.</p><button type="button" class="btn btn-soft" id="notifBtn">Aktifkan notifikasi</button></div></div>
+<div class="subpane hidden" data-sub="notif"><div class="card"><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Dapat pemberitahuan materi baru dan pengingat deadline (24 jam, 3 jam, 1 jam, dan 5 menit sebelumnya) walau web ditutup. Tanda selesai yang kamu pasang hanya berlaku di tampilan web, jadi notifikasi tugas tetap datang dari server.</p><button type="button" class="btn btn-soft" id="notifBtn">Aktifkan notifikasi</button></div><div class="card"><h3>Status dan tes</h3><div id="notifDiag"></div>
+<div class="row" style="gap:8px;flex-wrap:wrap;margin-top:12px"><button type="button" class="btn btn-soft" id="notifTestLocal" style="font-size:13px;padding:10px 14px">Tes di HP ini</button><button type="button" class="btn btn-soft" id="notifTestServer" style="font-size:13px;padding:10px 14px">Kirim tes dari server</button></div>
+<p id="notifTestMsg" style="color:var(--mute);font-size:13px;margin-top:10px;word-break:break-word"></p>
+<details style="margin-top:12px;font-size:13px;color:var(--mute)"><summary style="cursor:pointer;font-weight:700;color:var(--ink)">Notifikasi tidak muncul di Xiaomi / HyperOS?</summary>
+<p style="margin-top:8px">1. Pengaturan → Notifikasi → Chrome (dan aplikasi Semester 5 kalau sudah dipasang): izinkan notifikasi.<br>2. Pengaturan → Aplikasi → Chrome → Hemat baterai: pilih Tanpa batasan; aktifkan Mulai otomatis.<br>3. Matikan mode Jangan Ganggu (ikon bulan di bilah status).<br>4. Pesan forum tidak muncul sebagai notifikasi kalau aplikasi sedang terbuka di layar; cukup tampil di dalam aplikasi.</p></details></div>
+</div>
 <div class="subpane hidden" data-sub="keamanan"><div class="card">
 <form id="changePasswordForm">
 <div class="field"><label for="cpOld">Password lama</label><div class="pwd"><input class="input" type="password" id="cpOld" required autocomplete="current-password"><button type="button" data-pwd="cpOld" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
@@ -704,6 +709,7 @@ function openSub(name) {
   $("setSub").classList.remove("hidden");
   document.querySelectorAll("#setSub .subpane").forEach((p) => p.classList.toggle("hidden", p.dataset.sub !== name));
   $("subTitle").textContent = SUB_TITLES[name] || "";
+  if (name === "notif") { $("notifTestMsg").textContent = ""; notifDiag(); }
   window.scrollTo({ top: 0 });
 }
 function closeSub() {
@@ -1667,12 +1673,13 @@ async function syncPush(ask) {
   if (Notification.permission !== "granted") return false;
   try {
     const k = await (await apiCall("/api/push/key")).json();
-    if (!k.enabled) { if (ask) showToast("Notifikasi belum diaktifkan di server.", true); return false; }
+    if (!k.enabled) { if (ask) showToast(k.reason || "Notifikasi belum diaktifkan di server.", true); return false; }
     const reg = await navigator.serviceWorker.ready;
     let sub = await reg.pushManager.getSubscription();
     if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(k.key) });
     const { data } = await postJSON("/api/push/subscribe", { subscription: sub.toJSON() }, true);
     pushOn = !!data.ok;
+    if (pushOn) myPushEndpoint = sub.endpoint;
     return pushOn;
   } catch (e) { console.error(e); return false; }
 }
@@ -1683,6 +1690,42 @@ async function pushUnsubscribe(tk) {
       headers: { "Content-Type": "application/json", Authorization: "Bearer " + tk }, body: JSON.stringify({ endpoint: sub.endpoint }) });
   } catch (e) { /* tidak kritis */ }
 }
+let myPushEndpoint = "";
+async function notifDiag() {
+  const sup = pushSupported(), perm = sup ? Notification.permission : "denied";
+  let sw = false, srv = null;
+  try { const reg = await navigator.serviceWorker.getRegistration(); sw = !!(reg && reg.active); } catch (e) {}
+  try { srv = await (await apiCall("/api/push/key")).json(); } catch (e) {}
+  const rows = [
+    [sup, "Browser mendukung notifikasi", sup ? "" : "Pakai Chrome terbaru (iPhone: pasang ke layar utama dulu)."],
+    [perm === "granted", "Izin notifikasi", perm === "granted" ? "Diizinkan" : perm === "denied" ? "Diblokir: izinkan lewat pengaturan situs atau aplikasi" : "Belum diminta: tekan Aktifkan notifikasi"],
+    [sw, "Service worker aktif", sw ? "" : "Pastikan sw.js ada di folder yang sama dengan index.html"],
+    [!!(srv && srv.enabled), "Server siap mengirim", srv ? (srv.enabled ? "" : srv.reason || "Push belum aktif di server") : "Tidak bisa menghubungi server"],
+    [pushOn, "Perangkat ini terdaftar", pushOn ? "" : "Tekan Aktifkan notifikasi"]
+  ];
+  $("notifDiag").innerHTML = rows.map(([good, t, note]) =>
+    `<div class="adm-row" style="align-items:flex-start"><span>${good ? "✅" : "❌"} ${esc(t)}${note ? `<br><small style="color:var(--mute)">${esc(note)}</small>` : ""}</span></div>`).join("");
+}
+$("notifTestLocal").addEventListener("click", async () => {
+  if (!pushSupported() || Notification.permission !== "granted") return showToast("Izinkan notifikasi dulu.", true);
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    await reg.showNotification("🔔 Tes di HP ini", { body: "Kalau ini muncul, HP-mu bisa menampilkan notifikasi.", icon: "icon-192.png", badge: "icon-192.png", tag: "tes-lokal" });
+    $("notifTestMsg").textContent = "Tes tampilan dikirim. Turunkan bilah notifikasi HP untuk melihatnya.";
+  } catch (e) { $("notifTestMsg").textContent = "Gagal menampilkan: " + e.message; }
+});
+$("notifTestServer").addEventListener("click", async () => {
+  const msg = $("notifTestMsg");
+  msg.textContent = "Mengirim…";
+  try {
+    const { res, data } = await postJSON("/api/push/test", {}, true);
+    if (!res.ok || !data.ok) {
+      msg.textContent = data.error || (data.results ? "Server gagal mengirim: " + data.results.map((r) => `${r.host} → ${r.status || "?"} ${r.error}`).join("; ") : "Gagal.");
+      return;
+    }
+    msg.textContent = `Terkirim ke ${data.results.length} perangkat (kode ${data.results.map((r) => r.status).join(", ")}). Cek pusat notifikasi dalam beberapa detik.`;
+  } catch (e) { msg.textContent = e.message; }
+});
 function updateNotifBtn() {
   const b = $("notifBtn");
   $("notifSub").textContent = !pushSupported() ? "Tidak didukung di browser ini" : pushOn ? "Aktif" : "Belum aktif";
@@ -1695,7 +1738,7 @@ $("notifBtn").addEventListener("click", async () => {
   if (Notification.permission === "denied") return showToast("Notifikasi diblokir. Aktifkan lewat pengaturan situs di browser.", true);
   const ok = await syncPush(true);
   showToast(ok ? "Notifikasi aktif." : "Notifikasi belum aktif.", !ok);
-  updateNotifBtn();
+  updateNotifBtn(); notifDiag();
 });
 updateNotifBtn();
 $("rowInstall").classList.toggle("hidden", standalone);
@@ -1963,6 +2006,7 @@ function updateForumBadge() {
   const n = unreadForum(), b = $("fDot");
   b.textContent = n > 99 ? "99+" : String(n);
   b.classList.toggle("hidden", n === 0);
+  document.title = (n ? `(${n > 99 ? "99+" : n}) ` : "") + "Semester 5 — Study Hub";
   if (navigator.setAppBadge) { try { if (n) navigator.setAppBadge(n); else navigator.clearAppBadge(); } catch (e) {} }
 }
 function markForumSeen() {
@@ -1976,7 +2020,12 @@ function jumpToMessage(id) {
   el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
   setTimeout(() => el.classList.remove("flash"), 1700);
 }
-document.addEventListener("visibilitychange", () => { if (!document.hidden && activeView === "forum" && token) markForumSeen(); });
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden || !token) return;
+  pollForum().then(() => { if (activeView === "forum") markForumSeen(); });   // kembali ke aplikasi: langsung cek pesan baru
+});
+window.addEventListener("focus", () => { if (token) pollForum(); });
+window.addEventListener("online", () => { if (token) pollForum(); });
 const fDay = (iso) => new Date(iso).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" });
 
 function renderForum(stick) {
@@ -2053,12 +2102,12 @@ function startForum() {
   clearInterval(fTimer);
   forumReset();
   fTicks = 0;
-  // 4 detik saat forum dibuka, 20 detik di halaman lain (untuk titik notifikasi di menu).
+  // 3 detik saat forum dibuka, 6 detik di halaman lain (agar badge angka di menu cepat berubah).
   fTimer = setInterval(() => {
     if (!token || !currentUser || document.hidden) return;
     fTicks++;
-    if (activeView === "forum" || fTicks % 5 === 0) pollForum();
-  }, 4000);
+    if (activeView === "forum" || fTicks % 2 === 0) pollForum();
+  }, 3000);
   pollForum();
 }
 function stopForum() {
@@ -2090,7 +2139,7 @@ async function sendForum() {
   try {
     const res = await apiCall("/api/forum/send", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, reply_to: fReplyTo }) });
+      body: JSON.stringify({ text, reply_to: fReplyTo, push_endpoint: myPushEndpoint }) });
     const d = await res.json();
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim pesan.");
     inp.value = ""; forumAutosize(); clearForumReply();
