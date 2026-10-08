@@ -402,6 +402,15 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .fmsg.snap{transition:transform .22s ease}
 .fmsg.swiping::before{content:"↩";position:absolute;left:-40px;top:50%;width:30px;height:30px;margin-top:-15px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:16px;background:var(--brand-soft);color:var(--brand);opacity:var(--sw,0);transform:scale(calc(.55 + var(--sw,0) * .45));transition:background .15s,color .15s}
 .fmsg.swiping.ready::before{background:var(--brand);color:var(--on-brand)}
+/* indikator mengetik gaya WhatsApp: gelembung di dalam chat */
+.ftrow{align-items:flex-end;gap:6px}
+.ftbub{background:var(--bg);border-radius:16px 16px 16px 4px;padding:8px 12px;display:flex;flex-direction:column;gap:3px}
+.ftbub small{font-size:11px;font-weight:700;color:var(--brand)}
+.tdots{display:flex;gap:4px;align-items:center;height:14px}
+.tdot{width:7px;height:7px;border-radius:50%;background:var(--mute);animation:tdot 1.2s infinite}
+.tdot:nth-child(2){animation-delay:.15s}
+.tdot:nth-child(3){animation-delay:.3s}
+@keyframes tdot{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-3px)}}
 /* forum: reaksi, mention, mengetik */
 .fwrap{position:relative}
 .ftyping{height:18px;font-size:12px;color:var(--mute);padding:0 4px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -527,7 +536,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <section class="view" id="view-jadwal"><h2 class="page-title">Jadwal kuliah</h2><p class="page-sub">Sistem Informasi, kelas 5P52 dan 5P52A. Semester Gasal 2026/2027.</p><div class="chips" id="dayChips"></div><div id="scheduleList"></div></section>
 
 <section class="view" id="view-forum"><h2 class="page-title">Forum kelas</h2><p class="page-sub">Ngobrol dengan teman sekelas. Hanya 300 pesan terakhir yang disimpan.</p>
-<div class="fmsgs" id="fMsgs"></div><div class="ftyping" id="fTyping" aria-live="polite"></div><div class="freply hidden" id="fReply"></div>
+<div class="fmsgs" id="fMsgs"></div><div class="freply hidden" id="fReply"></div>
 <div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fbar"><textarea class="input" id="fInput" rows="1" maxlength="1000" placeholder="Tulis pesan, ketik @ untuk menyebut teman"></textarea><button class="btn btn-primary" id="fSend" type="button">Kirim</button></div></div></section>
 
 <section class="view" id="view-upload"><h2 class="page-title">Tambah materi</h2><p class="page-sub">Unggah file atau tulis catatan. Hasilnya langsung terkirim ke Telegram.</p>
@@ -2249,6 +2258,7 @@ function renderForum(stick) {
       <div class="fmeta"><span>${esc(fTime(m.ts))}</span><button type="button" class="fmore" data-m="${m.id}" aria-label="Menu pesan">•••</button></div>
     </div></div>`;
   }).join("");
+  fPaintTyping();
   if (stick) box.scrollTop = box.scrollHeight;
 }
 function forumReset() {
@@ -2463,12 +2473,26 @@ async function fReact(id, emoji) {
   } catch (e) { showToast(e.message, true); }
 }
 
-/* sedang mengetik */
-function fSetTyping(names) {
-  const n = (names || []).map(shortName), el = $("fTyping");
-  if (!n.length) { el.textContent = ""; return; }
-  const who = n.length === 1 ? n[0] : n.length === 2 ? n[0] + " dan " + n[1] : n[0] + ", " + n[1] + " dan " + (n.length - 2) + " lainnya";
-  el.textContent = who + " sedang mengetik…";
+/* sedang mengetik: gelembung dengan foto profil di dalam chat (seperti WhatsApp) */
+let fTypers = [];
+function fPaintTyping() {
+  const box = $("fMsgs"), old = $("fTypingRows");
+  if (old) old.remove();
+  if (!fTypers.length) return;
+  const wrap = document.createElement("div");
+  wrap.id = "fTypingRows";
+  wrap.style.cssText = "display:flex;flex-direction:column;gap:8px";
+  wrap.innerHTML = fTypers.map((t) => `<div class="fmsg ftrow"><span>${avatarHtml(t, "s")}</span><div class="ftbub"><small>${esc(shortName(t.name))}</small><div class="tdots"><i class="tdot"></i><i class="tdot"></i><i class="tdot"></i></div></div></div>`).join("");
+  box.append(wrap);
+}
+function fSetTyping(list) {
+  const next = (list || []).filter((t) => t && typeof t === "object");
+  if (JSON.stringify(next) === JSON.stringify(fTypers)) return;
+  const box = $("fMsgs");
+  const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+  fTypers = next;
+  fPaintTyping();
+  if (atBottom) box.scrollTop = box.scrollHeight;
 }
 function fTypePing() {
   const now = Date.now();
