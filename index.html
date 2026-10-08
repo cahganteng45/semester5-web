@@ -522,6 +522,35 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .inbar{display:flex;gap:8px;align-items:flex-end;padding-top:8px}
 .inbar textarea{flex:1;min-width:0;resize:none;min-height:48px;max-height:120px;height:48px}
 .inbar .btn{width:auto;padding:13px 18px;flex-shrink:0}
+.inbar .ibtn{width:44px;height:48px;flex-shrink:0;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;font-size:19px;cursor:pointer;display:grid;place-items:center;padding:0}
+.inbar .ibtn:disabled{opacity:.5}
+.inrec{display:none;align-items:center;gap:10px;flex:1;min-width:0;height:48px;padding:0 6px 0 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.inbar.rec .inrec{display:flex}
+.inbar.rec textarea,.inbar.rec #inAtt,.inbar.rec #inMic{display:none}
+.inrec i{width:10px;height:10px;border-radius:50%;background:var(--red);animation:recp 1s infinite;flex-shrink:0}
+@keyframes recp{50%{opacity:.25}}
+.inrec b{font-variant-numeric:tabular-nums}
+.inrec span{flex:1;color:var(--mute);font-size:13px}
+.inrec button{border:0;background:none;color:var(--mute);font-size:18px;padding:8px 10px;cursor:pointer}
+.infile{margin-bottom:4px}
+.inph{display:block;position:relative;border:0;padding:0;background:var(--line);border-radius:12px;overflow:hidden;cursor:zoom-in;color:var(--mute);font:inherit;font-size:13px}
+.inph.load{display:grid;place-items:center;width:200px;height:140px;cursor:pointer}
+.inph img{display:block;max-width:100%;max-height:300px;width:auto;height:auto}
+.inv{display:grid;place-items:center;width:200px;height:120px;cursor:pointer;text-align:center}
+.inph video{display:block;max-width:100%;max-height:300px}
+.inaud{display:flex;align-items:center;gap:10px;min-width:190px}
+.inplay{width:36px;height:36px;border-radius:50%;border:0;background:var(--brand);color:var(--on-brand);font-size:14px;cursor:pointer;flex-shrink:0}
+.inbarw{flex:1;height:6px;border-radius:3px;background:var(--line);cursor:pointer;position:relative}
+.inbarf{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:3px;background:var(--brand)}
+.indur{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums;min-width:34px;text-align:right}
+.indoc{display:flex;align-items:center;gap:10px;width:100%;min-width:180px;border:0;background:transparent;padding:2px 0;cursor:pointer;color:inherit;font:inherit;text-align:left}
+.indoc>span{font-size:26px}
+.indoc b{display:block;font-size:14px;word-break:break-all}
+.indoc em,.infbig em{display:block;font-style:normal;font-size:12px;color:var(--mute)}
+.infbig{font-size:14px}
+.inview{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.92);display:grid;place-items:center}
+.inview img{max-width:100%;max-height:100%;object-fit:contain}
+.inview button{position:absolute;top:calc(10px + env(safe-area-inset-top));right:12px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff;font-size:18px;cursor:pointer}
 .inhead{display:flex;align-items:center;gap:10px;min-width:0}
 .inhead.tap{cursor:pointer;flex:1;border-radius:12px;padding:2px 6px;-webkit-tap-highlight-color:transparent}
 .inhead.tap:active{background:var(--brand-soft)}
@@ -3013,7 +3042,7 @@ function inNotify(add) {
   if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
 }
 $("fInboxBtn").addEventListener("click", (e) => { e.stopPropagation(); inOpen(); });
-function inClose() { clearInterval(inTimer); inTimer = null; inView = ""; if (inEl) inEl.classList.remove("show"); }
+function inClose() { clearInterval(inTimer); inTimer = null; inView = ""; inRecStop(true); inCleanMedia(); if (inEl) inEl.classList.remove("show"); }
 function inOpen() {
   if (!inEl) {
     inEl = document.createElement("div");
@@ -3026,6 +3055,8 @@ function inOpen() {
       if (e.target.closest("#inTitle.tap")) { inProfile(); return; }
       if (e.target.closest("#inNew")) { inPick(); return; }
       if (Date.now() - inPressAt < 700 && e.target.closest("#inList")) { e.preventDefault(); return; }
+      const fl = e.target.closest("#inList [data-f]");
+      if (fl) { inFileTap(fl, e); return; }
       const qq = e.target.closest("#inList [data-q]");
       if (qq) { inJump(+qq.dataset.q); return; }
       const o = e.target.closest("[data-open]");
@@ -3058,15 +3089,21 @@ async function inPick() {
     .map((m) => `<button type="button" class="fgm" data-open="${esc(m.pid)}" data-nm="${esc(m.name)}">${avatarHtml(m, "s")}<span class="fgmt"><b>${esc(m.name)}</b><small>${esc(m.real ? "@" + m.real : m.mask)}</small></span></button>`).join("");
 }
 function inConv(pid, title) {
+  inRecStop(true); inCleanMedia();
   inView = "conv"; inWith = pid; inLast = 0; inTypingOn = false; inTypeAt = 0; inPeer = null; inMsgs = []; inReplyTo = 0;
   $("inTitle").classList.remove("tap");
   $("inTitle").innerHTML = `<b>${esc(title)}</b>`;
-  $("inBody").innerHTML = '<div class="inlist" id="inList"></div><div class="freply hidden" id="inReply"></div><div class="inbar"><textarea class="input" id="inText" rows="1" maxlength="500" placeholder="Tulis pesan…"></textarea><button type="button" class="btn btn-primary" id="inSend">Kirim</button></div>';
+  $("inBody").innerHTML = '<div class="inlist" id="inList"></div><div class="freply hidden" id="inReply"></div><div class="inbar" id="inBar"><button type="button" class="ibtn" id="inAtt" aria-label="Lampirkan file">📎</button><textarea class="input" id="inText" rows="1" maxlength="500" placeholder="Tulis pesan…"></textarea><button type="button" class="ibtn" id="inMic" aria-label="Rekam pesan suara">🎤</button><div class="inrec"><button type="button" id="inRecX" aria-label="Batalkan rekaman">✕</button><i></i><b id="inRecT">0:00</b><span>Merekam…</span></div><button type="button" class="btn btn-primary" id="inSend">Kirim</button></div>';
+  inObs = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { inObs.unobserve(en.target); inLoadPhoto(en.target); } }), { root: $("inList"), rootMargin: "300px" });
   $("inSend").addEventListener("click", inSend);
+  $("inAtt").addEventListener("click", inPickFile);
+  $("inMic").addEventListener("click", inRecStart);
+  $("inRecX").addEventListener("click", () => inRecStop(true));
   $("inText").addEventListener("input", () => {
     const t = $("inText");
     t.style.height = "auto";
     t.style.height = Math.min(t.scrollHeight, 120) + "px";
+    $("inMic").classList.toggle("hidden", !!t.value.trim());
     const now = Date.now();
     if (t.value.trim() && now - inTypeAt > 2500) {
       inTypeAt = now;
@@ -3109,7 +3146,9 @@ function inAppend(list, first) {
     const mine = inMine(m);
     const t = new Date(m.ts).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
     const q = m.reply ? `<div class="fquote" data-q="${m.reply.id}"><b>${esc(inWho(m.reply))}</b>${esc(m.reply.text)}</div>` : "";
-    box.insertAdjacentHTML("beforeend", `<div class="ib ${mine ? "me" : ""}" id="ib-${m.id}"><div class="ibb">${q}${esc(m.text)}<small>${esc(t)}</small></div></div>`);
+    box.insertAdjacentHTML("beforeend", `<div class="ib ${mine ? "me" : ""}" id="ib-${m.id}"><div class="ibb">${q}${inFileHtml(m)}${esc(m.text)}<small>${esc(t)}</small></div></div>`);
+    const ph = m.file && m.file.kind === "photo" && !m.file.big ? document.querySelector(`#ib-${m.id} [data-f="photo"]`) : null;
+    if (ph && inObs) inObs.observe(ph);
   });
   if (inTypingOn) inPaintTyping(true);
   if (near || first) box.scrollTop = box.scrollHeight;
@@ -3157,6 +3196,7 @@ function inPaintTyping(on) {
   if (near) box.scrollTop = box.scrollHeight;
 }
 async function inSend() {
+  if (inRec) { inRecStop(false); return; }
   const inp = $("inText"), text = inp.value.trim();
   if (!text) return;
   $("inSend").disabled = true;
@@ -3170,6 +3210,211 @@ async function inSend() {
     inAppend([d.message], false);
   } catch (e) { showToast(e.message, true); }
   $("inSend").disabled = false;
+}
+
+/* ---------- lampiran chat admin: foto, file, video, pesan suara ---------- */
+const IN_MAX_MB = 15;
+const IN_ICON = { photo: "📷", voice: "🎤", audio: "🎵", video: "🎬", doc: "📄" };
+const IN_NAME = { photo: "Foto", voice: "Pesan suara", audio: "Audio", video: "Video" };
+let inBlobs = new Map(), inRec = null, inObs = null, inAudio = null, inBusy = false;
+const inLabel = (m) => (m.text && m.text.trim()) || (m.file ? (IN_ICON[m.file.kind] || "📎") + " " + (IN_NAME[m.file.kind] || m.file.name || "Dokumen") : "");
+function fmtSize(n) { n = +n || 0; return n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB"; }
+function fmtDur(s) { s = Math.max(0, Math.round(+s || 0)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+function inCleanMedia() {
+  if (inAudio) { try { inAudio.pause(); } catch (e) {} inAudio = null; }
+  if (inObs) { inObs.disconnect(); inObs = null; }
+  inBlobs.forEach((u) => URL.revokeObjectURL(u));
+  inBlobs.clear();
+}
+async function inBlob(m, play) {
+  const key = m.id + (play ? "p" : "");
+  if (inBlobs.has(key)) return inBlobs.get(key);
+  const res = await apiCall(`/api/inbox/file/${m.id}?with=${encodeURIComponent(inWith)}${play ? "&play=1" : ""}`);
+  if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || "Gagal memuat lampiran."); }
+  const url = URL.createObjectURL(await res.blob());
+  inBlobs.set(key, url);
+  return url;
+}
+function inFileHtml(m) {
+  const f = m.file;
+  if (!f) return "";
+  const ic = IN_ICON[f.kind] || "📎", id = m.id;
+  if (f.big) return `<div class="infile infbig">${ic} ${esc(f.name || IN_NAME[f.kind] || "File")} · ${fmtSize(f.size)}<em>Terlalu besar untuk dimuat di sini. Buka di Telegram.</em></div>`;
+  if (f.kind === "photo") return `<button type="button" class="infile inph load" data-f="photo" data-id="${id}">Memuat foto…</button>`;
+  if (f.kind === "voice" || f.kind === "audio") return `<div class="infile inaud" data-f="aud" data-id="${id}"><button type="button" class="inplay" aria-label="Putar">▶</button><div class="inbarw" data-seek><div class="inbarf"></div></div><span class="indur">${fmtDur(f.dur)}</span></div>`;
+  if (f.kind === "video") return `<button type="button" class="infile inph inv" data-f="video" data-id="${id}">🎬 Putar video<br><small>${fmtSize(f.size)}</small></button>`;
+  return `<button type="button" class="infile indoc" data-f="doc" data-id="${id}"><span>${ic}</span><div><b>${esc(f.name || "Dokumen")}</b><em>${fmtSize(f.size)} · ketuk untuk mengunduh</em></div></button>`;
+}
+const inMsgOf = (el) => inMsgs.find((x) => x.id === +el.dataset.id);
+async function inLoadPhoto(el) {
+  const m = inMsgOf(el);
+  if (!m) return;
+  try {
+    const url = await inBlob(m);
+    el.classList.remove("load");
+    el.innerHTML = `<img src="${url}" alt="Foto">`;
+  } catch (e) { el.classList.add("load"); el.textContent = "Gagal memuat. Ketuk untuk coba lagi."; el.dataset.err = "1"; }
+}
+function inViewer(url) {
+  const o = document.createElement("div");
+  o.className = "inview";
+  o.innerHTML = `<img src="${url}" alt=""><button type="button" aria-label="Tutup">✕</button>`;
+  o.addEventListener("click", () => o.remove());
+  document.body.append(o);
+}
+async function inFileTap(el, e) {
+  const m = inMsgOf(el);
+  if (!m || !m.file) return;
+  const k = el.dataset.f;
+  if (k === "photo") {
+    if (el.dataset.err) { delete el.dataset.err; el.textContent = "Memuat foto…"; return inLoadPhoto(el); }
+    const img = el.querySelector("img");
+    if (img) inViewer(img.src);
+    return;
+  }
+  if (k === "video") {
+    el.textContent = "Memuat video…";
+    try { const url = await inBlob(m); el.className = "infile inph"; el.removeAttribute("data-f"); el.innerHTML = `<video controls playsinline autoplay src="${url}"></video>`; }
+    catch (err) { el.className = "infile inph inv"; el.innerHTML = "🎬 Gagal. Ketuk untuk coba lagi"; showToast(err.message, true); }
+    return;
+  }
+  if (k === "doc") {
+    try {
+      const url = await inBlob(m);
+      const a = document.createElement("a");
+      a.href = url; a.download = m.file.name || "file";
+      document.body.append(a); a.click(); a.remove();
+    } catch (err) { showToast(err.message, true); }
+    return;
+  }
+  if (k === "aud") inPlayAudio(el, m, e);
+}
+async function inPlayAudio(el, m, e) {
+  const btn = el.querySelector(".inplay"), bar = el.querySelector(".inbarf"), tm = el.querySelector(".indur");
+  const seek = e.target.closest("[data-seek]");
+  if (el._a) {
+    const a = el._a;
+    if (seek && a.duration) { const r = seek.getBoundingClientRect(); a.currentTime = a.duration * Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)); return; }
+    if (a.paused) { if (inAudio && inAudio !== a) inAudio.pause(); inAudio = a; a.play(); } else a.pause();
+    return;
+  }
+  if (!e.target.closest(".inplay")) return;
+  btn.textContent = "…";
+  try {
+    const canOgg = !!document.createElement("audio").canPlayType('audio/ogg; codecs="opus"');
+    const url = await inBlob(m, !canOgg);
+    const a = new Audio(url);
+    el._a = a;
+    a.addEventListener("timeupdate", () => { if (a.duration) bar.style.width = (a.currentTime / a.duration * 100) + "%"; tm.textContent = fmtDur(a.currentTime); });
+    a.addEventListener("play", () => { btn.textContent = "❚❚"; });
+    a.addEventListener("pause", () => { btn.textContent = "▶"; });
+    a.addEventListener("ended", () => { btn.textContent = "▶"; bar.style.width = "0"; tm.textContent = fmtDur(m.file.dur || a.duration); });
+    if (inAudio && inAudio !== a) inAudio.pause();
+    inAudio = a;
+    await a.play();
+  } catch (err) { btn.textContent = "▶"; showToast(err.name === "NotAllowedError" ? "Ketuk lagi untuk memutar." : (err.message || "Gagal memutar."), true); }
+}
+
+/* kirim lampiran */
+function inSetBusy(on) {
+  inBusy = on;
+  ["inAtt", "inMic", "inSend"].forEach((id) => { const b = $(id); if (b) b.disabled = on; });
+}
+function inShrink(file) {
+  return new Promise((resolve) => {
+    const img = new Image(), u = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(u);
+      const sc = Math.min(1, 1600 / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+      const x = c.getContext("2d");
+      x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob((b) => resolve(b && b.size < file.size ? new File([b], file.name.replace(/\.\w+$/, "") + ".jpg", { type: "image/jpeg" }) : file), "image/jpeg", 0.82);
+    };
+    img.onerror = () => { URL.revokeObjectURL(u); resolve(file); };
+    img.src = u;
+  });
+}
+async function inUpload(file, opts = {}) {
+  if (!file || inBusy) return;
+  if (file.size > IN_MAX_MB * 1048576) return showToast(`File terlalu besar (maks ${IN_MAX_MB} MB).`, true);
+  inSetBusy(true);
+  try {
+    let f = file;
+    if (!opts.voice && /^image\/(jpeg|png|webp)$/.test(f.type) && f.size > 700e3) f = await inShrink(f);
+    const fd = new FormData();
+    fd.append("file", f, f.name || (opts.voice ? "vn" : "file"));
+    fd.append("to", inWith);
+    fd.append("caption", opts.caption || "");
+    fd.append("reply_to", inReplyTo || 0);
+    if (opts.voice) { fd.append("kind", "voice"); fd.append("dur", Math.round(opts.dur || 0)); }
+    const res = await apiCall("/api/inbox/upload", { method: "POST", body: fd });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim lampiran.");
+    if (opts.caption) { const t = $("inText"); if (t) { t.value = ""; t.style.height = "auto"; $("inMic").classList.remove("hidden"); } }
+    inClearReply();
+    inAppend([d.message], false);
+  } catch (e) { showToast(e.message, true); }
+  inSetBusy(false);
+}
+function inPickFile() {
+  if (inBusy || inRec) return;
+  const i = document.createElement("input");
+  i.type = "file";
+  i.accept = "image/*,video/mp4,video/quicktime,audio/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar,.csv";
+  i.addEventListener("change", async () => {
+    const f = i.files && i.files[0];
+    if (!f) return;
+    if (f.size > IN_MAX_MB * 1048576) return showToast(`File terlalu besar (maks ${IN_MAX_MB} MB).`, true);
+    const cap = ($("inText").value || "").trim();
+    const ok = await openModal({ title: "Kirim lampiran?", text: `${f.name} · ${fmtSize(f.size)}${cap ? "\nTeks di kolom akan jadi keterangan." : ""}`, ok: "Kirim" });
+    if (ok) inUpload(f, { caption: cap });
+  });
+  i.click();
+}
+
+/* rekam pesan suara */
+function inPaintRec(on) { const b = $("inBar"); if (b) b.classList.toggle("rec", on); }
+async function inRecStart() {
+  if (inRec || inBusy) return;
+  if (!navigator.mediaDevices || !window.MediaRecorder) return showToast("Perekaman suara tidak didukung di browser ini.", true);
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+  catch (e) { return showToast("Izin mikrofon ditolak.", true); }
+  const mt = ["audio/webm;codecs=opus", "audio/ogg;codecs=opus", "audio/mp4", "audio/webm"].find((t) => MediaRecorder.isTypeSupported(t)) || "";
+  let rec;
+  try { rec = new MediaRecorder(stream, mt ? { mimeType: mt } : undefined); }
+  catch (e) { stream.getTracks().forEach((t) => t.stop()); return showToast("Perekaman suara tidak didukung di browser ini.", true); }
+  const r = { rec, stream, chunks: [], t0: Date.now(), cancel: false, timer: null, mime: rec.mimeType || mt || "audio/webm" };
+  inRec = r;
+  rec.ondataavailable = (e) => { if (e.data && e.data.size) r.chunks.push(e.data); };
+  rec.onstop = () => {
+    stream.getTracks().forEach((t) => t.stop());
+    clearInterval(r.timer);
+    if (inRec === r) inRec = null;
+    inPaintRec(false);
+    if (r.cancel) return;
+    const dur = (Date.now() - r.t0) / 1000;
+    if (dur < 0.8) return showToast("Pesan suara terlalu singkat.", true);
+    const base = r.mime.split(";")[0], ext = /ogg/.test(base) ? "ogg" : /mp4/.test(base) ? "m4a" : "webm";
+    inUpload(new File([new Blob(r.chunks, { type: base })], "vn." + ext, { type: base }), { voice: true, dur });
+  };
+  rec.start(250);
+  inPaintRec(true);
+  $("inRecT").textContent = "0:00";
+  r.timer = setInterval(() => {
+    const s = (Date.now() - r.t0) / 1000;
+    $("inRecT").textContent = fmtDur(s);
+    if (s >= 300) inRecStop(false);
+  }, 250);
+}
+function inRecStop(cancel) {
+  const r = inRec;
+  if (!r) return;
+  r.cancel = !!cancel;
+  if (cancel) { inRec = null; inPaintRec(false); }
+  try { if (r.rec.state !== "inactive") r.rec.stop(); else { r.stream.getTracks().forEach((t) => t.stop()); clearInterval(r.timer); } } catch (e) {}
 }
 
 /* ---------- chat admin: balas, hapus, tekan lama, geser (sama seperti forum) ---------- */
@@ -3204,7 +3449,7 @@ function inSetReply(id) {
   const r = $("inReply");
   if (!m || !r) return;
   inReplyTo = id;
-  r.innerHTML = `<span><b>${esc(inWho(m))}</b>: ${esc(m.text.slice(0, 80))}</span><button type="button" aria-label="Batalkan balasan">✕</button>`;
+  r.innerHTML = `<span><b>${esc(inWho(m))}</b>: ${esc(inLabel(m).slice(0, 80))}</span><button type="button" aria-label="Batalkan balasan">✕</button>`;
   r.classList.remove("hidden");
   r.querySelector("button").onclick = inClearReply;
   const t = $("inText"); if (t) t.focus();
@@ -3286,7 +3531,7 @@ function inOpenPress(bub, id) {
     const a = b.dataset.a;
     inClosePress(true);
     if (a === "reply") inSetReply(id);
-    else if (a === "copy") copyText(m.text);
+    else if (a === "copy") { if (m.text) copyText(m.text); else showToast("Tidak ada teks untuk disalin."); }
     else if (a === "del") inDelete(id);
   });
   ov.addEventListener("contextmenu", (e) => e.preventDefault());
