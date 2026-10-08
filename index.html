@@ -265,7 +265,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .au .n{font-weight:700;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .au .m{font-size:12px;color:var(--mute);margin:3px 0 10px;word-break:break-word}
 .fdot{position:absolute;top:-5px;right:-3px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:var(--red);color:#fff;font-size:10px;font-weight:800;font-style:normal;display:grid;place-items:center;border:2px solid var(--surface);line-height:1}
-.fmsgs{height:calc(100vh - 330px);height:calc(100dvh - 330px);min-height:280px;overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:14px;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.fmsgs{height:calc(100vh - 240px);height:calc(100dvh - 240px);min-height:280px;overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:14px;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
 .fday{align-self:center;font-size:11px;font-weight:700;color:var(--mute);background:var(--bg);padding:3px 12px;border-radius:99px;margin:6px 0}
 .fmsg{display:flex}
 .fmsg.me{justify-content:flex-end}
@@ -342,7 +342,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .nav-item .pill{width:auto;height:auto;background:none!important}
 .nav-item.active{background:var(--brand-soft)}
 .fdot{top:-2px;right:-4px}
-.fmsgs{height:calc(100vh - 290px);height:calc(100dvh - 290px)}
+.fmsgs{height:calc(100vh - 250px);height:calc(100dvh - 250px)}
 .nav-user{display:flex;align-items:center;gap:10px;padding:14px 8px 0;border-top:1px solid var(--line)}
 .nav-user .avatar{width:38px;height:38px;font-size:14px}
 .nav-user .who{flex:1;min-width:0}
@@ -472,12 +472,21 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .fgcard dd{margin:2px 0 0;font-size:15px;font-weight:600;word-break:break-all}
 .fgcard .fgnote{font-size:12px;color:var(--mute);margin-top:12px}
 /* font judul grup: sama seperti judul halaman sebelumnya (font display) */
-.fgtx b{font-family:var(--font-d);font-size:22px;font-weight:800;letter-spacing:-.03em;line-height:1.2}
-.fgtx small{font-family:var(--font-b);font-size:14px;margin-top:2px}
+.fgtx b{font-family:var(--font-d);font-size:17px;font-weight:800;letter-spacing:-.025em;line-height:1.2}
+.fgtx small{font-family:var(--font-b);font-size:12.5px;margin-top:1px}
 .fgname{font-family:var(--font-d);font-size:26px;font-weight:800;letter-spacing:-.03em}
 .fgbar b{font-family:var(--font-d);font-weight:800;letter-spacing:-.02em}
 .fgmt b{font-family:var(--font-d);font-weight:700;letter-spacing:-.01em}
 .fgcard h3{font-family:var(--font-d);font-weight:800;letter-spacing:-.02em}
+.fgimg.sm{width:38px;height:38px;font-size:18px}
+.fghead{padding:8px 12px;margin-bottom:8px;gap:10px;border-radius:14px}
+.vbadge.user{filter:none}
+.fgver{margin-top:14px;text-align:left}
+.fgchips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.fgchips button{font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;background:var(--brand-soft);color:var(--brand)}
+.fgrow{display:flex;gap:8px;margin-top:10px}
+.fgrow .btn{flex:1}
+.fgcard .vbadge{width:1em;height:1em;margin:0}
 </style>
 </head>
 <body>
@@ -577,7 +586,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 
 <section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div></div>
 <div class="fmsgs" id="fMsgs"></div><div class="freply hidden" id="fReply"></div>
-<div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fbar"><textarea class="input" id="fInput" rows="1" maxlength="1000" placeholder="Tulis pesan, ketik @ untuk menyebut teman"></textarea><button class="btn btn-primary" id="fSend" type="button">Kirim</button></div></div></section>
+<div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fbar"><textarea class="input" id="fInput" rows="1" maxlength="1000" placeholder="Tulis pesan…"></textarea><button class="btn btn-primary" id="fSend" type="button">Kirim</button></div></div></section>
 
 <section class="view" id="view-upload"><h2 class="page-title">Tambah materi</h2><p class="page-sub">Unggah file atau tulis catatan. Hasilnya langsung terkirim ke Telegram.</p>
 <div class="card">
@@ -728,8 +737,12 @@ function formatNim(s) {
 ["nim", "fgNim", "adNewNim"].forEach((id) => $(id).addEventListener("input", (e) => { e.target.value = formatNim(e.target.value); }));
 
 const shortName = (n) => String(n || "").trim().split(/\s+/).slice(0, 2).join(" ");
-const BADGE = '<svg class="vbadge" viewBox="0 0 24 24" role="img" aria-label="Terverifikasi"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#1d9bf0"/><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#1d9bf0" transform="rotate(45 12 12)"/><path d="M7.4 12.4l3.1 3.1 6.1-6.6" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const nameHtml = (name, owner) => esc(name) + (owner ? BADGE : "");
+const BADGE = '<svg class="vbadge" data-t="admin" viewBox="0 0 24 24" role="img" aria-label="Terverifikasi admin"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#1d9bf0"/><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#1d9bf0" transform="rotate(45 12 12)"/><path d="M7.4 12.4l3.1 3.1 6.1-6.6" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var fVers = {};   // pid -> keterangan centang pengguna (dari server, lewat polling forum)
+function verOf(pid) { return (pid && fVers && fVers[pid]) || ""; }
+function myPid() { try { return myProfile.pid || ""; } catch (e) { return ""; } }
+const VUSER = (label) => '<svg class="vbadge user" data-t="user" data-l="' + esc(label) + '" viewBox="0 0 24 24" role="img" aria-label="Terverifikasi"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#e0a100"/><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#e0a100" transform="rotate(45 12 12)"/><path d="M7.4 12.4l3.1 3.1 6.1-6.6" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const nameHtml = (name, owner, ver) => esc(name) + (owner ? BADGE : ver ? VUSER(ver) : "");
 const initialsOf = (n) => String(n || "?").replace(/[^\p{L}\p{N} ]/gu, "").trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "?";
 function avatarHtml(o, size) {
   const cls = "av " + (size || "s");
@@ -760,7 +773,7 @@ async function openProfile(pid) {
   bg.className = "modal-bg";
   bg.innerHTML = `<div class="modal" role="dialog" aria-modal="true" style="text-align:center">
     <div style="display:flex;justify-content:center;margin-bottom:12px">${avatarHtml(d, "l")}</div>
-    <h3>${nameHtml(d.name, d.owner)}</h3>
+    <h3>${nameHtml(d.name, d.owner, verOf(d.pid))}</h3>
     <p style="margin-bottom:6px">${d.owner ? "Admin" : esc(d.real ? "@" + d.real : d.mask)}</p>
     ${d.bio ? `<p style="color:var(--ink)">${esc(d.bio)}</p>` : ""}
     <div class="m-btns"><button type="button" class="btn btn-line">Tutup</button></div></div>`;
@@ -851,7 +864,7 @@ function tickClock() {
 function updateGreeting() {
   const h = new Date().getHours();
   const w = h >= 5 && h < 11 ? "pagi" : h >= 11 && h < 15 ? "siang" : h >= 15 && h < 18 ? "sore" : "malam";
-  $("greetingText").textContent = `Selamat ${w}, ${callName()}`;
+  $("greetingText").innerHTML = `Selamat ${w}, ${esc(callName())}${isAdmin ? BADGE : verOf(myPid()) ? VUSER(verOf(myPid())) : ""}`;
   $("dateText").textContent = new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
@@ -1082,8 +1095,8 @@ $("nameForm").addEventListener("submit", async (e) => {
     fullUserName = data.full_name;
     myProfile.bio = data.bio || "";
     const owner = currentUser.toLowerCase() === "admin";
-    $("navName").innerHTML = nameHtml(fullUserName, owner);
-    $("setName").innerHTML = nameHtml(fullUserName, owner);
+    $("navName").innerHTML = nameHtml(fullUserName, owner, verOf(myPid()));
+    $("setName").innerHTML = nameHtml(fullUserName, owner, verOf(myPid()));
     $("newName").value = fullUserName;
     $("newBio").value = myProfile.bio;
     $("setBioLine").textContent = myProfile.bio || "Tambahkan bio";
@@ -1219,8 +1232,8 @@ async function initApp() {
     fullUserName = data.full_name || currentUser;
     const isOwner = currentUser.toLowerCase() === "admin";
     myProfile = { pid: data.pid || "", av: !!data.av, avv: data.avv || 0, bio: data.bio || "" };
-    $("navName").innerHTML = nameHtml(fullUserName, isOwner);
-    $("setName").innerHTML = nameHtml(fullUserName, isOwner);
+    $("navName").innerHTML = nameHtml(fullUserName, isOwner, verOf(myPid()));
+    $("setName").innerHTML = nameHtml(fullUserName, isOwner, verOf(myPid()));
     $("setUser").textContent = "@" + currentUser;
     $("setBioLine").textContent = myProfile.bio || "Tambahkan bio";
     $("newName").value = fullUserName;
@@ -1511,7 +1524,7 @@ function renderMaterials() {
     ].join("");
     return `<article class="mitem ${pinned ? "pinned" : ""}">
       <div><div class="mname">${isText ? "Catatan" : esc(m.name)}</div>
-        <div class="mmeta">${m.sender_pid ? `<span data-p="${esc(m.sender_pid)}">${avatarHtml({ pid: m.sender_pid, av: m.sender_av, avv: m.sender_avv, name: sname }, "xs")}</span>` : ""}<span class="${owner ? "owner" : ""}"${m.sender_pid ? ` data-p="${esc(m.sender_pid)}"` : ""}>${nameHtml(sname, owner)}</span>${!owner && m.sender_tag ? `<span class="uname">${esc(m.sender_tag)}</span>` : ""}
+        <div class="mmeta">${m.sender_pid ? `<span data-p="${esc(m.sender_pid)}">${avatarHtml({ pid: m.sender_pid, av: m.sender_av, avv: m.sender_avv, name: sname }, "xs")}</span>` : ""}<span class="${owner ? "owner" : ""}"${m.sender_pid ? ` data-p="${esc(m.sender_pid)}"` : ""}>${nameHtml(sname, owner, verOf(m.sender_pid))}</span>${!owner && m.sender_tag ? `<span class="uname">${esc(m.sender_tag)}</span>` : ""}
           <span>${m.date ? esc(new Date(m.date).toLocaleString("id-ID")) : ""}</span>
           <span class="tag">${m.source === "website" ? "Web" : "Telegram"}</span>
           ${!isText ? `<span>${formatBytes(m.size)}</span>` : ""}</div></div>
@@ -2293,7 +2306,7 @@ function renderForum(stick) {
     const tag = crown ? "" : `<small>${esc(m.real ? "@" + m.real : m.mask)}</small>`;
     const divider = fDivId && m.id === fDivId ? `<div class="funread" id="fUnread"><span>${fDivCount} pesan belum dibaca</span></div>` : "";
     return `${sep}${divider}<div class="fmsg ${mine ? "me" : ""} ${m.mentioned && !mine ? "mentioned" : ""}" id="fm-${m.id}">${mine ? "" : `<span data-p="${esc(m.pid)}">${avatarHtml(m, "s")}</span>`}<div class="fbub">
-      ${mine ? "" : `<div class="fname" data-p="${esc(m.pid)}">${nameHtml(name, crown)}${tag}</div>`}${quote}
+      ${mine ? "" : `<div class="fname" data-p="${esc(m.pid)}">${nameHtml(name, crown, verOf(m.pid))}${tag}</div>`}${quote}
       <div class="ftext">${fmtText(m)}</div>${reactsHtml(m)}
       <div class="fmeta"><span>${esc(fTime(m.ts))}</span><button type="button" class="fmore" data-m="${m.id}" aria-label="Menu pesan">•••</button></div>
     </div></div>`;
@@ -2302,6 +2315,7 @@ function renderForum(stick) {
   if (stick) box.scrollTop = box.scrollHeight;
 }
 function forumReset() {
+  fVers = {};
   fGroupMembers = []; fGroup = { name: "Forum Kelas", av: false, avv: 0, n: 0 }; fGroupAt = 0;
   if (fgEl) { fgEl.remove(); fgEl = null; }
   fMsgs = []; fLastId = 0; fLoaded = false; fReplyTo = null; fDivId = 0; fDivCount = 0;
@@ -2334,6 +2348,10 @@ async function pollForum() {
     if (d.reacts && fApplyReacts(d.reacts)) changed = true;
     fSetTyping(d.typing || []);
     fApplyGroup(d.group);
+    if (d.vers && JSON.stringify(d.vers) !== JSON.stringify(fVers)) {
+      fVers = d.vers; changed = true; fRepaintSelf();
+      if (fgEl && fgEl.classList.contains("show")) fRenderGroupPage();
+    }
     const maxId = fMsgs.reduce((a, m) => Math.max(a, m.id), 0);
     if (ment && fLoaded && !(activeView === "forum" && !document.hidden)) {
       fBanner(ment, true);
@@ -2682,7 +2700,7 @@ function fgPhotoHtml(cls) {
     : `<span class="${cls}">👥</span>`;
 }
 function fPaintGroupHead() {
-  $("fGroupPhoto").innerHTML = fgPhotoHtml("fgimg");
+  $("fGroupPhoto").innerHTML = fgPhotoHtml("fgimg sm");
   $("fGroupName").textContent = fGroup.name;
   const names = fGroupMembers.map((m) => (m.mine ? "Kamu" : shortName(m.name)));
   $("fGroupMembers").textContent = names.length ? names.join(", ") : (fGroup.n ? fGroup.n + " anggota" : "Ketuk untuk melihat anggota");
@@ -2708,10 +2726,11 @@ function fApplyGroup(gr) {
   fPaintGroupHead();
   fLoadGroup(true);
 }
-async function fgPost(path, body) {
+async function fgPost(path, body, raw) {
   const res = await apiCall(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   const d = await res.json();
   if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menyimpan.");
+  if (raw) return d;
   fGroup = { ...fGroup, ...d.group };
   fPaintGroupHead();
   fRenderGroupPage();
@@ -2720,7 +2739,7 @@ async function fgPost(path, body) {
 function fRenderGroupPage() {
   if (!fgEl) return;
   const adm = isAdmin;
-  const row = (m) => `<button type="button" class="fgm" data-pid="${esc(m.pid)}">${avatarHtml(m, "s")}<span class="fgmt"><b>${esc(m.mine ? "Kamu" : m.name)}</b><small>${esc(m.owner ? "Admin" : adm && m.real ? "@" + m.real : m.mask)}</small></span>${m.owner ? '<em class="fgadm">Admin grup</em>' : ""}</button>`;
+  const row = (m) => `<button type="button" class="fgm" data-pid="${esc(m.pid)}">${avatarHtml(m, "s")}<span class="fgmt"><b>${nameHtml(m.mine ? "Kamu" : m.name, m.owner, verOf(m.pid))}</b><small>${esc(m.owner ? "Admin" : adm && m.real ? "@" + m.real : m.mask)}</small></span>${m.owner ? '<em class="fgadm">Admin grup</em>' : ""}</button>`;
   $("fgBody").innerHTML = `<div class="fgtop"><div class="fgbig ${adm ? "edit" : ""}" id="fgPhoto">${fgPhotoHtml("fgimg big")}${adm ? '<span class="fgcam">📷</span>' : ""}</div>
 <h2 class="fgname">${esc(fGroup.name)}${adm ? ' <button type="button" class="fgedit" id="fgRename" aria-label="Ubah nama grup">✎</button>' : ""}</h2>
 <p class="fgsub">Grup · ${fGroupMembers.length || fGroup.n} anggota</p>${adm && fGroup.av ? '<button type="button" class="fgdel" id="fgDelPhoto">Hapus foto grup</button>' : ""}</div>
@@ -2741,8 +2760,26 @@ function fOpenMember(pid) {
   const rows = adm
     ? `<dt>Username</dt><dd>${esc(m.real ? "@" + m.real : "-")}</dd><dt>NIM</dt><dd>${esc(m.nim || "-")}</dd>`
     : `<dt>Username</dt><dd>${esc(m.owner ? "Admin" : m.mask)}</dd>`;
-  const s = fgSheet(`<div>${avatarHtml(m, "l")}</div><h3>${esc(m.mine ? m.name + " (kamu)" : m.name)}</h3>${m.bio ? `<p class="fgsub">${esc(m.bio)}</p>` : ""}<dl>${rows}</dl>${adm ? '<p class="fgnote">Username asli dan NIM hanya terlihat oleh admin.</p>' : ""}<button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
+  const cur = verOf(m.pid);
+  const ctl = adm && !m.owner ? `<div class="fgver"><div class="fgchips">${["Terverifikasi", "Ketua Kelas", "Sekretaris", "Bendahara", "Asisten Lab"].map((x) => `<button type="button" data-pre="${esc(x)}">${esc(x)}</button>`).join("")}</div><input class="input" id="fgVerIn" maxlength="30" placeholder="Keterangan centang" value="${esc(cur)}"><div class="fgrow"><button type="button" class="btn btn-primary" id="fgVerOn">${cur ? "Perbarui centang" : "Beri centang"}</button>${cur ? '<button type="button" class="btn" id="fgVerOff">Cabut</button>' : ""}</div></div>` : "";
+  const s = fgSheet(`<div>${avatarHtml(m, "l")}</div><h3>${nameHtml(m.mine ? m.name + " (kamu)" : m.name, m.owner, verOf(m.pid))}</h3>${m.bio ? `<p class="fgsub">${esc(m.bio)}</p>` : ""}<dl>${rows}</dl>${adm ? '<p class="fgnote">Username asli dan NIM hanya terlihat oleh admin.</p>' : ""}${ctl}<button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
   s.querySelector("[data-close]").addEventListener("click", () => s.remove());
+  if (ctl) {
+    const inp = s.querySelector("#fgVerIn");
+    s.querySelectorAll("[data-pre]").forEach((b) => b.addEventListener("click", () => { inp.value = b.dataset.pre; }));
+    const send = async (on) => {
+      try {
+        const d = await fgPost("/api/forum/verify", { pid: m.pid, on, label: inp.value }, true);
+        fVers = d.vers || {};
+        fRepaintSelf(); renderForum(false); fRenderGroupPage();
+        s.remove();
+        showToast(on ? "Centang diberikan." : "Centang dicabut.");
+      } catch (e) { showToast(e.message, true); }
+    };
+    s.querySelector("#fgVerOn").addEventListener("click", () => send(true));
+    const off = s.querySelector("#fgVerOff");
+    if (off) off.addEventListener("click", () => send(false));
+  }
 }
 function fRenameGroup() {
   const s = fgSheet(`<h3>Nama grup</h3><input class="input" id="fgNameIn" maxlength="40" value="${esc(fGroup.name)}" style="margin-top:12px"><button type="button" class="btn btn-primary" id="fgNameOk" style="margin-top:12px;width:100%">Simpan</button>`);
@@ -2785,6 +2822,25 @@ function fOpenGroup() {
 }
 $("fGroupHead").addEventListener("click", fOpenGroup);
 $("fGroupHead").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fOpenGroup(); } });
+
+/* ---------- centang terverifikasi ---------- */
+function fRepaintSelf() {
+  const v = verOf(myPid());
+  if (currentUser) {
+    $("navName").innerHTML = nameHtml(fullUserName, isAdmin, v);
+    $("setName").innerHTML = nameHtml(fullUserName, isAdmin, v);
+  }
+  updateGreeting();
+}
+// fase capture: klik pada centang tidak ikut membuka profil/menu di belakangnya
+document.addEventListener("click", (e) => {
+  const b = e.target.closest && e.target.closest(".vbadge");
+  if (!b) return;
+  e.stopPropagation(); e.preventDefault();
+  const admin = b.dataset.t === "admin", label = b.dataset.l || "Terverifikasi";
+  const s = fgSheet(`<div style="font-size:46px;line-height:1">${admin ? BADGE : VUSER(label)}</div><h3>${admin ? "Terverifikasi admin" : esc(label)}</h3><p class="fgsub">${admin ? "Akun resmi admin Semester 5." : "Diverifikasi oleh admin Semester 5."}</p><button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
+  s.querySelector("[data-close]").addEventListener("click", () => s.remove());
+}, true);
 
 /* ---------- tekan lama pesan: latar blur + menu (gaya iOS WhatsApp) ---------- */
 let fPressAt = 0, fPressTimer = null, fPressStart = null, fPressEl = null, fPressOpen = null;
