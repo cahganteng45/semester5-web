@@ -287,7 +287,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .fbar{display:flex;gap:8px;align-items:flex-end}
 .fbar textarea{flex:1;resize:none;min-height:48px;max-height:120px}
 .fbar .btn{width:auto;padding:13px 18px}
-.modal-bg{position:fixed;inset:0;z-index:1100;background:rgba(6,16,13,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fade .15s ease}
+.modal-bg{position:fixed;inset:0;z-index:1400;background:rgba(6,16,13,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fade .15s ease}
 .modal{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-l);padding:26px 24px 22px;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:pop .22s cubic-bezier(.34,1.4,.64,1)}
 @keyframes pop{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:none}}
 .modal .m-ic{width:48px;height:48px;border-radius:16px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;margin-bottom:14px}
@@ -491,7 +491,16 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .inpage{display:flex;flex-direction:column}
 .inbody{flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto}
 .inlist{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:6px 2px}
-.ib{display:flex}
+.ib{display:flex;position:relative;touch-action:pan-y}
+.inlist{overflow-x:hidden}
+.ibb{transition:transform .25s ease;-webkit-touch-callout:none}
+.ibb.pressing{transform:scale(.96)}
+.ib.snap{transition:transform .22s ease}
+.ib.swiping::before{content:"↩";position:absolute;left:-40px;top:50%;width:30px;height:30px;margin-top:-15px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:16px;background:var(--brand-soft);color:var(--brand);opacity:var(--sw,0);transform:scale(calc(.55 + var(--sw,0) * .45));transition:background .15s,color .15s}
+.ib.swiping.ready::before{background:var(--brand);color:var(--on-brand)}
+.ib.flash .ibb{animation:flash 1.5s ease}
+.ibb .fquote{margin-bottom:6px}
+.fpress .fclone.ibb{max-width:none;margin:0}
 .ib.me{justify-content:flex-end}
 .ibb{max-width:80%;background:var(--surface);border:1px solid var(--line);border-radius:16px 16px 16px 4px;padding:8px 12px;white-space:pre-wrap;word-break:break-word}
 .ib.me .ibb{background:var(--brand-soft);border-color:transparent;border-radius:16px 16px 4px 16px}
@@ -500,6 +509,10 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .inbar textarea{flex:1;min-width:0;resize:none;min-height:48px;max-height:120px;height:48px}
 .inbar .btn{width:auto;padding:13px 18px;flex-shrink:0}
 .inhead{display:flex;align-items:center;gap:10px;min-width:0}
+.inhead.tap{cursor:pointer;flex:1;border-radius:12px;padding:2px 6px;-webkit-tap-highlight-color:transparent}
+.inhead.tap:active{background:var(--brand-soft)}
+.ubadge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;border-radius:9px;background:var(--red);color:#fff;font-size:10px;font-weight:800;line-height:1;vertical-align:middle}
+.fgm .ubadge{margin-left:auto;flex-shrink:0}
 .inwho{min-width:0}
 .inwho b{display:block;font-family:var(--font-d);font-weight:800;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .inwho small{display:block;font-size:12px;color:var(--mute)}
@@ -2020,7 +2033,13 @@ $("installBtn").addEventListener("click", async () => {
   if (deferredInstall) { deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall = null; return; }
   showToast("Buka menu browser lalu pilih Pasang aplikasi / Tambahkan ke Layar Utama.");
 });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+  // notifikasi chat admin diketuk -> buka forum lalu chat admin
+  navigator.serviceWorker.addEventListener("message", (ev) => {
+    if (ev.data && ev.data.type === "open-inbox" && token && typeof inOpen === "function" && inOn) { switchView("forum"); setTimeout(inOpen, 300); }
+  });
+}
 
 $("taskList").addEventListener("click", (e) => {
   const d = e.target.closest("[data-done]");
@@ -2267,6 +2286,7 @@ $("adForumClear").addEventListener("click", async () => {
 /* ---------- forum kelas ---------- */
 let fMsgs = [], fLastId = 0, fReplyTo = null, fBusy = false, fLoaded = false, fTimer = null, fTicks = 0;
 let fDivId = 0, fDivCount = 0;   // pembatas "pesan belum dibaca"
+let inUnread = 0, inUnreadSeen = null;   // pesan belum dibaca di chat admin (dari server)
 const fTime = (iso) => new Date(iso).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
 /* ---- pesan belum dibaca + lompat ke pesan asli ---- */
 const fSeenKey = () => "s5_fseen_" + currentUser;
@@ -2276,7 +2296,7 @@ function unreadForum() {
   return fMsgs.filter((m) => m.id > seen && !m.mine && !isFHidden(m.id)).length;
 }
 function updateForumBadge() {
-  const n = unreadForum(), b = $("fDot");
+  const n = unreadForum() + inUnread, b = $("fDot");
   b.textContent = n > 99 ? "99+" : String(n);
   b.classList.toggle("hidden", n === 0);
   document.title = (n ? `(${n > 99 ? "99+" : n}) ` : "") + "Semester 5 — Study Hub";
@@ -2366,7 +2386,7 @@ async function pollForum() {
     if (d.reacts && fApplyReacts(d.reacts)) changed = true;
     fSetTyping(d.typing || []);
     fApplyGroup(d.group);
-    fApplyInbox(d.inbox);
+    fApplyInbox(d.inbox, d.inbox_unread);
     if (d.vers && JSON.stringify(d.vers) !== JSON.stringify(fVers)) {
       fVers = d.vers; changed = true; fRepaintSelf();
       if (fgEl && fgEl.classList.contains("show")) fRenderGroupPage();
@@ -2693,14 +2713,21 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) chec
 /* ---------- banner notifikasi di atas layar ---------- */
 let nbTimer = null, nbEl = null, nbId = 0;
 function hideBanner() { if (nbEl) nbEl.classList.remove("show"); }
+function ensureBanner() {
+  if (nbEl) return;
+  nbEl = document.createElement("div");
+  nbEl.setAttribute("role", "status");
+  nbEl.addEventListener("click", () => {
+    hideBanner(); switchView("forum");
+    if (nbEl.dataset.k === "inbox") setTimeout(inOpen, 300);
+    else setTimeout(() => jumpToMessage(nbId), 600);
+  });
+  document.body.append(nbEl);
+}
 function fBanner(m, isMention) {
-  if (!nbEl) {
-    nbEl = document.createElement("div");
-    nbEl.setAttribute("role", "status");
-    nbEl.addEventListener("click", () => { hideBanner(); switchView("forum"); setTimeout(() => jumpToMessage(nbId), 600); });
-    document.body.append(nbEl);
-  }
+  ensureBanner();
   nbId = m.id;
+  nbEl.dataset.k = "";
   const who = shortName(m.name);
   const title = m.all ? "📣 " + who + " (untuk semua)" : isMention ? "📣 " + who + " menyebutmu" : "💬 " + who;
   nbEl.className = "nbanner" + (isMention ? " mention" : "");
@@ -2862,12 +2889,32 @@ document.addEventListener("click", (e) => {
 }, true);
 
 /* ---------- chat dengan admin (isi percakapan tersimpan di Telegram) ---------- */
+let inMsgs = [], inReplyTo = 0, inPressAt = 0;
 let inEl = null, inWith = "", inLast = 0, inTimer = null, inOn = false, inView = "", inPeer = null, inTypingOn = false, inTypeAt = 0;
-function fApplyInbox(on) {
-  inOn = !!on;
+function inPaintBtn() {
   const b = $("fInboxBtn");
   b.classList.toggle("hidden", !inOn);
-  b.textContent = isAdmin ? "💬 Kotak masuk" : "💬 Admin";
+  b.innerHTML = (isAdmin ? "💬 Kotak masuk" : "💬 Admin") + (inUnread ? `<span class="ubadge">${inUnread > 99 ? "99+" : inUnread}</span>` : "");
+}
+function fApplyInbox(on, unread) {
+  inOn = !!on;
+  const n = inOn ? Math.max(0, +unread || 0) : 0;
+  const prev = inUnreadSeen;
+  inUnread = n; inUnreadSeen = n;
+  inPaintBtn();
+  updateForumBadge();
+  // pesan baru saat chat admin tidak sedang terbuka: banner di dalam aplikasi (push HP dikirim server)
+  if (prev !== null && n > prev && !(inEl && inEl.classList.contains("show"))) inNotify(n - prev);
+}
+function inNotify(add) {
+  ensureBanner();
+  nbEl.dataset.k = "inbox";
+  nbEl.className = "nbanner mention";
+  nbEl.innerHTML = `<b>${isAdmin ? "💬 Kotak masuk" : "💬 Pesan dari admin"}</b><span>${add > 1 ? add + " pesan baru. " : "Pesan baru. "}Ketuk untuk membuka.</span>`;
+  requestAnimationFrame(() => nbEl.classList.add("show"));
+  clearTimeout(nbTimer);
+  nbTimer = setTimeout(hideBanner, 6000);
+  if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
 }
 $("fInboxBtn").addEventListener("click", (e) => { e.stopPropagation(); inOpen(); });
 function inClose() { clearInterval(inTimer); inTimer = null; inView = ""; if (inEl) inEl.classList.remove("show"); }
@@ -2877,9 +2924,14 @@ function inOpen() {
     inEl.className = "fgpage inpage";
     inEl.innerHTML = '<div class="fgbar"><button type="button" id="inBack" aria-label="Kembali">←</button><span class="inhead" id="inTitle"><b>Chat admin</b></span></div><div class="inbody" id="inBody"></div>';
     document.body.append(inEl);
+    inBindGestures(inEl);
     inEl.addEventListener("click", (e) => {
       if (e.target.closest("#inBack")) { if (isAdmin && inView === "conv") inThreads(); else inClose(); return; }
+      if (e.target.closest("#inTitle.tap")) { inProfile(); return; }
       if (e.target.closest("#inNew")) { inPick(); return; }
+      if (Date.now() - inPressAt < 700 && e.target.closest("#inList")) { e.preventDefault(); return; }
+      const qq = e.target.closest("#inList [data-q]");
+      if (qq) { inJump(+qq.dataset.q); return; }
       const o = e.target.closest("[data-open]");
       if (o) inConv(o.dataset.open, o.dataset.nm);
     });
@@ -2889,6 +2941,7 @@ function inOpen() {
 }
 async function inThreads() {
   inView = "threads"; clearInterval(inTimer);
+  $("inTitle").classList.remove("tap");
   $("inTitle").innerHTML = "<b>Kotak masuk</b>";
   $("inBody").innerHTML = '<button type="button" class="btn btn-primary" id="inNew" style="width:100%;margin-bottom:10px">+ Pesan baru</button><div id="inRows"></div>';
   try {
@@ -2896,21 +2949,23 @@ async function inThreads() {
     const d = await res.json();
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat.");
     $("inRows").innerHTML = d.threads.length
-      ? d.threads.map((t) => `<button type="button" class="fgm" data-open="${esc(t.pid)}" data-nm="${esc(t.name)}">${avatarHtml(t, "s")}<span class="fgmt"><b>${esc(t.name)}</b><small>${esc(t.last || "Belum ada pesan")}</small></span></button>`).join("")
+      ? d.threads.map((t) => `<button type="button" class="fgm" data-open="${esc(t.pid)}" data-nm="${esc(t.name)}">${avatarHtml(t, "s")}<span class="fgmt"><b>${esc(t.name)}</b><small>${esc(t.last || "Belum ada pesan")}</small></span>${t.unread ? `<span class="ubadge">${t.unread > 99 ? "99+" : t.unread}</span>` : ""}</button>`).join("")
       : '<p class="fgsub">Belum ada percakapan. Balasan juga bisa dikirim langsung dari topiknya di Telegram.</p>';
   } catch (e) { showToast(e.message, true); }
 }
 async function inPick() {
   inView = "pick";
+  $("inTitle").classList.remove("tap");
   $("inTitle").innerHTML = "<b>Pilih penerima</b>";
   await fLoadGroup(false);
   $("inBody").innerHTML = fGroupMembers.filter((m) => !m.mine && !m.owner)
     .map((m) => `<button type="button" class="fgm" data-open="${esc(m.pid)}" data-nm="${esc(m.name)}">${avatarHtml(m, "s")}<span class="fgmt"><b>${esc(m.name)}</b><small>${esc(m.real ? "@" + m.real : m.mask)}</small></span></button>`).join("");
 }
 function inConv(pid, title) {
-  inView = "conv"; inWith = pid; inLast = 0; inTypingOn = false; inTypeAt = 0; inPeer = null;
+  inView = "conv"; inWith = pid; inLast = 0; inTypingOn = false; inTypeAt = 0; inPeer = null; inMsgs = []; inReplyTo = 0;
+  $("inTitle").classList.remove("tap");
   $("inTitle").innerHTML = `<b>${esc(title)}</b>`;
-  $("inBody").innerHTML = '<div class="inlist" id="inList"></div><div class="inbar"><textarea class="input" id="inText" rows="1" maxlength="500" placeholder="Tulis pesan…"></textarea><button type="button" class="btn btn-primary" id="inSend">Kirim</button></div>';
+  $("inBody").innerHTML = '<div class="inlist" id="inList"></div><div class="freply hidden" id="inReply"></div><div class="inbar"><textarea class="input" id="inText" rows="1" maxlength="500" placeholder="Tulis pesan…"></textarea><button type="button" class="btn btn-primary" id="inSend">Kirim</button></div>';
   $("inSend").addEventListener("click", inSend);
   $("inText").addEventListener("input", () => {
     const t = $("inText");
@@ -2936,6 +2991,8 @@ async function inFetch(first) {
     const d = await res.json();
     if (!res.ok || !d.ok) { if (first) showToast(d.error || "Gagal memuat.", true); return; }
     if (d.peer) inSetPeer(d.peer);
+    if (d.deleted && d.deleted.length) inPrune(d.deleted);
+    if (!isAdmin && inUnread) { inUnread = 0; inUnreadSeen = 0; inPaintBtn(); updateForumBadge(); }
     if (d.messages.length || first) inAppend(d.messages, first);
     inPaintTyping(!!d.typing);
   } catch (e) {}
@@ -2951,15 +3008,30 @@ function inAppend(list, first) {
   list.forEach((m) => {
     if (m.id <= inLast) return;
     inLast = m.id;
-    const mine = isAdmin ? m.from === "admin" : m.from === "user";
+    if (inHidden(m.id)) return;
+    inMsgs.push(m);
+    const mine = inMine(m);
     const t = new Date(m.ts).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
-    box.insertAdjacentHTML("beforeend", `<div class="ib ${mine ? "me" : ""}"><div class="ibb">${esc(m.text)}<small>${esc(t)}</small></div></div>`);
+    const q = m.reply ? `<div class="fquote" data-q="${m.reply.id}"><b>${esc(inWho(m.reply))}</b>${esc(m.reply.text)}</div>` : "";
+    box.insertAdjacentHTML("beforeend", `<div class="ib ${mine ? "me" : ""}" id="ib-${m.id}"><div class="ibb">${q}${esc(m.text)}<small>${esc(t)}</small></div></div>`);
   });
   if (inTypingOn) inPaintTyping(true);
   if (near || first) box.scrollTop = box.scrollHeight;
 }
+async function inProfile() {
+  const p = inPeer;
+  if (!p) return;
+  if (isAdmin) {
+    if (!fGroupMembers.length) { try { await fLoadGroup(false); } catch (e) {} }
+    if (fGroupMembers.some((x) => x.pid === p.pid)) return fOpenMember(p.pid);   // admin: lengkap dengan kontrol centang
+  }
+  const s = fgSheet(`<div>${avatarHtml(p, "l")}</div><h3>${nameHtml(p.name, p.owner, verOf(p.pid))}</h3><p class="fgsub">${esc(p.sub || "")}</p><dl><dt>Peran</dt><dd>${p.owner ? "Admin" : "Anggota"}</dd></dl><button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
+  s.querySelector("[data-close]").addEventListener("click", () => s.remove());
+}
 function inSetPeer(p) {
   inPeer = p;
+  $("inTitle").classList.add("tap");
+  $("inTitle").setAttribute("role", "button");
   $("inTitle").innerHTML = `${avatarHtml(p, "s")}<span class="inwho"><b>${nameHtml(p.name, p.owner, verOf(p.pid))}</b><small>${esc(p.sub || "")}</small></span>`;
 }
 function inPaintTyping(on) {
@@ -2978,14 +3050,217 @@ async function inSend() {
   if (!text) return;
   $("inSend").disabled = true;
   try {
-    const res = await apiCall("/api/inbox/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, to: inWith }) });
+    const res = await apiCall("/api/inbox/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, to: inWith, reply_to: inReplyTo || 0 }) });
     const d = await res.json();
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim.");
     inp.value = "";
     inp.style.height = "auto";
+    inClearReply();
     inAppend([d.message], false);
   } catch (e) { showToast(e.message, true); }
   $("inSend").disabled = false;
+}
+
+/* ---------- chat admin: balas, hapus, tekan lama, geser (sama seperti forum) ---------- */
+const inMine = (m) => (isAdmin ? m.from === "admin" : m.from === "user");
+const inWho = (m) => (inMine(m) ? "Kamu" : shortName((inPeer && inPeer.name) || (isAdmin ? "Pengguna" : "Admin")));
+const inHideKey = () => "s5_ihide_" + currentUser;
+function inHiddenList() { try { return JSON.parse(localStorage.getItem(inHideKey()) || "[]"); } catch (e) { return []; } }
+const inHidden = (id) => inHiddenList().includes(id);
+function inHideForMe(id) {
+  const a = inHiddenList().filter((x) => x !== id);
+  a.push(id);
+  try { localStorage.setItem(inHideKey(), JSON.stringify(a.slice(-500))); } catch (e) {}
+}
+function inRemoveNode(id) {
+  inMsgs = inMsgs.filter((x) => x.id !== id);
+  const el = document.getElementById("ib-" + id);
+  if (el) el.remove();
+  if (inReplyTo === id) inClearReply();
+}
+function inPrune(ids) {
+  ids.forEach((id) => { if (inMsgs.some((x) => x.id === id)) inRemoveNode(id); });
+}
+function inJump(id) {
+  const el = document.getElementById("ib-" + id);
+  if (!el) return showToast("Pesan aslinya sudah dihapus atau terlalu lama.", true);
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+  el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+  setTimeout(() => el.classList.remove("flash"), 1700);
+}
+function inSetReply(id) {
+  const m = inMsgs.find((x) => x.id === id);
+  const r = $("inReply");
+  if (!m || !r) return;
+  inReplyTo = id;
+  r.innerHTML = `<span><b>${esc(inWho(m))}</b>: ${esc(m.text.slice(0, 80))}</span><button type="button" aria-label="Batalkan balasan">✕</button>`;
+  r.classList.remove("hidden");
+  r.querySelector("button").onclick = inClearReply;
+  const t = $("inText"); if (t) t.focus();
+}
+function inClearReply() {
+  inReplyTo = 0;
+  const r = $("inReply");
+  if (r) { r.classList.add("hidden"); r.innerHTML = ""; }
+}
+async function inDelete(id) {
+  const m = inMsgs.find((x) => x.id === id);
+  if (!m) return;
+  const young = Date.now() - new Date(m.ts).getTime() < FORUM_DEL_MS;
+  const forAll = isAdmin || (inMine(m) && young);
+  let choice;
+  if (forAll) {
+    choice = await openModal({ title: "Hapus pesan ini?", ok: "Hapus untuk semua", extra: "Hapus untuk saya", icon: "trash", danger: true,
+      text: isAdmin ? "Sebagai admin, kamu bisa menghapusnya untuk semua orang." : "Pesan ini belum lewat 1 jam, jadi bisa dihapus untuk semua orang." });
+  } else {
+    const yes = await openModal({ title: "Hapus untuk saya?", ok: "Hapus untuk saya", icon: "trash", danger: true,
+      text: inMine(m) ? "Pesan ini sudah lewat 1 jam, jadi hanya hilang dari tampilanmu. Orang lain masih bisa melihatnya." : "Pesan ini hanya disembunyikan dari tampilanmu." });
+    choice = yes ? "extra" : null;
+  }
+  if (!choice) return;
+  if (choice === "extra") { inHideForMe(id); inRemoveNode(id); showToast("Pesan disembunyikan dari tampilanmu."); return; }
+  try {
+    const res = await apiCall(`/api/inbox/message/${id}?with=${encodeURIComponent(inWith)}`, { method: "DELETE" });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menghapus pesan.");
+    inRemoveNode(id);
+  } catch (e) { showToast(e.message, true); }
+}
+let inPressTimer = null, inPressStart = null, inPressEl = null, inPressOv = null;
+function inClosePress(instant) {
+  const o = inPressOv;
+  if (!o) return;
+  inPressOv = null;
+  if (instant) { o.remove(); return; }
+  o.classList.add("out");
+  setTimeout(() => o.remove(), 160);
+}
+function inCancelPress() {
+  clearTimeout(inPressTimer); inPressTimer = null;
+  if (inPressEl) { inPressEl.classList.remove("pressing"); inPressEl = null; }
+}
+function inOpenPress(bub, id) {
+  const m = inMsgs.find((x) => x.id === id);
+  if (!m || inPressOv) return;
+  inPressAt = Date.now();
+  if (navigator.vibrate) navigator.vibrate(12);
+  const rect = bub.getBoundingClientRect();
+  const ov = document.createElement("div");
+  ov.className = "fpress";
+  const clone = bub.cloneNode(true);
+  clone.removeAttribute("id");
+  clone.classList.remove("pressing");
+  clone.classList.add("fclone");
+  const menu = document.createElement("div");
+  menu.className = "fmenu";
+  menu.innerHTML = `<button type="button" data-a="reply">Balas<svg class="i"><use href="#i-chat"/></svg></button>
+    <button type="button" data-a="copy">Salin<svg class="i"><use href="#i-edit"/></svg></button>
+    <button type="button" data-a="del" class="danger">Hapus<svg class="i"><use href="#i-trash"/></svg></button>`;
+  ov.append(clone, menu);
+  document.body.append(ov);
+  inPressOv = ov;
+  const vh = innerHeight, vw = innerWidth, gap = 10, pad = 16;
+  const mh = menu.offsetHeight, mw = menu.offsetWidth;
+  const maxB = vh - mh - gap - pad * 2;
+  const bh = Math.min(rect.height, Math.max(maxB, 120));
+  let top = Math.min(Math.max(rect.top, pad), vh - bh - mh - gap - pad);
+  top = Math.max(top, pad);
+  Object.assign(clone.style, { left: rect.left + "px", top: top + "px", width: rect.width + "px", maxHeight: bh + "px", maxWidth: "none" });
+  const mine = inMine(m);
+  const left = mine ? Math.max(pad, rect.right - mw) : Math.min(rect.left, vw - mw - pad);
+  Object.assign(menu.style, { left: Math.max(pad, left) + "px", top: top + bh + gap + "px" });
+  ov.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-a]");
+    if (!b) { inPressAt = Date.now(); return inClosePress(); }
+    const a = b.dataset.a;
+    inClosePress(true);
+    if (a === "reply") inSetReply(id);
+    else if (a === "copy") copyText(m.text);
+    else if (a === "del") inDelete(id);
+  });
+  ov.addEventListener("contextmenu", (e) => e.preventDefault());
+}
+function inBindGestures(root) {
+  const inList = (e) => e.target.closest && e.target.closest("#inList");
+  const idOf = (bub) => +(bub.parentElement.id || "").replace("ib-", "");
+  // tekan lama
+  root.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "mouse" || e.button > 0 || !inList(e)) return;
+    if (e.target.closest("button,a")) return;
+    const bub = e.target.closest(".ibb");
+    if (!bub) return;
+    inCancelPress();
+    inPressStart = { x: e.clientX, y: e.clientY };
+    inPressEl = bub;
+    inPressTimer = setTimeout(() => {
+      const el = inPressEl, id = idOf(el);
+      inCancelPress();
+      if (id) inOpenPress(el, id);
+    }, 450);
+    setTimeout(() => { if (inPressEl === bub) bub.classList.add("pressing"); }, 120);
+  });
+  root.addEventListener("pointermove", (e) => {
+    if (inPressStart && Math.hypot(e.clientX - inPressStart.x, e.clientY - inPressStart.y) > 10) inCancelPress();
+  });
+  ["pointerup", "pointercancel", "pointerleave"].forEach((ev) => root.addEventListener(ev, inCancelPress));
+  root.addEventListener("scroll", inCancelPress, { passive: true, capture: true });
+  root.addEventListener("contextmenu", (e) => {
+    if (!inList(e)) return;
+    const bub = e.target.closest(".ibb");
+    if (!bub) return;
+    e.preventDefault();
+    inCancelPress();
+    const id = idOf(bub);
+    if (id) inOpenPress(bub, id);
+  });
+  // geser ke kanan = balas
+  const TH = 64, MAX = 92;
+  let sw = null;
+  root.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "mouse" || e.button > 0 || inPressOv || !inList(e)) return;
+    if (e.target.closest("button,a")) return;
+    const bub = e.target.closest(".ibb");
+    if (!bub) return;
+    const row = bub.closest(".ib");
+    sw = { row, x: e.clientX, y: e.clientY, lock: false, dead: false, ready: false, id: +row.id.slice(3) };
+  });
+  root.addEventListener("pointermove", (e) => {
+    if (!sw || sw.dead) return;
+    const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+    if (!sw.lock) {
+      if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { sw.dead = true; return; }
+      if (dx < -12) { sw.dead = true; return; }
+      if (dx > 12 && dx > Math.abs(dy) * 1.4) {
+        sw.lock = true;
+        inCancelPress();
+        sw.row.classList.remove("snap");
+        sw.row.classList.add("swiping");
+        try { root.setPointerCapture(e.pointerId); } catch (_) {}
+      } else return;
+    }
+    const d = Math.max(0, Math.min(dx, MAX));
+    sw.row.style.transform = `translateX(${d}px)`;
+    sw.row.style.setProperty("--sw", Math.min(d / TH, 1));
+    const ready = d >= TH;
+    if (ready !== sw.ready) {
+      sw.ready = ready;
+      sw.row.classList.toggle("ready", ready);
+      if (ready && navigator.vibrate) navigator.vibrate(10);
+    }
+  });
+  const end = (e) => {
+    if (!sw) return;
+    const s = sw; sw = null;
+    if (!s.lock) return;
+    inPressAt = Date.now();
+    s.row.classList.add("snap");
+    s.row.style.transform = "";
+    setTimeout(() => { s.row.classList.remove("swiping", "ready", "snap"); s.row.style.removeProperty("--sw"); }, 240);
+    if (e.type === "pointerup" && s.ready) inSetReply(s.id);
+  };
+  root.addEventListener("pointerup", end);
+  root.addEventListener("pointercancel", end);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") inClosePress(); });
 }
 
 /* ---------- tekan lama pesan: latar blur + menu (gaya iOS WhatsApp) ---------- */

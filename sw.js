@@ -40,8 +40,9 @@ self.addEventListener("push", (e) => {
     tag: d.tag || undefined,
     data: { url: d.url || "./" }
   });
-  // Pesan forum: kalau aplikasi sedang terlihat, cukup tampil di dalam aplikasi (hindari dobel).
-  e.waitUntil(d.tag === "forum"
+  // Pesan forum dan chat admin: kalau aplikasi sedang terlihat, cukup tampil di dalam aplikasi (hindari dobel).
+  const inApp = d.tag === "forum" || String(d.tag || "").startsWith("inbox");
+  e.waitUntil(inApp
     ? self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => (list.some((c) => c.visibilityState === "visible") ? null : show()))
     : show());
 });
@@ -51,7 +52,13 @@ self.addEventListener("notificationclick", (e) => {
   const url = new URL((e.notification.data && e.notification.data.url) || "./", self.registration.scope).href;
   e.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
-      for (const c of list) if ("focus" in c) return c.focus();
+      const tag = e.notification.tag || "";
+      for (const c of list) {
+        if ("focus" in c) {
+          if (tag.startsWith("inbox")) c.postMessage({ type: "open-inbox" });   // buka chat admin di aplikasi
+          return c.focus();
+        }
+      }
       return self.clients.openWindow(url);
     })
   );
