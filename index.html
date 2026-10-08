@@ -548,12 +548,6 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .flink span{display:block;color:var(--mute);max-height:2.6em;overflow:hidden}
 .flink small{color:var(--brand);font-weight:700}
 .fed{color:var(--mute);font-style:italic}
-.fsrch{padding:4px 14px}
-.fsrch input{width:100%;margin-bottom:6px}
-.fsr{display:block;width:100%;text-align:left;padding:9px 4px;border-top:1px solid var(--line);font-size:14px}
-.fsr small{display:block;color:var(--mute)}
-.fsr span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.fsrl{overflow-y:auto;max-height:48vh}
 .arep{border-top:1px solid var(--line);padding:10px 0;font-size:14px}
 .arep q{display:block;margin:4px 0;color:var(--mute)}
 .arep .row{display:flex;gap:8px;margin-top:8px}
@@ -654,7 +648,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 
 <section class="view" id="view-jadwal"><h2 class="page-title">Jadwal kuliah</h2><p class="page-sub">Sistem Informasi, kelas 5P52 dan 5P52A. Semester Gasal 2026/2027.</p><div class="chips" id="dayChips"></div><div id="scheduleList"></div></section>
 
-<section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div><button type="button" class="fgchat" id="fSearchBtn" aria-label="Cari pesan">🔍</button><button type="button" class="fgchat hidden" id="fInboxBtn">💬 Admin</button></div>
+<section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div><button type="button" class="fgchat hidden" id="fInboxBtn">💬 Admin</button></div>
 <div class="fpinbar hidden" id="fPinBar"></div><div class="fmsgs" id="fMsgs"></div><div class="freply hidden" id="fReply"></div>
 <div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fbar"><textarea class="input" id="fInput" rows="1" maxlength="1000" placeholder="Tulis pesan…"></textarea><button class="btn btn-line" id="fPollBtn" type="button" aria-label="Buat polling">📊</button><button class="btn btn-primary" id="fSend" type="button">Kirim</button></div></div></section>
 
@@ -3632,33 +3626,6 @@ function linkHtml(m) {
   if (!p) return "";
   return `<a class="flink" href="${esc(url)}" target="_blank" rel="noopener noreferrer"><b>${esc(p.title)}</b>${p.desc ? `<span>${esc(p.desc)}</span>` : ""}<small>${esc(p.site)}</small></a>`;
 }
-
-/* cari pesan */
-$("fSearchBtn").addEventListener("click", (e) => {
-  e.stopPropagation();
-  const bg = document.createElement("div");
-  bg.className = "rsheet-bg";
-  bg.innerHTML = `<div class="rsheet"><div class="grab"></div><div class="fsrch"><input class="input" placeholder="Cari pesan…" autocomplete="off"><div class="fsrl"></div></div></div>`;
-  document.body.appendChild(bg);
-  const inp = bg.querySelector("input"), box = bg.querySelector(".fsrl"); let t = null;
-  inp.focus();
-  bg.addEventListener("click", (ev) => {
-    if (ev.target === bg) return bg.remove();
-    const r = ev.target.closest("[data-j]");
-    if (r) { bg.remove(); jumpToMessage(+r.dataset.j); }
-  });
-  inp.addEventListener("input", () => {
-    clearTimeout(t);
-    const q = inp.value.trim();
-    if (q.length < 2) { box.innerHTML = ""; return; }
-    t = setTimeout(async () => {
-      try {
-        const d = await fjCall("/api/forum/search?q=" + encodeURIComponent(q));
-        box.innerHTML = d.results.length ? d.results.map((m) => `<button type="button" class="fsr" data-j="${m.id}"><small>${esc(shortName(m.name))} · ${esc(fDay(m.ts))}, ${esc(fTime(m.ts))}</small><span>${esc(m.text)}</span></button>`).join("") : '<p class="page-sub">Tidak ada hasil.</p>';
-      } catch (err) { box.innerHTML = `<p class="page-sub">${esc(err.message)}</p>`; }
-    }, 300);
-  });
-});
 
 /* lapor pesan */
 function reportForum(id) {
