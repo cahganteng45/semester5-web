@@ -71,31 +71,72 @@ textarea.input{resize:vertical;min-height:130px}
 .tag{display:inline-block;background:var(--brand-soft);color:var(--brand);font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px}
 .empty{text-align:center;color:var(--mute);padding:36px 12px;font-size:15px}
 .empty .big{font-size:34px;display:block;margin-bottom:6px}
-.hero{background:var(--brand);color:var(--on-brand);border-radius:var(--r-l);padding:24px 22px;margin-bottom:16px}
-.hero h1{font-family:var(--font-d);font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.15}
-.hero p{opacity:.85;font-size:14px;margin-top:8px}
-.hero .clock{font-family:var(--font-d);font-size:22px;font-weight:600;margin-top:14px;font-variant-numeric:tabular-nums}
-.strip{display:flex;gap:10px;margin-top:16px}
-.strip div{flex:1;background:rgba(255,255,255,.16);border-radius:14px;padding:10px 6px;text-align:center}
-.strip b{display:block;font-family:var(--font-d);font-size:22px;line-height:1.1}
-.strip small{font-size:11px;opacity:.85}
-.next{border-left:5px solid var(--amber);background:var(--amber-soft)}
-.next .lbl{font-size:13px;font-weight:700;color:var(--amber)}
-.next .nm{font-family:var(--font-d);font-size:20px;font-weight:600;margin:4px 0}
-.next .meta{font-size:14px;color:var(--mute)}
-.cls{display:flex;gap:14px;padding:12px 0;border-top:1px solid var(--line)}
-.cls:first-of-type{border-top:0;padding-top:0}
-.cls .t{min-width:58px;font-family:var(--font-d);font-weight:600;font-size:15px;color:var(--brand)}
-.cls .t small{display:block;color:var(--mute);font-family:var(--font-b);font-weight:400;font-size:12px}
-.cls .n{font-weight:700;font-size:15px}
-.cls .m{font-size:13px;color:var(--mute)}
-.cls.done{opacity:.5}
-.cls.now .n::after{content:' • sedang berlangsung';color:var(--ok);font-size:12px;font-weight:700}
-.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
-.quick button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 6px;border-radius:var(--r-s);background:var(--surface);border:1px solid var(--line);font-weight:700;font-size:12px;line-height:1.2;text-align:center;transition:transform .15s}
+.hero{position:relative;overflow:hidden;background:var(--brand);color:var(--on-brand);border-radius:28px;padding:20px 22px 22px;margin-bottom:16px}
+.hero>*:not(.ring){position:relative}
+.hero .ring{position:absolute;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--on-brand) 16%,transparent);pointer-events:none}
+.hero .r1{width:240px;height:240px;right:-70px;top:-90px}
+.hero .r2{width:380px;height:380px;right:-140px;top:-160px;border-color:color-mix(in srgb,var(--on-brand) 9%,transparent)}
+.hero-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}
+.hero p{font-size:13px;font-weight:700;background:color-mix(in srgb,var(--on-brand) 16%,transparent);padding:6px 13px;border-radius:99px}
+.hero-av{width:42px;height:42px;border-radius:50%;background:color-mix(in srgb,var(--on-brand) 20%,transparent);color:var(--on-brand);display:grid;place-items:center;font-family:var(--font-d);font-weight:800;font-size:15px;overflow:hidden;flex-shrink:0;border:2px solid color-mix(in srgb,var(--on-brand) 35%,transparent)}
+.hero-av img{width:100%;height:100%;object-fit:cover;display:block}
+.hero h1{font-family:var(--font-d);font-size:19px;font-weight:600;letter-spacing:-.01em;line-height:1.25;opacity:.92;overflow-wrap:anywhere}
+.hero .clock{font-family:var(--font-d);font-size:68px;font-weight:800;letter-spacing:-.045em;line-height:1;margin-top:4px;font-variant-numeric:tabular-nums}
+.hero .clock small{font-size:24px;font-weight:600;letter-spacing:-.01em;margin-left:6px;opacity:.65}
+.strip{margin-top:20px}
+.strip .segs{display:flex;gap:5px}
+.strip .sgm{height:6px;border-radius:99px;background:color-mix(in srgb,var(--on-brand) 24%,transparent);min-width:10px}
+.strip .sgm.done{background:var(--on-brand)}
+.strip .sgm.now{background:linear-gradient(90deg,var(--on-brand) var(--p,0%),color-mix(in srgb,var(--on-brand) 24%,transparent) var(--p,0%))}
+.strip .stxt{font-size:13px;font-weight:500;opacity:.85;margin-top:10px}
+.next{padding:18px 18px 16px;border-radius:22px}
+.nx-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 10px}
+.nx-state{white-space:nowrap;flex-shrink:0;display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--mute)}
+.nx-state i{width:9px;height:9px;border-radius:50%;background:var(--amber)}
+.nx-state.live{color:var(--ok)}
+.nx-state.live i{background:var(--ok);animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 55%,transparent)}100%{box-shadow:0 0 0 9px transparent}}
+.nx-in{white-space:nowrap;text-align:right;font-size:13px;font-weight:700;color:var(--brand)}
+.next .nm{font-family:var(--font-d);font-size:24px;font-weight:800;letter-spacing:-.025em;line-height:1.15;margin:12px 0 14px}
+.nx-meta{display:flex;flex-wrap:wrap;gap:8px}
+.nx-meta span{display:inline-flex;align-items:center;gap:6px;background:var(--bg);padding:7px 11px;border-radius:11px;font-size:13px;font-weight:500}
+.nx-meta svg{color:var(--brand)}
+.nx-sub{color:var(--mute);font-size:14px;margin-top:-6px}
+.nx-bar{height:6px;border-radius:99px;background:var(--bg);margin-top:16px;overflow:hidden}
+.nx-bar i{display:block;height:100%;width:var(--p,0%);background:var(--brand);border-radius:99px}
+#view-home .card{border-radius:22px}
+#view-home .card h3{font-size:17px;letter-spacing:-.01em;margin-bottom:14px}
+.cls{display:grid;grid-template-columns:50px 14px 1fr;gap:12px;padding:0}
+.cls .t{font-family:var(--font-d);font-weight:700;font-size:15px;color:var(--ink);padding-top:1px;font-variant-numeric:tabular-nums}
+.cls .t small{display:block;color:var(--mute);font-family:var(--font-b);font-weight:500;font-size:12px}
+.cls .rail{display:flex;flex-direction:column;align-items:center}
+.cls .rail i{width:12px;height:12px;border-radius:50%;border:2.5px solid var(--line);background:var(--surface);margin-top:5px;flex-shrink:0}
+.cls .rail::after{content:"";flex:1;width:2px;background:var(--line);margin:4px 0}
+.cls:last-child .rail::after{display:none}
+.cls .cb{padding-bottom:20px;min-width:0}
+.cls:last-child .cb{padding-bottom:0}
+.cls .n{font-weight:700;font-size:15px;line-height:1.3}
+.cls .m{font-size:13px;color:var(--mute);margin-top:2px}
+.cls .live-tag{display:inline-block;margin-left:8px;font-size:11px;font-weight:700;color:var(--ok);background:color-mix(in srgb,var(--ok) 16%,transparent);padding:2px 8px;border-radius:99px;vertical-align:1px}
+.cls.done .t,.cls.done .cb{opacity:.5}
+.cls.done .rail i{background:var(--ok);border-color:var(--ok)}
+.cls.now .rail i{background:var(--brand);border-color:var(--brand);box-shadow:0 0 0 5px var(--brand-soft)}
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.quick button{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:14px 12px 13px;border-radius:20px;background:var(--surface);border:1px solid var(--line);text-align:left;transition:transform .15s}
 .quick button:active{transform:scale(.96)}
-.quick .ic{width:30px;height:30px;border-radius:9px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center}
-.quick .ic svg{width:17px;height:17px}
+.quick .ic{width:38px;height:38px;border-radius:13px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center}
+.quick .ic svg{width:19px;height:19px}
+.quick b{display:block;font-size:14px;line-height:1.2}
+.quick small{display:block;font-size:11.5px;font-weight:500;color:var(--mute);line-height:1.3;margin-top:2px}
+.quick button.pri{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.quick button.pri small{color:inherit;opacity:.8}
+.quick button.pri .ic{background:color-mix(in srgb,var(--on-brand) 20%,transparent);color:var(--on-brand)}
+#favList.favs{flex-direction:row;overflow-x:auto;scrollbar-width:none;margin:0 -4px;padding:0 4px 2px}
+#favList.favs::-webkit-scrollbar{display:none}
+#favList .fav{flex:0 0 138px;width:138px;flex-direction:column;align-items:flex-start;justify-content:flex-start;text-align:left;gap:10px;padding:12px;border-radius:16px;line-height:1.25}
+#favList .fav .ticon{width:40px;height:40px;font-size:20px;border-radius:12px}
+.task{padding:13px 0}
+.due{border-radius:99px;padding:5px 11px}
 .adm-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--line);gap:10px;font-weight:500;font-size:14px}
 .adm-row:first-child{border-top:0}
 .vis{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700}
@@ -387,6 +428,8 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="M17.9 17.9A10 10 0 0112 20C5 20 1 12 1 12a18 18 0 015-6M9.9 4.2A9 9 0 0112 4c7 0 11 8 11 8a18 18 0 01-2.2 3.2M14.1 14.1a3 3 0 11-4.2-4.2M1 1l22 22"/></symbol>
 <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/></symbol>
 <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12a8 8 0 01-11.6 7.1L3 21l1.9-5.4A8 8 0 1121 12z"/></symbol>
+<symbol id="i-room" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 005 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></symbol>
 <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
 </defs></svg>
 
@@ -432,12 +475,14 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <button type="button" id="dueBanner" class="hidden"></button>
 
 <section class="view active" id="view-home">
-<div class="hero"><h1 id="greetingText">Halo!</h1><p id="dateText">Memuat tanggal…</p><div class="clock" id="liveClock">00:00:00</div><div class="strip" id="strip"></div></div>
+<div class="hero"><i class="ring r1"></i><i class="ring r2"></i>
+<div class="hero-top"><p id="dateText">Memuat tanggal…</p><button type="button" class="hero-av" id="heroAv" data-go="settings" aria-label="Buka akun">US</button></div>
+<h1 id="greetingText">Halo!</h1><div class="clock" id="liveClock">00:00<small>00</small></div><div class="strip" id="strip"></div></div>
 <div class="card next" id="nextCard"></div>
 <div class="quick">
-<button type="button" data-go="upload"><span class="ic"><svg class="i"><use href="#i-up"/></svg></span>Upload file</button>
-<button type="button" id="qTask"><span class="ic"><svg class="i"><use href="#i-clock"/></svg></span>Lihat tugas</button>
-<button type="button" id="qSearch"><span class="ic"><svg class="i"><use href="#i-folder"/></svg></span>Cari matkul</button>
+<button type="button" class="pri" data-go="upload"><span class="ic"><svg class="i"><use href="#i-up"/></svg></span><span><b>Upload</b><small>Bagikan materi</small></span></button>
+<button type="button" id="qTask"><span class="ic"><svg class="i"><use href="#i-clock"/></svg></span><span><b>Tugas</b><small>Lihat deadline</small></span></button>
+<button type="button" id="qSearch"><span class="ic"><svg class="i"><use href="#i-folder"/></svg></span><span><b>Matkul</b><small>Cari materi</small></span></button>
 </div>
 <div class="card" id="taskCard"><h3>Tugas mendatang</h3><div id="taskList"><div class="empty" style="padding:16px 8px">Memuat tugas…</div></div></div>
 <div class="card"><h3>Kelas hari ini</h3><div id="todayList"></div></div>
@@ -654,7 +699,7 @@ let myProfile = { pid: "", av: false, avv: 0, bio: "" };
 function setMyAvatars() {
   const html = myProfile.av && myProfile.pid
     ? `<img src="${API}/api/avatar/${myProfile.pid}?v=${myProfile.avv}" alt="">` : esc(initials());
-  ["navAvatar", "setAvatar", "profAvatar"].forEach((id) => { $(id).innerHTML = html; });
+  ["navAvatar", "setAvatar", "profAvatar", "heroAv"].forEach((id) => { $(id).innerHTML = html; });
 }
 
 let toastTimer;
@@ -724,7 +769,8 @@ document.addEventListener("click", (e) => {
 /* ---------- clock & greeting ---------- */
 function tickClock() {
   const n = new Date();
-  $("liveClock").textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+  $("liveClock").innerHTML = `${pad(n.getHours())}:${pad(n.getMinutes())}<small>${pad(n.getSeconds())}</small>`;
+  if (n.getSeconds() === 0 && activeView === "home") renderHome();   // status kelas ikut berubah tiap menit
 }
 function updateGreeting() {
   const h = new Date().getHours();
@@ -790,31 +836,50 @@ function parseRange(t) {
 function classHtml(c, cls) {
   const [s] = c.time.split(" - ");
   const e = c.time.split(" - ")[1] || "";
-  return `<div class="cls ${cls || ""}"><div class="t">${esc(s)}<small>${esc(e)}</small></div>
-    <div><div class="n">${esc(c.name)}</div><div class="m">Ruang ${esc(c.room)} · ${esc(c.code)}</div><div class="m">${esc(c.dosen)}</div></div></div>`;
+  return `<div class="cls ${cls || ""}"><div class="t">${esc(s)}<small>${esc(e)}</small></div><span class="rail"><i></i></span>
+    <div class="cb"><div class="n">${esc(c.name)}${cls === "now" ? '<span class="live-tag">Berlangsung</span>' : ""}</div><div class="m">Ruang ${esc(c.room)}, kelas ${esc(c.code)}</div><div class="m">${esc(c.dosen)}</div></div></div>`;
+}
+function fmtIn(m) {
+  if (m < 60) return m + " menit lagi";
+  const h = Math.floor(m / 60), r = m % 60;
+  return r ? `${h} jam ${r} menit lagi` : `${h} jam lagi`;
 }
 function renderHome() {
   const now = new Date(), mins = now.getHours() * 60 + now.getMinutes();
   const today = JADWAL.find((d) => d.dayNum === now.getDay());
-  const list = $("todayList"), next = $("nextCard");
+  const list = $("todayList"), next = $("nextCard"), strip = $("strip");
+  const meta = (c) => `<span>${svg("clock", 14)}${esc(c.time)}</span><span>${svg("room", 14)}Ruang ${esc(c.room)}</span><span>${svg("user", 14)}${esc(c.dosen)}</span>`;
   if (!today) {
+    strip.innerHTML = `<div class="stxt">Tidak ada kuliah hari ini. Santai dulu.</div>`;
     list.innerHTML = `<div class="empty"><span class="big">🌿</span>Tidak ada kelas hari ini.</div>`;
-    const up = JADWAL.find((d) => d.dayNum > now.getDay()) || JADWAL[0];
-    next.innerHTML = `<div class="lbl">Kelas berikutnya</div><div class="nm">${esc(up.classes[0].name)}</div><div class="meta">${esc(up.day)}, ${esc(up.classes[0].time)} · Ruang ${esc(up.classes[0].room)}</div>`;
+    const up = JADWAL.find((d) => d.dayNum > now.getDay()) || JADWAL[0], c = up.classes[0];
+    next.innerHTML = `<div class="nx-top"><span class="nx-state"><i></i>Kelas berikutnya</span><span class="nx-in">${esc(up.day)}</span></div>
+      <div class="nm">${esc(c.name)}</div><div class="nx-meta">${meta(c)}</div>`;
     return;
   }
-  let upcoming = null, html = "";
+  let upcoming = null, html = "", segs = "", done = 0;
   today.classes.forEach((c) => {
     const [s, e] = parseRange(c.time);
     let st = "";
-    if (mins >= e) st = "done"; else if (mins >= s) { st = "now"; if (!upcoming) upcoming = { c, live: true }; } else if (!upcoming) upcoming = { c, live: false };
+    if (mins >= e) { st = "done"; done++; }
+    else if (mins >= s) { st = "now"; if (!upcoming) upcoming = { c, live: true, s, e }; }
+    else if (!upcoming) upcoming = { c, live: false, s, e };
+    const pct = st === "now" ? Math.round(((mins - s) / (e - s)) * 100) : 0;
+    segs += `<span class="sgm ${st}" style="flex:${e - s};--p:${pct}%" title="${esc(c.name)}"></span>`;
     html += classHtml(c, st);
   });
   list.innerHTML = html;
+  const n = today.classes.length;
+  strip.innerHTML = `<div class="segs">${segs}</div><div class="stxt">${done === n ? "Semua kelas hari ini sudah selesai" : `${done} dari ${n} kelas selesai`}</div>`;
   if (upcoming) {
-    next.innerHTML = `<div class="lbl">${upcoming.live ? "Sedang berlangsung" : "Kelas berikutnya"}</div><div class="nm">${esc(upcoming.c.name)}</div><div class="meta">${esc(upcoming.c.time)} · Ruang ${esc(upcoming.c.room)} · ${esc(upcoming.c.dosen)}</div>`;
+    const u = upcoming, pct = u.live ? Math.round(((mins - u.s) / (u.e - u.s)) * 100) : 0;
+    next.innerHTML = `<div class="nx-top"><span class="nx-state ${u.live ? "live" : ""}"><i></i>${u.live ? "Sedang berlangsung" : "Kelas berikutnya"}</span>
+      <span class="nx-in">${u.live ? "selesai " + fmtIn(u.e - mins) : "mulai " + fmtIn(u.s - mins)}</span></div>
+      <div class="nm">${esc(u.c.name)}</div><div class="nx-meta">${meta(u.c)}</div>
+      ${u.live ? `<div class="nx-bar" style="--p:${pct}%"><i></i></div>` : ""}`;
   } else {
-    next.innerHTML = `<div class="lbl">Hari ini</div><div class="nm">Semua kelas sudah selesai</div><div class="meta">Waktunya mengerjakan tugas atau istirahat.</div>`;
+    next.innerHTML = `<div class="nx-top"><span class="nx-state"><i></i>Hari ini</span></div>
+      <div class="nm">Semua kelas sudah selesai</div><div class="nx-sub">Waktunya mengerjakan tugas atau istirahat.</div>`;
   }
 }
 function renderJadwal() {
