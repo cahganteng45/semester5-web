@@ -487,6 +487,17 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .fgrow{display:flex;gap:8px;margin-top:10px}
 .fgrow .btn{flex:1}
 .fgcard .vbadge{width:1em;height:1em;margin:0}
+.fgchat{font-size:13px;font-weight:700;padding:7px 12px;border-radius:999px;background:var(--brand-soft);color:var(--brand);flex-shrink:0;white-space:nowrap}
+.inpage{display:flex;flex-direction:column}
+.inbody{flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto}
+.inlist{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:6px 2px}
+.ib{display:flex}
+.ib.me{justify-content:flex-end}
+.ibb{max-width:80%;background:var(--surface);border:1px solid var(--line);border-radius:16px 16px 16px 4px;padding:8px 12px;white-space:pre-wrap;word-break:break-word}
+.ib.me .ibb{background:var(--brand-soft);border-color:transparent;border-radius:16px 16px 4px 16px}
+.ibb small{display:block;font-size:11px;color:var(--mute);margin-top:2px;text-align:right}
+.inbar{display:flex;gap:8px;align-items:flex-end;padding-top:8px}
+.inbar .input{flex:1}
 </style>
 </head>
 <body>
@@ -584,7 +595,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 
 <section class="view" id="view-jadwal"><h2 class="page-title">Jadwal kuliah</h2><p class="page-sub">Sistem Informasi, kelas 5P52 dan 5P52A. Semester Gasal 2026/2027.</p><div class="chips" id="dayChips"></div><div id="scheduleList"></div></section>
 
-<section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div></div>
+<section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div><button type="button" class="fgchat hidden" id="fInboxBtn">💬 Admin</button></div>
 <div class="fmsgs" id="fMsgs"></div><div class="freply hidden" id="fReply"></div>
 <div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fbar"><textarea class="input" id="fInput" rows="1" maxlength="1000" placeholder="Tulis pesan…"></textarea><button class="btn btn-primary" id="fSend" type="button">Kirim</button></div></div></section>
 
@@ -2316,6 +2327,7 @@ function renderForum(stick) {
 }
 function forumReset() {
   fVers = {};
+  if (inEl) { clearInterval(inTimer); inEl.remove(); inEl = null; }
   fGroupMembers = []; fGroup = { name: "Forum Kelas", av: false, avv: 0, n: 0 }; fGroupAt = 0;
   if (fgEl) { fgEl.remove(); fgEl = null; }
   fMsgs = []; fLastId = 0; fLoaded = false; fReplyTo = null; fDivId = 0; fDivCount = 0;
@@ -2348,6 +2360,7 @@ async function pollForum() {
     if (d.reacts && fApplyReacts(d.reacts)) changed = true;
     fSetTyping(d.typing || []);
     fApplyGroup(d.group);
+    fApplyInbox(d.inbox);
     if (d.vers && JSON.stringify(d.vers) !== JSON.stringify(fVers)) {
       fVers = d.vers; changed = true; fRepaintSelf();
       if (fgEl && fgEl.classList.contains("show")) fRenderGroupPage();
@@ -2841,6 +2854,102 @@ document.addEventListener("click", (e) => {
   const s = fgSheet(`<div style="font-size:46px;line-height:1">${admin ? BADGE : VUSER(label)}</div><h3>${admin ? "Terverifikasi admin" : esc(label)}</h3><p class="fgsub">${admin ? "Akun resmi admin Semester 5." : "Diverifikasi oleh admin Semester 5."}</p><button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
   s.querySelector("[data-close]").addEventListener("click", () => s.remove());
 }, true);
+
+/* ---------- chat dengan admin (isi percakapan tersimpan di Telegram) ---------- */
+let inEl = null, inWith = "", inLast = 0, inTimer = null, inOn = false, inView = "";
+function fApplyInbox(on) {
+  inOn = !!on;
+  const b = $("fInboxBtn");
+  b.classList.toggle("hidden", !inOn);
+  b.textContent = isAdmin ? "💬 Kotak masuk" : "💬 Admin";
+}
+$("fInboxBtn").addEventListener("click", (e) => { e.stopPropagation(); inOpen(); });
+function inClose() { clearInterval(inTimer); inTimer = null; inView = ""; if (inEl) inEl.classList.remove("show"); }
+function inOpen() {
+  if (!inEl) {
+    inEl = document.createElement("div");
+    inEl.className = "fgpage inpage";
+    inEl.innerHTML = '<div class="fgbar"><button type="button" id="inBack" aria-label="Kembali">←</button><b id="inTitle">Chat admin</b></div><div class="inbody" id="inBody"></div>';
+    document.body.append(inEl);
+    inEl.addEventListener("click", (e) => {
+      if (e.target.closest("#inBack")) { if (isAdmin && inView === "conv") inThreads(); else inClose(); return; }
+      if (e.target.closest("#inNew")) { inPick(); return; }
+      const o = e.target.closest("[data-open]");
+      if (o) inConv(o.dataset.open, o.dataset.nm);
+    });
+  }
+  requestAnimationFrame(() => inEl.classList.add("show"));
+  if (isAdmin) inThreads(); else inConv("", "Chat dengan Admin");
+}
+async function inThreads() {
+  inView = "threads"; clearInterval(inTimer);
+  $("inTitle").textContent = "Kotak masuk";
+  $("inBody").innerHTML = '<button type="button" class="btn btn-primary" id="inNew" style="width:100%;margin-bottom:10px">+ Pesan baru</button><div id="inRows"></div>';
+  try {
+    const res = await apiCall("/api/inbox/threads");
+    const d = await res.json();
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat.");
+    $("inRows").innerHTML = d.threads.length
+      ? d.threads.map((t) => `<button type="button" class="fgm" data-open="${esc(t.pid)}" data-nm="${esc(t.name)}">${avatarHtml(t, "s")}<span class="fgmt"><b>${esc(t.name)}</b><small>${esc(t.last || "Belum ada pesan")}</small></span></button>`).join("")
+      : '<p class="fgsub">Belum ada percakapan. Balasan juga bisa dikirim langsung dari topiknya di Telegram.</p>';
+  } catch (e) { showToast(e.message, true); }
+}
+async function inPick() {
+  inView = "pick";
+  $("inTitle").textContent = "Pilih penerima";
+  await fLoadGroup(false);
+  $("inBody").innerHTML = fGroupMembers.filter((m) => !m.mine && !m.owner)
+    .map((m) => `<button type="button" class="fgm" data-open="${esc(m.pid)}" data-nm="${esc(m.name)}">${avatarHtml(m, "s")}<span class="fgmt"><b>${esc(m.name)}</b><small>${esc(m.real ? "@" + m.real : m.mask)}</small></span></button>`).join("");
+}
+function inConv(pid, title) {
+  inView = "conv"; inWith = pid; inLast = 0;
+  $("inTitle").textContent = title;
+  $("inBody").innerHTML = '<div class="inlist" id="inList"></div><div class="inbar"><textarea class="input" id="inText" rows="1" maxlength="500" placeholder="Tulis pesan…"></textarea><button type="button" class="btn btn-primary" id="inSend">Kirim</button></div>';
+  $("inSend").addEventListener("click", inSend);
+  $("inText").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches) { e.preventDefault(); inSend(); }
+  });
+  inFetch(true);
+  clearInterval(inTimer);
+  inTimer = setInterval(() => inFetch(false), 3000);
+}
+async function inFetch(first) {
+  if (inView !== "conv") return;
+  try {
+    const res = await apiCall(`/api/inbox/messages?after=${inLast}&with=${encodeURIComponent(inWith)}`);
+    const d = await res.json();
+    if (!res.ok || !d.ok) { if (first) showToast(d.error || "Gagal memuat.", true); return; }
+    if (d.messages.length || first) inAppend(d.messages, first);
+  } catch (e) {}
+}
+function inAppend(list, first) {
+  const box = $("inList");
+  if (!box) return;
+  const near = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+  if (box.querySelector("p")) box.innerHTML = "";
+  if (first && !list.length) box.innerHTML = '<p class="fgsub" style="text-align:center;margin-top:20px">Belum ada pesan. Tulis pesan pertamamu.</p>';
+  list.forEach((m) => {
+    if (m.id <= inLast) return;
+    inLast = m.id;
+    const mine = isAdmin ? m.from === "admin" : m.from === "user";
+    const t = new Date(m.ts).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+    box.insertAdjacentHTML("beforeend", `<div class="ib ${mine ? "me" : ""}"><div class="ibb">${esc(m.text)}<small>${esc(t)}</small></div></div>`);
+  });
+  if (near || first) box.scrollTop = box.scrollHeight;
+}
+async function inSend() {
+  const inp = $("inText"), text = inp.value.trim();
+  if (!text) return;
+  $("inSend").disabled = true;
+  try {
+    const res = await apiCall("/api/inbox/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, to: inWith }) });
+    const d = await res.json();
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim.");
+    inp.value = "";
+    inAppend([d.message], false);
+  } catch (e) { showToast(e.message, true); }
+  $("inSend").disabled = false;
+}
 
 /* ---------- tekan lama pesan: latar blur + menu (gaya iOS WhatsApp) ---------- */
 let fPressAt = 0, fPressTimer = null, fPressStart = null, fPressEl = null, fPressOpen = null;
