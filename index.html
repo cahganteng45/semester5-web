@@ -497,7 +497,13 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .ib.me .ibb{background:var(--brand-soft);border-color:transparent;border-radius:16px 16px 4px 16px}
 .ibb small{display:block;font-size:11px;color:var(--mute);margin-top:2px;text-align:right}
 .inbar{display:flex;gap:8px;align-items:flex-end;padding-top:8px}
-.inbar .input{flex:1}
+.inbar textarea{flex:1;min-width:0;resize:none;min-height:48px;max-height:120px;height:48px}
+.inbar .btn{width:auto;padding:13px 18px;flex-shrink:0}
+.inhead{display:flex;align-items:center;gap:10px;min-width:0}
+.inwho{min-width:0}
+.inwho b{display:block;font-family:var(--font-d);font-weight:800;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inwho small{display:block;font-size:12px;color:var(--mute)}
+.ityp{align-items:flex-end;gap:6px}
 </style>
 </head>
 <body>
@@ -2856,7 +2862,7 @@ document.addEventListener("click", (e) => {
 }, true);
 
 /* ---------- chat dengan admin (isi percakapan tersimpan di Telegram) ---------- */
-let inEl = null, inWith = "", inLast = 0, inTimer = null, inOn = false, inView = "";
+let inEl = null, inWith = "", inLast = 0, inTimer = null, inOn = false, inView = "", inPeer = null, inTypingOn = false, inTypeAt = 0;
 function fApplyInbox(on) {
   inOn = !!on;
   const b = $("fInboxBtn");
@@ -2869,7 +2875,7 @@ function inOpen() {
   if (!inEl) {
     inEl = document.createElement("div");
     inEl.className = "fgpage inpage";
-    inEl.innerHTML = '<div class="fgbar"><button type="button" id="inBack" aria-label="Kembali">←</button><b id="inTitle">Chat admin</b></div><div class="inbody" id="inBody"></div>';
+    inEl.innerHTML = '<div class="fgbar"><button type="button" id="inBack" aria-label="Kembali">←</button><span class="inhead" id="inTitle"><b>Chat admin</b></span></div><div class="inbody" id="inBody"></div>';
     document.body.append(inEl);
     inEl.addEventListener("click", (e) => {
       if (e.target.closest("#inBack")) { if (isAdmin && inView === "conv") inThreads(); else inClose(); return; }
@@ -2883,7 +2889,7 @@ function inOpen() {
 }
 async function inThreads() {
   inView = "threads"; clearInterval(inTimer);
-  $("inTitle").textContent = "Kotak masuk";
+  $("inTitle").innerHTML = "<b>Kotak masuk</b>";
   $("inBody").innerHTML = '<button type="button" class="btn btn-primary" id="inNew" style="width:100%;margin-bottom:10px">+ Pesan baru</button><div id="inRows"></div>';
   try {
     const res = await apiCall("/api/inbox/threads");
@@ -2896,16 +2902,26 @@ async function inThreads() {
 }
 async function inPick() {
   inView = "pick";
-  $("inTitle").textContent = "Pilih penerima";
+  $("inTitle").innerHTML = "<b>Pilih penerima</b>";
   await fLoadGroup(false);
   $("inBody").innerHTML = fGroupMembers.filter((m) => !m.mine && !m.owner)
     .map((m) => `<button type="button" class="fgm" data-open="${esc(m.pid)}" data-nm="${esc(m.name)}">${avatarHtml(m, "s")}<span class="fgmt"><b>${esc(m.name)}</b><small>${esc(m.real ? "@" + m.real : m.mask)}</small></span></button>`).join("");
 }
 function inConv(pid, title) {
-  inView = "conv"; inWith = pid; inLast = 0;
-  $("inTitle").textContent = title;
+  inView = "conv"; inWith = pid; inLast = 0; inTypingOn = false; inTypeAt = 0; inPeer = null;
+  $("inTitle").innerHTML = `<b>${esc(title)}</b>`;
   $("inBody").innerHTML = '<div class="inlist" id="inList"></div><div class="inbar"><textarea class="input" id="inText" rows="1" maxlength="500" placeholder="Tulis pesan…"></textarea><button type="button" class="btn btn-primary" id="inSend">Kirim</button></div>';
   $("inSend").addEventListener("click", inSend);
+  $("inText").addEventListener("input", () => {
+    const t = $("inText");
+    t.style.height = "auto";
+    t.style.height = Math.min(t.scrollHeight, 120) + "px";
+    const now = Date.now();
+    if (t.value.trim() && now - inTypeAt > 2500) {
+      inTypeAt = now;
+      apiCall("/api/inbox/typing", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: inWith }) }).catch(() => {});
+    }
+  });
   $("inText").addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches) { e.preventDefault(); inSend(); }
   });
@@ -2919,13 +2935,17 @@ async function inFetch(first) {
     const res = await apiCall(`/api/inbox/messages?after=${inLast}&with=${encodeURIComponent(inWith)}`);
     const d = await res.json();
     if (!res.ok || !d.ok) { if (first) showToast(d.error || "Gagal memuat.", true); return; }
+    if (d.peer) inSetPeer(d.peer);
     if (d.messages.length || first) inAppend(d.messages, first);
+    inPaintTyping(!!d.typing);
   } catch (e) {}
 }
 function inAppend(list, first) {
   const box = $("inList");
   if (!box) return;
   const near = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+  const typ = $("inTyp");
+  if (typ) typ.remove();
   if (box.querySelector("p")) box.innerHTML = "";
   if (first && !list.length) box.innerHTML = '<p class="fgsub" style="text-align:center;margin-top:20px">Belum ada pesan. Tulis pesan pertamamu.</p>';
   list.forEach((m) => {
@@ -2935,7 +2955,23 @@ function inAppend(list, first) {
     const t = new Date(m.ts).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
     box.insertAdjacentHTML("beforeend", `<div class="ib ${mine ? "me" : ""}"><div class="ibb">${esc(m.text)}<small>${esc(t)}</small></div></div>`);
   });
+  if (inTypingOn) inPaintTyping(true);
   if (near || first) box.scrollTop = box.scrollHeight;
+}
+function inSetPeer(p) {
+  inPeer = p;
+  $("inTitle").innerHTML = `${avatarHtml(p, "s")}<span class="inwho"><b>${nameHtml(p.name, p.owner, verOf(p.pid))}</b><small>${esc(p.sub || "")}</small></span>`;
+}
+function inPaintTyping(on) {
+  const box = $("inList");
+  if (!box) return;
+  inTypingOn = on;
+  const old = $("inTyp");
+  if (!on) { if (old) old.remove(); return; }
+  if (old) return;
+  const near = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+  box.insertAdjacentHTML("beforeend", `<div class="ib ityp" id="inTyp">${inPeer ? `<span>${avatarHtml(inPeer, "s")}</span>` : ""}<div class="ibb"><div class="tdots"><i class="tdot"></i><i class="tdot"></i><i class="tdot"></i></div></div></div>`);
+  if (near) box.scrollTop = box.scrollHeight;
 }
 async function inSend() {
   const inp = $("inText"), text = inp.value.trim();
@@ -2946,6 +2982,7 @@ async function inSend() {
     const d = await res.json();
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim.");
     inp.value = "";
+    inp.style.height = "auto";
     inAppend([d.message], false);
   } catch (e) { showToast(e.message, true); }
   $("inSend").disabled = false;
