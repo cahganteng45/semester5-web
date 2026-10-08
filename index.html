@@ -427,6 +427,20 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .fr b{font-size:11px;color:var(--mute)}
 .fr.me{background:var(--brand-soft);border-color:var(--brand)}
 .fr.me b{color:var(--brand)}
+.rsheet-bg{position:fixed;inset:0;z-index:1400;background:rgba(6,16,13,.5);display:flex;align-items:flex-end;justify-content:center;animation:fade .15s ease}
+.rsheet{width:100%;max-width:520px;max-height:70vh;display:flex;flex-direction:column;background:var(--surface);border-radius:22px 22px 0 0;padding:8px 0 calc(env(safe-area-inset-bottom,0px) + 10px);box-shadow:0 -10px 40px rgba(0,0,0,.25);animation:rsup .22s ease}
+@keyframes rsup{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.rsheet .grab{width:38px;height:4px;border-radius:4px;background:var(--line);margin:4px auto 8px}
+.rtabs{display:flex;gap:6px;padding:4px 14px 10px;overflow-x:auto;border-bottom:1px solid var(--line)}
+.rtabs button{flex-shrink:0;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:14px;font-weight:600;color:var(--ink)}
+.rtabs button.on{background:var(--brand-soft);border-color:var(--brand);color:var(--brand)}
+.rlist{overflow-y:auto;padding:4px 0}
+.rrow{display:flex;align-items:center;gap:12px;width:100%;padding:8px 16px;text-align:left;color:var(--ink)}
+.rrow .rn{flex:1;min-width:0;font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rrow .rn small{display:block;font-weight:400;font-size:11px;color:var(--mute)}
+.rrow .re{font-size:22px;line-height:1}
+.rrow:active{background:var(--brand-soft)}
+.rempty{padding:22px;text-align:center;color:var(--mute);font-size:14px}
 .freactbar{display:flex;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--line)}
 .fmenu .freactbar button{width:auto;display:block;padding:4px 6px;border:0;font-size:24px;line-height:1;border-radius:10px}
 .fmenu .freactbar button.on{background:var(--brand-soft)}
@@ -2531,7 +2545,7 @@ $("fInput").addEventListener("keydown", (e) => {
 $("fMsgs").addEventListener("click", (e) => {
   if (Date.now() - fPressAt < 700) { e.preventDefault(); return; }
   const xr = e.target.closest("[data-x]");
-  if (xr) { const [xid, xe] = xr.dataset.x.split("|"); fReact(+xid, xe); return; }
+  if (xr) { const [xid, xe] = xr.dataset.x.split("|"); openFReacts(+xid, xe); return; }
   const mm = e.target.closest("[data-m]");
   if (mm) { const b = mm.closest(".fbub"); if (b) openFPress(b, +mm.dataset.m); return; }
   const r = e.target.closest("[data-r]"), d = e.target.closest("[data-d]"), c = e.target.closest("[data-c]"), pf = e.target.closest("[data-p]"), qq = e.target.closest("[data-q]");
@@ -2570,6 +2584,48 @@ function fApplyReacts(map) {
     if (JSON.stringify(nr) !== JSON.stringify(m.reacts || [])) { m.reacts = nr; changed = true; }
   });
   return changed;
+}
+async function openFReacts(id, startEmoji) {
+  let users;
+  try {
+    const res = await apiCall("/api/forum/reacts?id=" + encodeURIComponent(id));
+    const d = await res.json();
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat reaksi.");
+    users = d.users;
+  } catch (e) { showToast(e.message, true); return; }
+  if (!users.length) return;
+  const bg = document.createElement("div");
+  bg.className = "rsheet-bg";
+  let tab = users.some((u) => u.e === startEmoji) ? startEmoji : "all";
+  const close = () => { document.removeEventListener("keydown", onKey); bg.remove(); };
+  const onKey = (e) => { if (e.key === "Escape") close(); };
+  const paint = () => {
+    const counts = {};
+    users.forEach((u) => { counts[u.e] = (counts[u.e] || 0) + 1; });
+    const emojis = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+    const list = tab === "all" ? users : users.filter((u) => u.e === tab);
+    bg.innerHTML = `<div class="rsheet" role="dialog" aria-modal="true"><div class="grab"></div>
+      <div class="rtabs"><button type="button" data-t="all" class="${tab === "all" ? "on" : ""}">Semua ${users.length}</button>${emojis.map((e) => `<button type="button" data-t="${e}" class="${tab === e ? "on" : ""}">${e} ${counts[e]}</button>`).join("")}</div>
+      <div class="rlist">${list.map((u) => `<button type="button" class="rrow" ${u.mine ? 'data-me="1"' : u.pid ? `data-p="${esc(u.pid)}"` : ""}>${avatarHtml(u, "s")}<span class="rn">${nameHtml(u.name, u.owner, verOf(u.pid))}${u.mine ? "<small>Ketuk untuk menghapus reaksi</small>" : ""}</span><span class="re">${u.e}</span></button>`).join("")}</div></div>`;
+  };
+  paint();
+  document.body.appendChild(bg);
+  document.addEventListener("keydown", onKey);
+  bg.addEventListener("click", (e) => {
+    if (e.target === bg) { fPressAt = Date.now(); return close(); }
+    const t = e.target.closest("[data-t]");
+    if (t) { tab = t.dataset.t; paint(); return; }
+    const row = e.target.closest(".rrow");
+    if (!row) return;
+    if (row.dataset.me) {
+      const mine = users.find((u) => u.mine);
+      close(); fPressAt = Date.now();
+      if (mine) fReact(id, mine.e);   // ketuk reaksi yang sama = cabut
+    } else if (row.dataset.p) {
+      close(); fPressAt = Date.now();
+      openProfile(row.dataset.p);
+    }
+  });
 }
 async function fReact(id, emoji) {
   try {
