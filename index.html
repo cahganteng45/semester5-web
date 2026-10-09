@@ -696,10 +696,10 @@ html.kb #view-forum.active,html.kb .fgpage.inpage{padding-bottom:8px}
 
 /* ===== Tampilan chat (ukuran bubble, teks, gaya WhatsApp) ===== */
 :root{--cb-fs:15px;--cb-py:8px;--cb-px:12px;--cb-r:16px;--cb-max:82%;--cb-gap:8px;--cb-av:30px}
-html[data-csize="xs"]{--cb-py:3px;--cb-px:8px;--cb-r:10px;--cb-max:78%;--cb-gap:2px;--cb-av:22px}
-html[data-csize="s"]{--cb-py:5px;--cb-px:10px;--cb-r:13px;--cb-max:80%;--cb-gap:4px;--cb-av:26px}
+html[data-csize="xs"]{--cb-py:4px;--cb-px:8px;--cb-r:10px;--cb-max:78%;--cb-gap:5px;--cb-av:22px}
+html[data-csize="s"]{--cb-py:5px;--cb-px:10px;--cb-r:13px;--cb-max:80%;--cb-gap:6px;--cb-av:26px}
 html[data-csize="l"]{--cb-py:11px;--cb-px:15px;--cb-r:19px;--cb-max:88%;--cb-gap:11px;--cb-av:34px}
-.fmsgs,.cprev,.inlist{gap:var(--cb-gap)}
+.fmsgs,.cprev,.inlist{gap:max(var(--cb-gap),calc(var(--cb-fs) * .45))}
 .fbub,.ibb{padding:var(--cb-py) var(--cb-px);max-width:var(--cb-max);position:relative}
 .fbub{border-radius:var(--cb-r) var(--cb-r) var(--cb-r) 4px}
 .fmsg.me .fbub{border-radius:var(--cb-r) var(--cb-r) 4px var(--cb-r)}
@@ -709,8 +709,8 @@ html[data-csize="l"]{--cb-py:11px;--cb-px:15px;--cb-r:19px;--cb-max:88%;--cb-gap
 .fname{font-size:max(10px,calc(var(--cb-fs) - 3px))}
 .fmeta,.ibb small{font-size:max(9.5px,calc(var(--cb-fs) - 4.5px))}
 .fmsg .av.s{width:var(--cb-av);height:var(--cb-av)}
-html[data-cav="off"] .fmsg>span[data-p],html[data-cav="off"] .fmsg>span[data-pv]{display:none}
-html[data-csize="xs"] .fmeta,html[data-csize="s"] .fmeta{margin-top:1px}
+.fmsg>span.myav{display:none}
+html[data-cav="on"] .fmsg>span.myav{display:inline-block;align-self:flex-end;margin-bottom:2px}
 /* gaya WhatsApp */
 html[data-cstyle="wa"]{--wa-in:#fff;--wa-out:#d9fdd3;--wa-bg:#efeae2;--wa-ink:#111b21;--wa-time:#667781}
 html[data-cstyle="wa"][data-theme="dark"]{--wa-in:#202c33;--wa-out:#005c4b;--wa-bg:#0b141a;--wa-ink:#e9edef;--wa-time:#8696a0}
@@ -915,7 +915,7 @@ html[data-cstyle="wa"] .fday{background:var(--wa-in);color:var(--wa-time);box-sh
 <div class="cprev" id="cPrev">
 <div class="fday">Hari ini</div>
 <div class="fmsg"><span data-pv="1"><span class="av s">NC</span></span><div class="fbub"><div class="fname">nisa can<small>@nisa</small></div><div class="ftext">makasiiiii man temannn</div><div class="fmeta"><span>14.30</span></div></div></div>
-<div class="fmsg me"><div class="fbub"><div class="ftext">Sama-sama, nanti materinya aku upload ya</div><div class="fmeta"><span>14.31</span></div></div></div>
+<div class="fmsg me"><div class="fbub"><div class="ftext">Sama-sama, nanti materinya aku upload ya</div><div class="fmeta"><span>14.31</span></div></div><span class="myav"><span class="av s">KM</span></span></div>
 <div class="fmsg"><span data-pv="1"><span class="av s">MB</span></span><div class="fbub"><div class="fname">Mangku<small>@adi</small></div><div class="ftext">Siap, ditunggu 👍</div><div class="fmeta"><span><i class="fed">diedit</i> · 16.27</span></div></div></div>
 </div></div>
 <div class="card">
@@ -925,10 +925,10 @@ html[data-cstyle="wa"] .fday{background:var(--wa-in);color:var(--wa-time);box-sh
 <div class="opt-row"><button type="button" data-csize-set="xs">Mini</button><button type="button" data-csize-set="s">Kecil</button><button type="button" data-csize-set="m">Sedang</button><button type="button" data-csize-set="l">Besar</button></div>
 <h4>Ukuran teks</h4>
 <div class="rng"><span style="font-size:12px">A</span><input type="range" id="cbFs" min="12" max="20" step="1" aria-label="Ukuran teks chat"><span style="font-size:20px">A</span><b id="cbFsVal">15 px</b></div>
-<label class="sw-row"><span>Tampilkan foto profil di chat</span><input type="checkbox" id="cbAv"></label>
+<label class="sw-row"><span>Tampilkan fotoku di pesanku</span><input type="checkbox" id="cbAv"></label>
 <label class="sw-row" id="cbWallRow"><span>Wallpaper bermotif (gaya WhatsApp)</span><input type="checkbox" id="cbWall"></label>
 <button type="button" class="btn btn-line" id="cbReset" style="width:100%;margin-top:4px">Kembalikan ke bawaan</button>
-<p style="color:var(--mute);font-size:12.5px;margin-top:10px">Berlaku untuk Forum Kelas dan chat Admin. Disimpan di HP ini saja.</p>
+<p style="color:var(--mute);font-size:12.5px;margin-top:10px">Foto orang lain selalu tampil. Pengaturan berlaku untuk Forum Kelas dan chat Admin. Disimpan di HP ini saja.</p>
 </div></div>
 <div class="subpane hidden" data-sub="notif"><div class="card"><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Dapat pemberitahuan materi baru dan pengingat deadline (24 jam, 3 jam, 1 jam, dan 5 menit sebelumnya) walau web ditutup. Tanda selesai yang kamu pasang hanya berlaku di tampilan web, jadi notifikasi tugas tetap datang dari server.</p><button type="button" class="btn btn-soft" id="notifBtn">Aktifkan notifikasi</button></div><div class="card"><h3>Pengingat jadwal kuliah</h3><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Pemberitahuan sebelum kelas mulai. Berjalan selama aplikasi terbuka atau masih aktif di latar belakang.</p>
 <label style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px"><span>Aktifkan pengingat</span><input type="checkbox" id="clsOn"></label>
@@ -2035,7 +2035,7 @@ try { darkQuery.addEventListener("change", applyTheme); } catch (err) { darkQuer
 applyTheme();
 
 /* ---------- Tampilan chat: bubble, teks, gaya WhatsApp ---------- */
-const CHAT_DEF = { style: "default", size: "m", fs: 15, av: true, wall: true };
+const CHAT_DEF = { style: "default", size: "m", fs: 15, myav: false, wall: true };
 const CHAT_FS = { xs: 13, s: 14, m: 15, l: 17 };
 let chatPref = { ...CHAT_DEF };
 try { Object.assign(chatPref, JSON.parse(localStorage.getItem("s5_chat") || "{}")); } catch (err) {}
@@ -2046,13 +2046,13 @@ function applyChat(save) {
   const r = document.documentElement;
   r.dataset.cstyle = chatPref.style;
   r.dataset.csize = chatPref.size;
-  r.dataset.cav = chatPref.av ? "on" : "off";
+  r.dataset.cav = chatPref.myav ? "on" : "off";
   r.dataset.cwall = chatPref.wall ? "on" : "off";
   r.style.setProperty("--cb-fs", chatPref.fs + "px");
   document.querySelectorAll("[data-cstyle-set]").forEach((b) => b.classList.toggle("active", b.dataset.cstyleSet === chatPref.style));
   document.querySelectorAll("[data-csize-set]").forEach((b) => b.classList.toggle("active", b.dataset.csizeSet === chatPref.size));
   const rng = $("cbFs"); if (rng) { rng.value = chatPref.fs; $("cbFsVal").textContent = chatPref.fs + " px"; }
-  if ($("cbAv")) $("cbAv").checked = !!chatPref.av;
+  if ($("cbAv")) $("cbAv").checked = !!chatPref.myav;
   if ($("cbWall")) $("cbWall").checked = !!chatPref.wall;
   if ($("cbWallRow")) $("cbWallRow").classList.toggle("hidden", chatPref.style !== "wa");
   if (save) { try { localStorage.setItem("s5_chat", JSON.stringify(chatPref)); } catch (err) {} }
@@ -2064,7 +2064,7 @@ document.addEventListener("click", (e) => {
   if (e.target.closest("#cbReset")) { chatPref = { ...CHAT_DEF }; applyChat(true); showToast("Tampilan chat dikembalikan ke bawaan"); }
 });
 $("cbFs").addEventListener("input", (e) => { chatPref.fs = +e.target.value; applyChat(true); });
-$("cbAv").addEventListener("change", (e) => { chatPref.av = e.target.checked; applyChat(true); });
+$("cbAv").addEventListener("change", (e) => { chatPref.myav = e.target.checked; applyChat(true); });
 $("cbWall").addEventListener("change", (e) => { chatPref.wall = e.target.checked; applyChat(true); });
 applyChat(false);
 
@@ -2735,7 +2735,7 @@ function renderForum(stick) {
       ${mine ? "" : `<div class="fname" data-p="${esc(m.pid)}">${nameHtml(name, crown, verOf(m.pid))}${tag}</div>`}${quote}
       ${fTextBlock(m)}${pollHtml(m)}${linkHtml(m)}${reactsHtml(m)}
       <div class="fmeta"><span>${m.pinned ? "📌 " : ""}${m.edited ? '<i class="fed">diedit</i> · ' : ""}${esc(fTime(m.ts))}</span><button type="button" class="fmore" data-m="${m.id}" aria-label="Menu pesan">•••</button></div>
-    </div></div>`;
+    </div>${mine ? `<span class="myav" data-p="${esc(m.pid)}">${avatarHtml({ ...m, name: m.name || fullUserName || "" }, "s")}</span>` : ""}</div>`;
   }).join("");
   fPaintTyping();
   if (stick) box.scrollTop = box.scrollHeight;
