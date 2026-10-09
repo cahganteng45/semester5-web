@@ -669,6 +669,30 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .arep{border-top:1px solid var(--line);padding:10px 0;font-size:14px}
 .arep q{display:block;margin:4px 0;color:var(--mute)}
 .arep .row{display:flex;gap:8px;margin-top:8px}
+
+/* ===== v2: layout forum penuh layar, keyboard-aware, profil, responsif ===== */
+html{-webkit-text-size-adjust:100%}
+.av.xl{width:min(200px,56vw);height:min(200px,56vw);font-size:64px}
+img.av.xl{cursor:zoom-in}
+.pvwrap{display:flex;justify-content:center;margin:4px 0 12px}
+.pvact{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.pvact .btn{width:100%}
+.inrow .inav{display:inline-flex;flex-shrink:0;border-radius:50%;cursor:pointer}
+.inrow1 b .vbadge{width:1em;height:1em}
+#view-forum.active{display:flex;flex-direction:column;position:fixed;left:0;right:0;top:var(--vvt,0px);height:var(--vvh,100dvh);max-width:none;margin:0;z-index:60;background:var(--bg);animation:none;overflow:hidden;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px calc(env(safe-area-inset-bottom,0px) + 10px)}
+html.kb #view-forum.active,html.kb .fgpage.inpage{padding-bottom:8px}
+#view-forum .fghead,#view-forum .fpinbar,#view-forum .freply,#view-forum .fwrap{flex-shrink:0}
+#view-forum .fmsgs{flex:1 1 auto;height:auto;min-height:0;margin-bottom:8px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#view-forum .fbar{padding-top:2px}
+#view-forum .fbar .inround{width:46px;height:46px;padding:0}
+#view-forum .fbar .inpillbox textarea{height:46px;min-height:46px;border:0;background:transparent;padding:11px 0;border-radius:0}
+.fgpage.inpage{inset:auto;left:0;right:0;top:var(--vvt,0px);height:var(--vvh,100dvh);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 10px);overscroll-behavior:contain}
+@media (max-width:899px){body.forum-open .nav,body.forum-open .fab,body.forum-open .mfab{display:none!important}}
+@media (min-width:900px){
+#view-forum.active{left:var(--side-w);padding:16px max(16px,calc((100% - 820px)/2))}
+.fgpage.inpage{padding-left:max(16px,calc((100% - 760px)/2));padding-right:max(16px,calc((100% - 760px)/2))}
+}
+@media (min-width:1400px){#view-forum.active{padding-left:max(16px,calc((100% - 940px)/2));padding-right:max(16px,calc((100% - 940px)/2))}}
 </style>
 </head>
 <body>
@@ -770,7 +794,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 
 <section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><button type="button" class="fgback" id="fBack" aria-label="Kembali ke daftar chat"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div></div>
 <div class="fpinbar hidden" id="fPinBar"></div><div class="fmsgs" id="fMsgs"></div><div class="freply hidden" id="fReply"></div>
-<div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fcount hidden" id="fCount"></div><div class="fbar"><textarea class="input" id="fInput" rows="1" placeholder="Tulis pesan…"></textarea><button class="btn btn-line" id="fPollBtn" type="button" aria-label="Buat polling">📊</button><button class="btn btn-primary" id="fSend" type="button">Kirim</button></div></div></section>
+<div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fcount hidden" id="fCount"></div><div class="fbar inbar"><div class="inpillbox"><textarea id="fInput" rows="1" placeholder="Tulis pesan…" enterkeyhint="send" autocomplete="off"></textarea></div><button class="inround" id="fPollBtn" type="button" aria-label="Buat polling"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button><button class="inround inprimary" id="fSend" type="button" aria-label="Kirim"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.5-7.6a1 1 0 0 0 0-1.8L3.4 3.4a1 1 0 0 0-1.4 1.2L4 11l9 1-9 1-2 6.4a1 1 0 0 0 1.4 1z"/></svg></button></div></div></section>
 
 <section class="view" id="view-upload"><h2 class="page-title">Tambah materi</h2><p class="page-sub">Unggah file atau tulis catatan. Hasilnya langsung terkirim ke Telegram.</p>
 <div class="card">
@@ -926,7 +950,7 @@ const BADGE = '<svg class="vbadge" data-t="admin" viewBox="0 0 24 24" role="img"
 var fVers = {};   // pid -> keterangan centang pengguna (dari server, lewat polling forum)
 function verOf(pid) { return (pid && fVers && fVers[pid]) || ""; }
 function myPid() { try { return myProfile.pid || ""; } catch (e) { return ""; } }
-const VUSER = (label) => '<svg class="vbadge user" data-t="user" data-l="' + esc(label) + '" viewBox="0 0 24 24" role="img" aria-label="Terverifikasi"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#e0a100"/><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#e0a100" transform="rotate(45 12 12)"/><path d="M7.4 12.4l3.1 3.1 6.1-6.6" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const VUSER = (label) => '<svg class="vbadge user" data-t="user" data-l="' + esc(label) + '" viewBox="0 0 24 24" role="img" aria-label="Terverifikasi"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#1d9bf0"/><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#1d9bf0" transform="rotate(45 12 12)"/><path d="M7.4 12.4l3.1 3.1 6.1-6.6" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const nameHtml = (name, owner, ver) => esc(name) + (owner ? BADGE : ver ? VUSER(ver) : "");
 const initialsOf = (n) => String(n || "?").replace(/[^\p{L}\p{N} ]/gu, "").trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "?";
 function avatarHtml(o, size) {
@@ -1058,6 +1082,7 @@ function switchView(id) {
   if (id === "admin" && !isAdmin) id = "home";
   if (activeView === "forum" && id !== "forum") closeForum();
   activeView = id;
+  document.body.classList.toggle("forum-open", id === "forum");
   document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.id === "view-" + id));
   document.querySelectorAll(".nav-item").forEach((b) => b.classList.toggle("active", b.dataset.view === (id === "forum" ? "chat" : id)));
   if (id === "materi") { backToTopics(); loadTopics(); }
@@ -2697,8 +2722,8 @@ function startForum() {
   fTimer = setInterval(() => {
     if (!token || !currentUser || document.hidden) return;
     fTicks++;
-    if (activeView === "forum" || fTicks % 2 === 0) pollForum();
-  }, 3000);
+    if (activeView === "forum" || fTicks % 3 === 0) pollForum();
+  }, 2000);
   pollForum();
 }
 function stopForum() {
@@ -2808,7 +2833,7 @@ $("fMsgs").addEventListener("click", (e) => {
   else if (d) deleteForum(+d.dataset.d);
   else if (c) { const fm = fMsgs.find((x) => x.id === +c.dataset.c); if (fm) copyText(fm.text); }
   else if (qq) jumpToMessage(+qq.dataset.q);
-  else if (pf) openProfile(pf.dataset.p);
+  else if (pf) showProfile(pf.dataset.p);
 });
 
 /* ---------- reaksi, mention, sedang mengetik ---------- */
@@ -3417,7 +3442,7 @@ async function inPick() {
   $("inPill").classList.add("hidden");
   await fLoadGroup(false);
   $("inBody").innerHTML = fGroupMembers.filter((m) => !m.mine && !m.owner)
-    .map((m) => `<button type="button" class="fgm" data-open="${esc(m.pid)}" data-nm="${esc(m.name)}">${avatarHtml(m, "s")}<span class="fgmt"><b>${esc(m.name)}</b><small>${esc(m.real ? "@" + m.real : m.mask)}</small></span></button>`).join("");
+    .map((m) => `<button type="button" class="fgm" data-open="${esc(m.pid)}" data-nm="${esc(m.name)}">${avatarHtml(m, "s")}<span class="fgmt"><b>${nameHtml(m.name, false, verOf(m.pid))}</b><small>${esc(m.real ? "@" + m.real : m.mask)}</small></span></button>`).join("");
 }
 function inConv(pid, title) {
   inFromArch = inView === "arch" ? true : inView === "conv" ? inFromArch : false;
@@ -3487,8 +3512,8 @@ function inAppend(list, first) {
   if (inTypingOn) inPaintTyping(true);
   if (near || first) box.scrollTop = box.scrollHeight;
 }
-async function inProfile() {
-  const p = inPeer;
+async function inProfile() { if (inPeer) showProfile(inPeer.pid, inPeer); }
+async function inDetail(p) {
   if (!p) return;
   if (isAdmin) {
     if (!fGroupMembers.length) { try { await fLoadGroup(false); } catch (e) {} }
@@ -3589,7 +3614,7 @@ function inSortThr() {
 }
 function inRowHtml(t, showArch) {
   const unr = t.unread > 0, when = inRowTime(t.ts);
-  return `<div class="inrow${unr ? " unr" : ""}" data-open="${esc(t.pid)}" data-nm="${esc(t.name)}" data-pid="${esc(t.pid)}" role="button" tabindex="0">${avatarHtml(t, "s")}<div class="inrowt"><div class="inrow1"><b>${esc(t.name)}</b>${when ? `<time>${esc(when)}</time>` : ""}</div><div class="inrow2"><em class="inprev">${t.last_me ? "Kamu: " : ""}${esc(t.last || "Belum ada pesan")}</em>${unr ? `<span class="ubadge">${t.unread > 99 ? "99+" : t.unread}</span>` : ""}${t.pin ? IC.pin : ""}${showArch && t.arch ? IC.archive : ""}</div></div></div>`;
+  return `<div class="inrow${unr ? " unr" : ""}" data-open="${esc(t.pid)}" data-nm="${esc(t.name)}" data-pid="${esc(t.pid)}" role="button" tabindex="0"><span class="inav" data-prof="${esc(t.pid)}">${avatarHtml(t, "s")}</span><div class="inrowt"><div class="inrow1"><b>${nameHtml(t.name, t.owner, verOf(t.pid))}</b>${when ? `<time>${esc(when)}</time>` : ""}</div><div class="inrow2"><em class="inprev">${t.last_me ? "Kamu: " : ""}${esc(t.last || "Belum ada pesan")}</em>${unr ? `<span class="ubadge">${t.unread > 99 ? "99+" : t.unread}</span>` : ""}${t.pin ? IC.pin : ""}${showArch && t.arch ? IC.archive : ""}</div></div></div>`;
 }
 function inPaintRows() {
   const box = $("inRows"), chips = $("inChips");
@@ -4413,6 +4438,79 @@ renderForum(false);
 fetch(API + "/api/status", { cache: "no-store" }).then((r) => r.json())
   .then((d) => { if (d.maintenance) showMaint(d.message); }).catch(() => {});
 if (token) initApp(); else $("login").classList.remove("hidden");
+
+/* ===== v2: viewport keyboard-aware, pratinjau profil + tombol Rincian ===== */
+(function () {
+  const vv = window.visualViewport, r = document.documentElement;
+  let raf = 0;
+  function upd() {
+    raf = 0;
+    const h = vv ? vv.height : innerHeight;
+    r.style.setProperty("--vvh", Math.round(h) + "px");
+    r.style.setProperty("--vvt", Math.round(vv ? vv.offsetTop : 0) + "px");
+    r.classList.toggle("kb", !!vv && innerHeight - vv.height > 120);
+  }
+  const sched = () => { if (!raf) raf = requestAnimationFrame(upd); };
+  if (vv) { vv.addEventListener("resize", sched); vv.addEventListener("scroll", sched); }
+  addEventListener("resize", sched); addEventListener("orientationchange", sched);
+  upd();
+  document.addEventListener("focusin", (e) => {
+    if (e.target && e.target.id === "fInput") setTimeout(() => { const b = $("fMsgs"); if (b) b.scrollTop = b.scrollHeight; if (window.scrollY) scrollTo(0, 0); }, 250);
+  });
+})();
+function profLocal(pid) {
+  const m = (fGroupMembers || []).find((x) => x.pid === pid);
+  const t = (typeof inThr !== "undefined" && inThr || []).find((x) => x.pid === pid);
+  const f = (fMsgs || []).find((x) => x.pid === pid);
+  const pe = inPeer && inPeer.pid === pid ? inPeer : null;
+  const o = Object.assign({}, f ? { pid, name: f.name, av: f.av, avv: f.avv, owner: f.owner } : {}, t || {}, m || {}, pe || {});
+  return o.name ? o : null;
+}
+async function showProfile(pid, hint) {
+  if (!pid) return;
+  document.querySelectorAll(".fgsheet.pv").forEach((x) => x.remove());
+  let p = Object.assign({}, profLocal(pid) || {}, hint || {});
+  if (!p.name) {
+    try {
+      const res = await apiCall("/api/profile/" + encodeURIComponent(pid)), d = await res.json();
+      if (!res.ok || !d.ok) throw new Error(d.error || "Profil tidak ditemukan.");
+      p = d;
+    } catch (e) { return showToast(e.message, true); }
+  }
+  p.pid = p.pid || pid;
+  const sub = p.owner ? "Admin" : (isAdmin && p.real ? "@" + p.real : p.mask || p.sub || "");
+  const s = fgSheet(`<div class="pvwrap">${avatarHtml(p, "xl")}</div><h3>${nameHtml(p.mine ? p.name + " (kamu)" : p.name, p.owner, verOf(p.pid))}</h3>${sub ? `<p class="fgsub">${esc(sub)}</p>` : ""}<div class="pvact"><button type="button" class="btn btn-primary" data-det>Rincian</button><button type="button" class="btn" data-close>Tutup</button></div>`);
+  s.classList.add("pv");
+  const img = s.querySelector("img.av");
+  if (img) img.addEventListener("click", () => viewPhoto(img.src));
+  s.querySelector("[data-close]").addEventListener("click", () => s.remove());
+  s.querySelector("[data-det]").addEventListener("click", async () => {
+    s.remove();
+    if (isAdmin && !fGroupMembers.length) { try { await fLoadGroup(false); } catch (e) {} }
+    if (fGroupMembers.some((x) => x.pid === pid)) return fOpenMember(pid);
+    if (inPeer && inPeer.pid === pid) return inDetail(inPeer);
+    openProfile(pid);
+  });
+}
+// ketuk avatar di daftar chat admin = lihat profil tanpa membuka chat
+document.addEventListener("click", (e) => {
+  const a = e.target.closest && e.target.closest("[data-prof]");
+  if (!a) return;
+  e.stopPropagation(); e.preventDefault();
+  const t = (inThr || []).find((x) => x.pid === a.dataset.prof);
+  showProfile(a.dataset.prof, t || null);
+}, true);
+// klik kanan (mouse) pada avatar/nama = lihat profil
+document.addEventListener("contextmenu", (e) => {
+  if (e.pointerType === "touch") return;
+  const a = e.target.closest && e.target.closest("[data-prof],[data-p],#inTitle.tap");
+  if (!a) return;
+  e.preventDefault(); e.stopPropagation();
+  if (a.id === "inTitle") return inProfile();
+  const pid = a.dataset.prof || a.dataset.p;
+  const t = (inThr || []).find((x) => x.pid === pid);
+  showProfile(pid, t || null);
+}, true);
 </script>
 </body>
 </html>
