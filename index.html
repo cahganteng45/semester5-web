@@ -553,6 +553,15 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .hublist .inrow{padding:12px 4px;border-bottom:1px solid var(--line);border-radius:0}
 .hublist .inrow:last-child{border-bottom:0}
 .hublist .inrow .fgimg{width:52px;height:52px;font-size:24px}
+.swrow{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.swrow .inrow{border-bottom:0!important}
+.swact{position:absolute;inset:0;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding-right:24px;font-weight:700;font-size:14px}
+.swact svg{width:22px;height:22px}
+.swfg{position:relative;background:var(--bg);touch-action:pan-y;transition:transform .2s ease}
+.vbadge{width:17px;height:17px;margin-left:5px;vertical-align:-3px;flex-shrink:0}
+.hubhd{display:flex;align-items:center;justify-content:space-between}
+.hubnew{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand)}
+.hubnew svg{width:21px;height:21px}
 .hubadm{background:linear-gradient(135deg,var(--brand),#8b5cf6);color:#fff!important;font-size:22px!important}
 .fgback{width:34px;height:34px;margin-left:-6px;border-radius:50%;display:grid;place-items:center;color:var(--brand);flex-shrink:0;background:none;border:0;padding:0;cursor:pointer}
 .fgback:active{background:var(--brand-soft)}
@@ -754,7 +763,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 
 <section class="view" id="view-jadwal"><h2 class="page-title">Jadwal kuliah</h2><p class="page-sub">Sistem Informasi, kelas 5P52 dan 5P52A. Semester Gasal 2026/2027.</p><div class="chips" id="dayChips"></div><div id="scheduleList"></div></section>
 
-<section class="view" id="view-chat"><h2 class="page-title">Chat</h2><div class="hublist" id="hubList"></div></section>
+<section class="view" id="view-chat"><div class="hubhd"><h2 class="page-title">Chat</h2><button type="button" class="hubnew hidden" id="hubNew" aria-label="Pesan baru"></button></div><div class="hublist" id="hubList"></div></section>
 
 <section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><button type="button" class="fgback" id="fBack" aria-label="Kembali ke daftar chat"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div></div>
 <div class="fpinbar hidden" id="fPinBar"></div><div class="fmsgs" id="fMsgs"></div><div class="freply hidden" id="fReply"></div>
@@ -1053,7 +1062,7 @@ function switchView(id) {
   if (id === "admin") loadAdmin();
   if (id === "settings") closeSub();
   if (id === "forum") openForum();
-  if (id === "chat") { renderChatHub(true); pollForum(); }
+  if (id === "chat") { renderChatHub(true); pollForum(); hubLoadThreads(true); }
   if (id === "home") { updateGreeting(); renderHome(); renderHomeExtras(); loadTasks(false); }
   window.scrollTo({ top: 0 });
 }
@@ -2181,7 +2190,7 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
   // notifikasi chat admin diketuk -> buka forum lalu chat admin
   navigator.serviceWorker.addEventListener("message", (ev) => {
-    if (ev.data && ev.data.type === "open-inbox" && token && typeof inOpen === "function" && inOn) { switchView("chat"); setTimeout(inOpen, 300); }
+    if (ev.data && ev.data.type === "open-inbox" && token && typeof inOpen === "function" && inOn) { switchView("chat"); if (!isAdmin) setTimeout(inOpen, 300); }
   });
 }
 
@@ -2434,26 +2443,88 @@ function fPreview(m) {
   if (m.file) return "📎 Lampiran";
   return String(m.text || "").replace(/\s+/g, " ").trim();
 }
+const VBADGE = '<svg class="vbadge" viewBox="0 0 24 24" role="img" aria-label="Terverifikasi"><circle cx="12" cy="12" r="11" fill="#1d9bf0"/><path d="M7.2 12.4l3.2 3.2 6.4-6.8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+let hubThrAt = 0, hubThrBusy = false;
+async function hubLoadThreads(force) {
+  if (!isAdmin || !inOn || hubThrBusy) return;
+  if (!force && Date.now() - hubThrAt < 4000) return;
+  hubThrBusy = true;
+  try {
+    const res = await apiCall("/api/inbox/threads");
+    const d = await res.json();
+    if (res.ok && d.ok) { inThr = d.threads; inSortThr(); hubThrAt = Date.now(); renderChatHub(false); }
+  } catch (e) {} finally { hubThrBusy = false; }
+}
 function renderChatHub(force) {
   if (activeView !== "chat") return;
   const box = $("hubList");
   if (!box) return;
+  const hn = $("hubNew");
+  if (hn) { hn.classList.toggle("hidden", !(isAdmin && inOn)); if (!hn.innerHTML) hn.innerHTML = IC.compose; }
   const rows = [];
-  if (inOn) {
-    const u = inUnread > 0;
-    rows.push(`<div class="inrow${u ? " unr" : ""}" data-hub="admin" role="button" tabindex="0"><span class="av hubadm">🛡️</span><div class="inrowt"><div class="inrow1"><b>${isAdmin ? "Kotak masuk" : "Admin"}</b></div><div class="inrow2"><em class="inprev">${u ? (inUnread > 1 ? inUnread + " pesan baru" : "Pesan baru") : isAdmin ? "Pesan dari mahasiswa" : "Tanya langsung ke admin"}</em>${u ? `<span class="ubadge">${inUnread > 99 ? "99+" : inUnread}</span>` : ""}</div></div></div>`);
-  }
+  // forum kelas (centang biru)
   const list = fMsgs.filter((m) => !isFHidden(m.id)), last = list[list.length - 1], gu = unreadForum();
   const prev = last ? `${last.mine ? "Kamu: " : esc(shortName(last.name)) + ": "}${esc(fPreview(last))}` : "Belum ada pesan";
-  rows.push(`<div class="inrow${gu ? " unr" : ""}" data-hub="group" role="button" tabindex="0">${fgPhotoHtml("fgimg")}<div class="inrowt"><div class="inrow1"><b>${esc(fGroup.name)}</b>${last ? `<time>${esc(inRowTime(last.ts))}</time>` : ""}</div><div class="inrow2"><em class="inprev">${prev}</em>${gu ? `<span class="ubadge">${gu > 99 ? "99+" : gu}</span>` : ""}</div></div></div>`);
+  rows.push(`<div class="inrow${gu ? " unr" : ""}" data-hub="group" role="button" tabindex="0">${fgPhotoHtml("fgimg")}<div class="inrowt"><div class="inrow1"><b>${esc(fGroup.name)}${VBADGE}</b>${last ? `<time>${esc(inRowTime(last.ts))}</time>` : ""}</div><div class="inrow2"><em class="inprev">${prev}</em>${gu ? `<span class="ubadge">${gu > 99 ? "99+" : gu}</span>` : ""}</div></div></div>`);
+  if (inOn && isAdmin) {
+    // admin: langsung daftar mahasiswa, geser kiri = arsipkan
+    const live = inThr.filter((t) => !t.arch), arch = inThr.filter((t) => t.arch);
+    live.forEach((t) => {
+      rows.push(`<div class="swrow" data-swpid="${esc(t.pid)}"><div class="swact">${IC.archive}<span>Arsipkan</span></div>${inRowHtml(t, false).replace('class="inrow', 'class="swfg inrow')}</div>`);
+    });
+    if (arch.length) rows.push(`<div class="inarchrow" data-archopen="1" role="button" tabindex="0"><span class="inarchic">${IC.archive}</span><b>Diarsipkan</b><em class="${arch.some((t) => t.unread > 0) ? "unr" : ""}">${arch.length}</em></div>`);
+    if (!inThr.length) rows.push('<p class="fgsub" style="text-align:center;margin-top:28px">Belum ada percakapan. Ketuk ikon pensil untuk mengirim pesan baru.</p>');
+  } else if (inOn) {
+    // mahasiswa: langsung chat dengan admin
+    const u = inUnread > 0;
+    rows.push(`<div class="inrow${u ? " unr" : ""}" data-hub="admin" role="button" tabindex="0"><span class="av hubadm">🛡️</span><div class="inrowt"><div class="inrow1"><b>Admin</b></div><div class="inrow2"><em class="inprev">${u ? (inUnread > 1 ? inUnread + " pesan baru" : "Pesan baru") : "Tanya langsung ke admin"}</em>${u ? `<span class="ubadge">${inUnread > 99 ? "99+" : inUnread}</span>` : ""}</div></div></div>`);
+  }
   const html = rows.join("");
   if (force || html !== hubHtmlPrev) { box.innerHTML = html; hubHtmlPrev = html; }
 }
 $("hubList").addEventListener("click", (e) => {
+  if (Date.now() - hubSwipedAt < 400) { e.preventDefault(); return; }
+  if (e.target.closest("[data-archopen]")) { inOpen({ arch: true }); return; }
+  const o = e.target.closest("[data-open]");
+  if (o) { inOpen({ pid: o.dataset.open, name: o.dataset.nm }); return; }
   const r = e.target.closest("[data-hub]");
   if (!r) return;
   if (r.dataset.hub === "admin") inOpen(); else switchView("forum");
 });
+$("hubNew").addEventListener("click", () => inOpen({ pick: true }));
+inBindRows($("hubList"));   // tahan lama: sematkan / arsipkan / hapus
+let hubSwipedAt = 0;
+(function hubSwipe() {
+  const box = $("hubList");
+  let el = null, sx = 0, sy = 0, dx = 0, lock = 0;
+  box.addEventListener("touchstart", (e) => {
+    if (!isAdmin) return;
+    const r = e.target.closest(".swfg");
+    if (!r || e.touches.length !== 1) return;
+    el = r; sx = e.touches[0].clientX; sy = e.touches[0].clientY; dx = 0; lock = 0; r.style.transition = "none";
+  }, { passive: true });
+  box.addEventListener("touchmove", (e) => {
+    if (!el) return;
+    const x = e.touches[0].clientX - sx, y = e.touches[0].clientY - sy;
+    if (!lock) { if (Math.abs(x) > 10 && Math.abs(x) > Math.abs(y) * 1.5) lock = 1; else if (Math.abs(y) > 10) lock = 2; }
+    if (lock !== 1) return;
+    dx = Math.min(0, x);
+    el.style.transform = `translateX(${dx}px)`;
+  }, { passive: true });
+  const end = () => {
+    if (!el) return;
+    const r = el, w = r.offsetWidth; el = null;
+    r.style.transition = "";
+    if (lock === 1) hubSwipedAt = Date.now();
+    if (lock === 1 && dx < -Math.min(110, w * 0.3)) {
+      r.style.transform = `translateX(${-w}px)`;
+      const pid = r.dataset.pid;
+      setTimeout(() => inMetaSet(pid, { arch: true }), 180);
+    } else r.style.transform = "";
+  };
+  box.addEventListener("touchend", end);
+  box.addEventListener("touchcancel", end);
+})();
 $("fBack").addEventListener("click", (e) => { e.stopPropagation(); switchView("chat"); });
 
 /* ---------- forum kelas ---------- */
@@ -3044,7 +3115,7 @@ function ensureBanner() {
   nbEl.setAttribute("role", "status");
   nbEl.addEventListener("click", () => {
     hideBanner();
-    if (nbEl.dataset.k === "inbox") { switchView("chat"); setTimeout(inOpen, 300); }
+    if (nbEl.dataset.k === "inbox") { switchView("chat"); if (!isAdmin) setTimeout(inOpen, 300); }
     else { switchView("forum"); setTimeout(() => jumpToMessage(nbId), 600); }
   });
   document.body.append(nbEl);
@@ -3233,6 +3304,7 @@ function fApplyInbox(on, unread) {
   inUnread = n; inUnreadSeen = n;
   inPaintBtn();
   updateForumBadge();
+  if (activeView === "chat" && isAdmin) hubLoadThreads(prev !== null && n !== prev);
   // pesan baru saat chat admin tidak sedang terbuka: banner di dalam aplikasi (push HP dikirim server)
   if (prev !== null && n > prev && !(inEl && inEl.classList.contains("show"))) inNotify(n - prev);
 }
@@ -3246,8 +3318,10 @@ function inNotify(add) {
   nbTimer = setTimeout(hideBanner, 6000);
   if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
 }
-function inClose() { clearInterval(inTimer); inTimer = null; inView = ""; inRecStop(true); inCleanMedia(); if (inEl) inEl.classList.remove("show"); }
-function inOpen() {
+function inClose() { clearInterval(inTimer); inTimer = null; inView = ""; inRecStop(true); inCleanMedia(); if (inEl) inEl.classList.remove("show"); try { renderChatHub(true); hubLoadThreads(true); } catch (e) {} }
+let inHubMode = false;
+function inOpen(o) {
+  o = o && (o.pid || o.arch || o.pick) ? o : null;
   if (!inEl) {
     inEl = document.createElement("div");
     inEl.className = "fgpage inpage";
@@ -3255,7 +3329,7 @@ function inOpen() {
     document.body.append(inEl);
     inBindGestures(inEl);
     inEl.addEventListener("click", (e) => {
-      if (e.target.closest("#inBack")) { if (isAdmin && inView === "conv") inBackToList(); else if (inView === "arch") inThreads(); else inClose(); return; }
+      if (e.target.closest("#inBack")) { if (isAdmin && inView === "conv") inBackToList(); else if (inView === "arch") inToList(); else inClose(); return; }
       if (e.target.closest("[data-archopen]")) { inArchive(); return; }
       if (e.target.closest("#inTitle.tap")) { inProfile(); return; }
       if (e.target.closest("#inNew")) { inPick(); return; }
@@ -3274,7 +3348,13 @@ function inOpen() {
   }
   requestAnimationFrame(() => inEl.classList.add("show"));
   inQuery = ""; inFlt = "all";
-  if (isAdmin) inThreads(); else inConv("", "Chat dengan Admin");
+  inHubMode = isAdmin && !!o;
+  if (isAdmin) {
+    if (o && o.arch) inArchive();
+    else if (o && o.pick) inPick();
+    else if (o) inConv(o.pid, o.name || "Pengguna");
+    else inThreads();
+  } else inConv("", "Chat dengan Admin");
 }
 async function inThreads() {
   inView = "threads"; clearInterval(inTimer); inRecStop(true); inCleanMedia();
@@ -3296,7 +3376,8 @@ async function inThreads() {
   } catch (e) { showToast(e.message, true); }
 }
 /* layar "Diarsipkan" terpisah, seperti WhatsApp: daftar arsip dibuka dari baris di atas daftar chat */
-function inBackToList() { if (inFromArch) inArchive(); else inThreads(); }
+function inToList() { if (inHubMode) inClose(); else inThreads(); }
+function inBackToList() { if (inFromArch) inArchive(); else inToList(); }
 async function inArchive() {
   inView = "arch"; inFromArch = false; clearInterval(inTimer); inRecStop(true); inCleanMedia();
   const tt = $("inTitle");
@@ -3312,7 +3393,7 @@ async function inArchive() {
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat.");
     inThr = d.threads;
     if (inView !== "arch") return;
-    if (!inThr.some((t) => t.arch)) { inThreads(); return; }   // arsip kosong: kembali ke daftar chat
+    if (!inThr.some((t) => t.arch)) { inToList(); return; }   // arsip kosong: kembali ke daftar chat
     inPaintRows();
   } catch (e) { showToast(e.message, true); }
 }
@@ -3583,7 +3664,8 @@ async function inMetaSet(pid, patch) {
       if (patch.arch) inBackToList();
     } else {
       inSortThr();
-      if (inView === "arch" && !inThr.some((x) => x.arch)) inThreads(); else inPaintRows();
+      if (inView === "arch" && !inThr.some((x) => x.arch)) inToList(); else inPaintRows();
+      renderChatHub(true);
     }
   } catch (e) { showToast(e.message, true); }
 }
@@ -3596,7 +3678,8 @@ async function inDeleteThread(t) {
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menghapus.");
     inThr = inThr.filter((x) => x.pid !== t.pid);
     showToast("Percakapan dihapus.");
-    if (inView === "conv") inBackToList(); else if (inView === "arch" && !inThr.some((x) => x.arch)) inThreads(); else inPaintRows();
+    if (inView === "conv") inBackToList(); else if (inView === "arch" && !inThr.some((x) => x.arch)) inToList(); else inPaintRows();
+    renderChatHub(true);
   } catch (e) { showToast(e.message, true); }
 }
 
