@@ -693,6 +693,56 @@ html.kb #view-forum.active,html.kb .fgpage.inpage{padding-bottom:8px}
 .fgpage.inpage{padding-left:max(16px,calc((100% - 760px)/2));padding-right:max(16px,calc((100% - 760px)/2))}
 }
 @media (min-width:1400px){#view-forum.active{padding-left:max(16px,calc((100% - 940px)/2));padding-right:max(16px,calc((100% - 940px)/2))}}
+
+/* ===== Tampilan chat (ukuran bubble, teks, gaya WhatsApp) ===== */
+:root{--cb-fs:15px;--cb-py:8px;--cb-px:12px;--cb-r:16px;--cb-max:82%;--cb-gap:8px;--cb-av:30px}
+html[data-csize="xs"]{--cb-py:3px;--cb-px:8px;--cb-r:10px;--cb-max:78%;--cb-gap:2px;--cb-av:22px}
+html[data-csize="s"]{--cb-py:5px;--cb-px:10px;--cb-r:13px;--cb-max:80%;--cb-gap:4px;--cb-av:26px}
+html[data-csize="l"]{--cb-py:11px;--cb-px:15px;--cb-r:19px;--cb-max:88%;--cb-gap:11px;--cb-av:34px}
+.fmsgs,.cprev,.inlist{gap:var(--cb-gap)}
+.fbub,.ibb{padding:var(--cb-py) var(--cb-px);max-width:var(--cb-max);position:relative}
+.fbub{border-radius:var(--cb-r) var(--cb-r) var(--cb-r) 4px}
+.fmsg.me .fbub{border-radius:var(--cb-r) var(--cb-r) 4px var(--cb-r)}
+.ibb{border-radius:var(--cb-r) var(--cb-r) var(--cb-r) 4px;font-size:var(--cb-fs)}
+.ib.me .ibb{border-radius:var(--cb-r) var(--cb-r) 4px var(--cb-r)}
+.ftext{font-size:var(--cb-fs)}
+.fname{font-size:max(10px,calc(var(--cb-fs) - 3px))}
+.fmeta,.ibb small{font-size:max(9.5px,calc(var(--cb-fs) - 4.5px))}
+.fmsg .av.s{width:var(--cb-av);height:var(--cb-av)}
+html[data-cav="off"] .fmsg>span[data-p],html[data-cav="off"] .fmsg>span[data-pv]{display:none}
+html[data-csize="xs"] .fmeta,html[data-csize="s"] .fmeta{margin-top:1px}
+/* gaya WhatsApp */
+html[data-cstyle="wa"]{--wa-in:#fff;--wa-out:#d9fdd3;--wa-bg:#efeae2;--wa-ink:#111b21;--wa-time:#667781}
+html[data-cstyle="wa"][data-theme="dark"]{--wa-in:#202c33;--wa-out:#005c4b;--wa-bg:#0b141a;--wa-ink:#e9edef;--wa-time:#8696a0}
+@media (prefers-color-scheme:dark){html[data-cstyle="wa"]:not([data-theme]){--wa-in:#202c33;--wa-out:#005c4b;--wa-bg:#0b141a;--wa-ink:#e9edef;--wa-time:#8696a0}}
+html[data-cstyle="wa"] .fmsgs,html[data-cstyle="wa"] .cprev,html[data-cstyle="wa"] .inlist{background-color:var(--wa-bg);border-color:transparent}
+html[data-cstyle="wa"][data-cwall="on"] .fmsgs,html[data-cstyle="wa"][data-cwall="on"] .cprev,html[data-cstyle="wa"][data-cwall="on"] .inlist{background-image:radial-gradient(rgba(127,127,127,.13) 1.3px,transparent 1.6px);background-size:20px 20px}
+html[data-cstyle="wa"] .inlist{padding:8px 10px}
+html[data-cstyle="wa"] .fbub,html[data-cstyle="wa"] .ibb{background:var(--wa-in);color:var(--wa-ink);border:0;box-shadow:0 1px .5px rgba(11,20,26,.14);border-radius:8px;border-top-left-radius:0}
+html[data-cstyle="wa"] .fmsg.me .fbub,html[data-cstyle="wa"] .ib.me .ibb{background:var(--wa-out);border-radius:8px;border-top-right-radius:0}
+html[data-cstyle="wa"] .fbub::before,html[data-cstyle="wa"] .ibb::before{content:"";position:absolute;top:0;left:-7px;width:8px;height:13px;background:var(--wa-in);clip-path:polygon(100% 0,100% 100%,0 0)}
+html[data-cstyle="wa"] .fmsg.me .fbub::before,html[data-cstyle="wa"] .ib.me .ibb::before{left:auto;right:-7px;background:var(--wa-out);clip-path:polygon(0 0,100% 0,0 100%)}
+html[data-cstyle="wa"] .fname{color:var(--brand)}
+html[data-cstyle="wa"] .fname.crown{color:var(--brand)}
+html[data-cstyle="wa"] .fmeta,html[data-cstyle="wa"] .ibb small{color:var(--wa-time)}
+html[data-cstyle="wa"] .fmeta{justify-content:flex-end;gap:6px}
+html[data-cstyle="wa"] .fquote{background:rgba(127,127,127,.14);border-radius:6px;padding:4px 8px}
+html[data-cstyle="wa"] .fday{background:var(--wa-in);color:var(--wa-time);box-shadow:0 1px .5px rgba(11,20,26,.13);text-transform:uppercase;letter-spacing:.02em}
+/* panel pengaturan + preview */
+.cprev{display:flex;flex-direction:column;padding:12px;border-radius:var(--r-m);background:var(--surface);border:1px solid var(--line);overflow:hidden;max-height:300px;pointer-events:none;user-select:none}
+.cprev .fmsg{display:flex}
+.cprev .fmsg.me{justify-content:flex-end}
+.cprev .fday{align-self:center;font-size:11px;font-weight:700;color:var(--mute);background:var(--bg);padding:3px 12px;border-radius:99px;margin:2px 0 4px}
+.cprevwrap{position:sticky;top:8px;z-index:5;margin-bottom:16px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.14))}
+.cprevlbl{font-size:12px;font-weight:700;color:var(--mute);margin:0 4px 6px;display:flex;justify-content:space-between}
+.cset h4{font-size:13px;font-weight:800;margin:0 0 8px}
+.cset .opt-row{margin-bottom:18px}
+.cset .opt-row button{padding:9px 4px;font-size:12.5px}
+.cset .rng{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.cset .rng input{flex:1;accent-color:var(--brand)}
+.cset .rng b{min-width:46px;text-align:right;font-size:14px}
+.cset .sw-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;font-size:14px;font-weight:600}
+.cset .sw-row input{width:20px;height:20px;accent-color:var(--brand)}
 </style>
 </head>
 <body>
@@ -840,6 +890,7 @@ html.kb #view-forum.active,html.kb .fgpage.inpage{padding-bottom:8px}
 <button type="button" class="prof-row" id="profRow"><div class="avatar" id="setAvatar">US</div><span class="pt"><b id="setName">Nama</b><small id="setBioLine"></small><small id="setUser">@username</small><small id="setNim" class="hidden"></small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <div class="menu">
 <button type="button" class="menu-row" data-sub="tampilan"><span class="mi">🎨</span><span class="mt"><b>Tampilan</b><small>Tema dan warna aplikasi</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+<button type="button" class="menu-row" data-sub="chat"><span class="mi">💬</span><span class="mt"><b>Tampilan chat</b><small>Ukuran bubble, teks, gaya WhatsApp</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="notif"><span class="mi">🔔</span><span class="mt"><b>Notifikasi</b><small id="notifSub">Belum aktif</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="keamanan"><span class="mi">🔐</span><span class="mt"><b>Keamanan</b><small>Ganti password</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="pasang" id="rowInstall"><span class="mi">📲</span><span class="mt"><b>Pasang aplikasi</b><small>Tambahkan ke layar utama</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
@@ -859,6 +910,26 @@ html.kb #view-forum.active,html.kb .fgpage.inpage{padding-bottom:8px}
 <button class="btn btn-primary" id="nameBtn" type="submit">Simpan profil</button></form></div>
 </div>
 <div class="subpane hidden" data-sub="tampilan"><div class="card"><div class="opt-row"><button type="button" data-theme-set="auto">Otomatis</button><button type="button" data-theme-set="light">Terang</button><button type="button" data-theme-set="dark">Gelap</button></div><div class="swatches" id="swatches"></div></div></div>
+<div class="subpane hidden cset" data-sub="chat">
+<div class="cprevwrap"><div class="cprevlbl"><span>Pratinjau</span><span>langsung berubah</span></div>
+<div class="cprev" id="cPrev">
+<div class="fday">Hari ini</div>
+<div class="fmsg"><span data-pv="1"><span class="av s">NC</span></span><div class="fbub"><div class="fname">nisa can<small>@nisa</small></div><div class="ftext">makasiiiii man temannn</div><div class="fmeta"><span>14.30</span></div></div></div>
+<div class="fmsg me"><div class="fbub"><div class="ftext">Sama-sama, nanti materinya aku upload ya</div><div class="fmeta"><span>14.31</span></div></div></div>
+<div class="fmsg"><span data-pv="1"><span class="av s">MB</span></span><div class="fbub"><div class="fname">Mangku<small>@adi</small></div><div class="ftext">Siap, ditunggu 👍</div><div class="fmeta"><span><i class="fed">diedit</i> · 16.27</span></div></div></div>
+</div></div>
+<div class="card">
+<h4>Gaya chat</h4>
+<div class="opt-row"><button type="button" data-cstyle-set="default">Bawaan</button><button type="button" data-cstyle-set="wa">WhatsApp</button></div>
+<h4>Ukuran bubble</h4>
+<div class="opt-row"><button type="button" data-csize-set="xs">Mini</button><button type="button" data-csize-set="s">Kecil</button><button type="button" data-csize-set="m">Sedang</button><button type="button" data-csize-set="l">Besar</button></div>
+<h4>Ukuran teks</h4>
+<div class="rng"><span style="font-size:12px">A</span><input type="range" id="cbFs" min="12" max="20" step="1" aria-label="Ukuran teks chat"><span style="font-size:20px">A</span><b id="cbFsVal">15 px</b></div>
+<label class="sw-row"><span>Tampilkan foto profil di chat</span><input type="checkbox" id="cbAv"></label>
+<label class="sw-row" id="cbWallRow"><span>Wallpaper bermotif (gaya WhatsApp)</span><input type="checkbox" id="cbWall"></label>
+<button type="button" class="btn btn-line" id="cbReset" style="width:100%;margin-top:4px">Kembalikan ke bawaan</button>
+<p style="color:var(--mute);font-size:12.5px;margin-top:10px">Berlaku untuk Forum Kelas dan chat Admin. Disimpan di HP ini saja.</p>
+</div></div>
 <div class="subpane hidden" data-sub="notif"><div class="card"><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Dapat pemberitahuan materi baru dan pengingat deadline (24 jam, 3 jam, 1 jam, dan 5 menit sebelumnya) walau web ditutup. Tanda selesai yang kamu pasang hanya berlaku di tampilan web, jadi notifikasi tugas tetap datang dari server.</p><button type="button" class="btn btn-soft" id="notifBtn">Aktifkan notifikasi</button></div><div class="card"><h3>Pengingat jadwal kuliah</h3><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Pemberitahuan sebelum kelas mulai. Berjalan selama aplikasi terbuka atau masih aktif di latar belakang.</p>
 <label style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px"><span>Aktifkan pengingat</span><input type="checkbox" id="clsOn"></label>
 <label style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span>Ingatkan</span><select class="input" id="clsLead" style="width:auto"><option value="5">5 menit sebelum</option><option value="10">10 menit sebelum</option><option value="15">15 menit sebelum</option><option value="30">30 menit sebelum</option></select></label></div>
@@ -1098,7 +1169,7 @@ document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click"
 document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => switchView(b.dataset.go)));
 
 /* ---------- Akun: daftar menu + sub-halaman (gaya WhatsApp) ---------- */
-const SUB_TITLES = { profil: "Profil", tampilan: "Tampilan", notif: "Notifikasi", keamanan: "Keamanan", pasang: "Pasang aplikasi" };
+const SUB_TITLES = { profil: "Profil", tampilan: "Tampilan", chat: "Tampilan chat", notif: "Notifikasi", keamanan: "Keamanan", pasang: "Pasang aplikasi" };
 function openSub(name) {
   $("setMain").classList.add("hidden");
   $("setSub").classList.remove("hidden");
@@ -1962,6 +2033,40 @@ document.addEventListener("click", (e) => {
 });
 try { darkQuery.addEventListener("change", applyTheme); } catch (err) { darkQuery.addListener(applyTheme); }
 applyTheme();
+
+/* ---------- Tampilan chat: bubble, teks, gaya WhatsApp ---------- */
+const CHAT_DEF = { style: "default", size: "m", fs: 15, av: true, wall: true };
+const CHAT_FS = { xs: 13, s: 14, m: 15, l: 17 };
+let chatPref = { ...CHAT_DEF };
+try { Object.assign(chatPref, JSON.parse(localStorage.getItem("s5_chat") || "{}")); } catch (err) {}
+function applyChat(save) {
+  if (!["default", "wa"].includes(chatPref.style)) chatPref.style = "default";
+  if (!CHAT_FS[chatPref.size]) chatPref.size = "m";
+  chatPref.fs = Math.min(20, Math.max(12, Math.round(+chatPref.fs) || 15));
+  const r = document.documentElement;
+  r.dataset.cstyle = chatPref.style;
+  r.dataset.csize = chatPref.size;
+  r.dataset.cav = chatPref.av ? "on" : "off";
+  r.dataset.cwall = chatPref.wall ? "on" : "off";
+  r.style.setProperty("--cb-fs", chatPref.fs + "px");
+  document.querySelectorAll("[data-cstyle-set]").forEach((b) => b.classList.toggle("active", b.dataset.cstyleSet === chatPref.style));
+  document.querySelectorAll("[data-csize-set]").forEach((b) => b.classList.toggle("active", b.dataset.csizeSet === chatPref.size));
+  const rng = $("cbFs"); if (rng) { rng.value = chatPref.fs; $("cbFsVal").textContent = chatPref.fs + " px"; }
+  if ($("cbAv")) $("cbAv").checked = !!chatPref.av;
+  if ($("cbWall")) $("cbWall").checked = !!chatPref.wall;
+  if ($("cbWallRow")) $("cbWallRow").classList.toggle("hidden", chatPref.style !== "wa");
+  if (save) { try { localStorage.setItem("s5_chat", JSON.stringify(chatPref)); } catch (err) {} }
+}
+document.addEventListener("click", (e) => {
+  const st = e.target.closest("[data-cstyle-set]"), sz = e.target.closest("[data-csize-set]");
+  if (st) { chatPref.style = st.dataset.cstyleSet; applyChat(true); }
+  if (sz) { chatPref.size = sz.dataset.csizeSet; chatPref.fs = CHAT_FS[chatPref.size]; applyChat(true); }
+  if (e.target.closest("#cbReset")) { chatPref = { ...CHAT_DEF }; applyChat(true); showToast("Tampilan chat dikembalikan ke bawaan"); }
+});
+$("cbFs").addEventListener("input", (e) => { chatPref.fs = +e.target.value; applyChat(true); });
+$("cbAv").addEventListener("change", (e) => { chatPref.av = e.target.checked; applyChat(true); });
+$("cbWall").addEventListener("change", (e) => { chatPref.wall = e.target.checked; applyChat(true); });
+applyChat(false);
 
 /* ---------- upload dengan progres ---------- */
 function xhrUpload(fd) {
