@@ -276,6 +276,21 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .uname{color:var(--mute);font-weight:500}
 .fname.crown{color:var(--ink)}
 .ftext{white-space:pre-wrap;word-break:break-word;font-size:15px}
+.fclamp{max-height:15em;overflow:hidden;-webkit-mask-image:linear-gradient(#000 72%,transparent);mask-image:linear-gradient(#000 72%,transparent)}
+.fexp{border:0;background:none;color:var(--brand);font:inherit;font-size:13px;font-weight:600;padding:4px 0 0;cursor:pointer}
+.fcodew{position:relative;margin:6px 0}
+.fcode{margin:0;padding:34px 12px 10px;background:rgba(0,0,0,.08);border-radius:10px;overflow-x:auto;font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre;word-break:normal;tab-size:2;max-width:100%;-webkit-user-select:text;user-select:text}
+.fcopy{position:absolute;top:6px;right:6px;border:0;border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;font-size:12px;font-weight:600;padding:5px 10px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.fcount{position:absolute;max-width:calc(100% - 110px);right:92px;bottom:calc(100% + 4px);font-size:12px;color:var(--mute);background:var(--surface);padding:2px 8px;border-radius:8px;font-variant-numeric:tabular-nums}
+.fcount.over{color:var(--red);font-weight:700}
+.flong .ftext{max-height:7.5em;overflow:hidden;-webkit-mask-image:linear-gradient(#000 65%,transparent);mask-image:linear-gradient(#000 65%,transparent)}
+.flongbar{margin:6px 0 8px;font-size:12px;color:var(--mute);display:flex;gap:6px;align-items:center;word-break:break-all}
+.flongbtn{display:flex;gap:6px;flex-wrap:wrap}
+.flongbtn button{flex:1;min-width:76px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:13px;font-weight:600;padding:8px 10px;border-radius:10px;cursor:pointer}
+.flongbtn button:disabled{opacity:.55}
+.ivbar .ivgrp{display:flex;gap:8px}
+.ivtxt{color:#f2f2f2}
+.ivtxt pre{margin:0 12px 12px;flex:1;min-width:0;padding:14px;background:rgba(255,255,255,.08);border-radius:12px;overflow:auto;white-space:pre-wrap;word-break:break-word;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;-webkit-user-select:text;user-select:text}
 .fquote{border-left:3px solid var(--brand);padding:2px 8px;margin-bottom:4px;font-size:12px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fquote b{display:block;color:var(--brand)}
 .fmeta{display:flex;gap:10px;align-items:center;font-size:11px;color:var(--mute);margin-top:3px}
@@ -682,7 +697,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 
 <section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div><button type="button" class="fgchat hidden" id="fInboxBtn">💬 Admin</button></div>
 <div class="fpinbar hidden" id="fPinBar"></div><div class="fmsgs" id="fMsgs"></div><div class="freply hidden" id="fReply"></div>
-<div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fbar"><textarea class="input" id="fInput" rows="1" maxlength="1000" placeholder="Tulis pesan…"></textarea><button class="btn btn-line" id="fPollBtn" type="button" aria-label="Buat polling">📊</button><button class="btn btn-primary" id="fSend" type="button">Kirim</button></div></div></section>
+<div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fcount hidden" id="fCount"></div><div class="fbar"><textarea class="input" id="fInput" rows="1" placeholder="Tulis pesan…"></textarea><button class="btn btn-line" id="fPollBtn" type="button" aria-label="Buat polling">📊</button><button class="btn btn-primary" id="fSend" type="button">Kirim</button></div></div></section>
 
 <section class="view" id="view-upload"><h2 class="page-title">Tambah materi</h2><p class="page-sub">Unggah file atau tulis catatan. Hasilnya langsung terkirim ke Telegram.</p>
 <div class="card">
@@ -2412,7 +2427,7 @@ function renderForum(stick) {
     const divider = fDivId && m.id === fDivId ? `<div class="funread" id="fUnread"><span>${fDivCount} pesan belum dibaca</span></div>` : "";
     return `${sep}${divider}<div class="fmsg ${mine ? "me" : ""} ${m.mentioned && !mine ? "mentioned" : ""}" id="fm-${m.id}">${mine ? "" : `<span data-p="${esc(m.pid)}">${avatarHtml(m, "s")}</span>`}<div class="fbub">
       ${mine ? "" : `<div class="fname" data-p="${esc(m.pid)}">${nameHtml(name, crown, verOf(m.pid))}${tag}</div>`}${quote}
-      <div class="ftext">${fmtText(m)}</div>${pollHtml(m)}${linkHtml(m)}${reactsHtml(m)}
+      ${fTextBlock(m)}${pollHtml(m)}${linkHtml(m)}${reactsHtml(m)}
       <div class="fmeta"><span>${m.pinned ? "📌 " : ""}${m.edited ? '<i class="fed">diedit</i> · ' : ""}${esc(fTime(m.ts))}</span><button type="button" class="fmore" data-m="${m.id}" aria-label="Menu pesan">•••</button></div>
     </div></div>`;
   }).join("");
@@ -2541,6 +2556,7 @@ function setForumReply(id) {
 async function sendForum() {
   const inp = $("fInput"), text = inp.value.trim();
   if (!text) return;
+  if (text.length > 100000) return showToast("Pesan terlalu panjang (maksimal 100.000 karakter).", true);
   const btn = $("fSend");
   btn.disabled = true;
   try {
@@ -2549,7 +2565,7 @@ async function sendForum() {
       body: JSON.stringify({ text, reply_to: fReplyTo, push_endpoint: myPushEndpoint, mentions: fCollectMentions(text) }) });
     const d = await res.json();
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim pesan.");
-    inp.value = ""; forumAutosize(); clearForumReply(); fMentionSel = {}; fHideMention(); fTypingAt = 0;
+    inp.value = ""; forumAutosize(); fCount(); clearForumReply(); fMentionSel = {}; fHideMention(); fTypingAt = 0;
     if (!fMsgs.some((m) => m.id === d.message.id)) fMsgs.push(d.message);
     fMsgs.sort((a, b) => a.id - b.id);
     renderForum(true);
@@ -2591,7 +2607,15 @@ async function deleteForum(id) {
   } catch (e) { showToast(e.message, true); }
 }
 $("fSend").addEventListener("click", sendForum);
-$("fInput").addEventListener("input", forumAutosize);
+const F_MAX = 5000, F_HARD = 100000;
+function fCount() {
+  const n = $("fInput").value.length, c = $("fCount");
+  c.classList.toggle("hidden", n < 3500);
+  c.classList.toggle("over", n > F_HARD);
+  c.textContent = n > F_HARD ? n.toLocaleString("id-ID") + " / " + F_HARD.toLocaleString("id-ID") + " (kebanyakan)"
+    : n > F_MAX ? n.toLocaleString("id-ID") + " · dikirim sebagai file .txt" : n + " / " + F_MAX;
+}
+$("fInput").addEventListener("input", () => { forumAutosize(); fCount(); });
 $("fInput").addEventListener("blur", forumResetScroll);
 $("fInput").addEventListener("keydown", (e) => {
   // Di HP, Enter = baris baru. Di komputer, Enter = kirim (Shift+Enter = baris baru).
@@ -2624,14 +2648,103 @@ function reactsHtml(m) {
   return `<div class="freacts">${m.reacts.map((r) => `<button type="button" class="fr ${r.me ? "me" : ""}" data-x="${m.id}|${r.e}">${r.e}<b>${r.n}</b></button>`).join("")}</div>`;
 }
 function fmtText(m) {
-  let t = esc(m.text);
-  (m.mentions || []).forEach((p) => {
-    const tag = esc("@" + shortName(p.name));
-    t = t.split(tag).join(`<span class="fmen">${tag}</span>`);
-  });
-  if (m.all) t = t.replace(/(^|\s)(@(?:all|semua))\b/gi, '$1<span class="fmen all">$2</span>');
+  const seg = (raw) => {
+    let t = esc(raw);
+    (m.mentions || []).forEach((p) => {
+      const tag = esc("@" + shortName(p.name));
+      t = t.split(tag).join(`<span class="fmen">${tag}</span>`);
+    });
+    if (m.all) t = t.replace(/(^|\s)(@(?:all|semua))\b/gi, '$1<span class="fmen all">$2</span>');
+    return t;
+  };
+  // ```kode``` jadi kotak kode dengan tombol Salin (bagian ganjil hasil split = isi kode)
+  return String(m.text).split(/```(?:[\w+#.-]*\n)?([\s\S]*?)```\n?/).map((p, k) =>
+    k % 2 ? `<div class="fcodew"><button type="button" class="fcopy">Salin</button><pre class="fcode">${esc(p.replace(/\n$/, ""))}</pre></div>` : seg(p)).join("");
+}
+const fExpanded = new Set();
+function fLongCard(m) {
+  const f = m.file;
+  return `<div class="flong"><div class="ftext">${fmtText(m)}</div><div class="flongbar">📄 ${esc(f.name || "pesan.txt")} · ${fmtSize(f.size)}${f.chars ? " · " + Number(f.chars).toLocaleString("id-ID") + " karakter" : ""}</div>` +
+    `<div class="flongbtn"><button type="button" data-fl="copy" data-id="${m.id}">Salin</button><button type="button" data-fl="dl" data-id="${m.id}">⬇ Unduh</button><button type="button" data-fl="view" data-id="${m.id}">Lihat</button></div></div>`;
+}
+const fTxtCache = new Map();
+async function fLongText(id) {
+  if (fTxtCache.has(id)) return fTxtCache.get(id);
+  const res = await apiCall("/api/forum/file/" + id);
+  if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || "Gagal memuat file."); }
+  const t = await res.text();
+  if (fTxtCache.size >= 8) fTxtCache.delete(fTxtCache.keys().next().value);
+  fTxtCache.set(id, t);
   return t;
 }
+async function fCopyLong(id) {
+  let done = false;
+  // ClipboardItem + promise menjaga izin "ketukan" di Safari/Chrome walau teks masih diunduh dulu
+  if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ "text/plain": fLongText(id).then((t) => new Blob([t], { type: "text/plain" })) })]);
+      done = true; showToast("Seluruh teks disalin.");
+    } catch (e) { /* lanjut ke cara biasa */ }
+  }
+  if (!done) { const t = await fLongText(id); await copyText(t); }
+}
+function fDownloadText(text, name) {
+  const u = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+  const a = document.createElement("a");
+  a.href = u; a.download = name || "pesan.txt";
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(u), 4000);
+}
+function fLongView(m, text) {
+  const o = document.createElement("div");
+  o.className = "inview";
+  o.innerHTML = `<div class="ivbar"><button type="button" class="ivx" data-v="x">✕ Tutup</button><div class="ivgrp"><button type="button" class="ivdl" data-v="copy">Salin</button><button type="button" class="ivdl" data-v="dl">⬇ Unduh</button></div></div><div class="ivbody ivtxt"><pre></pre></div>`;
+  o.querySelector("pre").textContent = text;
+  o.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-v]");
+    if (!b) return;
+    if (b.dataset.v === "x") o.remove();
+    else if (b.dataset.v === "copy") copyText(text);
+    else fDownloadText(text, m.file.name);
+  });
+  document.body.append(o);
+}
+async function fLongAction(btn) {
+  const id = +btn.dataset.id, act = btn.dataset.fl, m = fMsgs.find((x) => x.id === id);
+  if (!m || !m.file) return;
+  btn.disabled = true;
+  try {
+    if (act === "copy") await fCopyLong(id);
+    else if (act === "dl") fDownloadText(await fLongText(id), m.file.name);
+    else fLongView(m, await fLongText(id));
+  } catch (e) { showToast(e.message || "Gagal memuat file.", true); }
+  btn.disabled = false;
+}
+function fTextBlock(m) {
+  if (m.file) return fLongCard(m);
+  const long = m.text.length > 700 || (m.text.match(/\n/g) || []).length > 14, open = fExpanded.has(m.id);
+  return `<div class="ftext${long && !open ? " fclamp" : ""}">${fmtText(m)}</div>` +
+    (long ? `<button type="button" class="fexp" data-id="${m.id}">${open ? "Sembunyikan" : "Selengkapnya"}</button>` : "");
+}
+document.addEventListener("click", (e) => {
+  const c = e.target.closest(".fcopy");
+  if (c) {
+    e.stopPropagation();
+    copyText(c.parentElement.querySelector("pre").textContent);
+    c.textContent = "Tersalin ✓"; setTimeout(() => { c.textContent = "Salin"; }, 1500);
+    return;
+  }
+  const fb = e.target.closest("[data-fl]");
+  if (fb) { e.stopPropagation(); fLongAction(fb); return; }
+  const x = e.target.closest(".fexp");
+  if (x) {
+    e.stopPropagation();
+    const id = +x.dataset.id, t = x.previousElementSibling, open = !fExpanded.has(id);
+    if (open) fExpanded.add(id); else fExpanded.delete(id);
+    t.classList.toggle("fclamp", !open);
+    x.textContent = open ? "Sembunyikan" : "Selengkapnya";
+  }
+}, true);
 function fApplyReacts(map) {
   let changed = false;
   fMsgs.forEach((m) => {
@@ -3096,7 +3209,7 @@ function inConv(pid, title) {
   inView = "conv"; inWith = pid; inLast = 0; inTypingOn = false; inTypeAt = 0; inPeer = null; inMsgs = []; inReplyTo = 0;
   $("inTitle").classList.remove("tap");
   $("inTitle").innerHTML = `<b>${esc(title)}</b>`;
-  $("inBody").innerHTML = '<div class="inlist" id="inList"></div><div class="freply hidden" id="inReply"></div><div class="inbar" id="inBar"><button type="button" class="ibtn" id="inAtt" aria-label="Lampirkan file">📎</button><textarea class="input" id="inText" rows="1" maxlength="500" placeholder="Tulis pesan…"></textarea><button type="button" class="ibtn" id="inMic" aria-label="Rekam pesan suara">🎤</button><div class="inrec"><button type="button" id="inRecX" aria-label="Batalkan rekaman">✕</button><i></i><b id="inRecT">0:00</b><span>Merekam…</span></div><button type="button" class="btn btn-primary" id="inSend">Kirim</button></div>';
+  $("inBody").innerHTML = '<div class="inlist" id="inList"></div><div class="freply hidden" id="inReply"></div><div class="inbar" id="inBar"><button type="button" class="ibtn" id="inAtt" aria-label="Lampirkan file">📎</button><textarea class="input" id="inText" rows="1" maxlength="2000" placeholder="Tulis pesan…"></textarea><button type="button" class="ibtn" id="inMic" aria-label="Rekam pesan suara">🎤</button><div class="inrec"><button type="button" id="inRecX" aria-label="Batalkan rekaman">✕</button><i></i><b id="inRecT">0:00</b><span>Merekam…</span></div><button type="button" class="btn btn-primary" id="inSend">Kirim</button></div>';
   inObs = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { inObs.unobserve(en.target); inLoadPhoto(en.target); } }), { root: $("inList"), rootMargin: "300px" });
   $("inSend").addEventListener("click", inSend);
   $("inAtt").addEventListener("click", inPickFile);
@@ -3655,7 +3768,7 @@ function openFPress(bub, id) {
   menu.innerHTML = fReactBar(m) + `<button type="button" data-a="reply">Balas<svg class="i"><use href="#i-chat"/></svg></button>
     <button type="button" data-a="copy">Salin<svg class="i"><use href="#i-edit"/></svg></button>
     <button type="button" data-a="del" class="danger">Hapus<svg class="i"><use href="#i-trash"/></svg></button>`;
-  const canEdit = m.mine && !m.poll && Date.now() - new Date(m.ts).getTime() < FORUM_EDIT_MS;
+  const canEdit = m.mine && !m.poll && !m.file && Date.now() - new Date(m.ts).getTime() < FORUM_EDIT_MS;
   menu.querySelector('[data-a="del"]').insertAdjacentHTML("beforebegin",
     (canEdit ? '<button type="button" data-a="edit">Edit<svg class="i"><use href="#i-edit"/></svg></button>' : "") +
     (isAdmin ? `<button type="button" data-a="pin">${m.pinned ? "Lepas sematan" : "Sematkan"}<svg class="i"><use href="#i-pin"/></svg></button>` : "") +
@@ -3681,7 +3794,7 @@ function openFPress(bub, id) {
     const a = b.dataset.a;
     closeFPress(true);
     if (a === "reply") setForumReply(id);
-    else if (a === "copy") copyText(m.text);
+    else if (a === "copy") { if (m.file) fCopyLong(id).catch((err) => showToast(err.message, true)); else copyText(m.text); }
     else if (a === "del") deleteForum(id);
     else if (a === "edit") editForum(id);
     else if (a === "pin") pinForum(id, !m.pinned);
@@ -3803,7 +3916,7 @@ async function editForum(id) {
   const m = fMsgs.find((x) => x.id === id);
   if (!m) return;
   const v = await fModal("Edit pesan", "Pesan hanya bisa diedit sampai 20 menit setelah dikirim.",
-    `<textarea class="input" rows="4" maxlength="1000">${esc(m.text)}</textarea>`, "Simpan", (f) => f.querySelector("textarea").value.trim());
+    `<textarea class="input" rows="4" maxlength="5000">${esc(m.text)}</textarea>`, "Simpan", (f) => f.querySelector("textarea").value.trim());
   if (!v || v === m.text) return;
   try { const d = await fjCall("/api/forum/edit", { id, text: v }); Object.assign(m, d.message); renderForum(false); showToast("Pesan diedit."); }
   catch (e) { showToast(e.message, true); }
