@@ -534,19 +534,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .ibb{max-width:80%;background:var(--surface);border:1px solid var(--line);border-radius:16px 16px 16px 4px;padding:8px 12px;white-space:pre-wrap;word-break:break-word}
 .ib.me .ibb{background:var(--brand-soft);border-color:transparent;border-radius:16px 16px 4px 16px}
 .ibb small{display:block;font-size:11px;color:var(--mute);margin-top:2px;text-align:right}
-.inbar{display:flex;gap:8px;align-items:flex-end;padding-top:8px}
-.inbar textarea{flex:1;min-width:0;resize:none;min-height:48px;max-height:120px;height:48px}
-.inbar .btn{width:auto;padding:13px 18px;flex-shrink:0}
-.inbar .ibtn{width:44px;height:48px;flex-shrink:0;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;font-size:19px;cursor:pointer;display:grid;place-items:center;padding:0}
-.inbar .ibtn:disabled{opacity:.5}
-.inrec{display:none;align-items:center;gap:10px;flex:1;min-width:0;height:48px;padding:0 6px 0 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
-.inbar.rec .inrec{display:flex}
-.inbar.rec textarea,.inbar.rec #inAtt,.inbar.rec #inMic{display:none}
-.inrec i{width:10px;height:10px;border-radius:50%;background:var(--red);animation:recp 1s infinite;flex-shrink:0}
 @keyframes recp{50%{opacity:.25}}
-.inrec b{font-variant-numeric:tabular-nums}
-.inrec span{flex:1;color:var(--mute);font-size:13px}
-.inrec button{border:0;background:none;color:var(--mute);font-size:18px;padding:8px 10px;cursor:pointer}
 .infile{margin-bottom:4px}
 .inph{display:block;position:relative;border:0;padding:0;background:var(--line);border-radius:12px;overflow:hidden;cursor:zoom-in;color:var(--mute);font:inherit;font-size:13px}
 .inph.load{display:grid;place-items:center;width:200px;height:140px;cursor:pointer}
@@ -555,8 +543,6 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .inph video{display:block;max-width:100%;max-height:300px}
 .inaud{display:flex;align-items:center;gap:10px;min-width:190px}
 .inplay{width:36px;height:36px;border-radius:50%;border:0;background:var(--brand);color:var(--on-brand);font-size:14px;cursor:pointer;flex-shrink:0}
-.inbarw{flex:1;height:6px;border-radius:3px;background:var(--line);cursor:pointer;position:relative}
-.inbarf{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:3px;background:var(--brand)}
 .indur{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums;min-width:34px;text-align:right}
 .indoc{display:flex;align-items:center;gap:10px;width:100%;min-width:180px;border:0;background:transparent;padding:2px 0;cursor:pointer;color:inherit;font:inherit;text-align:left}
 .indoc>span{font-size:26px}
@@ -570,6 +556,60 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .ivbody img{margin:auto;max-width:100%;max-height:100%;object-fit:contain;cursor:zoom-in}
 .inview.z .ivbody img{max-width:none;max-height:none;width:220%;cursor:zoom-out}
 .inhead{display:flex;align-items:center;gap:10px;min-width:0}
+.inhd{display:flex;align-items:center;gap:10px;margin-bottom:8px;min-height:48px}
+.inhd .inhead{flex:1}
+.inhd .av.s{width:42px;height:42px;font-size:15px}
+.inh1{font-family:var(--font-d);font-size:24px;font-weight:800;letter-spacing:-.02em}
+.inglass{background:color-mix(in srgb,var(--surface) 88%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 1px 8px rgba(0,0,0,.10);border:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
+.inback{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;color:var(--ink);cursor:pointer;padding:0}
+.inpill{display:flex;align-items:center;height:46px;border-radius:24px;padding:0 6px;flex-shrink:0}
+.inpill button{width:42px;height:42px;display:grid;place-items:center;border:0;background:none;color:var(--ink);border-radius:50%;cursor:pointer;padding:0}
+.inpill button.on{color:var(--brand)}
+.inpill svg,.inback svg{width:22px;height:22px}
+.inbar{display:flex;gap:8px;align-items:flex-end;padding-top:8px}
+.inround{width:46px;height:46px;flex-shrink:0;border:0;border-radius:50%;display:grid;place-items:center;background:var(--surface);color:var(--ink);box-shadow:0 1px 6px rgba(0,0,0,.10);cursor:pointer;padding:0;transition:transform .12s}
+.inround:active{transform:scale(.92)}
+.inround:disabled{opacity:.5}
+.inround svg{width:22px;height:22px}
+.inround.inprimary{background:var(--brand);color:var(--on-brand)}
+.inpillbox{flex:1;min-width:0;display:flex;background:var(--surface);border-radius:23px;box-shadow:0 1px 6px rgba(0,0,0,.10);padding:0 16px}
+.inpillbox textarea{flex:1;min-width:0;display:block;border:0;outline:0;background:transparent;resize:none;font:inherit;font-size:16px;line-height:1.35;color:var(--ink);padding:11px 0;height:46px;max-height:120px}
+.inpillbox textarea::placeholder{color:var(--mute)}
+.inrec{display:none;align-items:center;gap:10px;flex:1;min-width:0;height:46px;padding:0 6px 0 4px;border-radius:23px;background:var(--surface);box-shadow:0 1px 6px rgba(0,0,0,.10)}
+.inrec i{width:10px;height:10px;border-radius:50%;background:var(--red);animation:recp 1s infinite;flex-shrink:0}
+.inrec b{font-variant-numeric:tabular-nums}
+.inrec span{flex:1;color:var(--mute);font-size:13px}
+.inrec button{border:0;background:none;color:var(--mute);width:40px;height:40px;display:grid;place-items:center;cursor:pointer;padding:0}
+.inrec button svg{width:20px;height:20px}
+.inbar.rec .inrec{display:flex}
+.inbar.rec .inpillbox,.inbar.rec #inAtt,.inbar.rec #inMic{display:none!important}
+.inbar.rec #inSend{display:grid!important}
+.insearch{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:14px;padding:0 12px;height:42px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.insearch svg{width:18px;height:18px;color:var(--mute);flex-shrink:0}
+.insearch input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:15px;color:var(--ink)}
+.inchips{display:flex;gap:8px;margin:10px 0 6px;overflow-x:auto;scrollbar-width:none}
+.inchips button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:18px;padding:7px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.inchips button.on{background:var(--brand-soft);border-color:transparent;color:var(--brand)}
+.inchips i{font-style:normal;margin-left:6px;opacity:.75}
+.inrow{display:flex;align-items:center;gap:12px;padding:10px 4px;border-radius:14px;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+.inrow:active{background:var(--brand-soft)}
+.inrow .av{width:52px;height:52px;font-size:17px}
+.inrowt{flex:1;min-width:0}
+.inrow1{display:flex;align-items:baseline;gap:8px}
+.inrow1 b{flex:1;min-width:0;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inrow1 time{font-size:12px;color:var(--mute);flex-shrink:0}
+.inrow.unr .inrow1 time{color:var(--brand);font-weight:700}
+.inrow2{display:flex;align-items:center;gap:8px;margin-top:2px}
+.inprev{flex:1;min-width:0;font-style:normal;font-size:14px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inrow.unr .inprev{color:var(--ink);font-weight:600}
+.inrow2 .ubadge{margin:0}
+.inrow2 svg{width:15px;height:15px;color:var(--mute);flex-shrink:0}
+.inacts{display:flex;flex-direction:column;text-align:left;margin-top:10px}
+.inacts button{display:flex;align-items:center;gap:14px;padding:14px 4px;font:inherit;font-size:16px;color:var(--ink);background:none;border:0;border-top:1px solid var(--line);cursor:pointer;text-align:left}
+.inacts button:first-child{border-top:0}
+.inacts button.danger{color:var(--red)}
+.inacts svg{width:22px;height:22px;flex-shrink:0}
+.inhint{text-align:center;color:var(--mute);font-size:12px;margin:14px 0 6px}
 .inhead.tap{cursor:pointer;flex:1;border-radius:12px;padding:2px 6px;-webkit-tap-highlight-color:transparent}
 .inhead.tap:active{background:var(--brand-soft)}
 .ubadge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;border-radius:9px;background:var(--red);color:#fff;font-size:10px;font-weight:800;line-height:1;vertical-align:middle}
@@ -3163,13 +3203,17 @@ function inOpen() {
   if (!inEl) {
     inEl = document.createElement("div");
     inEl.className = "fgpage inpage";
-    inEl.innerHTML = '<div class="fgbar"><button type="button" id="inBack" aria-label="Kembali">←</button><span class="inhead" id="inTitle"><b>Chat admin</b></span></div><div class="inbody" id="inBody"></div>';
+    inEl.innerHTML = `<div class="inhd"><button type="button" class="inglass inback" id="inBack" aria-label="Kembali">${IC.back}</button><div class="inhead" id="inTitle"><b>Chat admin</b></div><div class="inglass inpill hidden" id="inPill"></div></div><div class="inbody" id="inBody"></div>`;
     document.body.append(inEl);
     inBindGestures(inEl);
     inEl.addEventListener("click", (e) => {
       if (e.target.closest("#inBack")) { if (isAdmin && inView === "conv") inThreads(); else inClose(); return; }
       if (e.target.closest("#inTitle.tap")) { inProfile(); return; }
       if (e.target.closest("#inNew")) { inPick(); return; }
+      if (e.target.closest("#inPin")) { inMetaSet(inWith, { pin: !(inMeta && inMeta.pin > 0) }); return; }
+      if (e.target.closest("#inMore")) { inThreadSheet(inCurThread()); return; }
+      const fc = e.target.closest("[data-flt]");
+      if (fc) { inFlt = fc.dataset.flt; inPaintRows(); return; }
       if (Date.now() - inPressAt < 700 && e.target.closest("#inList")) { e.preventDefault(); return; }
       const fl = e.target.closest("#inList [data-f]");
       if (fl) { inFileTap(fl, e); return; }
@@ -3180,36 +3224,44 @@ function inOpen() {
     });
   }
   requestAnimationFrame(() => inEl.classList.add("show"));
+  inQuery = ""; inFlt = "all";
   if (isAdmin) inThreads(); else inConv("", "Chat dengan Admin");
 }
 async function inThreads() {
-  inView = "threads"; clearInterval(inTimer);
-  $("inTitle").classList.remove("tap");
-  $("inTitle").innerHTML = "<b>Kotak masuk</b>";
-  $("inBody").innerHTML = '<button type="button" class="btn btn-primary" id="inNew" style="width:100%;margin-bottom:10px">+ Pesan baru</button><div id="inRows"></div>';
+  inView = "threads"; clearInterval(inTimer); inRecStop(true); inCleanMedia();
+  const tt = $("inTitle");
+  tt.classList.remove("tap"); tt.removeAttribute("role");
+  tt.innerHTML = '<b class="inh1">Kotak masuk</b>';
+  const pill = $("inPill");
+  pill.classList.remove("hidden");
+  pill.innerHTML = `<button type="button" id="inNew" aria-label="Pesan baru">${IC.compose}</button>`;
+  $("inBody").innerHTML = `<div class="insearch">${IC.search}<input id="inQ" type="search" placeholder="Cari percakapan" autocomplete="off" value="${esc(inQuery)}"></div><div class="inchips" id="inChips"></div><div id="inRows"><p class="fgsub" style="text-align:center;margin-top:28px">Memuat…</p></div>`;
+  $("inQ").addEventListener("input", (e) => { inQuery = e.target.value; inPaintRows(); });
+  inBindRows($("inRows"));
   try {
     const res = await apiCall("/api/inbox/threads");
     const d = await res.json();
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat.");
-    $("inRows").innerHTML = d.threads.length
-      ? d.threads.map((t) => `<button type="button" class="fgm" data-open="${esc(t.pid)}" data-nm="${esc(t.name)}">${avatarHtml(t, "s")}<span class="fgmt"><b>${esc(t.name)}</b><small>${esc(t.last || "Belum ada pesan")}</small></span>${t.unread ? `<span class="ubadge">${t.unread > 99 ? "99+" : t.unread}</span>` : ""}</button>`).join("")
-      : '<p class="fgsub">Belum ada percakapan. Balasan juga bisa dikirim langsung dari topiknya di Telegram.</p>';
+    inThr = d.threads;
+    if (inView === "threads") inPaintRows();
   } catch (e) { showToast(e.message, true); }
 }
 async function inPick() {
   inView = "pick";
   $("inTitle").classList.remove("tap");
-  $("inTitle").innerHTML = "<b>Pilih penerima</b>";
+  $("inTitle").innerHTML = '<b class="inh1" style="font-size:20px">Pilih penerima</b>';
+  $("inPill").classList.add("hidden");
   await fLoadGroup(false);
   $("inBody").innerHTML = fGroupMembers.filter((m) => !m.mine && !m.owner)
     .map((m) => `<button type="button" class="fgm" data-open="${esc(m.pid)}" data-nm="${esc(m.name)}">${avatarHtml(m, "s")}<span class="fgmt"><b>${esc(m.name)}</b><small>${esc(m.real ? "@" + m.real : m.mask)}</small></span></button>`).join("");
 }
 function inConv(pid, title) {
   inRecStop(true); inCleanMedia();
-  inView = "conv"; inWith = pid; inLast = 0; inTypingOn = false; inTypeAt = 0; inPeer = null; inMsgs = []; inReplyTo = 0;
+  inView = "conv"; inWith = pid; inLast = 0; inTypingOn = false; inTypeAt = 0; inPeer = null; inMsgs = []; inReplyTo = 0; inMeta = null;
+  inPaintPill();
   $("inTitle").classList.remove("tap");
   $("inTitle").innerHTML = `<b>${esc(title)}</b>`;
-  $("inBody").innerHTML = '<div class="inlist" id="inList"></div><div class="freply hidden" id="inReply"></div><div class="inbar" id="inBar"><button type="button" class="ibtn" id="inAtt" aria-label="Lampirkan file">📎</button><textarea class="input" id="inText" rows="1" maxlength="2000" placeholder="Tulis pesan…"></textarea><button type="button" class="ibtn" id="inMic" aria-label="Rekam pesan suara">🎤</button><div class="inrec"><button type="button" id="inRecX" aria-label="Batalkan rekaman">✕</button><i></i><b id="inRecT">0:00</b><span>Merekam…</span></div><button type="button" class="btn btn-primary" id="inSend">Kirim</button></div>';
+  $("inBody").innerHTML = `<div class="inlist" id="inList"></div><div class="freply hidden" id="inReply"></div><div class="inbar" id="inBar"><button type="button" class="inround" id="inAtt" aria-label="Lampirkan file">${IC.clip}</button><div class="inpillbox"><textarea id="inText" rows="1" maxlength="2000" placeholder="Tulis pesan…"></textarea></div><div class="inrec"><button type="button" id="inRecX" aria-label="Batalkan rekaman">${IC.x}</button><i></i><b id="inRecT">0:00</b><span>Merekam…</span></div><button type="button" class="inround inprimary hidden" id="inSend" aria-label="Kirim">${IC.send}</button><button type="button" class="inround inprimary" id="inMic" aria-label="Rekam pesan suara">${IC.mic}</button></div>`;
   inObs = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { inObs.unobserve(en.target); inLoadPhoto(en.target); } }), { root: $("inList"), rootMargin: "300px" });
   $("inSend").addEventListener("click", inSend);
   $("inAtt").addEventListener("click", inPickFile);
@@ -3219,7 +3271,7 @@ function inConv(pid, title) {
     const t = $("inText");
     t.style.height = "auto";
     t.style.height = Math.min(t.scrollHeight, 120) + "px";
-    $("inMic").classList.toggle("hidden", !!t.value.trim());
+    inSyncAct();
     const now = Date.now();
     if (t.value.trim() && now - inTypeAt > 2500) {
       inTypeAt = now;
@@ -3240,6 +3292,7 @@ async function inFetch(first) {
     const d = await res.json();
     if (!res.ok || !d.ok) { if (first) showToast(d.error || "Gagal memuat.", true); return; }
     if (d.peer) inSetPeer(d.peer);
+    if (d.meta && JSON.stringify(d.meta) !== JSON.stringify(inMeta)) { inMeta = d.meta; inPaintPill(); }
     if (d.deleted && d.deleted.length) inPrune(d.deleted);
     if (!isAdmin && inUnread) { inUnread = 0; inUnreadSeen = 0; inPaintBtn(); updateForumBadge(); }
     if (d.messages.length || first) inAppend(d.messages, first);
@@ -3304,6 +3357,8 @@ function inPaintTyping(on) {
   const box = $("inList");
   if (!box) return;
   inTypingOn = on;
+  const sm = document.querySelector("#inTitle .inwho small");
+  if (sm && inPeer) { sm.textContent = on ? "sedang mengetik…" : inSubText(inPeer); sm.classList.toggle("inon", on || !!inPeer.online); }
   const old = $("inTyp");
   if (!on) { if (old) old.remove(); return; }
   if (old) return;
@@ -3322,10 +3377,146 @@ async function inSend() {
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim.");
     inp.value = "";
     inp.style.height = "auto";
+    inSyncAct();
     inClearReply();
     inAppend([d.message], false);
   } catch (e) { showToast(e.message, true); }
   $("inSend").disabled = false;
+}
+
+/* ---------- tampilan kotak masuk: ikon, daftar chat (pin/arsip/hapus), pill header ---------- */
+const _sv = (b, sw) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw || 2}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${b}</svg>`;
+const IC = {
+  back: _sv('<path d="M15 5l-7 7 7 7"/>', 2.3),
+  more: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg>',
+  pin: _sv('<path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/>'),
+  clip: _sv('<path d="M21 11.5l-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.3 3.3 0 0 1 4.7 4.7L10.2 17.7a1.7 1.7 0 0 1-2.4-2.4l7.6-7.7"/>'),
+  mic: _sv('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>'),
+  send: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.4 20.4l17.5-7.6a1 1 0 0 0 0-1.8L3.4 3.4a1 1 0 0 0-1.4 1.2L4 11l9 1-9 1-2 6.4a1 1 0 0 0 1.4 1z"/></svg>',
+  x: _sv('<path d="M6 6l12 12M18 6L6 18"/>', 2.3),
+  search: _sv('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'),
+  compose: _sv('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>'),
+  archive: _sv('<rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/>'),
+  trash: _sv('<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/>'),
+  check: _sv('<path d="M4 12l5 5L20 6"/>', 2.3),
+};
+let inThr = [], inFlt = "all", inQuery = "", inMeta = null, inRowFired = false;
+function inSyncAct() {
+  const t = $("inText"), mic = $("inMic"), snd = $("inSend");
+  if (!t || !mic || !snd) return;
+  const has = !!t.value.trim();
+  mic.classList.toggle("hidden", has);
+  snd.classList.toggle("hidden", !has);
+}
+function inRowTime(ts) {
+  const d = new Date(ts), n = new Date();
+  if (!ts || isNaN(d)) return "";
+  if (d.toDateString() === n.toDateString()) return d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+  const y = new Date(n); y.setDate(n.getDate() - 1);
+  if (d.toDateString() === y.toDateString()) return "Kemarin";
+  if (n - d < 6 * 864e5) return d.toLocaleDateString("id-ID", { weekday: "long" });
+  return d.toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "2-digit" });
+}
+function inSortThr() {
+  inThr.sort((a, b) => (b.pin_ts || 0) - (a.pin_ts || 0) || String(b.ts || "").localeCompare(String(a.ts || "")));
+}
+function inRowHtml(t, showArch) {
+  const unr = t.unread > 0, when = inRowTime(t.ts);
+  return `<div class="inrow${unr ? " unr" : ""}" data-open="${esc(t.pid)}" data-nm="${esc(t.name)}" data-pid="${esc(t.pid)}" role="button" tabindex="0">${avatarHtml(t, "s")}<div class="inrowt"><div class="inrow1"><b>${esc(t.name)}</b>${when ? `<time>${esc(when)}</time>` : ""}</div><div class="inrow2"><em class="inprev">${t.last_me ? "Kamu: " : ""}${esc(t.last || "Belum ada pesan")}</em>${unr ? `<span class="ubadge">${t.unread > 99 ? "99+" : t.unread}</span>` : ""}${t.pin ? IC.pin : ""}${showArch && t.arch ? IC.archive : ""}</div></div></div>`;
+}
+function inPaintRows() {
+  const box = $("inRows"), chips = $("inChips");
+  if (!box || !chips) return;
+  const q = inQuery.trim().toLowerCase(), live = inThr.filter((t) => !t.arch), arch = inThr.filter((t) => t.arch), unr = live.filter((t) => t.unread > 0);
+  chips.innerHTML = [["all", "Semua", 0], ["unread", "Belum dibaca", unr.length], ["arch", "Arsip", arch.length]]
+    .map(([k, l, n]) => `<button type="button" data-flt="${k}" class="${inFlt === k ? "on" : ""}">${l}${n ? `<i>${n}</i>` : ""}</button>`).join("");
+  let list = inFlt === "arch" ? arch : inFlt === "unread" ? unr : live;
+  if (q) list = inThr.filter((t) => String(t.name).toLowerCase().includes(q));
+  if (!list.length) {
+    const msg = q ? "Tidak ada percakapan yang cocok." : inFlt === "arch" ? "Belum ada percakapan yang diarsipkan." : inFlt === "unread" ? "Semua pesan sudah dibaca. 🎉"
+      : "Belum ada percakapan. Ketuk ikon pensil untuk mengirim pesan baru. Balasan juga bisa dikirim dari topiknya di Telegram.";
+    box.innerHTML = `<p class="fgsub" style="text-align:center;margin-top:28px">${msg}</p>`;
+    return;
+  }
+  box.innerHTML = list.map((t) => inRowHtml(t, !!q)).join("") + '<p class="inhint">Tahan lama pada percakapan untuk sematkan, arsipkan, atau hapus.</p>';
+}
+function inBindRows(rows) {
+  let tmr = null, sx = 0, sy = 0;
+  const open = (r) => { const t = inThr.find((x) => x.pid === r.dataset.pid); if (t) inThreadSheet(t); };
+  rows.addEventListener("pointerdown", (e) => {
+    const r = e.target.closest(".inrow");
+    if (!r || e.button > 0 || e.pointerType === "mouse") return;
+    inRowFired = false; sx = e.clientX; sy = e.clientY;
+    tmr = setTimeout(() => { inRowFired = true; if (navigator.vibrate) navigator.vibrate(12); open(r); }, 450);
+  });
+  rows.addEventListener("pointermove", (e) => { if (tmr && (Math.abs(e.clientX - sx) > 8 || Math.abs(e.clientY - sy) > 8)) { clearTimeout(tmr); tmr = null; } });
+  ["pointerup", "pointercancel", "pointerleave"].forEach((ev) => rows.addEventListener(ev, () => { clearTimeout(tmr); tmr = null; }));
+  rows.addEventListener("contextmenu", (e) => {            // klik kanan di desktop / long-press tertentu
+    const r = e.target.closest(".inrow");
+    if (!r) return;
+    e.preventDefault();
+    if (!inRowFired) { inRowFired = true; open(r); }
+  });
+  rows.addEventListener("click", (e) => {                  // klik yang menyusul long-press jangan membuka chat
+    if (inRowFired) { inRowFired = false; e.stopPropagation(); e.preventDefault(); }
+  }, true);
+}
+const inCurThread = () => {
+  const t = inThr.find((x) => x.pid === inWith) || {};
+  return { pid: inWith, name: (inPeer && inPeer.name) || t.name || "Pengguna", pin: inMeta ? inMeta.pin > 0 : !!t.pin, arch: inMeta ? !!inMeta.arch : !!t.arch, unread: 0 };
+};
+function inPaintPill() {
+  const p = $("inPill");
+  if (!p) return;
+  if (!isAdmin || inView !== "conv") { p.classList.add("hidden"); return; }
+  const pinned = !!(inMeta && inMeta.pin > 0);
+  p.classList.remove("hidden");
+  p.innerHTML = `<button type="button" id="inPin" class="${pinned ? "on" : ""}" aria-label="${pinned ? "Lepas sematan" : "Sematkan"}">${IC.pin}</button><button type="button" id="inMore" aria-label="Menu percakapan">${IC.more}</button>`;
+}
+function inThreadSheet(t) {
+  if (!t) return;
+  const s = fgSheet(`<h3>${esc(t.name)}</h3><div class="inacts">` +
+    (t.arch ? "" : `<button type="button" data-ia="pin">${IC.pin}<span>${t.pin ? "Lepas sematan" : "Sematkan"}</span></button>`) +
+    `<button type="button" data-ia="arch">${IC.archive}<span>${t.arch ? "Keluarkan dari arsip" : "Arsipkan"}</span></button>` +
+    (t.unread ? `<button type="button" data-ia="read">${IC.check}<span>Tandai sudah dibaca</span></button>` : "") +
+    `<button type="button" data-ia="del" class="danger">${IC.trash}<span>Hapus percakapan</span></button></div>`);
+  s.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-ia]");
+    if (!b) return;
+    s.remove();
+    const a = b.dataset.ia;
+    if (a === "pin") inMetaSet(t.pid, { pin: !t.pin });
+    else if (a === "arch") inMetaSet(t.pid, { arch: !t.arch });
+    else if (a === "read") inMetaSet(t.pid, { read: true });
+    else inDeleteThread(t);
+  });
+}
+async function inMetaSet(pid, patch) {
+  try {
+    const res = await apiCall("/api/inbox/thread/meta", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ with: pid, ...patch }) });
+    const d = await res.json();
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal.");
+    const t = inThr.find((x) => x.pid === pid);
+    if (t) { t.pin = d.meta.pin > 0; t.pin_ts = d.meta.pin; t.arch = d.meta.arch; if (patch.read) t.unread = 0; }
+    if ("arch" in patch) showToast(patch.arch ? "Percakapan diarsipkan." : "Dikeluarkan dari arsip.");
+    else if ("pin" in patch) showToast(patch.pin ? "Percakapan disematkan." : "Sematan dilepas.");
+    if (inView === "conv" && pid === inWith) {
+      inMeta = d.meta; inPaintPill();
+      if (patch.arch) inThreads();
+    } else { inSortThr(); inPaintRows(); }
+  } catch (e) { showToast(e.message, true); }
+}
+async function inDeleteThread(t) {
+  const ok = await openModal({ title: "Hapus percakapan?", text: `Seluruh pesan dengan ${t.name} akan dihapus untuk semua orang, termasuk di Telegram. Tidak bisa dibatalkan.`, ok: "Hapus", danger: true, icon: "trash" });
+  if (!ok) return;
+  try {
+    const res = await apiCall("/api/inbox/thread/delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ with: t.pid }) });
+    const d = await res.json();
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menghapus.");
+    inThr = inThr.filter((x) => x.pid !== t.pid);
+    showToast("Percakapan dihapus.");
+    if (inView === "conv") inThreads(); else inPaintRows();
+  } catch (e) { showToast(e.message, true); }
 }
 
 /* ---------- lampiran chat admin: foto, file, video, pesan suara ---------- */
@@ -3473,7 +3664,7 @@ async function inUpload(file, opts = {}) {
     const res = await apiCall("/api/inbox/upload", { method: "POST", body: fd });
     const d = await res.json().catch(() => ({}));
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim lampiran.");
-    if (opts.caption) { const t = $("inText"); if (t) { t.value = ""; t.style.height = "auto"; $("inMic").classList.remove("hidden"); } }
+    if (opts.caption) { const t = $("inText"); if (t) { t.value = ""; t.style.height = "auto"; inSyncAct(); } }
     inClearReply();
     inAppend([d.message], false);
   } catch (e) { showToast(e.message, true); }
