@@ -555,10 +555,13 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .hublist .inrow .fgimg{width:52px;height:52px;font-size:24px}
 .swrow{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
 .swrow .inrow{border-bottom:0!important}
+.swact,.swpin{visibility:hidden}
 .swact{position:absolute;inset:0;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding-right:24px;font-weight:700;font-size:14px}
 .swact svg{width:22px;height:22px}
 .swfg{position:relative;background:var(--bg);touch-action:pan-y;transition:transform .2s ease}
-.vbadge{width:17px;height:17px;margin-left:5px;vertical-align:-3px;flex-shrink:0}
+.hubck{width:17px;height:17px;margin-left:5px;vertical-align:-3px;flex-shrink:0}
+.swpin{position:absolute;inset:0;background:#d98a00;color:#fff;display:flex;align-items:center;justify-content:flex-start;gap:8px;padding-left:24px;font-weight:700;font-size:14px}
+.swpin svg{width:22px;height:22px}
 .hubhd{display:flex;align-items:center;justify-content:space-between}
 .hubnew{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand)}
 .hubnew svg{width:21px;height:21px}
@@ -2443,8 +2446,8 @@ function fPreview(m) {
   if (m.file) return "📎 Lampiran";
   return String(m.text || "").replace(/\s+/g, " ").trim();
 }
-const VBADGE = '<svg class="vbadge" viewBox="0 0 24 24" role="img" aria-label="Terverifikasi"><circle cx="12" cy="12" r="11" fill="#1d9bf0"/><path d="M7.2 12.4l3.2 3.2 6.4-6.8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-let hubThrAt = 0, hubThrBusy = false;
+const VBADGE = '<svg class="hubck" viewBox="0 0 24 24" role="img" aria-label="Terverifikasi"><circle cx="12" cy="12" r="11" fill="#1d9bf0"/><path d="M7.2 12.4l3.2 3.2 6.4-6.8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+let hubThrAt = 0, hubThrBusy = false, hubAdmTried = false;
 async function hubLoadThreads(force) {
   if (!isAdmin || !inOn || hubThrBusy) return;
   if (!force && Date.now() - hubThrAt < 4000) return;
@@ -2470,14 +2473,16 @@ function renderChatHub(force) {
     // admin: langsung daftar mahasiswa, geser kiri = arsipkan
     const live = inThr.filter((t) => !t.arch), arch = inThr.filter((t) => t.arch);
     live.forEach((t) => {
-      rows.push(`<div class="swrow" data-swpid="${esc(t.pid)}"><div class="swact">${IC.archive}<span>Arsipkan</span></div>${inRowHtml(t, false).replace('class="inrow', 'class="swfg inrow')}</div>`);
+      rows.push(`<div class="swrow" data-swpid="${esc(t.pid)}"><div class="swpin">${IC.pin}<span>${t.pin ? "Lepas sematan" : "Sematkan"}</span></div><div class="swact">${IC.archive}<span>Arsipkan</span></div>${inRowHtml(t, false).replace('class="inrow', 'class="swfg inrow')}</div>`);
     });
     if (arch.length) rows.push(`<div class="inarchrow" data-archopen="1" role="button" tabindex="0"><span class="inarchic">${IC.archive}</span><b>Diarsipkan</b><em class="${arch.some((t) => t.unread > 0) ? "unr" : ""}">${arch.length}</em></div>`);
     if (!inThr.length) rows.push('<p class="fgsub" style="text-align:center;margin-top:28px">Belum ada percakapan. Ketuk ikon pensil untuk mengirim pesan baru.</p>');
   } else if (inOn) {
     // mahasiswa: langsung chat dengan admin
-    const u = inUnread > 0;
-    rows.push(`<div class="inrow${u ? " unr" : ""}" data-hub="admin" role="button" tabindex="0"><span class="av hubadm">🛡️</span><div class="inrowt"><div class="inrow1"><b>Admin</b></div><div class="inrow2"><em class="inprev">${u ? (inUnread > 1 ? inUnread + " pesan baru" : "Pesan baru") : "Tanya langsung ke admin"}</em>${u ? `<span class="ubadge">${inUnread > 99 ? "99+" : inUnread}</span>` : ""}</div></div></div>`);
+    const u = inUnread > 0, am = fGroupMembers.find((m) => m.owner);
+    if (!am && !hubAdmTried) { hubAdmTried = true; fLoadGroup(false).then(() => renderChatHub(true)); }
+    const aAv = am ? avatarHtml(am, "s") : '<span class="av hubadm">🛡️</span>', aNm = am ? nameHtml(am.name, true, "") : "Admin";
+    rows.push(`<div class="inrow${u ? " unr" : ""}" data-hub="admin" role="button" tabindex="0">${aAv}<div class="inrowt"><div class="inrow1"><b>${aNm}</b></div><div class="inrow2"><em class="inprev">${u ? (inUnread > 1 ? inUnread + " pesan baru" : "Pesan baru") : "Tanya langsung ke admin"}</em>${u ? `<span class="ubadge">${inUnread > 99 ? "99+" : inUnread}</span>` : ""}</div></div></div>`);
   }
   const html = rows.join("");
   if (force || html !== hubHtmlPrev) { box.innerHTML = html; hubHtmlPrev = html; }
@@ -2508,18 +2513,26 @@ let hubSwipedAt = 0;
     const x = e.touches[0].clientX - sx, y = e.touches[0].clientY - sy;
     if (!lock) { if (Math.abs(x) > 10 && Math.abs(x) > Math.abs(y) * 1.5) lock = 1; else if (Math.abs(y) > 10) lock = 2; }
     if (lock !== 1) return;
-    dx = Math.min(0, x);
+    dx = x;
     el.style.transform = `translateX(${dx}px)`;
+    const wr = el.parentNode;
+    const a = wr.querySelector(".swact"), p = wr.querySelector(".swpin");
+    if (a) a.style.visibility = dx < 0 ? "visible" : "hidden";
+    if (p) p.style.visibility = dx > 0 ? "visible" : "hidden";
   }, { passive: true });
   const end = () => {
     if (!el) return;
     const r = el, w = r.offsetWidth; el = null;
     r.style.transition = "";
     if (lock === 1) hubSwipedAt = Date.now();
-    if (lock === 1 && dx < -Math.min(110, w * 0.3)) {
+    const pid = r.dataset.pid, th = Math.min(110, w * 0.3);
+    if (lock === 1 && dx < -th) {
       r.style.transform = `translateX(${-w}px)`;
-      const pid = r.dataset.pid;
       setTimeout(() => inMetaSet(pid, { arch: true }), 180);
+    } else if (lock === 1 && dx > th) {
+      r.style.transform = "";
+      const t = inThr.find((x) => x.pid === pid);
+      if (t) inMetaSet(pid, { pin: !t.pin });
     } else r.style.transform = "";
   };
   box.addEventListener("touchend", end);
