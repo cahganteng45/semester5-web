@@ -549,6 +549,13 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .inbarw i{flex:1;min-width:2px;max-width:4px;border-radius:2px;background:var(--mute);opacity:.38;transition:opacity .12s,background .12s}
 .inbarw i.on{background:var(--brand);opacity:1}
 .indur{font-size:11.5px;color:var(--mute);font-variant-numeric:tabular-nums;text-align:left}
+.hublist{margin-top:10px;display:flex;flex-direction:column}
+.hublist .inrow{padding:12px 4px;border-bottom:1px solid var(--line);border-radius:0}
+.hublist .inrow:last-child{border-bottom:0}
+.hublist .inrow .fgimg{width:52px;height:52px;font-size:24px}
+.hubadm{background:linear-gradient(135deg,var(--brand),#8b5cf6);color:#fff!important;font-size:22px!important}
+.fgback{width:34px;height:34px;margin-left:-6px;border-radius:50%;display:grid;place-items:center;color:var(--brand);flex-shrink:0;background:none;border:0;padding:0;cursor:pointer}
+.fgback:active{background:var(--brand-soft)}
 .inarchrow{display:flex;align-items:center;gap:12px;padding:10px 4px;border-radius:14px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .inarchrow:active{background:var(--brand-soft)}
 .inarchic{width:52px;height:52px;display:grid;place-items:center;color:var(--mute)}
@@ -706,7 +713,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 <li><button class="nav-item active" data-view="home"><span class="pill"><svg class="i"><use href="#i-home"/></svg></span>Beranda</button></li>
 <li><button class="nav-item" data-view="materi"><span class="pill"><svg class="i"><use href="#i-folder"/></svg></span>Materi</button></li>
 <li><button class="nav-item" data-view="jadwal"><span class="pill"><svg class="i"><use href="#i-cal"/></svg></span>Jadwal</button></li>
-<li><button class="nav-item" data-view="forum"><span class="pill"><svg class="i"><use href="#i-chat"/></svg><i class="fdot hidden" id="fDot"></i></span>Forum</button></li>
+<li><button class="nav-item" data-view="chat"><span class="pill"><svg class="i"><use href="#i-chat"/></svg><i class="fdot hidden" id="fDot"></i></span>Chat</button></li>
 <li class="desk-only"><button class="nav-item" data-view="upload"><span class="pill"><svg class="i"><use href="#i-up"/></svg></span>Upload</button></li>
 <li class="hidden desk-only" id="navAdminLi"><button class="nav-item" data-view="admin"><span class="pill"><svg class="i"><use href="#i-shield"/></svg></span>Admin</button></li>
 <li><button class="nav-item" data-view="settings"><span class="pill"><svg class="i"><use href="#i-set"/></svg></span>Akun</button></li>
@@ -747,7 +754,9 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 
 <section class="view" id="view-jadwal"><h2 class="page-title">Jadwal kuliah</h2><p class="page-sub">Sistem Informasi, kelas 5P52 dan 5P52A. Semester Gasal 2026/2027.</p><div class="chips" id="dayChips"></div><div id="scheduleList"></div></section>
 
-<section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div><button type="button" class="fgchat hidden" id="fInboxBtn">💬 Admin</button></div>
+<section class="view" id="view-chat"><h2 class="page-title">Chat</h2><div class="hublist" id="hubList"></div></section>
+
+<section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><button type="button" class="fgback" id="fBack" aria-label="Kembali ke daftar chat"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div></div>
 <div class="fpinbar hidden" id="fPinBar"></div><div class="fmsgs" id="fMsgs"></div><div class="freply hidden" id="fReply"></div>
 <div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fcount hidden" id="fCount"></div><div class="fbar"><textarea class="input" id="fInput" rows="1" placeholder="Tulis pesan…"></textarea><button class="btn btn-line" id="fPollBtn" type="button" aria-label="Buat polling">📊</button><button class="btn btn-primary" id="fSend" type="button">Kirim</button></div></div></section>
 
@@ -1038,12 +1047,13 @@ function switchView(id) {
   if (activeView === "forum" && id !== "forum") closeForum();
   activeView = id;
   document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.id === "view-" + id));
-  document.querySelectorAll(".nav-item").forEach((b) => b.classList.toggle("active", b.dataset.view === id));
+  document.querySelectorAll(".nav-item").forEach((b) => b.classList.toggle("active", b.dataset.view === (id === "forum" ? "chat" : id)));
   if (id === "materi") { backToTopics(); loadTopics(); }
   if (id === "upload") { uploadTouched = false; loadTopics(); suggestUploadTopic(); }
   if (id === "admin") loadAdmin();
   if (id === "settings") closeSub();
   if (id === "forum") openForum();
+  if (id === "chat") { renderChatHub(true); pollForum(); }
   if (id === "home") { updateGreeting(); renderHome(); renderHomeExtras(); loadTasks(false); }
   window.scrollTo({ top: 0 });
 }
@@ -2171,7 +2181,7 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
   // notifikasi chat admin diketuk -> buka forum lalu chat admin
   navigator.serviceWorker.addEventListener("message", (ev) => {
-    if (ev.data && ev.data.type === "open-inbox" && token && typeof inOpen === "function" && inOn) { switchView("forum"); setTimeout(inOpen, 300); }
+    if (ev.data && ev.data.type === "open-inbox" && token && typeof inOpen === "function" && inOn) { switchView("chat"); setTimeout(inOpen, 300); }
   });
 }
 
@@ -2417,6 +2427,35 @@ $("adForumClear").addEventListener("click", async () => {
   } catch (err) { showToast(err.message, true); }
 });
 
+/* ---------- tab Chat: daftar percakapan (Admin + grup), gaya WhatsApp iOS ---------- */
+let hubHtmlPrev = "";
+function fPreview(m) {
+  if (m.poll) return "📊 Polling";
+  if (m.file) return "📎 Lampiran";
+  return String(m.text || "").replace(/\s+/g, " ").trim();
+}
+function renderChatHub(force) {
+  if (activeView !== "chat") return;
+  const box = $("hubList");
+  if (!box) return;
+  const rows = [];
+  if (inOn) {
+    const u = inUnread > 0;
+    rows.push(`<div class="inrow${u ? " unr" : ""}" data-hub="admin" role="button" tabindex="0"><span class="av hubadm">🛡️</span><div class="inrowt"><div class="inrow1"><b>${isAdmin ? "Kotak masuk" : "Admin"}</b></div><div class="inrow2"><em class="inprev">${u ? (inUnread > 1 ? inUnread + " pesan baru" : "Pesan baru") : isAdmin ? "Pesan dari mahasiswa" : "Tanya langsung ke admin"}</em>${u ? `<span class="ubadge">${inUnread > 99 ? "99+" : inUnread}</span>` : ""}</div></div></div>`);
+  }
+  const list = fMsgs.filter((m) => !isFHidden(m.id)), last = list[list.length - 1], gu = unreadForum();
+  const prev = last ? `${last.mine ? "Kamu: " : esc(shortName(last.name)) + ": "}${esc(fPreview(last))}` : "Belum ada pesan";
+  rows.push(`<div class="inrow${gu ? " unr" : ""}" data-hub="group" role="button" tabindex="0">${fgPhotoHtml("fgimg")}<div class="inrowt"><div class="inrow1"><b>${esc(fGroup.name)}</b>${last ? `<time>${esc(inRowTime(last.ts))}</time>` : ""}</div><div class="inrow2"><em class="inprev">${prev}</em>${gu ? `<span class="ubadge">${gu > 99 ? "99+" : gu}</span>` : ""}</div></div></div>`);
+  const html = rows.join("");
+  if (force || html !== hubHtmlPrev) { box.innerHTML = html; hubHtmlPrev = html; }
+}
+$("hubList").addEventListener("click", (e) => {
+  const r = e.target.closest("[data-hub]");
+  if (!r) return;
+  if (r.dataset.hub === "admin") inOpen(); else switchView("forum");
+});
+$("fBack").addEventListener("click", (e) => { e.stopPropagation(); switchView("chat"); });
+
 /* ---------- forum kelas ---------- */
 let fMsgs = [], fLastId = 0, fReplyTo = null, fBusy = false, fLoaded = false, fTimer = null, fTicks = 0;
 let fPins = [], fPinIdx = 0, fPrev = {}, fRepSeen = 0;
@@ -2436,6 +2475,7 @@ function updateForumBadge() {
   b.classList.toggle("hidden", n === 0);
   document.title = (n ? `(${n > 99 ? "99+" : n}) ` : "") + "Semester 5 — Study Hub";
   if (navigator.setAppBadge) { try { if (n) navigator.setAppBadge(n); else navigator.clearAppBadge(); } catch (e) {} }
+  renderChatHub(false);
 }
 function markForumSeen() {
   setFSeen(fMsgs.reduce((a, m) => Math.max(a, m.id), 0));
@@ -3003,9 +3043,9 @@ function ensureBanner() {
   nbEl = document.createElement("div");
   nbEl.setAttribute("role", "status");
   nbEl.addEventListener("click", () => {
-    hideBanner(); switchView("forum");
-    if (nbEl.dataset.k === "inbox") setTimeout(inOpen, 300);
-    else setTimeout(() => jumpToMessage(nbId), 600);
+    hideBanner();
+    if (nbEl.dataset.k === "inbox") { switchView("chat"); setTimeout(inOpen, 300); }
+    else { switchView("forum"); setTimeout(() => jumpToMessage(nbId), 600); }
   });
   document.body.append(nbEl);
 }
@@ -3031,6 +3071,7 @@ function fgPhotoHtml(cls) {
     : `<span class="${cls}">👥</span>`;
 }
 function fPaintGroupHead() {
+  renderChatHub(false);
   $("fGroupPhoto").innerHTML = fgPhotoHtml("fgimg sm");
   $("fGroupName").textContent = fGroup.name;
   const names = fGroupMembers.map((m) => (m.mine ? "Kamu" : shortName(m.name)));
@@ -3184,11 +3225,7 @@ document.addEventListener("click", (e) => {
 /* ---------- chat dengan admin (isi percakapan tersimpan di Telegram) ---------- */
 let inMsgs = [], inReplyTo = 0, inPressAt = 0;
 let inEl = null, inWith = "", inLast = 0, inTimer = null, inOn = false, inView = "", inPeer = null, inTypingOn = false, inTypeAt = 0;
-function inPaintBtn() {
-  const b = $("fInboxBtn");
-  b.classList.toggle("hidden", !inOn);
-  b.innerHTML = (isAdmin ? "💬 Kotak masuk" : "💬 Admin") + (inUnread ? `<span class="ubadge">${inUnread > 99 ? "99+" : inUnread}</span>` : "");
-}
+function inPaintBtn() { renderChatHub(false); }
 function fApplyInbox(on, unread) {
   inOn = !!on;
   const n = inOn ? Math.max(0, +unread || 0) : 0;
@@ -3209,7 +3246,6 @@ function inNotify(add) {
   nbTimer = setTimeout(hideBanner, 6000);
   if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
 }
-$("fInboxBtn").addEventListener("click", (e) => { e.stopPropagation(); inOpen(); });
 function inClose() { clearInterval(inTimer); inTimer = null; inView = ""; inRecStop(true); inCleanMedia(); if (inEl) inEl.classList.remove("show"); }
 function inOpen() {
   if (!inEl) {
