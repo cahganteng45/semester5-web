@@ -2771,6 +2771,7 @@ const showSecret = (title, text, secret) => openModal({ title, text, secret, ico
 const ADMIN_CONFIRM = {
   ban_web: ["Ban akun ini?", "tidak akan bisa login lagi sampai kamu unban.", "Ban akun", "shield"],
   delete_web: ["Hapus akun ini?", "akun dihapus permanen dan tidak bisa dikembalikan.", "Hapus akun", "trash"],
+  logout_web: ["Keluarkan semua perangkat?", "akan langsung logout dari semua perangkatnya dan harus login lagi.", "Keluarkan semua", "shield"],
   ban_ip: ["Blokir IP ini?", "semua akses dari alamat ini akan ditolak.", "Blokir IP", "shield"],
   ban_tg: ["Ban user Telegram?", "user ini tidak bisa memakai bot lagi.", "Ban user", "shield"]
 };
@@ -2804,6 +2805,7 @@ function adUserHtml(u) {
     <div class="m">NIM ${esc(u.nim || "belum diisi")} · Login ${u.login_count || 0} · Upload ${u.upload_count || 0} · IP ${esc(u.last_ip || "-")} · ${esc(u.last_device || "-")}</div>
     <div class="mbtns">
       ${me ? "" : `<button class="mbtn" data-ad="${u.banned ? "unban_web" : "ban_web"}" data-t="${un}">${u.banned ? "Unban" : "Ban"}</button>`}
+      ${me ? "" : `<button class="mbtn" data-ad="logout_web" data-t="${un}">Keluarkan semua perangkat</button>`}
       <button class="mbtn" data-ad="reset_web" data-t="${un}">Reset password</button>
       <button class="mbtn" data-ad="set_name" data-t="${un}">Ubah nama</button>
       <button class="mbtn" data-ad="set_nim" data-t="${un}">Ubah NIM</button>
