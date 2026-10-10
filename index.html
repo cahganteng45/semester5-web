@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f766e">
+<meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Study Hub">
@@ -13,10 +13,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<script>try{var _t=localStorage.getItem("s5_theme")||"dark";if(_t!=="auto")document.documentElement.setAttribute("data-theme",_t)}catch(e){}</script>
 <style>
-:root{--bg:#eef2ee;--surface:#fff;--ink:#13231e;--mute:#5f7069;--line:#dde5df;--brand:#0f766e;--on-brand:#fff;--brand-d:color-mix(in srgb,var(--brand) 78%,#000);--brand-soft:color-mix(in srgb,var(--brand) 16%,var(--surface));--amber:#b7791f;--amber-soft:#fdf1cf;--red:#c53030;--red-soft:#fbe0e0;--ok:#1f8a4c;--r-s:10px;--r-m:16px;--r-l:24px;--nav-h:68px;--side-w:248px;--font-d:'Bricolage Grotesque','DM Sans',sans-serif;--font-b:'DM Sans',system-ui,sans-serif}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1714;--surface:#15231f;--ink:#e8f1ed;--mute:#93a69e;--line:#24362f;--amber:#f2b632;--amber-soft:#3a2f10;--red:#f27a7a;--red-soft:#3c1c1c;--ok:#5fd08c}}
-:root[data-theme="dark"]{--bg:#0d1714;--surface:#15231f;--ink:#e8f1ed;--mute:#93a69e;--line:#24362f;--amber:#f2b632;--amber-soft:#3a2f10;--red:#f27a7a;--red-soft:#3c1c1c;--ok:#5fd08c}
+:root{--bg:#f2f2f4;--surface:#fff;--ink:#111113;--mute:#6b6b73;--line:#e2e2e6;--brand:#111111;--on-brand:#fff;--brand-d:color-mix(in srgb,var(--brand) 78%,#000);--brand-soft:color-mix(in srgb,var(--brand) 16%,var(--surface));--amber:#b7791f;--amber-soft:#fdf1cf;--red:#c53030;--red-soft:#fbe0e0;--ok:#1f8a4c;--r-s:10px;--r-m:16px;--r-l:24px;--nav-h:68px;--side-w:248px;--font-d:'Bricolage Grotesque','DM Sans',sans-serif;--font-b:'DM Sans',system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#000;--surface:#101012;--ink:#f2f2f3;--mute:#8e8e93;--line:#242428;--amber:#f2b632;--amber-soft:#3a2f10;--red:#f27a7a;--red-soft:#3c1c1c;--ok:#5fd08c}}
+:root[data-theme="dark"]{--bg:#000;--surface:#101012;--ink:#f2f2f3;--mute:#8e8e93;--line:#242428;--amber:#f2b632;--amber-soft:#3a2f10;--red:#f27a7a;--red-soft:#3c1c1c;--ok:#5fd08c}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
 body{font-family:var(--font-b);background:var(--bg);color:var(--ink);line-height:1.5;min-height:100vh;overflow-x:hidden}
@@ -162,7 +163,7 @@ textarea.input{resize:vertical;min-height:130px}
 .mcap{font-size:14px;color:var(--mute);white-space:pre-wrap;word-break:break-word}
 .mnote{background:var(--bg);border-left:4px solid var(--brand);padding:12px 14px;border-radius:0 var(--r-s) var(--r-s) 0;font-size:15px;white-space:pre-wrap;word-break:break-word}
 .mnote.warn{border-color:var(--red);color:var(--red);background:var(--red-soft)}
-.mprev{border-radius:var(--r-s);overflow:hidden;background:#0d1714;max-height:340px}
+.mprev{border-radius:var(--r-s);overflow:hidden;background:#000;max-height:340px}
 .mprev img,.mprev video{width:100%;max-height:340px;object-fit:contain;display:block}
 .mprev audio{width:100%;display:block}
 .deadline{display:inline-flex;align-items:center;gap:6px;background:var(--red-soft);color:var(--red);font-size:13px;font-weight:700;padding:6px 12px;border-radius:8px;align-self:flex-start}
@@ -323,14 +324,27 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 #toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-140px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:700;font-size:14px;z-index:1200;max-width:90vw;transition:transform .35s cubic-bezier(.34,1.4,.64,1)}
 #toast.show{transform:translate(-50%,0)}
 #toast.err{background:var(--red);color:#fff}
-#maint{position:fixed;inset:0;z-index:2000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;overflow-y:auto}
-#maint .box{max-width:380px;width:100%}
-#maint .big{font-size:64px;display:block;margin-bottom:12px}
-#maint h1{font-family:var(--font-d);font-size:28px;font-weight:800;letter-spacing:-.03em;margin-bottom:8px}
-#maint p{color:var(--mute);margin-bottom:20px;white-space:pre-wrap;word-break:break-word}
-#maint .pulse{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--amber);background:var(--amber-soft);padding:6px 14px;border-radius:999px;margin-bottom:18px}
-#maint .pulse i{width:8px;height:8px;border-radius:50%;background:currentColor;animation:blink 1.4s infinite}
+#maint{position:fixed;inset:0;z-index:2000;background:var(--bg);display:grid;place-items:center;padding:calc(24px + env(safe-area-inset-top,0px)) 24px calc(24px + env(safe-area-inset-bottom,0px));text-align:center;overflow-y:auto}
+#maint::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(46% 34% at 50% 36%,color-mix(in srgb,var(--ink) 11%,transparent),transparent 72%)}
+#maint .box{position:relative;max-width:360px;width:100%;display:flex;flex-direction:column;align-items:center}
+#maint .mark{position:relative;width:118px;height:118px;border-radius:50%;display:grid;place-items:center;margin-bottom:30px;color:var(--ink);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:0;cursor:default}
+#maint .mark::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 55%,var(--ink) 100%);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 1px));mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 1px));animation:mspin 3.4s linear infinite}
+#maint .mark::after{content:"";position:absolute;inset:9px;border-radius:50%;background:color-mix(in srgb,var(--ink) 6%,var(--surface));border:1px solid var(--line)}
+#maint .mark svg{position:relative;z-index:1;width:42px;height:42px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;animation:mtilt 4.8s ease-in-out infinite;transform-origin:50% 50%}
+@keyframes mspin{to{transform:rotate(360deg)}}
+@keyframes mtilt{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
+#maint .since{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--mute);border:1px solid var(--line);padding:5px 13px;border-radius:999px;margin-bottom:16px}
+#maint .since i{width:7px;height:7px;border-radius:50%;background:var(--amber);animation:blink 1.4s infinite}
+#maint h1{font-family:var(--font-d);font-size:32px;line-height:1.08;font-weight:800;letter-spacing:-.035em;margin-bottom:12px}
+#maint p{color:var(--mute);white-space:pre-wrap;word-break:break-word;max-width:32ch}
+#maint .bar{width:148px;height:3px;border-radius:3px;background:var(--line);overflow:hidden;margin:28px 0 14px}
+#maint .bar i{display:block;width:42%;height:100%;border-radius:3px;background:var(--ink);animation:mbar 1.7s cubic-bezier(.65,0,.35,1) infinite}
+@keyframes mbar{0%{transform:translateX(-110%)}100%{transform:translateX(260%)}}
+#maint .state{font-size:12.5px;color:var(--mute);margin-bottom:12px;min-height:1.4em}
+#maint .recheck{font-size:13px;font-weight:700;color:var(--ink);border:1px solid var(--line);padding:9px 18px;border-radius:999px}
+#maint .recheck:active{background:var(--surface)}
 @keyframes blink{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){#maint .mark::before,#maint .mark svg,#maint .bar i,#maint .since i{animation:none}#maint .bar i{width:100%;opacity:.35}}
 .fab.hidden{display:none!important}
 .hint{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--amber-soft);color:var(--amber);border:1.5px solid var(--amber);border-radius:var(--r-s);padding:12px 14px;margin-bottom:14px;font-size:14px;font-weight:700}
 .hint span{flex:1;min-width:0}
@@ -731,8 +745,8 @@ html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .fquote{backg
 html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .fday{background:var(--wa-in);color:var(--wa-time);box-shadow:0 1px .5px rgba(11,20,26,.13);text-transform:uppercase;letter-spacing:.02em}
 
 html[data-cstyle="ios"]{--wa-in:#e9e9eb;--wa-out:#0b84fe;--wa-bg:var(--surface);--wa-ink:#000;--wa-time:#8e8e93;--wa-meink:#fff;--wa-metime:rgba(255,255,255,.75)}
-html[data-cstyle="ios"][data-theme="dark"]{--wa-in:#262629;--wa-out:#0a84ff;--wa-ink:#fff;--wa-time:#98989f}
-@media (prefers-color-scheme:dark){html[data-cstyle="ios"]:not([data-theme]){--wa-in:#262629;--wa-out:#0a84ff;--wa-ink:#fff;--wa-time:#98989f}}
+html[data-cstyle="ios"][data-theme="dark"]{--wa-in:#262629;--wa-out:#0a84ff;--wa-bg:#000;--wa-ink:#fff;--wa-time:#98989f}
+@media (prefers-color-scheme:dark){html[data-cstyle="ios"]:not([data-theme]){--wa-in:#262629;--wa-out:#0a84ff;--wa-bg:#000;--wa-ink:#fff;--wa-time:#98989f}}
 html[data-cstyle="tg"]{--wa-in:#fff;--wa-out:#effdde;--wa-bg:#c9dcc0;--wa-ink:#000;--wa-time:#8c99a3;--wa-meink:#000;--wa-metime:#5aa85d}
 html[data-cstyle="tg"][data-theme="dark"]{--wa-in:#182533;--wa-out:#2b5278;--wa-bg:#0e1621;--wa-ink:#fff;--wa-time:#6d7f8f;--wa-meink:#fff;--wa-metime:#7da8d3}
 @media (prefers-color-scheme:dark){html[data-cstyle="tg"]:not([data-theme]){--wa-in:#182533;--wa-out:#2b5278;--wa-bg:#0e1621;--wa-ink:#fff;--wa-time:#6d7f8f;--wa-meink:#fff;--wa-metime:#7da8d3}}
@@ -751,6 +765,21 @@ html[data-cstyle="tg"][data-cwall="on"] .fmsgs,html[data-cstyle="tg"][data-cwall
 html[data-cmy="on"] .fmsg.me .fbub,html[data-cmy="on"] .ib.me .ibb{background:var(--my-bub)!important;color:var(--my-ink)!important}
 html[data-cmy="on"] .fmsg.me .fbub::before,html[data-cmy="on"] .ib.me .ibb::before{background:var(--my-bub)!important}
 html[data-cmy="on"] .fmsg.me .fmeta,html[data-cmy="on"] .ib.me .ibb small{color:var(--my-ink)!important;opacity:.78}
+/* ===== gaya bubble tambahan: Messenger, Kaca, Garis, Kotak ===== */
+html[data-cstyle="msg"] .fbub,html[data-cstyle="msg"] .ibb{background:color-mix(in srgb,var(--ink) 11%,var(--surface));color:var(--ink);border:0;box-shadow:none;border-radius:calc(var(--cb-r) + 6px)}
+html[data-cstyle="msg"] .fmsg.me .fbub,html[data-cstyle="msg"] .ib.me .ibb{background:linear-gradient(135deg,#0099ff,#7a3cff);color:#fff;border-radius:calc(var(--cb-r) + 6px)}
+html[data-cstyle="msg"] .fmsg.me .fmeta,html[data-cstyle="msg"] .ib.me .ibb small{color:rgba(255,255,255,.78)}
+html[data-cstyle="msg"] .fname{color:var(--mute)}
+html[data-cstyle="glass"] .fmsgs,html[data-cstyle="glass"] .cprev,html[data-cstyle="glass"] .inlist{background-color:var(--surface);background-image:radial-gradient(circle at 12% 8%,rgba(122,92,255,.30),transparent 46%),radial-gradient(circle at 90% 92%,rgba(0,170,255,.24),transparent 52%);border-color:transparent}
+html[data-cstyle="glass"] .fbub,html[data-cstyle="glass"] .ibb{background:color-mix(in srgb,var(--ink) 9%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);border:1px solid color-mix(in srgb,var(--ink) 16%,transparent);box-shadow:0 4px 18px rgba(0,0,0,.14);border-radius:calc(var(--cb-r) + 4px)}
+html[data-cstyle="glass"] .fmsg.me .fbub,html[data-cstyle="glass"] .ib.me .ibb{background:color-mix(in srgb,var(--brand) 34%,transparent);border-color:color-mix(in srgb,var(--brand) 45%,transparent)}
+html[data-cstyle="out"] .fbub,html[data-cstyle="out"] .ibb{background:transparent;border:1.5px solid color-mix(in srgb,var(--ink) 24%,transparent);box-shadow:none;border-radius:calc(var(--cb-r) + 2px)}
+html[data-cstyle="out"] .fmsg.me .fbub,html[data-cstyle="out"] .ib.me .ibb{background:color-mix(in srgb,var(--brand) 12%,transparent);border-color:var(--brand)}
+html[data-cstyle="sq"] .fbub,html[data-cstyle="sq"] .ibb{background:var(--bg);border:0;border-left:3px solid color-mix(in srgb,var(--ink) 28%,transparent);border-radius:3px;box-shadow:none}
+html[data-cstyle="sq"] .fmsg.me .fbub,html[data-cstyle="sq"] .ib.me .ibb{background:var(--brand-soft);border:0;border-right:3px solid var(--brand);border-radius:3px}
+html:is([data-cstyle="msg"],[data-cstyle="glass"],[data-cstyle="out"],[data-cstyle="sq"]) .fbub::before,html:is([data-cstyle="msg"],[data-cstyle="glass"],[data-cstyle="out"],[data-cstyle="sq"]) .ibb::before{display:none}
+html[data-cstyle="msg"] .fmsg.me .fname,html[data-cstyle="msg"] .fmsg.me a{color:#fff}
+.cset .opt-row+.opt-row{margin-top:-8px}
 .fstar{color:#f5b301;font-style:normal}
 .cswatch{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
 .cswatch button{width:32px;height:32px;border-radius:50%;border:0;cursor:pointer;box-shadow:inset 0 0 0 2px var(--surface),0 0 0 1px var(--line)}
@@ -937,7 +966,7 @@ html[data-cmy="on"] .fmsg.me .fmeta,html[data-cmy="on"] .ib.me .ibb small{color:
 <button type="button" class="prof-row" id="profRow"><div class="avatar" id="setAvatar">US</div><span class="pt"><b id="setName">Nama</b><small id="setBioLine"></small><small id="setUser">@username</small><small id="setNim" class="hidden"></small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <div class="menu">
 <button type="button" class="menu-row" data-sub="tampilan"><span class="mi">🎨</span><span class="mt"><b>Tampilan</b><small>Tema dan warna aplikasi</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
-<button type="button" class="menu-row" data-sub="chat"><span class="mi">💬</span><span class="mt"><b>Tampilan chat</b><small>Ukuran bubble, teks, gaya WhatsApp</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+<button type="button" class="menu-row" data-sub="chat"><span class="mi">💬</span><span class="mt"><b>Tampilan chat</b><small>Gaya iOS, WhatsApp, Messenger, ukuran bubble dan teks</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="stars"><span class="mi">⭐</span><span class="mt"><b>Pesan berbintang</b><small id="starCount">Simpan info penting</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="notif"><span class="mi">🔔</span><span class="mt"><b>Notifikasi</b><small id="notifSub">Belum aktif</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="keamanan"><span class="mi">🔐</span><span class="mt"><b>Keamanan</b><small>Ganti password</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
@@ -969,7 +998,8 @@ html[data-cmy="on"] .fmsg.me .fmeta,html[data-cmy="on"] .ib.me .ibb small{color:
 </div></div>
 <div class="card">
 <h4>Gaya chat</h4>
-<div class="opt-row"><button type="button" data-cstyle-set="default">Bawaan</button><button type="button" data-cstyle-set="wa">WhatsApp</button><button type="button" data-cstyle-set="ios">iOS</button><button type="button" data-cstyle-set="tg">Telegram</button></div>
+<div class="opt-row"><button type="button" data-cstyle-set="ios">iOS</button><button type="button" data-cstyle-set="wa">WhatsApp</button><button type="button" data-cstyle-set="tg">Telegram</button><button type="button" data-cstyle-set="msg">Messenger</button></div>
+<div class="opt-row"><button type="button" data-cstyle-set="glass">Kaca</button><button type="button" data-cstyle-set="out">Garis</button><button type="button" data-cstyle-set="sq">Kotak</button><button type="button" data-cstyle-set="default">Klasik</button></div>
 <h4>Warna bubbleku</h4>
 <div class="cswatch"><button type="button" class="auto" data-mycol="">Otomatis</button><button type="button" data-mycol="#0b84fe" style="background:#0b84fe" aria-label="Warna #0b84fe"></button><button type="button" data-mycol="#128c7e" style="background:#128c7e" aria-label="Warna #128c7e"></button><button type="button" data-mycol="#7c4dff" style="background:#7c4dff" aria-label="Warna #7c4dff"></button><button type="button" data-mycol="#e91e63" style="background:#e91e63" aria-label="Warna #e91e63"></button><button type="button" data-mycol="#f57c00" style="background:#f57c00" aria-label="Warna #f57c00"></button><button type="button" data-mycol="#455a64" style="background:#455a64" aria-label="Warna #455a64"></button><input type="color" id="cbMyColor" value="#0b84fe" aria-label="Pilih warna sendiri"></div>
 <h4>Ukuran bubble</h4>
@@ -1003,7 +1033,7 @@ html[data-cmy="on"] .fmsg.me .fmeta,html[data-cmy="on"] .ib.me .ibb small{color:
 </main>
 </div>
 
-<div id="maint" class="hidden" role="alertdialog" aria-labelledby="maintTitle"><div class="box"><span class="big">🛠️</span><div class="pulse"><i></i>Sedang perawatan</div><h1 id="maintTitle">Kami segera kembali</h1><p id="maintMsg"></p><p style="font-size:13px;margin-bottom:8px">Halaman ini otomatis terbuka lagi begitu perawatan selesai.</p><button type="button" class="link quiet" id="maintAdmin">Masuk sebagai admin</button></div></div>
+<div id="maint" class="hidden" role="alertdialog" aria-labelledby="maintTitle"><div class="box"><div class="mark" id="maintMark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.1L3.6 17.1a1.7 1.7 0 0 0 2.4 2.4l5.7-5.7a4 4 0 0 0 5.1-5.4l-2.6 2.6-2.4-.6-.6-2.4 2.5-2.7z"/></svg></div><div class="since"><i></i><span id="maintSince">Sedang perawatan</span></div><h1 id="maintTitle">Lagi dirapikan dulu</h1><p id="maintMsg"></p><div class="bar" aria-hidden="true"><i></i></div><div class="state" id="maintState" role="status">Halaman terbuka sendiri begitu selesai.</div><button type="button" class="recheck" id="maintRecheck">Cek sekarang</button></div></div>
 <div id="offline" class="hidden">Kamu sedang offline. Sebagian fitur tidak bisa dipakai.</div>
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -1135,23 +1165,40 @@ function callName() { return (fullUserName || currentUser).trim(); }
 function initials() { return initialsOf(fullUserName || currentUser); }
 
 /* ---------- maintenance ---------- */
-let maintTimer = null;
-function showMaint(msg) {
-  $("maintMsg").textContent = msg || "Website sedang dalam perawatan. Coba lagi sebentar lagi.";
-  $("maint").classList.remove("hidden");
-  clearInterval(maintTimer);
-  maintTimer = setInterval(async () => {
-    try {
-      const d = await (await fetch(API + "/api/status", { cache: "no-store" })).json();
-      if (!d.maintenance) location.reload();
-    } catch (e) { /* server belum siap, coba lagi nanti */ }
-  }, 20000);
+let maintTimer = null, maintTaps = [];
+const MAINT_DEFAULT = "Study Hub sedang diperbarui sebentar. Datamu aman dan tidak ada yang hilang.";
+const fmtClock = (d) => d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }).replace(":", ".");
+async function maintCheck(manual) {
+  const st = $("maintState");
+  try {
+    if (manual) st.textContent = "Mengecek…";
+    const d = await (await fetch(API + "/api/status", { cache: "no-store" })).json();
+    if (!d.maintenance) { location.reload(); return; }
+    if (d.message) $("maintMsg").textContent = d.message;
+    if (d.since) { const t = new Date(d.since); if (!isNaN(t)) $("maintSince").textContent = "Sejak " + fmtClock(t); }
+    st.textContent = "Dicek " + fmtClock(new Date()) + ". Mencoba lagi otomatis.";
+  } catch (e) { st.textContent = "Belum tersambung ke server. Mencoba lagi…"; }
 }
-$("maintAdmin").addEventListener("click", () => {
-  $("maint").classList.add("hidden");
+function showMaint(msg) {
+  $("maintMsg").textContent = msg || MAINT_DEFAULT;
+  const first = $("maint").classList.contains("hidden");
+  $("maint").classList.remove("hidden");
+  if (!first && maintTimer) return;
   clearInterval(maintTimer);
-  // Tampilkan halaman login supaya admin bisa masuk
-  if (!token) { $("login").classList.remove("hidden"); $("app").classList.add("hidden"); }
+  maintCheck(false);
+  maintTimer = setInterval(() => maintCheck(false), 20000);
+}
+$("maintRecheck").addEventListener("click", () => maintCheck(true));
+// Pintu masuk admin disembunyikan: ketuk lambang di atas 5 kali berturut-turut (dalam 3 detik).
+$("maintMark").addEventListener("click", () => {
+  const now = Date.now();
+  maintTaps = maintTaps.filter((t) => now - t < 3000).concat(now);
+  if (maintTaps.length < 5) return;
+  maintTaps = [];
+  try { navigator.vibrate && navigator.vibrate(18); } catch (e) {}
+  $("maint").classList.add("hidden");
+  clearInterval(maintTimer); maintTimer = null;
+  $("login").classList.remove("hidden"); $("app").classList.add("hidden");
 });
 
 
@@ -2078,15 +2125,15 @@ $("favList").addEventListener("click", (e) => {
 /* ---------- tema & warna aksen ---------- */
 /* [warna mode terang, warna mode gelap, warna bulatan pilihan (opsional)] */
 const ACCENTS = {
-  teal: ["#0f766e", "#3ec2b1"], biru: ["#1d4ed8", "#60a5fa"], indigo: ["#4f46e5", "#9a97ff"], ungu: ["#7e22ce", "#c084fc"],
+  hitam: ["#111111", "#e5e5e5", "#111111"], teal: ["#0f766e", "#3ec2b1"], biru: ["#1d4ed8", "#60a5fa"], indigo: ["#4f46e5", "#9a97ff"], ungu: ["#7e22ce", "#c084fc"],
   pink: ["#be185d", "#f472b6"], merah: ["#b91c1c", "#f87171"], oranye: ["#c2410c", "#fb923c"], kuning: ["#a16207", "#facc15"],
-  hijau: ["#15803d", "#4ade80"], hitam: ["#111111", "#e5e5e5", "#111111"], putih: ["#64748b", "#ffffff", "#ffffff"]
+  hijau: ["#15803d", "#4ade80"], putih: ["#64748b", "#ffffff", "#ffffff"]
 };
 const LEGACY_ACCENT = { rose: "pink", orange: "oranye" };
-let themeMode = localStorage.getItem("s5_theme") || "auto";
-let accentKey = localStorage.getItem("s5_accent") || "teal";
+let themeMode = localStorage.getItem("s5_theme") || "dark";
+let accentKey = localStorage.getItem("s5_accent") || "hitam";
 if (LEGACY_ACCENT[accentKey]) accentKey = LEGACY_ACCENT[accentKey];
-if (!ACCENTS[accentKey]) accentKey = "teal";
+if (!ACCENTS[accentKey]) accentKey = "hitam";
 function onColor(hex) {
   const n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.62 ? "#111111" : "#ffffff";
@@ -2103,7 +2150,7 @@ function applyTheme() {
   const brand = dark ? pair[1] : pair[0];
   root.style.setProperty("--on-brand", onColor(brand));
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.content = dark ? "#0d1714" : pair[0];
+  if (meta) meta.content = dark ? "#000000" : pair[0];
   document.querySelectorAll("[data-theme-set]").forEach((b) => b.classList.toggle("active", b.dataset.themeSet === themeMode));
   document.querySelectorAll("[data-accent]").forEach((b) => b.classList.toggle("active", b.dataset.accent === accentKey));
 }
@@ -2116,13 +2163,13 @@ try { darkQuery.addEventListener("change", applyTheme); } catch (err) { darkQuer
 applyTheme();
 
 /* ---------- Tampilan chat: bubble, teks, gaya WhatsApp ---------- */
-const CHAT_DEF = { style: "default", size: "m", fs: 15, myav: false, wall: true, mycolor: "" };
+const CHAT_DEF = { style: "ios", size: "m", fs: 15, myav: false, wall: true, mycolor: "" };
 function inkFor(h) { const n = parseInt(h.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255; return 0.299 * r + 0.587 * g + 0.114 * b > 160 ? "#111" : "#fff"; }
 const CHAT_FS = { xs: 13, s: 14, m: 15, l: 17 };
 let chatPref = { ...CHAT_DEF };
 try { Object.assign(chatPref, JSON.parse(localStorage.getItem("s5_chat") || "{}")); } catch (err) {}
 function applyChat(save) {
-  if (!["default", "wa", "ios", "tg"].includes(chatPref.style)) chatPref.style = "default";
+  if (!["default", "wa", "ios", "tg", "msg", "out", "glass", "sq"].includes(chatPref.style)) chatPref.style = "ios";
   if (!CHAT_FS[chatPref.size]) chatPref.size = "m";
   chatPref.fs = Math.min(20, Math.max(12, Math.round(+chatPref.fs) || 15));
   const r = document.documentElement;
@@ -2566,6 +2613,7 @@ function adUserHtml(u) {
       <button class="mbtn" data-ad="reset_web" data-t="${un}">Reset password</button>
       <button class="mbtn" data-ad="set_name" data-t="${un}">Ubah nama</button>
       <button class="mbtn" data-ad="set_nim" data-t="${un}">Ubah NIM</button>
+      <button class="mbtn" data-ad="set_avatar" data-t="${un}">${u.has_avatar ? "Ganti foto" : "Pasang foto"}</button>
       ${u.has_avatar ? `<button class="mbtn" data-ad="remove_avatar" data-t="${un}">Hapus foto</button>` : ""}
       ${u.last_ip && !me ? `<button class="mbtn" data-ad="ban_ip" data-t="${esc(u.last_ip)}">Ban IP</button>` : ""}
       ${me ? "" : `<button class="mbtn del" data-ad="delete_web" data-t="${un}">Hapus</button>`}
@@ -2654,6 +2702,25 @@ $("view-admin").addEventListener("click", async (e) => {
   if (!b) return;
   const a = b.dataset.ad, t = b.dataset.t;
   let v = "";
+  if (a === "set_avatar") {
+    const pick = document.createElement("input");
+    pick.type = "file"; pick.accept = "image/*";
+    pick.addEventListener("change", async () => {
+      const f = pick.files[0];
+      if (!f) return;
+      try {
+        showToast("Memproses foto…");
+        const image = await compressAvatar(f);
+        const { res, data } = await postJSON("/api/admin/action", { action: "set_avatar", target: t, image }, true);
+        if (!res.ok || !data.ok) throw new Error(data.error || "Gagal mengganti foto.");
+        if (t === currentUser) { myProfile.av = true; myProfile.avv = data.avv; setMyAvatars(); }
+        showToast("Foto @" + t + " diganti.");
+        loadAdmin(); refreshPeople();
+      } catch (err) { showToast(err.message, true); }
+    });
+    pick.click();
+    return;
+  }
   if (a === "set_name") {
     const r = await openModal({ title: "Ubah nama lengkap", text: "Akun @" + t, icon: "edit", ok: "Simpan",
       fields: [{ key: "name", label: "Nama lengkap baru", placeholder: "Contoh: Andi Saputra", required: true }] });
