@@ -780,6 +780,15 @@ html[data-cmy="on"] .fmsg.me .fmeta,html[data-cmy="on"] .ib.me .ibb small{color:
 .cset .rng b{min-width:46px;text-align:right;font-size:14px}
 .cset .sw-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;font-size:14px;font-weight:600}
 .cset .sw-row input{width:20px;height:20px;accent-color:var(--brand)}
+
+/* ===== notifikasi update aplikasi ===== */
+#updBar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 96px);width:min(92vw,420px);z-index:1500;display:flex;align-items:center;gap:10px;padding:12px 12px 12px 16px;border-radius:18px;background:#0b0b0c;color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.3),inset 0 0 0 1px rgba(255,255,255,.14);animation:pop .25s ease}
+#updBar>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+#updBar b{font-size:14.5px}
+#updBar small{font-size:12px;opacity:.7;line-height:1.35}
+#updBar button{border:0;cursor:pointer;font:inherit;font-weight:800;font-size:13px}
+#updBar #updNow{background:#fff;color:#0b0b0c;padding:9px 16px;border-radius:99px}
+#updBar #updLater{background:none;color:#fff;opacity:.6;padding:6px 8px;font-size:15px}
 </style>
 </head>
 <body>
@@ -4784,6 +4793,36 @@ window.addEventListener("popstate", async () => {
   setTimeout(() => showToast("Tekan tombol kembali sekali lagi untuk keluar."), 500);
   setTimeout(() => { navExiting = false; try { history.pushState({ s5: "app" }, ""); } catch (e) {} }, 4000);
 });
+
+/* ---------- notifikasi update aplikasi ---------- */
+let updBase = "", updShown = false, updSnooze = 0;
+async function updTag() {
+  try { const r = await fetch("./index.html", { method: "HEAD", cache: "no-store" }); return r.headers.get("etag") || r.headers.get("last-modified") || ""; } catch (e) { return ""; }
+}
+async function checkUpdate() {
+  if (updShown || !navigator.onLine || Date.now() < updSnooze) return;
+  const t = await updTag();
+  if (!t) return;
+  if (!updBase) { updBase = t; return; }
+  if (t !== updBase) showUpdateBar();
+}
+function showUpdateBar() {
+  if (updShown || $("updBar")) return;
+  updShown = true;
+  const b = document.createElement("div");
+  b.id = "updBar"; b.setAttribute("role", "status");
+  b.innerHTML = '<div><b>Versi baru tersedia</b><small>Perbarui supaya fitur dan perbaikan terbaru aktif.</small></div><button type="button" id="updNow">Perbarui</button><button type="button" id="updLater" aria-label="Nanti">✕</button>';
+  document.body.append(b);
+  $("updNow").onclick = async () => {
+    $("updNow").textContent = "Memperbarui…";
+    try { const r = await navigator.serviceWorker.getRegistration(); if (r) await r.update(); } catch (e) {}
+    location.reload();
+  };
+  $("updLater").onclick = () => { b.remove(); updShown = false; updSnooze = Date.now() + 30 * 60 * 1000; };
+}
+checkUpdate();
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkUpdate(); });
+setInterval(checkUpdate, 10 * 60 * 1000);
 </script>
 </body>
 </html>
