@@ -801,6 +801,15 @@ html[data-cstyle="msg"] .fmsg.me .fname,html[data-cstyle="msg"] .fmsg.me a{color
 .strow .stm .fstar{font-size:11px}
 .strow .schev{margin-left:auto;color:var(--mute);font-size:20px;line-height:1}
 .strow .stun{border:0;background:none;color:#f5b301;font-size:20px;padding:4px 6px;line-height:1}
+.devsec{font-size:12.5px;font-weight:800;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin:18px 4px 8px}
+.devrow{display:flex;align-items:center;gap:12px;padding:14px;margin-bottom:8px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m)}
+.devrow .dvi{width:42px;height:42px;border-radius:12px;background:var(--brand-soft);display:grid;place-items:center;font-size:21px;flex:0 0 auto}
+.devrow .dvt{flex:1;min-width:0}
+.devrow .dvt b{display:block;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.devrow .dvt small{display:block;font-size:12px;color:var(--mute);line-height:1.4}
+.devrow .dvon{color:#16a34a;font-weight:700}
+.devrow .dvout{border:1px solid var(--red);background:var(--red-soft);color:var(--red);font-weight:800;font-size:12.5px;padding:8px 12px;border-radius:99px;flex:0 0 auto}
+.devall{width:100%;margin-top:10px;padding:13px;border-radius:99px;border:1px solid var(--red);background:var(--red-soft);color:var(--red);font-weight:800;font-size:14px}
 .stempty{text-align:center;color:var(--mute);padding:90px 20px 0;font-size:14px;line-height:1.5}
 .stempty .stico{width:64px;height:64px;border-radius:50%;background:#25d366;border:2px solid var(--ink);display:grid;place-items:center;margin:0 auto 16px;font-size:30px;color:var(--ink)}
 .stempty b{display:block;color:var(--ink);font-size:17px;margin-bottom:6px}
@@ -994,6 +1003,7 @@ html[data-cstyle="msg"] .fmsg.me .fname,html[data-cstyle="msg"] .fmsg.me a{color
 <button type="button" class="menu-row" data-sub="stars"><span class="mi">⭐</span><span class="mt"><b>Pesan berbintang</b><small id="starCount">Simpan info penting</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="notif"><span class="mi">🔔</span><span class="mt"><b>Notifikasi</b><small id="notifSub">Belum aktif</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="keamanan"><span class="mi">🔐</span><span class="mt"><b>Keamanan</b><small>Ganti password</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+<button type="button" class="menu-row" data-sub="perangkat"><span class="mi">📱</span><span class="mt"><b>Perangkat</b><small id="devCount">Lihat dan keluarkan perangkat yang login</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="pasang" id="rowInstall"><span class="mi">📲</span><span class="mt"><b>Pasang aplikasi</b><small>Tambahkan ke layar utama</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row hidden" id="setAdminBtn" data-go="admin"><span class="mi">🛡️</span><span class="mt"><b>Panel admin</b><small>Akun, blokir, log, forum</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 </div>
@@ -1035,6 +1045,7 @@ html[data-cstyle="msg"] .fmsg.me .fname,html[data-cstyle="msg"] .fmsg.me a{color
 <p style="color:var(--mute);font-size:12.5px;margin-top:10px">Foto orang lain selalu tampil. Pengaturan berlaku untuk Forum Kelas dan chat Admin. Disimpan di HP ini saja.</p>
 </div></div>
 <div class="subpane hidden" data-sub="stars"><div id="starList"></div></div>
+<div class="subpane hidden" data-sub="perangkat"><div id="devList"></div></div>
 <div class="subpane hidden" data-sub="notif"><div class="card"><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Dapat pemberitahuan materi baru dan pengingat deadline (24 jam, 3 jam, 1 jam, dan 5 menit sebelumnya) walau web ditutup. Tanda selesai yang kamu pasang hanya berlaku di tampilan web, jadi notifikasi tugas tetap datang dari server.</p><button type="button" class="btn btn-soft" id="notifBtn">Aktifkan notifikasi</button></div><div class="card"><h3>Pengingat jadwal kuliah</h3><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Pemberitahuan sebelum kelas mulai. Berjalan selama aplikasi terbuka atau masih aktif di latar belakang.</p>
 <label style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px"><span>Aktifkan pengingat</span><input type="checkbox" id="clsOn"></label>
 <label style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span>Ingatkan</span><select class="input" id="clsLead" style="width:auto"><option value="5">5 menit sebelum</option><option value="10">10 menit sebelum</option><option value="15">15 menit sebelum</option><option value="30">30 menit sebelum</option></select></label></div>
@@ -1339,7 +1350,7 @@ document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click"
 document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => switchView(b.dataset.go)));
 
 /* ---------- Akun: daftar menu + sub-halaman (gaya WhatsApp) ---------- */
-const SUB_TITLES = { profil: "Profil", tampilan: "Tampilan", chat: "Tampilan chat", stars: "Pesan berbintang", notif: "Notifikasi", keamanan: "Keamanan", pasang: "Pasang aplikasi" };
+const SUB_TITLES = { profil: "Profil", tampilan: "Tampilan", chat: "Tampilan chat", stars: "Pesan berbintang", perangkat: "Perangkat", notif: "Notifikasi", keamanan: "Keamanan", pasang: "Pasang aplikasi" };
 function openSub(name) {
   $("setMain").classList.add("hidden");
   $("setSub").classList.remove("hidden");
@@ -2316,6 +2327,62 @@ document.addEventListener("click", (e) => {
   if (e.target.closest("[data-sun]")) { e.stopPropagation(); starsSet(a.filter((y) => y.k !== k)); starMark(x.src, x.id, false); renderStars(); showToast("Bintang dihapus"); return; }
   if (e.target.closest("a")) return;
   starGo(x);
+});
+
+/* ---------- perangkat yang login ---------- */
+let devList = [];
+const devIcon = (n) => (/iphone|android|redmi|xiaomi|samsung|oppo|vivo|realme|poco|pixel|mobile|ios/i.test(n || "") ? "📱" : /ipad|tablet/i.test(n || "") ? "📲" : "💻");
+function devSeen(x) {
+  if (x.current) return '<span class="dvon">Aktif sekarang</span>';
+  const t = new Date(x.last_seen || x.created || 0).getTime();
+  if (!t) return "";
+  const m = Math.round((Date.now() - t) / 60000);
+  if (m < 5) return '<span class="dvon">Aktif sekarang</span>';
+  return "Terakhir aktif " + new Date(t).toLocaleDateString("id-ID", { day: "numeric", month: "short" }) + ", " + new Date(t).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+}
+function devRow(x) {
+  const ip = x.ip ? "IP " + esc(x.ip) + " · " : "";
+  return `<div class="devrow"><span class="dvi">${devIcon(x.device)}</span><div class="dvt"><b>${esc(x.device || "Perangkat tidak dikenal")}</b><small>${ip}${devSeen(x)}</small></div>${x.current ? "" : `<button type="button" class="dvout" data-dvout="${esc(x.id)}">Keluarkan</button>`}</div>`;
+}
+function renderDevices() {
+  const box = $("devList"); if (!box) return;
+  const cur = devList.filter((x) => x.current), oth = devList.filter((x) => !x.current);
+  if ($("devCount")) $("devCount").textContent = devList.length ? devList.length + " perangkat login" : "Lihat dan keluarkan perangkat yang login";
+  box.innerHTML = (cur.length ? '<div class="devsec">Perangkat ini</div>' + cur.map(devRow).join("") : "")
+    + '<div class="devsec">Perangkat lain</div>'
+    + (oth.length ? oth.map(devRow).join("") + '<button type="button" class="devall" id="devAll">Keluarkan semua perangkat lain</button>'
+      : '<p class="stempty" style="padding:24px 12px 0">Tidak ada perangkat lain yang sedang login.</p>');
+}
+async function loadDevices() {
+  const box = $("devList"); if (!box) return;
+  box.innerHTML = '<p class="stempty" style="padding:40px 12px 0">Memuat…</p>';
+  try {
+    const res = await apiCall("/api/sessions");
+    if (res.status === 404) { box.innerHTML = '<p class="stempty" style="padding:40px 12px 0"><b>Fitur ini belum aktif di server</b>Server perlu diperbarui dulu supaya daftar perangkat bisa dimuat.</p>'; return; }
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat perangkat.");
+    devList = d.sessions || [];
+    renderDevices();
+  } catch (e) { box.innerHTML = '<p class="stempty" style="padding:40px 12px 0">' + esc(e.message) + "</p>"; }
+}
+async function devRevoke(path, body, okMsg) {
+  try {
+    const { res, data } = await postJSON(path, body, true);
+    if (!res.ok || !data.ok) throw new Error(data.error || "Gagal mengeluarkan perangkat.");
+    showToast(okMsg);
+    loadDevices();
+  } catch (e) { showToast(e.message, true); }
+}
+document.addEventListener("click", (e) => {
+  const row = e.target.closest(".menu-row[data-sub]");
+  if (row && row.dataset.sub === "perangkat") loadDevices();
+  const out = e.target.closest("[data-dvout]");
+  if (out) {
+    const x = devList.find((y) => String(y.id) === out.dataset.dvout);
+    if (x && confirm("Keluarkan \"" + (x.device || "perangkat ini") + "\" dari akunmu?")) devRevoke("/api/sessions/revoke", { id: x.id }, "Perangkat dikeluarkan");
+    return;
+  }
+  if (e.target.closest("#devAll") && confirm("Keluarkan semua perangkat lain? Hanya perangkat ini yang tetap login.")) devRevoke("/api/sessions/revoke-others", {}, "Semua perangkat lain dikeluarkan");
 });
 
 /* ---------- upload dengan progres ---------- */
