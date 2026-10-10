@@ -1,4 +1,4 @@
-/* Service worker Semester 5: cache cangkang aplikasi + notifikasi push */
+/* Service worker Study Hub: cache cangkang aplikasi + notifikasi push */
 const CACHE = "s5-shell-v1";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon-192.png"];
 
@@ -33,7 +33,7 @@ self.addEventListener("fetch", (e) => {
 self.addEventListener("push", (e) => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; } catch (_) { d = { body: e.data ? e.data.text() : "" }; }
-  const show = () => self.registration.showNotification(d.title || "Semester 5", {
+  const show = () => self.registration.showNotification(d.title || "Study Hub", {
     body: d.body || "",
     icon: "icon-192.png",
     badge: "icon-192.png",
