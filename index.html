@@ -2354,20 +2354,56 @@ function renderDevices() {
     + (oth.length ? oth.map(devRow).join("") + '<button type="button" class="devall" id="devAll">Keluarkan semua perangkat lain</button>'
       : '<p class="stempty" style="padding:24px 12px 0">Tidak ada perangkat lain yang sedang login.</p>');
 }
-async function loadDevices() {
+let devTimer = null, devSig = "";
+async function loadDevices(silent) {
   const box = $("devList"); if (!box) return;
-  box.innerHTML = '<p class="stempty" style="padding:40px 12px 0">Memuat…</p>';
+  if (!silent) box.innerHTML = '<p class="stempty" style="padding:40px 12px 0">Memuat…</p>';
   try {
     const res = await apiCall("/api/sessions" + (devModel ? "?model=" + encodeURIComponent(devModel) : ""));
-    if (res.status === 404) { box.innerHTML = '<p class="stempty" style="padding:40px 12px 0"><b>Fitur ini belum aktif di server</b>Server perlu diperbarui dulu supaya daftar perangkat bisa dimuat.</p>'; return; }
+    if (res.status === 404) { if (!silent) box.innerHTML = '<p class="stempty" style="padding:40px 12px 0"><b>Fitur ini belum aktif di server</b>Server perlu diperbarui dulu supaya daftar perangkat bisa dimuat.</p>'; return; }
     const d = await res.json().catch(() => ({}));
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat perangkat.");
-    devList = d.sessions || [];
+    const sig = JSON.stringify(d.sessions || []);
+    if (silent && sig === devSig) return;      // tidak ada perubahan: jangan gambar ulang
+    devSig = sig; devList = d.sessions || [];
     renderDevices();
   } catch (e) {
+    if (silent) return;
     const net = /failed to fetch|networkerror|load failed/i.test(e.message || "");
     box.innerHTML = '<p class="stempty" style="padding:40px 12px 0">' + (net ? "<b>Daftar perangkat belum bisa dimuat</b>Server belum mendukung fitur ini, atau koneksi ke server sedang bermasalah. Coba lagi nanti." : esc(e.message)) + "</p>";
   }
+}
+/* perbarui otomatis selama halaman Perangkat terbuka: login baru atau perangkat yang keluar langsung terlihat */
+function devStart() {
+  clearInterval(devTimer);
+  devTimer = setInterval(() => {
+    const pane = document.querySelector('#setSub .subpane[data-sub="perangkat"]');
+    const open = activeView === "settings" && pane && !pane.classList.contains("hidden") && !$("setSub").classList.contains("hidden");
+    if (!open) { clearInterval(devTimer); devTimer = null; return; }
+    if (!document.hidden) loadDevices(true);
+  }, 3000);
+}
+function devDialog(o) {
+  return new Promise((resolve) => {
+    const bg = document.createElement("div");
+    bg.className = "modal-bg";
+    bg.innerHTML = `<div class="modal" role="dialog" aria-modal="true">
+      <div class="m-ic ${o.danger ? "danger" : ""}" style="font-size:24px">${o.icon || "📱"}</div>
+      <h3>${esc(o.title)}</h3>
+      ${o.text ? `<p>${esc(o.text)}</p>` : ""}
+      ${o.input ? `<input class="input" id="devDlgIn" maxlength="30" autocomplete="off" placeholder="${esc(o.placeholder || "")}" value="${esc(o.value || "")}">` : ""}
+      <div class="m-btns"><button type="button" class="btn btn-line" data-m="cancel">Batal</button><button type="button" class="btn ${o.danger ? "btn-danger" : "btn-primary"}" data-m="ok">${esc(o.ok || "OK")}</button></div></div>`;
+    document.body.appendChild(bg);
+    const inp = bg.querySelector("#devDlgIn");
+    const done = (v) => { bg.remove(); resolve(v); };
+    const ok = () => done(inp ? inp.value : true);
+    bg.addEventListener("click", (e) => {
+      if (e.target === bg || e.target.closest('[data-m="cancel"]')) return done(null);
+      if (e.target.closest('[data-m="ok"]')) ok();
+    });
+    if (inp) { inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); ok(); } }); setTimeout(() => { inp.focus(); inp.select(); }, 60); }
+    try { history.replaceState({ s5: "base" }, ""); history.pushState({ s5: "app" }, ""); } catch (e) {}
+  });
 }
 async function devRevoke(path, body, okMsg) {
   try {
@@ -2375,31 +2411,37 @@ async function devRevoke(path, body, okMsg) {
     if (!res.ok || !data.ok) throw new Error(data.error || "Gagal mengeluarkan perangkat.");
     if (data.token) { token = data.token; localStorage.setItem("semester5_token", token); }
     showToast(okMsg);
-    loadDevices();
+    loadDevices(true);
   } catch (e) { showToast(e.message, true); }
 }
-document.addEventListener("click", (e) => {
+document.addEventListener("click", async (e) => {
   const row = e.target.closest(".menu-row[data-sub]");
-  if (row && row.dataset.sub === "perangkat") loadDevices();
+  if (row && row.dataset.sub === "perangkat") { devSig = ""; loadDevices(); devStart(); }
   const out = e.target.closest("[data-dvout]");
   if (out) {
     const x = devList.find((y) => String(y.id) === out.dataset.dvout);
-    if (x && confirm("Keluarkan \"" + (x.device || "perangkat ini") + "\" dari akunmu?")) devRevoke("/api/sessions/revoke", { id: x.id }, "Perangkat dikeluarkan");
+    if (!x) return;
+    const ok = await devDialog({ icon: "🚪", danger: true, title: "Keluarkan perangkat?", text: "“" + (x.device || "Perangkat ini") + "” akan langsung keluar dari akunmu dan harus login lagi.", ok: "Keluarkan" });
+    if (ok) devRevoke("/api/sessions/revoke", { id: x.id }, "Perangkat dikeluarkan");
     return;
   }
   const nm = e.target.closest("[data-dvname]");
   if (nm) {
     const x = devList.find((y) => String(y.id) === nm.dataset.dvname);
     if (!x) return;
-    const v = prompt("Nama perangkat (kosongkan untuk nama otomatis):", x.custom ? x.device : "");
+    const v = await devDialog({ icon: "✏️", title: "Ganti nama perangkat", text: "Kosongkan untuk memakai nama otomatis.", input: true, value: x.custom ? x.device : "", placeholder: "Contoh: Redmi Note 11", ok: "Simpan" });
     if (v === null) return;
-    postJSON("/api/sessions/rename", { id: x.id, name: v }, true).then(({ res, data }) => {
+    try {
+      const { res, data } = await postJSON("/api/sessions/rename", { id: x.id, name: v }, true);
       if (!res.ok || !data.ok) throw new Error(data.error || "Gagal mengganti nama.");
-      loadDevices();
-    }).catch((err) => showToast(err.message, true));
+      loadDevices(true);
+    } catch (err) { showToast(err.message, true); }
     return;
   }
-  if (e.target.closest("#devAll") && confirm("Keluarkan semua perangkat lain? Hanya perangkat ini yang tetap login.")) devRevoke("/api/sessions/revoke-others", {}, "Semua perangkat lain dikeluarkan");
+  if (e.target.closest("#devAll")) {
+    const ok = await devDialog({ icon: "🔒", danger: true, title: "Keluarkan semua perangkat lain?", text: "Semua perangkat lain akan langsung keluar. Hanya perangkat ini yang tetap login.", ok: "Keluarkan semua" });
+    if (ok) devRevoke("/api/sessions/revoke-others", {}, "Semua perangkat lain dikeluarkan");
+  }
 });
 
 /* ---------- upload dengan progres ---------- */
