@@ -1505,7 +1505,7 @@ $("authForm").addEventListener("submit", async (e) => {
       $("nim").value = "";
     } else {
       btn.textContent = "Memeriksa data…";
-      const { res, data } = await postJSON("/api/login", { username, password });
+      const { res, data } = await postJSON("/api/login", { username, password, model: devModel });
       if (!res.ok || !data.ok) throw new Error(data.error || "Username atau password salah.");
       token = data.token;
       localStorage.setItem("semester5_token", token);
@@ -2330,7 +2330,8 @@ document.addEventListener("click", (e) => {
 });
 
 /* ---------- perangkat yang login ---------- */
-let devList = [];
+let devList = [], devModel = "";
+try { if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) navigator.userAgentData.getHighEntropyValues(["model"]).then((v) => { devModel = String(v.model || "").trim(); }).catch(() => {}); } catch (e) {}
 const devIcon = (n) => (/iphone|android|redmi|xiaomi|samsung|oppo|vivo|realme|poco|pixel|mobile|ios/i.test(n || "") ? "📱" : /ipad|tablet/i.test(n || "") ? "📲" : "💻");
 function devSeen(x) {
   if (x.current) return '<span class="dvon">Aktif sekarang</span>';
@@ -2342,7 +2343,7 @@ function devSeen(x) {
 }
 function devRow(x) {
   const ip = x.ip ? "IP " + esc(x.ip) + " · " : "";
-  return `<div class="devrow"><span class="dvi">${devIcon(x.device)}</span><div class="dvt"><b>${esc(x.device || "Perangkat tidak dikenal")}</b><small>${ip}${devSeen(x)}</small></div>${x.current ? "" : `<button type="button" class="dvout" data-dvout="${esc(x.id)}">Keluarkan</button>`}</div>`;
+  return `<div class="devrow"><span class="dvi">${devIcon(x.device)}</span><div class="dvt" data-dvname="${esc(x.id)}"><b>${esc(x.device || "Perangkat tidak dikenal")} ✎</b><small>${ip}${devSeen(x)}</small></div>${x.current ? "" : `<button type="button" class="dvout" data-dvout="${esc(x.id)}">Keluarkan</button>`}</div>`;
 }
 function renderDevices() {
   const box = $("devList"); if (!box) return;
@@ -2357,18 +2358,22 @@ async function loadDevices() {
   const box = $("devList"); if (!box) return;
   box.innerHTML = '<p class="stempty" style="padding:40px 12px 0">Memuat…</p>';
   try {
-    const res = await apiCall("/api/sessions");
+    const res = await apiCall("/api/sessions" + (devModel ? "?model=" + encodeURIComponent(devModel) : ""));
     if (res.status === 404) { box.innerHTML = '<p class="stempty" style="padding:40px 12px 0"><b>Fitur ini belum aktif di server</b>Server perlu diperbarui dulu supaya daftar perangkat bisa dimuat.</p>'; return; }
     const d = await res.json().catch(() => ({}));
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat perangkat.");
     devList = d.sessions || [];
     renderDevices();
-  } catch (e) { box.innerHTML = '<p class="stempty" style="padding:40px 12px 0">' + esc(e.message) + "</p>"; }
+  } catch (e) {
+    const net = /failed to fetch|networkerror|load failed/i.test(e.message || "");
+    box.innerHTML = '<p class="stempty" style="padding:40px 12px 0">' + (net ? "<b>Daftar perangkat belum bisa dimuat</b>Server belum mendukung fitur ini, atau koneksi ke server sedang bermasalah. Coba lagi nanti." : esc(e.message)) + "</p>";
+  }
 }
 async function devRevoke(path, body, okMsg) {
   try {
     const { res, data } = await postJSON(path, body, true);
     if (!res.ok || !data.ok) throw new Error(data.error || "Gagal mengeluarkan perangkat.");
+    if (data.token) { token = data.token; localStorage.setItem("semester5_token", token); }
     showToast(okMsg);
     loadDevices();
   } catch (e) { showToast(e.message, true); }
@@ -2380,6 +2385,18 @@ document.addEventListener("click", (e) => {
   if (out) {
     const x = devList.find((y) => String(y.id) === out.dataset.dvout);
     if (x && confirm("Keluarkan \"" + (x.device || "perangkat ini") + "\" dari akunmu?")) devRevoke("/api/sessions/revoke", { id: x.id }, "Perangkat dikeluarkan");
+    return;
+  }
+  const nm = e.target.closest("[data-dvname]");
+  if (nm) {
+    const x = devList.find((y) => String(y.id) === nm.dataset.dvname);
+    if (!x) return;
+    const v = prompt("Nama perangkat (kosongkan untuk nama otomatis):", x.custom ? x.device : "");
+    if (v === null) return;
+    postJSON("/api/sessions/rename", { id: x.id, name: v }, true).then(({ res, data }) => {
+      if (!res.ok || !data.ok) throw new Error(data.error || "Gagal mengganti nama.");
+      loadDevices();
+    }).catch((err) => showToast(err.message, true));
     return;
   }
   if (e.target.closest("#devAll") && confirm("Keluarkan semua perangkat lain? Hanya perangkat ini yang tetap login.")) devRevoke("/api/sessions/revoke-others", {}, "Semua perangkat lain dikeluarkan");
