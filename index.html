@@ -929,7 +929,6 @@ html[data-cmy="on"] .fmsg.me .fmeta,html[data-cmy="on"] .ib.me .ibb small{color:
 <button type="button" class="menu-row" data-sub="tampilan"><span class="mi">🎨</span><span class="mt"><b>Tampilan</b><small>Tema dan warna aplikasi</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="chat"><span class="mi">💬</span><span class="mt"><b>Tampilan chat</b><small>Ukuran bubble, teks, gaya WhatsApp</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="stars"><span class="mi">⭐</span><span class="mt"><b>Pesan berbintang</b><small id="starCount">Simpan info penting</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
-<button type="button" class="menu-row" data-sub="offline"><span class="mi">📴</span><span class="mt"><b>Mode offline</b><small>Lihat materi tanpa internet</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="notif"><span class="mi">🔔</span><span class="mt"><b>Notifikasi</b><small id="notifSub">Belum aktif</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="keamanan"><span class="mi">🔐</span><span class="mt"><b>Keamanan</b><small>Ganti password</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="pasang" id="rowInstall"><span class="mi">📲</span><span class="mt"><b>Pasang aplikasi</b><small>Tambahkan ke layar utama</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
@@ -955,12 +954,6 @@ html[data-cmy="on"] .fmsg.me .fmeta,html[data-cmy="on"] .ib.me .ibb small{color:
 <div class="fday">Hari ini</div>
 <div class="fmsg"><span data-pv="1"><span class="av s">NC</span></span><div class="fbub"><div class="fname">nisa can<small>@nisa</small></div><div class="ftext">makasiiiii man temannn</div><div class="fmeta"><span>14.30</span></div></div></div>
 <div class="subpane hidden" data-sub="stars"><div id="starList"></div></div>
-<div class="subpane hidden cset" data-sub="offline"><div class="card">
-<label class="sw-row"><span>Simpan data untuk dilihat offline</span><input type="checkbox" id="cbOff"></label>
-<p style="color:var(--mute);font-size:13px;margin:0 0 12px">Daftar topik, teks materi, dan pesan forum yang pernah kamu buka disimpan di HP ini. Saat tidak ada internet, aplikasi menampilkan data tersimpan itu. File/gambar besar tidak ikut tersimpan.</p>
-<p id="offStat" style="font-size:13.5px;font-weight:700;margin:0 0 12px"></p>
-<button type="button" class="btn btn-line" id="offClearBtn" style="width:100%">Hapus data tersimpan</button>
-</div></div>
 <div class="fmsg me"><div class="fbub"><div class="ftext">Sama-sama, nanti materinya aku upload ya</div><div class="fmeta"><span>14.31</span></div></div><span class="myav"><span class="av s">KM</span></span></div>
 <div class="fmsg"><span data-pv="1"><span class="av s">MB</span></span><div class="fbub"><div class="fname">Mangku<small>@adi</small></div><div class="ftext">Siap, ditunggu 👍</div><div class="fmeta"><span><i class="fed">diedit</i> · 16.27</span></div></div></div>
 </div></div>
@@ -1154,7 +1147,7 @@ $("maintAdmin").addEventListener("click", () => {
 
 /* ---------- mode offline: cache data baca ---------- */
 const OFF_PATHS = /^\/api\/(me$|topics$|materials\?|forum\/messages\?after=0$|forum\/group$|forum\/members$)/;
-const offOn = () => localStorage.getItem("s5_off") !== "0";
+const offOn = () => true;
 const offKey = (path) => "s5c:" + String(token || "").slice(-12) + ":" + path;
 function offStale(ts) {
   const b = $("offline"); if (!b) return;
@@ -1179,12 +1172,6 @@ async function offFetch(path, options = {}) {
   return res;
 }
 function offClear() { Object.keys(localStorage).filter((k) => k.startsWith("s5c:")).forEach((k) => localStorage.removeItem(k)); }
-function offStats() {
-  let n = 0, sz = 0;
-  Object.keys(localStorage).filter((k) => k.startsWith("s5c:")).forEach((k) => { n++; sz += (localStorage.getItem(k) || "").length; });
-  if ($("offStat")) $("offStat").textContent = n ? n + " item tersimpan (" + Math.max(1, Math.round(sz / 1024)) + " KB)" : "Belum ada data tersimpan";
-  if ($("cbOff")) $("cbOff").checked = offOn();
-}
 async function apiCall(path, options = {}) {
   options.headers = options.headers || {};
   if (token) options.headers.Authorization = "Bearer " + token;
@@ -1251,7 +1238,7 @@ document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click"
 document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => switchView(b.dataset.go)));
 
 /* ---------- Akun: daftar menu + sub-halaman (gaya WhatsApp) ---------- */
-const SUB_TITLES = { profil: "Profil", tampilan: "Tampilan", chat: "Tampilan chat", stars: "Pesan berbintang", offline: "Mode offline", notif: "Notifikasi", keamanan: "Keamanan", pasang: "Pasang aplikasi" };
+const SUB_TITLES = { profil: "Profil", tampilan: "Tampilan", chat: "Tampilan chat", stars: "Pesan berbintang", notif: "Notifikasi", keamanan: "Keamanan", pasang: "Pasang aplikasi" };
 function openSub(name) {
   $("setMain").classList.add("hidden");
   $("setSub").classList.remove("hidden");
@@ -1611,6 +1598,7 @@ async function initApp() {
     renderJadwal();
     await loadTopics();
     switchView("home");
+    navGuardInit();
     clearInterval(clockTimer);
     clearInterval(syncTimer);
     tickClock();
@@ -2196,7 +2184,6 @@ function renderStars() {
 document.addEventListener("click", (e) => {
   const row = e.target.closest(".menu-row[data-sub]");
   if (row && row.dataset.sub === "stars") renderStars();
-  if (row && row.dataset.sub === "offline") offStats();
   const b = e.target.closest("[data-sact]");
   if (b) {
     const k = b.closest(".stcard").dataset.sid, a = starsGet(), x = a.find((y) => y.k === k);
@@ -2204,9 +2191,7 @@ document.addEventListener("click", (e) => {
     if (b.dataset.sact === "copy") copyText(x.text);
     else { starsSet(a.filter((y) => y.k !== k)); starMark(x.src, x.id, false); renderStars(); }
   }
-  if (e.target.closest("#offClearBtn")) { offClear(); offStats(); showToast("Data tersimpan dihapus"); }
 });
-$("cbOff").addEventListener("change", (e) => { localStorage.setItem("s5_off", e.target.checked ? "1" : "0"); if (!e.target.checked) offClear(); offStats(); });
 
 /* ---------- upload dengan progres ---------- */
 function xhrUpload(fd) {
@@ -4761,6 +4746,43 @@ document.addEventListener("contextmenu", (e) => {
   const t = (inThr || []).find((x) => x.pid === pid);
   showProfile(pid, t || null);
 }, true);
+
+/* ---------- tombol kembali HP: mundur satu langkah, di beranda tanya dulu sebelum keluar ---------- */
+let navInited = false, navExiting = false;
+function navGuardInit() {
+  if (navInited) return;
+  navInited = true;
+  try { history.replaceState({ s5: "base" }, ""); history.pushState({ s5: "app" }, ""); } catch (e) {}
+}
+function navBack() {
+  const last = (sel) => { const l = document.querySelectorAll(sel); return l[l.length - 1] || null; };
+  const md = last(".modal-bg");
+  if (md) { const c = md.querySelector('[data-m="cancel"]'); if (c) c.click(); return true; }
+  const lb = last(".lb"); if (lb) { lb.remove(); return true; }
+  const sh = last(".rsheet-bg,.usheet-bg,.fgsheet");
+  if (sh) { sh.dispatchEvent(new MouseEvent("click", { bubbles: true })); if (document.body.contains(sh)) sh.remove(); return true; }
+  if (fPressOpen) { closeFPress(true); return true; }
+  if (inPressOv) { inClosePress(true); return true; }
+  if (fgEl && fgEl.classList.contains("show")) { fgEl.classList.remove("show"); return true; }
+  if (inEl && inEl.classList.contains("show")) { const b = $("inBack"); if (b) b.click(); else inClose(); return true; }
+  if (activeView === "forum") { switchView("chat"); return true; }
+  if (!$("setSub").classList.contains("hidden")) { closeSub(); return true; }
+  if (!$("materialSelection").classList.contains("hidden")) { backToTopics(); return true; }
+  if (activeView !== "home") { switchView("home"); return true; }
+  return false;
+}
+window.addEventListener("popstate", async () => {
+  if (!navInited || navExiting || $("app").classList.contains("hidden")) return;
+  try { history.pushState({ s5: "app" }, ""); } catch (e) {}
+  if (navBack()) return;
+  const ok = await openModal({ title: "Keluar dari aplikasi?", text: "Kamu mau benar-benar keluar dari aplikasi ini?", ok: "Ya, keluar", cancel: "Tidak", icon: "shield" });
+  if (!ok) return;
+  navExiting = true;
+  history.back();
+  setTimeout(() => { try { window.close(); } catch (e) {} }, 150);
+  setTimeout(() => showToast("Tekan tombol kembali sekali lagi untuk keluar."), 500);
+  setTimeout(() => { navExiting = false; try { history.pushState({ s5: "app" }, ""); } catch (e) {} }, 4000);
+});
 </script>
 </body>
 </html>
