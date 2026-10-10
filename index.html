@@ -712,22 +712,58 @@ html[data-csize="l"]{--cb-py:11px;--cb-px:15px;--cb-r:19px;--cb-max:88%;--cb-gap
 .fmsg>span.myav{display:none}
 html[data-cav="on"] .fmsg>span.myav{display:inline-block;align-self:flex-end;margin-bottom:2px}
 /* gaya WhatsApp */
-html[data-cstyle="wa"]{--wa-in:#fff;--wa-out:#d9fdd3;--wa-bg:#efeae2;--wa-ink:#111b21;--wa-time:#667781}
-html[data-cstyle="wa"][data-theme="dark"]{--wa-in:#202c33;--wa-out:#005c4b;--wa-bg:#0b141a;--wa-ink:#e9edef;--wa-time:#8696a0}
-@media (prefers-color-scheme:dark){html[data-cstyle="wa"]:not([data-theme]){--wa-in:#202c33;--wa-out:#005c4b;--wa-bg:#0b141a;--wa-ink:#e9edef;--wa-time:#8696a0}}
-html[data-cstyle="wa"] .fmsgs,html[data-cstyle="wa"] .cprev,html[data-cstyle="wa"] .inlist{background-color:var(--wa-bg);border-color:transparent}
-html[data-cstyle="wa"][data-cwall="on"] .fmsgs,html[data-cstyle="wa"][data-cwall="on"] .cprev,html[data-cstyle="wa"][data-cwall="on"] .inlist{background-image:radial-gradient(rgba(127,127,127,.13) 1.3px,transparent 1.6px);background-size:20px 20px}
-html[data-cstyle="wa"] .inlist{padding:8px 10px}
-html[data-cstyle="wa"] .fbub,html[data-cstyle="wa"] .ibb{background:var(--wa-in);color:var(--wa-ink);border:0;box-shadow:0 1px .5px rgba(11,20,26,.14);border-radius:8px;border-top-left-radius:0}
-html[data-cstyle="wa"] .fmsg.me .fbub,html[data-cstyle="wa"] .ib.me .ibb{background:var(--wa-out);border-radius:8px;border-top-right-radius:0}
-html[data-cstyle="wa"] .fbub::before,html[data-cstyle="wa"] .ibb::before{content:"";position:absolute;top:0;left:-7px;width:8px;height:13px;background:var(--wa-in);clip-path:polygon(100% 0,100% 100%,0 0)}
-html[data-cstyle="wa"] .fmsg.me .fbub::before,html[data-cstyle="wa"] .ib.me .ibb::before{left:auto;right:-7px;background:var(--wa-out);clip-path:polygon(0 0,100% 0,0 100%)}
-html[data-cstyle="wa"] .fname{color:var(--brand)}
-html[data-cstyle="wa"] .fname.crown{color:var(--brand)}
-html[data-cstyle="wa"] .fmeta,html[data-cstyle="wa"] .ibb small{color:var(--wa-time)}
-html[data-cstyle="wa"] .fmeta{justify-content:flex-end;gap:6px}
-html[data-cstyle="wa"] .fquote{background:rgba(127,127,127,.14);border-radius:6px;padding:4px 8px}
-html[data-cstyle="wa"] .fday{background:var(--wa-in);color:var(--wa-time);box-shadow:0 1px .5px rgba(11,20,26,.13);text-transform:uppercase;letter-spacing:.02em}
+html[data-cstyle="wa"]{--wa-in:#fff;--wa-out:#d9fdd3;--wa-bg:#efeae2;--wa-ink:#111b21;--wa-time:#667781;--wa-meink:#111b21;--wa-metime:#667781}
+html[data-cstyle="wa"][data-theme="dark"]{--wa-in:#202c33;--wa-out:#005c4b;--wa-bg:#0b141a;--wa-ink:#e9edef;--wa-time:#8696a0;--wa-meink:#e9edef;--wa-metime:#8696a0}
+@media (prefers-color-scheme:dark){html[data-cstyle="wa"]:not([data-theme]){--wa-in:#202c33;--wa-out:#005c4b;--wa-bg:#0b141a;--wa-ink:#e9edef;--wa-time:#8696a0;--wa-meink:#e9edef;--wa-metime:#8696a0}}
+html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .fmsgs,html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .cprev,html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .inlist{background-color:var(--wa-bg);border-color:transparent}
+html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"])[data-cwall="on"] .fmsgs,html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"])[data-cwall="on"] .cprev,html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"])[data-cwall="on"] .inlist{background-image:radial-gradient(rgba(127,127,127,.13) 1.3px,transparent 1.6px);background-size:20px 20px}
+html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .inlist{padding:8px 10px}
+html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .fbub,html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .ibb{background:var(--wa-in);color:var(--wa-ink);border:0;box-shadow:0 1px .5px rgba(11,20,26,.14);border-radius:8px;border-top-left-radius:0}
+html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .fmsg.me .fbub,html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .ib.me .ibb{background:var(--wa-out);border-radius:8px;border-top-right-radius:0}
+html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .fbub::before,html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .ibb::before{content:"";position:absolute;top:0;left:-7px;width:8px;height:13px;background:var(--wa-in);clip-path:polygon(100% 0,100% 100%,0 0)}
+html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .fmsg.me .fbub::before,html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .ib.me .ibb::before{left:auto;right:-7px;background:var(--wa-out);clip-path:polygon(0 0,100% 0,0 100%)}
+html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .fname{color:var(--brand)}
+html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .fname.crown{color:var(--brand)}
+html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .fmeta,html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .ibb small{color:var(--wa-time)}
+html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .fmeta{justify-content:flex-end;gap:6px}
+html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .fquote{background:rgba(127,127,127,.14);border-radius:6px;padding:4px 8px}
+html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .fday{background:var(--wa-in);color:var(--wa-time);box-shadow:0 1px .5px rgba(11,20,26,.13);text-transform:uppercase;letter-spacing:.02em}
+
+html[data-cstyle="ios"]{--wa-in:#e9e9eb;--wa-out:#0b84fe;--wa-bg:var(--surface);--wa-ink:#000;--wa-time:#8e8e93;--wa-meink:#fff;--wa-metime:rgba(255,255,255,.75)}
+html[data-cstyle="ios"][data-theme="dark"]{--wa-in:#262629;--wa-out:#0a84ff;--wa-ink:#fff;--wa-time:#98989f}
+@media (prefers-color-scheme:dark){html[data-cstyle="ios"]:not([data-theme]){--wa-in:#262629;--wa-out:#0a84ff;--wa-ink:#fff;--wa-time:#98989f}}
+html[data-cstyle="tg"]{--wa-in:#fff;--wa-out:#effdde;--wa-bg:#c9dcc0;--wa-ink:#000;--wa-time:#8c99a3;--wa-meink:#000;--wa-metime:#5aa85d}
+html[data-cstyle="tg"][data-theme="dark"]{--wa-in:#182533;--wa-out:#2b5278;--wa-bg:#0e1621;--wa-ink:#fff;--wa-time:#6d7f8f;--wa-meink:#fff;--wa-metime:#7da8d3}
+@media (prefers-color-scheme:dark){html[data-cstyle="tg"]:not([data-theme]){--wa-in:#182533;--wa-out:#2b5278;--wa-bg:#0e1621;--wa-ink:#fff;--wa-time:#6d7f8f;--wa-meink:#fff;--wa-metime:#7da8d3}}
+html:is([data-cstyle="ios"],[data-cstyle="tg"]) .fbub::before,html:is([data-cstyle="ios"],[data-cstyle="tg"]) .ibb::before{display:none}
+html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .fmsg.me .fbub,html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .ib.me .ibb{color:var(--wa-meink)}
+html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .fmsg.me .fmeta,html:is([data-cstyle="wa"],[data-cstyle="ios"],[data-cstyle="tg"]) .ib.me .ibb small{color:var(--wa-metime)}
+html[data-cstyle="ios"] .fmsgs,html[data-cstyle="ios"] .cprev,html[data-cstyle="ios"] .inlist{background-image:none}
+html[data-cstyle="ios"] .fbub,html[data-cstyle="ios"] .ibb{border-radius:calc(var(--cb-r) + 3px) calc(var(--cb-r) + 3px) calc(var(--cb-r) + 3px) 5px;box-shadow:none}
+html[data-cstyle="ios"] .fmsg.me .fbub,html[data-cstyle="ios"] .ib.me .ibb{border-radius:calc(var(--cb-r) + 3px) calc(var(--cb-r) + 3px) 5px calc(var(--cb-r) + 3px)}
+html[data-cstyle="ios"] .fname{color:var(--mute)}
+html[data-cstyle="ios"] .fmeta{justify-content:flex-start}
+html[data-cstyle="ios"] .fmsg.me .fmeta{justify-content:flex-end}
+html[data-cstyle="tg"] .fbub,html[data-cstyle="tg"] .ibb{border-radius:var(--cb-r) var(--cb-r) var(--cb-r) 4px;box-shadow:0 1px 1px rgba(16,35,47,.13)}
+html[data-cstyle="tg"] .fmsg.me .fbub,html[data-cstyle="tg"] .ib.me .ibb{border-radius:var(--cb-r) var(--cb-r) 4px var(--cb-r)}
+html[data-cstyle="tg"][data-cwall="on"] .fmsgs,html[data-cstyle="tg"][data-cwall="on"] .cprev,html[data-cstyle="tg"][data-cwall="on"] .inlist{background-image:radial-gradient(circle at 18% 8%,rgba(255,255,255,.28),transparent 55%),radial-gradient(circle at 85% 92%,rgba(60,130,100,.3),transparent 60%);background-size:auto}
+html[data-cmy="on"] .fmsg.me .fbub,html[data-cmy="on"] .ib.me .ibb{background:var(--my-bub)!important;color:var(--my-ink)!important}
+html[data-cmy="on"] .fmsg.me .fbub::before,html[data-cmy="on"] .ib.me .ibb::before{background:var(--my-bub)!important}
+html[data-cmy="on"] .fmsg.me .fmeta,html[data-cmy="on"] .ib.me .ibb small{color:var(--my-ink)!important;opacity:.78}
+.fstar{color:#f5b301;font-style:normal}
+.cswatch{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.cswatch button{width:32px;height:32px;border-radius:50%;border:0;cursor:pointer;box-shadow:inset 0 0 0 2px var(--surface),0 0 0 1px var(--line)}
+.cswatch button.on{box-shadow:inset 0 0 0 2px var(--surface),0 0 0 2.5px var(--brand)}
+.cswatch .auto{width:auto;padding:0 12px;border-radius:99px;background:var(--bg);color:var(--ink);font-size:12.5px;font-weight:700}
+.cswatch input[type=color]{width:34px;height:34px;padding:0;border:0;background:none;cursor:pointer}
+.stcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:12px 14px;margin-bottom:10px}
+.stcard .sth{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--mute);margin-bottom:6px}
+.stcard .sth b{color:var(--ink)}
+.stcard .stt{font-size:14.5px;white-space:pre-wrap;word-break:break-word;max-height:9.5em;overflow:hidden}
+.stcard .stt a{color:var(--brand);font-weight:600}
+.stcard .sta{display:flex;gap:8px;margin-top:10px}
+.stcard .sta button{flex:1;padding:8px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-weight:700;font-size:12.5px}
+.stempty{color:var(--mute);text-align:center;padding:28px 12px;font-size:14px}
 /* panel pengaturan + preview */
 .cprev{display:flex;flex-direction:column;padding:12px;border-radius:var(--r-m);background:var(--surface);border:1px solid var(--line);overflow:hidden;max-height:300px;pointer-events:none;user-select:none}
 .cprev .fmsg{display:flex}
@@ -891,6 +927,8 @@ html[data-cstyle="wa"] .fday{background:var(--wa-in);color:var(--wa-time);box-sh
 <div class="menu">
 <button type="button" class="menu-row" data-sub="tampilan"><span class="mi">🎨</span><span class="mt"><b>Tampilan</b><small>Tema dan warna aplikasi</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="chat"><span class="mi">💬</span><span class="mt"><b>Tampilan chat</b><small>Ukuran bubble, teks, gaya WhatsApp</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+<button type="button" class="menu-row" data-sub="stars"><span class="mi">⭐</span><span class="mt"><b>Pesan berbintang</b><small id="starCount">Simpan info penting</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+<button type="button" class="menu-row" data-sub="offline"><span class="mi">📴</span><span class="mt"><b>Mode offline</b><small>Lihat materi tanpa internet</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="notif"><span class="mi">🔔</span><span class="mt"><b>Notifikasi</b><small id="notifSub">Belum aktif</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="keamanan"><span class="mi">🔐</span><span class="mt"><b>Keamanan</b><small>Ganti password</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="pasang" id="rowInstall"><span class="mi">📲</span><span class="mt"><b>Pasang aplikasi</b><small>Tambahkan ke layar utama</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
@@ -915,18 +953,27 @@ html[data-cstyle="wa"] .fday{background:var(--wa-in);color:var(--wa-time);box-sh
 <div class="cprev" id="cPrev">
 <div class="fday">Hari ini</div>
 <div class="fmsg"><span data-pv="1"><span class="av s">NC</span></span><div class="fbub"><div class="fname">nisa can<small>@nisa</small></div><div class="ftext">makasiiiii man temannn</div><div class="fmeta"><span>14.30</span></div></div></div>
+<div class="subpane hidden" data-sub="stars"><div id="starList"></div></div>
+<div class="subpane hidden cset" data-sub="offline"><div class="card">
+<label class="sw-row"><span>Simpan data untuk dilihat offline</span><input type="checkbox" id="cbOff"></label>
+<p style="color:var(--mute);font-size:13px;margin:0 0 12px">Daftar topik, teks materi, dan pesan forum yang pernah kamu buka disimpan di HP ini. Saat tidak ada internet, aplikasi menampilkan data tersimpan itu. File/gambar besar tidak ikut tersimpan.</p>
+<p id="offStat" style="font-size:13.5px;font-weight:700;margin:0 0 12px"></p>
+<button type="button" class="btn btn-line" id="offClearBtn" style="width:100%">Hapus data tersimpan</button>
+</div></div>
 <div class="fmsg me"><div class="fbub"><div class="ftext">Sama-sama, nanti materinya aku upload ya</div><div class="fmeta"><span>14.31</span></div></div><span class="myav"><span class="av s">KM</span></span></div>
 <div class="fmsg"><span data-pv="1"><span class="av s">MB</span></span><div class="fbub"><div class="fname">Mangku<small>@adi</small></div><div class="ftext">Siap, ditunggu 👍</div><div class="fmeta"><span><i class="fed">diedit</i> · 16.27</span></div></div></div>
 </div></div>
 <div class="card">
 <h4>Gaya chat</h4>
-<div class="opt-row"><button type="button" data-cstyle-set="default">Bawaan</button><button type="button" data-cstyle-set="wa">WhatsApp</button></div>
+<div class="opt-row"><button type="button" data-cstyle-set="default">Bawaan</button><button type="button" data-cstyle-set="wa">WhatsApp</button><button type="button" data-cstyle-set="ios">iOS</button><button type="button" data-cstyle-set="tg">Telegram</button></div>
+<h4>Warna bubbleku</h4>
+<div class="cswatch"><button type="button" class="auto" data-mycol="">Otomatis</button><button type="button" data-mycol="#0b84fe" style="background:#0b84fe" aria-label="Warna #0b84fe"></button><button type="button" data-mycol="#128c7e" style="background:#128c7e" aria-label="Warna #128c7e"></button><button type="button" data-mycol="#7c4dff" style="background:#7c4dff" aria-label="Warna #7c4dff"></button><button type="button" data-mycol="#e91e63" style="background:#e91e63" aria-label="Warna #e91e63"></button><button type="button" data-mycol="#f57c00" style="background:#f57c00" aria-label="Warna #f57c00"></button><button type="button" data-mycol="#455a64" style="background:#455a64" aria-label="Warna #455a64"></button><input type="color" id="cbMyColor" value="#0b84fe" aria-label="Pilih warna sendiri"></div>
 <h4>Ukuran bubble</h4>
 <div class="opt-row"><button type="button" data-csize-set="xs">Mini</button><button type="button" data-csize-set="s">Kecil</button><button type="button" data-csize-set="m">Sedang</button><button type="button" data-csize-set="l">Besar</button></div>
 <h4>Ukuran teks</h4>
 <div class="rng"><span style="font-size:12px">A</span><input type="range" id="cbFs" min="12" max="20" step="1" aria-label="Ukuran teks chat"><span style="font-size:20px">A</span><b id="cbFsVal">15 px</b></div>
 <label class="sw-row"><span>Tampilkan fotoku di pesanku</span><input type="checkbox" id="cbAv"></label>
-<label class="sw-row" id="cbWallRow"><span>Wallpaper bermotif (gaya WhatsApp)</span><input type="checkbox" id="cbWall"></label>
+<label class="sw-row" id="cbWallRow"><span>Wallpaper (WhatsApp &amp; Telegram)</span><input type="checkbox" id="cbWall"></label>
 <button type="button" class="btn btn-line" id="cbReset" style="width:100%;margin-top:4px">Kembalikan ke bawaan</button>
 <p style="color:var(--mute);font-size:12.5px;margin-top:10px">Foto orang lain selalu tampil. Pengaturan berlaku untuk Forum Kelas dan chat Admin. Disimpan di HP ini saja.</p>
 </div></div>
@@ -1103,10 +1150,44 @@ $("maintAdmin").addEventListener("click", () => {
   if (!token) { $("login").classList.remove("hidden"); $("app").classList.add("hidden"); }
 });
 
+
+/* ---------- mode offline: cache data baca ---------- */
+const OFF_PATHS = /^\/api\/(me$|topics$|materials\?|forum\/messages\?after=0$|forum\/group$|forum\/members$)/;
+const offOn = () => localStorage.getItem("s5_off") !== "0";
+const offKey = (path) => "s5c:" + String(token || "").slice(-12) + ":" + path;
+function offStale(ts) {
+  const b = $("offline"); if (!b) return;
+  b.textContent = "Mode offline: menampilkan data tersimpan " + new Date(ts).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  b.classList.remove("hidden");
+}
+async function offFetch(path, options = {}) {
+  const can = offOn() && (!options.method || options.method === "GET") && OFF_PATHS.test(path);
+  const fromCache = () => {
+    try {
+      const c = JSON.parse(localStorage.getItem(offKey(path)) || "null");
+      if (c) { offStale(c.t); return new Response(c.b, { status: 200, headers: { "Content-Type": "application/json" } }); }
+    } catch (e) {}
+    return null;
+  };
+  let res;
+  try { res = await fetch(API + path, options); }
+  catch (err) { const c = can && fromCache(); if (c) return c; throw err; }
+  if (can && res.ok) {
+    res.clone().text().then((t) => { if (t.length < 1500000) try { localStorage.setItem(offKey(path), JSON.stringify({ t: Date.now(), b: t })); } catch (e) {} }).catch(() => {});
+  } else if (can && res.status >= 502) { const c = fromCache(); if (c) return c; }
+  return res;
+}
+function offClear() { Object.keys(localStorage).filter((k) => k.startsWith("s5c:")).forEach((k) => localStorage.removeItem(k)); }
+function offStats() {
+  let n = 0, sz = 0;
+  Object.keys(localStorage).filter((k) => k.startsWith("s5c:")).forEach((k) => { n++; sz += (localStorage.getItem(k) || "").length; });
+  if ($("offStat")) $("offStat").textContent = n ? n + " item tersimpan (" + Math.max(1, Math.round(sz / 1024)) + " KB)" : "Belum ada data tersimpan";
+  if ($("cbOff")) $("cbOff").checked = offOn();
+}
 async function apiCall(path, options = {}) {
   options.headers = options.headers || {};
   if (token) options.headers.Authorization = "Bearer " + token;
-  const res = await fetch(API + path, options);
+  const res = await offFetch(path, options);
   if (res.status === 503) {
     const d = await res.clone().json().catch(() => ({}));
     if (d.maintenance) { showMaint(d.message); throw new Error("Website sedang maintenance."); }
@@ -1169,7 +1250,7 @@ document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click"
 document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => switchView(b.dataset.go)));
 
 /* ---------- Akun: daftar menu + sub-halaman (gaya WhatsApp) ---------- */
-const SUB_TITLES = { profil: "Profil", tampilan: "Tampilan", chat: "Tampilan chat", notif: "Notifikasi", keamanan: "Keamanan", pasang: "Pasang aplikasi" };
+const SUB_TITLES = { profil: "Profil", tampilan: "Tampilan", chat: "Tampilan chat", stars: "Pesan berbintang", offline: "Mode offline", notif: "Notifikasi", keamanan: "Keamanan", pasang: "Pasang aplikasi" };
 function openSub(name) {
   $("setMain").classList.add("hidden");
   $("setSub").classList.remove("hidden");
@@ -1479,6 +1560,7 @@ $("changePasswordForm").addEventListener("submit", async (e) => {
 });
 
 function logout(manual = true) {
+  offClear();
   if (manual && token) pushUnsubscribe(token);
   pushOn = false;
   token = "";
@@ -1506,7 +1588,7 @@ async function initApp() {
   if (!token) return false;
   lastInitError = "";
   try {
-    const res = await fetch(API + "/api/me", { headers: { Authorization: "Bearer " + token } });
+    const res = await offFetch("/api/me", { headers: { Authorization: "Bearer " + token } });
     const data = await res.json().catch(() => ({}));
     if (res.status === 503 && data.maintenance) { showMaint(data.message); return false; }
     if (!res.ok || !data.ok) throw new Error(data.error || "Sesi tidak valid.");
@@ -2035,12 +2117,13 @@ try { darkQuery.addEventListener("change", applyTheme); } catch (err) { darkQuer
 applyTheme();
 
 /* ---------- Tampilan chat: bubble, teks, gaya WhatsApp ---------- */
-const CHAT_DEF = { style: "default", size: "m", fs: 15, myav: false, wall: true };
+const CHAT_DEF = { style: "default", size: "m", fs: 15, myav: false, wall: true, mycolor: "" };
+function inkFor(h) { const n = parseInt(h.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255; return 0.299 * r + 0.587 * g + 0.114 * b > 160 ? "#111" : "#fff"; }
 const CHAT_FS = { xs: 13, s: 14, m: 15, l: 17 };
 let chatPref = { ...CHAT_DEF };
 try { Object.assign(chatPref, JSON.parse(localStorage.getItem("s5_chat") || "{}")); } catch (err) {}
 function applyChat(save) {
-  if (!["default", "wa"].includes(chatPref.style)) chatPref.style = "default";
+  if (!["default", "wa", "ios", "tg"].includes(chatPref.style)) chatPref.style = "default";
   if (!CHAT_FS[chatPref.size]) chatPref.size = "m";
   chatPref.fs = Math.min(20, Math.max(12, Math.round(+chatPref.fs) || 15));
   const r = document.documentElement;
@@ -2049,24 +2132,71 @@ function applyChat(save) {
   r.dataset.cav = chatPref.myav ? "on" : "off";
   r.dataset.cwall = chatPref.wall ? "on" : "off";
   r.style.setProperty("--cb-fs", chatPref.fs + "px");
+  const my = /^#[0-9a-f]{6}$/i.test(chatPref.mycolor) ? chatPref.mycolor.toLowerCase() : "";
+  r.dataset.cmy = my ? "on" : "off";
+  if (my) { r.style.setProperty("--my-bub", my); r.style.setProperty("--my-ink", inkFor(my)); }
+  document.querySelectorAll("[data-mycol]").forEach((b) => b.classList.toggle("on", b.dataset.mycol.toLowerCase() === my));
+  if ($("cbMyColor") && my) $("cbMyColor").value = my;
   document.querySelectorAll("[data-cstyle-set]").forEach((b) => b.classList.toggle("active", b.dataset.cstyleSet === chatPref.style));
   document.querySelectorAll("[data-csize-set]").forEach((b) => b.classList.toggle("active", b.dataset.csizeSet === chatPref.size));
   const rng = $("cbFs"); if (rng) { rng.value = chatPref.fs; $("cbFsVal").textContent = chatPref.fs + " px"; }
   if ($("cbAv")) $("cbAv").checked = !!chatPref.myav;
   if ($("cbWall")) $("cbWall").checked = !!chatPref.wall;
-  if ($("cbWallRow")) $("cbWallRow").classList.toggle("hidden", chatPref.style !== "wa");
+  if ($("cbWallRow")) $("cbWallRow").classList.toggle("hidden", !["wa", "tg"].includes(chatPref.style));
   if (save) { try { localStorage.setItem("s5_chat", JSON.stringify(chatPref)); } catch (err) {} }
 }
 document.addEventListener("click", (e) => {
   const st = e.target.closest("[data-cstyle-set]"), sz = e.target.closest("[data-csize-set]");
   if (st) { chatPref.style = st.dataset.cstyleSet; applyChat(true); }
   if (sz) { chatPref.size = sz.dataset.csizeSet; chatPref.fs = CHAT_FS[chatPref.size]; applyChat(true); }
+  const mc = e.target.closest("[data-mycol]"); if (mc) { chatPref.mycolor = mc.dataset.mycol; applyChat(true); }
   if (e.target.closest("#cbReset")) { chatPref = { ...CHAT_DEF }; applyChat(true); showToast("Tampilan chat dikembalikan ke bawaan"); }
 });
+$("cbMyColor").addEventListener("input", (e) => { chatPref.mycolor = e.target.value; applyChat(true); });
 $("cbFs").addEventListener("input", (e) => { chatPref.fs = +e.target.value; applyChat(true); });
 $("cbAv").addEventListener("change", (e) => { chatPref.myav = e.target.checked; applyChat(true); });
 $("cbWall").addEventListener("change", (e) => { chatPref.wall = e.target.checked; applyChat(true); });
 applyChat(false);
+
+/* ---------- pesan berbintang ---------- */
+const starKey = () => "s5_stars:" + (currentUser || "-");
+function starsGet() { try { return JSON.parse(localStorage.getItem(starKey()) || "[]"); } catch (e) { return []; } }
+function starsSet(a) { try { localStorage.setItem(starKey(), JSON.stringify(a)); } catch (e) { showToast("Penyimpanan HP penuh.", true); } }
+function isStar(id) { return starsGet().some((x) => x.id === id); }
+function starMark(id, on) {
+  document.querySelectorAll('#fMsgs .fmore[data-m="' + id + '"]').forEach((b) => {
+    const sp = b.parentElement.firstElementChild; if (!sp) return;
+    sp.querySelectorAll(".fstar").forEach((x) => x.remove());
+    if (on) sp.insertAdjacentHTML("afterbegin", '<span class="fstar">★</span> ');
+  });
+}
+function toggleStar(m) {
+  const a = starsGet(), i = a.findIndex((x) => x.id === m.id);
+  if (i >= 0) { a.splice(i, 1); showToast("Bintang dihapus"); }
+  else { a.unshift({ id: m.id, name: shortName(m.name), ts: m.ts, mine: !!m.mine, text: String(m.text || (m.file ? "📎 Lampiran" : "")).slice(0, 4000) }); showToast("Pesan diberi bintang ★"); }
+  starsSet(a); starMark(m.id, i < 0); renderStars();
+}
+function renderStars() {
+  const a = starsGet();
+  if ($("starCount")) $("starCount").textContent = a.length ? a.length + " pesan" : "Simpan info penting";
+  const box = $("starList"); if (!box) return;
+  box.innerHTML = a.length ? a.map((x) => `<div class="stcard" data-sid="${x.id}"><div class="sth"><b>${esc(x.name || "")}${x.mine ? " (kamu)" : ""}</b><span>${esc(fDay(x.ts))}, ${esc(fTime(x.ts))}</span></div><div class="stt">${esc(x.text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')}</div><div class="sta"><button type="button" data-sact="copy">Salin</button><button type="button" data-sact="un">Hapus bintang</button></div></div>`).join("")
+    : '<p class="stempty">Belum ada pesan berbintang.<br>Tahan pesan di Forum Kelas, lalu pilih <b>Bintangi</b>.</p>';
+}
+document.addEventListener("click", (e) => {
+  const row = e.target.closest(".menu-row[data-sub]");
+  if (row && row.dataset.sub === "stars") renderStars();
+  if (row && row.dataset.sub === "offline") offStats();
+  const b = e.target.closest("[data-sact]");
+  if (b) {
+    const id = +b.closest(".stcard").dataset.sid, a = starsGet(), x = a.find((y) => y.id === id);
+    if (!x) return;
+    if (b.dataset.sact === "copy") copyText(x.text);
+    else { starsSet(a.filter((y) => y.id !== id)); starMark(id, false); renderStars(); }
+  }
+  if (e.target.closest("#offClearBtn")) { offClear(); offStats(); showToast("Data tersimpan dihapus"); }
+});
+$("cbOff").addEventListener("change", (e) => { localStorage.setItem("s5_off", e.target.checked ? "1" : "0"); if (!e.target.checked) offClear(); offStats(); });
 
 /* ---------- upload dengan progres ---------- */
 function xhrUpload(fd) {
@@ -2723,6 +2853,7 @@ function renderForum(stick) {
     return;
   }
   let prevDay = "";
+  const starSet = new Set(starsGet().map((x) => x.id));
   box.innerHTML = list.map((m) => {
     const mine = !!m.mine, name = shortName(m.name), crown = !!m.owner;
     const day = fDay(m.ts), sep = day !== prevDay ? `<div class="fday">${esc(day)}</div>` : "";
@@ -2734,7 +2865,7 @@ function renderForum(stick) {
     return `${sep}${divider}<div class="fmsg ${mine ? "me" : ""} ${m.mentioned && !mine ? "mentioned" : ""}" id="fm-${m.id}">${mine ? "" : `<span data-p="${esc(m.pid)}">${avatarHtml(m, "s")}</span>`}<div class="fbub">
       ${mine ? "" : `<div class="fname" data-p="${esc(m.pid)}">${nameHtml(name, crown, verOf(m.pid))}${tag}</div>`}${quote}
       ${fTextBlock(m)}${pollHtml(m)}${linkHtml(m)}${reactsHtml(m)}
-      <div class="fmeta"><span>${m.pinned ? "📌 " : ""}${m.edited ? '<i class="fed">diedit</i> · ' : ""}${esc(fTime(m.ts))}</span><button type="button" class="fmore" data-m="${m.id}" aria-label="Menu pesan">•••</button></div>
+      <div class="fmeta"><span>${starSet.has(m.id) ? '<span class="fstar">★</span> ' : ""}${m.pinned ? "📌 " : ""}${m.edited ? '<i class="fed">diedit</i> · ' : ""}${esc(fTime(m.ts))}</span><button type="button" class="fmore" data-m="${m.id}" aria-label="Menu pesan">•••</button></div>
     </div>${mine ? `<span class="myav" data-p="${esc(m.pid)}">${avatarHtml({ ...m, name: m.name || fullUserName || "" }, "s")}</span>` : ""}</div>`;
   }).join("");
   fPaintTyping();
@@ -4142,6 +4273,7 @@ function inOpenPress(bub, id) {
   menu.className = "fmenu";
   menu.innerHTML = `<button type="button" data-a="reply">Balas<svg class="i"><use href="#i-chat"/></svg></button>
     <button type="button" data-a="copy">Salin<svg class="i"><use href="#i-edit"/></svg></button>
+    <button type="button" data-a="star">${isStar(m.id) ? "Hapus bintang" : "Bintangi"}<span class="i" style="display:inline-flex;align-items:center;justify-content:center;font-style:normal;color:#f5b301">★</span></button>
     <button type="button" data-a="del" class="danger">Hapus<svg class="i"><use href="#i-trash"/></svg></button>`;
   ov.append(clone, menu);
   document.body.append(ov);
@@ -4305,6 +4437,7 @@ function openFPress(bub, id) {
     closeFPress(true);
     if (a === "reply") setForumReply(id);
     else if (a === "copy") { if (m.file) fCopyLong(id).catch((err) => showToast(err.message, true)); else copyText(m.text); }
+    else if (a === "star") toggleStar(m);
     else if (a === "del") deleteForum(id);
     else if (a === "edit") editForum(id);
     else if (a === "pin") pinForum(id, !m.pinned);
