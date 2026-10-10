@@ -786,14 +786,24 @@ html[data-cstyle="msg"] .fmsg.me .fname,html[data-cstyle="msg"] .fmsg.me a{color
 .cswatch button.on{box-shadow:inset 0 0 0 2px var(--surface),0 0 0 2.5px var(--brand)}
 .cswatch .auto{width:auto;padding:0 12px;border-radius:99px;background:var(--bg);color:var(--ink);font-size:12.5px;font-weight:700}
 .cswatch input[type=color]{width:34px;height:34px;padding:0;border:0;background:none;cursor:pointer}
-.stcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:12px 14px;margin-bottom:10px}
-.stcard .sth{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--mute);margin-bottom:6px}
-.stcard .sth b{color:var(--ink)}
-.stcard .stt{font-size:14.5px;white-space:pre-wrap;word-break:break-word;max-height:9.5em;overflow:hidden}
-.stcard .stt a{color:var(--brand);font-weight:600}
-.stcard .sta{display:flex;gap:8px;margin-top:10px}
-.stcard .sta button{flex:1;padding:8px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-weight:700;font-size:12.5px}
-.stempty{color:var(--mute);text-align:center;padding:28px 12px;font-size:14px}
+.strow{display:block;width:100%;text-align:left;padding:10px 4px 12px;border-bottom:1px solid var(--line);cursor:pointer;background:none}
+.strow .sth{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.strow .sav{width:34px;height:34px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-weight:800;font-size:14px;flex:0 0 auto}
+.strow .snm{flex:1;min-width:0;font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.strow .snm small{display:block;font-weight:500;font-size:11.5px;color:var(--mute)}
+.strow .sdt{font-size:12px;color:var(--mute);flex:0 0 auto}
+.strow .sbody{display:flex;align-items:center;gap:6px;padding-left:44px}
+.strow .sbub{flex:0 1 auto;max-width:calc(100% - 24px);background:var(--surface);border:1px solid var(--line);border-radius:14px 14px 14px 4px;padding:8px 12px 6px;font-size:14.5px}
+.strow.me .sbub{background:var(--brand-soft);border-color:transparent}
+.strow .stt{white-space:pre-wrap;word-break:break-word;max-height:7.5em;overflow:hidden}
+.strow .stt a{color:var(--brand);font-weight:600}
+.strow .stm{display:flex;justify-content:flex-end;align-items:center;gap:4px;font-size:11px;color:var(--mute);margin-top:2px}
+.strow .stm .fstar{font-size:11px}
+.strow .schev{margin-left:auto;color:var(--mute);font-size:20px;line-height:1}
+.strow .stun{border:0;background:none;color:#f5b301;font-size:20px;padding:4px 6px;line-height:1}
+.stempty{text-align:center;color:var(--mute);padding:90px 20px 0;font-size:14px;line-height:1.5}
+.stempty .stico{width:64px;height:64px;border-radius:50%;background:#25d366;border:2px solid var(--ink);display:grid;place-items:center;margin:0 auto 16px;font-size:30px;color:var(--ink)}
+.stempty b{display:block;color:var(--ink);font-size:17px;margin-bottom:6px}
 /* panel pengaturan + preview */
 .cprev{display:flex;flex-direction:column;padding:12px;border-radius:var(--r-m);background:var(--surface);border:1px solid var(--line);overflow:hidden;max-height:300px;pointer-events:none;user-select:none}
 .cprev .fmsg{display:flex}
@@ -1006,7 +1016,6 @@ html[data-cstyle="msg"] .fmsg.me .fname,html[data-cstyle="msg"] .fmsg.me a{color
 <div class="cprev" id="cPrev">
 <div class="fday">Hari ini</div>
 <div class="fmsg"><span data-pv="1"><span class="av s">NC</span></span><div class="fbub"><div class="fname">nisa can<small>@nisa</small></div><div class="ftext">makasiiiii man temannn</div><div class="fmeta"><span>14.30</span></div></div></div>
-<div class="subpane hidden" data-sub="stars"><div id="starList"></div></div>
 <div class="fmsg me"><div class="fbub"><div class="ftext">Sama-sama, nanti materinya aku upload ya</div><div class="fmeta"><span>14.31</span></div></div><span class="myav"><span class="av s">KM</span></span></div>
 <div class="fmsg"><span data-pv="1"><span class="av s">MB</span></span><div class="fbub"><div class="fname">Mangku<small>@adi</small></div><div class="ftext">Siap, ditunggu 👍</div><div class="fmeta"><span><i class="fed">diedit</i> · 16.27</span></div></div></div>
 </div></div>
@@ -1025,6 +1034,7 @@ html[data-cstyle="msg"] .fmsg.me .fname,html[data-cstyle="msg"] .fmsg.me a{color
 <button type="button" class="btn btn-line" id="cbReset" style="width:100%;margin-top:4px">Kembalikan ke bawaan</button>
 <p style="color:var(--mute);font-size:12.5px;margin-top:10px">Foto orang lain selalu tampil. Pengaturan berlaku untuk Forum Kelas dan chat Admin. Disimpan di HP ini saja.</p>
 </div></div>
+<div class="subpane hidden" data-sub="stars"><div id="starList"></div></div>
 <div class="subpane hidden" data-sub="notif"><div class="card"><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Dapat pemberitahuan materi baru dan pengingat deadline (24 jam, 3 jam, 1 jam, dan 5 menit sebelumnya) walau web ditutup. Tanda selesai yang kamu pasang hanya berlaku di tampilan web, jadi notifikasi tugas tetap datang dari server.</p><button type="button" class="btn btn-soft" id="notifBtn">Aktifkan notifikasi</button></div><div class="card"><h3>Pengingat jadwal kuliah</h3><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Pemberitahuan sebelum kelas mulai. Berjalan selama aplikasi terbuka atau masih aktif di latar belakang.</p>
 <label style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px"><span>Aktifkan pengingat</span><input type="checkbox" id="clsOn"></label>
 <label style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span>Ingatkan</span><select class="input" id="clsLead" style="width:auto"><option value="5">5 menit sebelum</option><option value="10">10 menit sebelum</option><option value="15">15 menit sebelum</option><option value="30">30 menit sebelum</option></select></label></div>
@@ -2260,7 +2270,7 @@ function toggleStar(m, src = "f") {
   else {
     const mine = src === "f" ? !!m.mine : inMine(m);
     const name = src === "f" ? shortName(m.name) : (mine ? (fullUserName || "Kamu") : ((inPeer && inPeer.name) || "Chat pribadi"));
-    a.unshift({ k, src, id: m.id, name, ts: m.ts, mine, text: String(m.text || (m.file ? "📎 Lampiran" : "")).slice(0, 4000) });
+    a.unshift({ k, src, id: m.id, name, ts: m.ts, mine, pid: src === "i" ? inWith : "", peer: src === "i" ? ((inPeer && inPeer.name) || "") : "", text: String(m.text || (m.file ? "📎 Lampiran" : "")).slice(0, 4000) });
     showToast("Pesan diberi bintang ★");
   }
   starsSet(a); starMark(src, m.id, i < 0); renderStars();
@@ -2269,19 +2279,40 @@ function renderStars() {
   const a = starsGet();
   if ($("starCount")) $("starCount").textContent = a.length ? a.length + " pesan" : "Simpan info penting";
   const box = $("starList"); if (!box) return;
-  box.innerHTML = a.length ? a.map((x) => `<div class="stcard" data-sid="${esc(x.k)}"><div class="sth"><b>${esc(x.name || "")}${x.mine ? " (kamu)" : ""}${x.src === "i" ? " · chat pribadi" : ""}</b><span>${esc(fDay(x.ts))}, ${esc(fTime(x.ts))}</span></div><div class="stt">${esc(x.text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')}</div><div class="sta"><button type="button" data-sact="copy">Salin</button><button type="button" data-sact="un">Hapus bintang</button></div></div>`).join("")
-    : '<p class="stempty">Belum ada pesan berbintang.<br>Tahan pesan di Forum Kelas atau chat pribadi, lalu pilih <b>Bintangi</b>.</p>';
+  box.innerHTML = a.length ? a.map((x) => {
+    const nm = x.mine ? "Kamu" : (x.name || "");
+    const sub = x.src === "i" ? "Chat pribadi" : "Forum Kelas";
+    const txt = esc(x.text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+    return `<div class="strow ${x.mine ? "me" : ""}" data-sid="${esc(x.k)}" role="button" tabindex="0"><div class="sth"><span class="sav">${esc((nm.trim()[0] || "?").toUpperCase())}</span><span class="snm">${esc(nm)}<small>${sub}</small></span><span class="sdt">${esc(fDay(x.ts))}</span><button type="button" class="stun" data-sun="1" aria-label="Hapus bintang">★</button></div><div class="sbody"><div class="sbub"><div class="stt">${txt}</div><div class="stm"><span class="fstar">★</span>${esc(fTime(x.ts))}</div></div><span class="schev">›</span></div></div>`;
+  }).join("")
+    : '<div class="stempty"><div class="stico">☆</div><b>Belum ada pesan berbintang</b>Tahan pesan di Forum Kelas atau chat pribadi, lalu pilih <b style="display:inline;font-size:inherit">Bintangi</b>, supaya mudah ditemukan lagi.</div>';
+}
+function starWait(sel, cb, delay, tries) {
+  tries = tries === undefined ? 30 : tries;
+  if (document.querySelector(sel)) return setTimeout(cb, delay || 0);
+  if (tries <= 0) return showToast("Pesan aslinya sudah dihapus atau terlalu lama.", true);
+  setTimeout(() => starWait(sel, cb, delay, tries - 1), 150);
+}
+function starGo(x) {
+  if (x.src === "f") {
+    switchView("forum");
+    starWait("#fm-" + x.id, () => jumpToMessage(x.id), 600);
+  } else {
+    if (isAdmin && !x.pid) return showToast("Buka percakapannya lewat Kotak masuk.", true);
+    inOpen(isAdmin ? { pid: x.pid, name: x.peer || x.name || "Pengguna" } : null);
+    starWait("#ib-" + x.id, () => inJump(x.id), 400);
+  }
 }
 document.addEventListener("click", (e) => {
   const row = e.target.closest(".menu-row[data-sub]");
   if (row && row.dataset.sub === "stars") renderStars();
-  const b = e.target.closest("[data-sact]");
-  if (b) {
-    const k = b.closest(".stcard").dataset.sid, a = starsGet(), x = a.find((y) => y.k === k);
-    if (!x) return;
-    if (b.dataset.sact === "copy") copyText(x.text);
-    else { starsSet(a.filter((y) => y.k !== k)); starMark(x.src, x.id, false); renderStars(); }
-  }
+  const r = e.target.closest(".strow");
+  if (!r) return;
+  const k = r.dataset.sid, a = starsGet(), x = a.find((y) => y.k === k);
+  if (!x) return;
+  if (e.target.closest("[data-sun]")) { e.stopPropagation(); starsSet(a.filter((y) => y.k !== k)); starMark(x.src, x.id, false); renderStars(); showToast("Bintang dihapus"); return; }
+  if (e.target.closest("a")) return;
+  starGo(x);
 });
 
 /* ---------- upload dengan progres ---------- */
