@@ -377,7 +377,8 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 /* long-press (gaya iOS WhatsApp) */
 .fbub{transition:transform .25s ease;-webkit-touch-callout:none}
 .fbub.pressing{transform:scale(.96)}
-@media (pointer:coarse){.fbub{-webkit-user-select:none;user-select:none}}
+@media (pointer:coarse){.fbub,.ibb{-webkit-user-select:none;user-select:none}}
+.fpress .fclone,.fpress .fclone *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .fmore{opacity:0;font-size:15px!important;letter-spacing:1px;padding:0 2px!important}
 .fbub:hover .fmore{opacity:1}
 @media (pointer:coarse){.fmore{display:none}}
@@ -2162,26 +2163,35 @@ applyChat(false);
 const starKey = () => "s5_stars:" + (currentUser || "-");
 function starsGet() { try { return JSON.parse(localStorage.getItem(starKey()) || "[]"); } catch (e) { return []; } }
 function starsSet(a) { try { localStorage.setItem(starKey(), JSON.stringify(a)); } catch (e) { showToast("Penyimpanan HP penuh.", true); } }
-function isStar(id) { return starsGet().some((x) => x.id === id); }
-function starMark(id, on) {
-  document.querySelectorAll('#fMsgs .fmore[data-m="' + id + '"]').forEach((b) => {
-    const sp = b.parentElement.firstElementChild; if (!sp) return;
+function isStar(id, src = "f") { return starsGet().some((x) => x.k === src + id); }
+function starBtn(id, src) { return `<button type="button" data-a="star">${isStar(id, src) ? "Hapus bintang" : "Bintangi"}<span class="i" style="display:inline-flex;align-items:center;justify-content:center;font-style:normal;color:#f5b301">★</span></button>`; }
+function starMark(src, id, on) {
+  const targets = src === "f"
+    ? [...document.querySelectorAll('#fMsgs .fmore[data-m="' + id + '"]')].map((b) => b.parentElement.firstElementChild)
+    : [document.querySelector("#ib-" + id + " .ibb small")];
+  targets.forEach((sp) => {
+    if (!sp) return;
     sp.querySelectorAll(".fstar").forEach((x) => x.remove());
     if (on) sp.insertAdjacentHTML("afterbegin", '<span class="fstar">★</span> ');
   });
 }
-function toggleStar(m) {
-  const a = starsGet(), i = a.findIndex((x) => x.id === m.id);
+function toggleStar(m, src = "f") {
+  const k = src + m.id, a = starsGet(), i = a.findIndex((x) => x.k === k);
   if (i >= 0) { a.splice(i, 1); showToast("Bintang dihapus"); }
-  else { a.unshift({ id: m.id, name: shortName(m.name), ts: m.ts, mine: !!m.mine, text: String(m.text || (m.file ? "📎 Lampiran" : "")).slice(0, 4000) }); showToast("Pesan diberi bintang ★"); }
-  starsSet(a); starMark(m.id, i < 0); renderStars();
+  else {
+    const mine = src === "f" ? !!m.mine : inMine(m);
+    const name = src === "f" ? shortName(m.name) : (mine ? (fullUserName || "Kamu") : ((inPeer && inPeer.name) || "Chat pribadi"));
+    a.unshift({ k, src, id: m.id, name, ts: m.ts, mine, text: String(m.text || (m.file ? "📎 Lampiran" : "")).slice(0, 4000) });
+    showToast("Pesan diberi bintang ★");
+  }
+  starsSet(a); starMark(src, m.id, i < 0); renderStars();
 }
 function renderStars() {
   const a = starsGet();
   if ($("starCount")) $("starCount").textContent = a.length ? a.length + " pesan" : "Simpan info penting";
   const box = $("starList"); if (!box) return;
-  box.innerHTML = a.length ? a.map((x) => `<div class="stcard" data-sid="${x.id}"><div class="sth"><b>${esc(x.name || "")}${x.mine ? " (kamu)" : ""}</b><span>${esc(fDay(x.ts))}, ${esc(fTime(x.ts))}</span></div><div class="stt">${esc(x.text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')}</div><div class="sta"><button type="button" data-sact="copy">Salin</button><button type="button" data-sact="un">Hapus bintang</button></div></div>`).join("")
-    : '<p class="stempty">Belum ada pesan berbintang.<br>Tahan pesan di Forum Kelas, lalu pilih <b>Bintangi</b>.</p>';
+  box.innerHTML = a.length ? a.map((x) => `<div class="stcard" data-sid="${esc(x.k)}"><div class="sth"><b>${esc(x.name || "")}${x.mine ? " (kamu)" : ""}${x.src === "i" ? " · chat pribadi" : ""}</b><span>${esc(fDay(x.ts))}, ${esc(fTime(x.ts))}</span></div><div class="stt">${esc(x.text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')}</div><div class="sta"><button type="button" data-sact="copy">Salin</button><button type="button" data-sact="un">Hapus bintang</button></div></div>`).join("")
+    : '<p class="stempty">Belum ada pesan berbintang.<br>Tahan pesan di Forum Kelas atau chat pribadi, lalu pilih <b>Bintangi</b>.</p>';
 }
 document.addEventListener("click", (e) => {
   const row = e.target.closest(".menu-row[data-sub]");
@@ -2189,10 +2199,10 @@ document.addEventListener("click", (e) => {
   if (row && row.dataset.sub === "offline") offStats();
   const b = e.target.closest("[data-sact]");
   if (b) {
-    const id = +b.closest(".stcard").dataset.sid, a = starsGet(), x = a.find((y) => y.id === id);
+    const k = b.closest(".stcard").dataset.sid, a = starsGet(), x = a.find((y) => y.k === k);
     if (!x) return;
     if (b.dataset.sact === "copy") copyText(x.text);
-    else { starsSet(a.filter((y) => y.id !== id)); starMark(id, false); renderStars(); }
+    else { starsSet(a.filter((y) => y.k !== k)); starMark(x.src, x.id, false); renderStars(); }
   }
   if (e.target.closest("#offClearBtn")) { offClear(); offStats(); showToast("Data tersimpan dihapus"); }
 });
@@ -2853,7 +2863,7 @@ function renderForum(stick) {
     return;
   }
   let prevDay = "";
-  const starSet = new Set(starsGet().map((x) => x.id));
+  const starSet = new Set(starsGet().filter((x) => x.src === "f").map((x) => x.id));
   box.innerHTML = list.map((m) => {
     const mine = !!m.mine, name = shortName(m.name), crown = !!m.owner;
     const day = fDay(m.ts), sep = day !== prevDay ? `<div class="fday">${esc(day)}</div>` : "";
@@ -3741,7 +3751,7 @@ function inAppend(list, first) {
     const mine = inMine(m);
     const t = new Date(m.ts).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
     const q = m.reply ? `<div class="fquote" data-q="${m.reply.id}"><b>${esc(inWho(m.reply))}</b>${esc(m.reply.text)}</div>` : "";
-    box.insertAdjacentHTML("beforeend", `<div class="ib ${mine ? "me" : ""}" id="ib-${m.id}"><div class="ibb">${q}${inFileHtml(m)}${esc(m.text)}<small>${esc(t)}</small></div></div>`);
+    box.insertAdjacentHTML("beforeend", `<div class="ib ${mine ? "me" : ""}" id="ib-${m.id}"><div class="ibb">${q}${inFileHtml(m)}${esc(m.text)}<small>${isStar(m.id, "i") ? '<span class="fstar">★</span> ' : ""}${esc(t)}</small></div></div>`);
     const ph = m.file && m.file.kind === "photo" && !m.file.big ? document.querySelector(`#ib-${m.id} [data-f="photo"]`) : null;
     if (ph && inObs) inObs.observe(ph);
   });
@@ -4273,7 +4283,7 @@ function inOpenPress(bub, id) {
   menu.className = "fmenu";
   menu.innerHTML = `<button type="button" data-a="reply">Balas<svg class="i"><use href="#i-chat"/></svg></button>
     <button type="button" data-a="copy">Salin<svg class="i"><use href="#i-edit"/></svg></button>
-    <button type="button" data-a="star">${isStar(m.id) ? "Hapus bintang" : "Bintangi"}<span class="i" style="display:inline-flex;align-items:center;justify-content:center;font-style:normal;color:#f5b301">★</span></button>
+    ${starBtn(m.id, "i")}
     <button type="button" data-a="del" class="danger">Hapus<svg class="i"><use href="#i-trash"/></svg></button>`;
   ov.append(clone, menu);
   document.body.append(ov);
@@ -4295,6 +4305,7 @@ function inOpenPress(bub, id) {
     inClosePress(true);
     if (a === "reply") inSetReply(id);
     else if (a === "copy") { if (m.text) copyText(m.text); else showToast("Tidak ada teks untuk disalin."); }
+    else if (a === "star") toggleStar(m, "i");
     else if (a === "del") inDelete(id);
   });
   ov.addEventListener("contextmenu", (e) => e.preventDefault());
@@ -4409,6 +4420,7 @@ function openFPress(bub, id) {
   const forAll = isAdmin || (m.mine && Date.now() - new Date(m.ts).getTime() < FORUM_DEL_MS);
   menu.innerHTML = fReactBar(m) + `<button type="button" data-a="reply">Balas<svg class="i"><use href="#i-chat"/></svg></button>
     <button type="button" data-a="copy">Salin<svg class="i"><use href="#i-edit"/></svg></button>
+    ${starBtn(m.id, "f")}
     <button type="button" data-a="del" class="danger">Hapus<svg class="i"><use href="#i-trash"/></svg></button>`;
   const canEdit = m.mine && !m.poll && !m.file && Date.now() - new Date(m.ts).getTime() < FORUM_EDIT_MS;
   menu.querySelector('[data-a="del"]').insertAdjacentHTML("beforebegin",
