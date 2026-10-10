@@ -818,6 +818,20 @@ html[data-cstyle="msg"] .fmsg.me .fname,html[data-cstyle="msg"] .fmsg.me a{color
 #updBar button{border:0;cursor:pointer;font:inherit;font-weight:800;font-size:13px}
 #updBar #updNow{background:#fff;color:#0b0b0c;padding:9px 16px;border-radius:99px}
 #updBar #updLater{background:none;color:#fff;opacity:.6;padding:6px 8px;font-size:15px}
+
+/* ===== halaman Keamanan ===== */
+.secnote{display:flex;gap:14px;align-items:flex-start;padding:16px;margin-bottom:14px;border-radius:var(--r-m);background:linear-gradient(135deg,var(--brand-soft),color-mix(in srgb,var(--brand) 6%,var(--surface)));border:1px solid color-mix(in srgb,var(--brand) 22%,var(--line))}
+.secnote-ic{width:44px;height:44px;border-radius:14px;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;flex-shrink:0}
+.secnote-ic svg{width:24px;height:24px}
+.secnote-tx{min-width:0}
+.secnote-tx b{display:block;font-family:var(--font-d);font-size:17px;font-weight:800;letter-spacing:-.02em;margin-bottom:3px}
+.secnote-tx p{margin:0;font-size:13.5px;line-height:1.55;color:var(--mute)}
+.seclist{list-style:none;margin:0 0 16px;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);overflow:hidden}
+.seclist li{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-top:1px solid var(--line)}
+.seclist li:first-child{border-top:0}
+.seclist li>span{width:34px;height:34px;border-radius:10px;background:var(--brand-soft);display:grid;place-items:center;font-size:17px;flex-shrink:0}
+.seclist b{display:block;font-size:14px}
+.seclist small{display:block;color:var(--mute);font-size:12.5px;line-height:1.45;margin-top:1px}
 </style>
 </head>
 <body>
@@ -1020,13 +1034,33 @@ html[data-cstyle="msg"] .fmsg.me .fname,html[data-cstyle="msg"] .fmsg.me a{color
 <details style="margin-top:12px;font-size:13px;color:var(--mute)"><summary style="cursor:pointer;font-weight:700;color:var(--ink)">Notifikasi tidak muncul di Xiaomi / HyperOS?</summary>
 <p style="margin-top:8px">1. Pengaturan → Notifikasi → Chrome (dan aplikasi Study Hub kalau sudah dipasang): izinkan notifikasi.<br>2. Pengaturan → Aplikasi → Chrome → Hemat baterai: pilih Tanpa batasan; aktifkan Mulai otomatis.<br>3. Matikan mode Jangan Ganggu (ikon bulan di bilah status).<br>4. Pesan forum tidak muncul sebagai notifikasi kalau aplikasi sedang terbuka di layar; cukup tampil di dalam aplikasi.</p></details></div>
 </div>
-<div class="subpane hidden" data-sub="keamanan"><div class="card">
+<div class="subpane hidden" data-sub="keamanan">
+
+<div class="secnote">
+<div class="secnote-ic"><svg class="i"><use href="#i-shield"/></svg></div>
+<div class="secnote-tx">
+<b>Passwordmu aman</b>
+<p>Password tidak disimpan apa adanya, tetapi diubah menjadi kode acak (hash) yang tidak bisa dikembalikan ke aslinya. Admin tidak bisa melihat atau mengetahui passwordmu.</p>
+</div>
+</div>
+
+<ul class="seclist">
+<li><span>🔒</span><div><b>Tidak bisa dibaca siapa pun</b><small>Termasuk admin dan pengelola server.</small></div></li>
+<li><span>🔑</span><div><b>Lupa password?</b><small>Admin hanya bisa membuatkan password baru, bukan melihat yang lama.</small></div></li>
+<li><span>🤫</span><div><b>Jangan bagikan ke siapa pun</b><small>Admin tidak akan pernah meminta passwordmu.</small></div></li>
+</ul>
+
+<div class="card">
+<h3>Ganti password</h3>
 <form id="changePasswordForm">
 <div class="field"><label for="cpOld">Password lama</label><div class="pwd"><input class="input" type="password" id="cpOld" required autocomplete="current-password"><button type="button" data-pwd="cpOld" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
 <div class="field"><label for="cpNew">Password baru</label><div class="pwd"><input class="input" type="password" id="cpNew" required autocomplete="new-password" placeholder="Minimal 6 karakter"><button type="button" data-pwd="cpNew" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
 <div class="field"><label for="cpConfirm">Ulangi password baru</label><div class="pwd"><input class="input" type="password" id="cpConfirm" required autocomplete="new-password"><button type="button" data-pwd="cpConfirm" aria-label="Tampilkan password"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
 <button class="btn btn-primary" id="cpBtn" type="submit">Simpan password baru</button>
-</form></div></div>
+</form>
+</div>
+
+</div>
 <div class="subpane hidden" data-sub="pasang"><div class="card" id="installCard"><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Pasang ke layar utama HP supaya terbuka seperti aplikasi. iPhone: buka lewat Safari, ketuk Bagikan, lalu Tambahkan ke Layar Utama (perlu iOS 16.4 atau lebih baru untuk notifikasi).</p><button type="button" class="btn btn-soft" id="installBtn">Pasang aplikasi</button></div></div>
 </div>
 </section>
