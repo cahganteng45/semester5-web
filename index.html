@@ -821,13 +821,13 @@ html[data-cstyle="msg"] .fmsg.me .fname,html[data-cstyle="msg"] .fmsg.me a{color
 .cset .sw-row input{width:20px;height:20px;accent-color:var(--brand)}
 
 /* ===== notifikasi update aplikasi ===== */
-#updBar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 96px);width:min(92vw,420px);z-index:1500;display:flex;align-items:center;gap:10px;padding:12px 12px 12px 16px;border-radius:18px;background:#0b0b0c;color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.3),inset 0 0 0 1px rgba(255,255,255,.14);animation:pop .25s ease}
+#updBar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 96px);width:min(92vw,420px);z-index:99999;display:flex;align-items:center;gap:10px;padding:12px 12px 12px 16px;border-radius:18px;background:#0b0b0c;color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.3),inset 0 0 0 1px rgba(255,255,255,.14);animation:pop .25s ease}
 #updBar>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 #updBar b{font-size:14.5px}
 #updBar small{font-size:12px;opacity:.7;line-height:1.35}
 #updBar button{border:0;cursor:pointer;font:inherit;font-weight:800;font-size:13px}
 #updBar #updNow{background:#fff;color:#0b0b0c;padding:9px 16px;border-radius:99px}
-#updBar #updLater{background:none;color:#fff;opacity:.6;padding:6px 8px;font-size:15px}
+#updLock{position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);touch-action:none}
 
 /* ===== halaman Keamanan ===== */
 .secnote{display:flex;gap:14px;align-items:flex-start;padding:16px;margin-bottom:14px;border-radius:var(--r-m);background:linear-gradient(135deg,var(--brand-soft),color-mix(in srgb,var(--brand) 6%,var(--surface)));border:1px solid color-mix(in srgb,var(--brand) 22%,var(--line))}
@@ -2270,7 +2270,7 @@ function toggleStar(m, src = "f") {
   else {
     const mine = src === "f" ? !!m.mine : inMine(m);
     const name = src === "f" ? shortName(m.name) : (mine ? (fullUserName || "Kamu") : ((inPeer && inPeer.name) || "Chat pribadi"));
-    a.unshift({ k, src, id: m.id, name, ts: m.ts, mine, pid: src === "i" ? inWith : "", peer: src === "i" ? ((inPeer && inPeer.name) || "") : "", text: String(m.text || (m.file ? "📎 Lampiran" : "")).slice(0, 4000) });
+    a.unshift({ k, src, id: m.id, name, ts: m.ts, mine, owner: src === "f" ? !!m.owner : m.from === "admin", vp: src === "f" ? (m.pid || "") : "", pid: src === "i" ? inWith : "", peer: src === "i" ? ((inPeer && inPeer.name) || "") : "", text: String(m.text || (m.file ? "📎 Lampiran" : "")).slice(0, 4000) });
     showToast("Pesan diberi bintang ★");
   }
   starsSet(a); starMark(src, m.id, i < 0); renderStars();
@@ -2280,10 +2280,13 @@ function renderStars() {
   if ($("starCount")) $("starCount").textContent = a.length ? a.length + " pesan" : "Simpan info penting";
   const box = $("starList"); if (!box) return;
   box.innerHTML = a.length ? a.map((x) => {
+    const live = x.src === "f" ? fMsgs.find((m) => m.id === x.id) : null;
+    const isOwner = !!(x.owner || (live && live.owner));
+    const vp = x.vp || (live && live.pid) || "";
     const nm = x.mine ? "Kamu" : (x.name || "");
     const sub = x.src === "i" ? "Chat pribadi" : "Forum Kelas";
     const txt = esc(x.text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
-    return `<div class="strow ${x.mine ? "me" : ""}" data-sid="${esc(x.k)}" role="button" tabindex="0"><div class="sth"><span class="sav">${esc((nm.trim()[0] || "?").toUpperCase())}</span><span class="snm">${esc(nm)}<small>${sub}</small></span><span class="sdt">${esc(fDay(x.ts))}</span><button type="button" class="stun" data-sun="1" aria-label="Hapus bintang">★</button></div><div class="sbody"><div class="sbub"><div class="stt">${txt}</div><div class="stm"><span class="fstar">★</span>${esc(fTime(x.ts))}</div></div><span class="schev">›</span></div></div>`;
+    return `<div class="strow ${x.mine ? "me" : ""}" data-sid="${esc(x.k)}" role="button" tabindex="0"><div class="sth"><span class="sav">${esc((nm.trim()[0] || "?").toUpperCase())}</span><span class="snm">${nameHtml(nm, isOwner, verOf(vp))}<small>${sub}</small></span><span class="sdt">${esc(fDay(x.ts))}</span><button type="button" class="stun" data-sun="1" aria-label="Hapus bintang">★</button></div><div class="sbody"><div class="sbub"><div class="stt">${txt}</div><div class="stm"><span class="fstar">★</span>${esc(fTime(x.ts))}</div></div><span class="schev">›</span></div></div>`;
   }).join("")
     : '<div class="stempty"><div class="stico">☆</div><b>Belum ada pesan berbintang</b>Tahan pesan di Forum Kelas atau chat pribadi, lalu pilih <b style="display:inline;font-size:inherit">Bintangi</b>, supaya mudah ditemukan lagi.</div>';
 }
@@ -4943,14 +4946,20 @@ function showUpdateBar() {
   updShown = true;
   const b = document.createElement("div");
   b.id = "updBar"; b.setAttribute("role", "status");
-  b.innerHTML = '<div><b>Versi baru tersedia</b><small>Perbarui supaya fitur dan perbaikan terbaru aktif.</small></div><button type="button" id="updNow">Perbarui</button><button type="button" id="updLater" aria-label="Nanti">✕</button>';
-  document.body.append(b);
+  b.innerHTML = '<div><b>Versi baru tersedia</b><small>Perbarui dulu untuk lanjut memakai aplikasi dan menikmati fitur serta gaya terbaru.</small></div><button type="button" id="updNow">Perbarui</button>';
+  const lock = document.createElement("div");
+  lock.id = "updLock";
+  ["click", "touchstart", "touchmove", "pointerdown", "keydown", "wheel"].forEach((ev) => lock.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); }, { passive: false }));
+  document.body.append(lock, b);
+  document.documentElement.style.overflow = "hidden";
+  try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) {}
   $("updNow").onclick = async () => {
     $("updNow").textContent = "Memperbarui…";
+    $("updNow").disabled = true;
     try { const r = await navigator.serviceWorker.getRegistration(); if (r) await r.update(); } catch (e) {}
+    try { if (window.caches) { const ks = await caches.keys(); await Promise.all(ks.map((k) => caches.delete(k))); } } catch (e) {}
     location.reload();
   };
-  $("updLater").onclick = () => { b.remove(); updShown = false; updSnooze = Date.now() + 30 * 60 * 1000; };
 }
 checkUpdate();
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkUpdate(); });
