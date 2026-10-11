@@ -854,6 +854,29 @@ html[data-cstyle="msg"] .fmsg.me .fname,html[data-cstyle="msg"] .fmsg.me a{color
 
 /* ===== v3: back iOS, loading, animasi beranda ===== */
 /* ===== v4: polesan + animasi di semua bagian ===== */
+/* ===== v5: guest mode ===== */
+.gcta{display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:var(--r-m);background:linear-gradient(135deg,var(--brand-soft),color-mix(in srgb,var(--brand) 8%,var(--surface)));border:1px solid color-mix(in srgb,var(--brand) 25%,var(--line));margin-bottom:14px;text-align:left}
+.gcta b{font-family:var(--font-d);font-size:17px;font-weight:800;letter-spacing:-.02em}
+.gcta p{color:var(--mute);font-size:13.5px;margin:0}
+.gcta .gbtns{display:flex;gap:8px}
+.gcta .gbtns .btn{flex:1;padding:11px;width:auto}
+#guestBanner,#guestAcc{display:none}
+body.guest #guestBanner,body.guest #guestAcc{display:flex}
+#guestBanner{margin-bottom:18px}
+body.guest #profRow,body.guest .logout-mobile,body.guest .menu-row[data-sub="stars"],body.guest .menu-row[data-sub="notif"],body.guest .menu-row[data-sub="keamanan"],body.guest .menu-row[data-sub="perangkat"],body.guest #matSearch,body.guest #matFilters,body.guest #matUpBtn,body.guest #matFab,body.guest #refreshBtn{display:none!important}
+.gb{display:block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--line) 25%,color-mix(in srgb,var(--line) 50%,var(--surface)) 50%,var(--line) 75%);background-size:200% 100%;animation:shine 1.6s infinite linear;margin-bottom:9px}
+.gbm{height:130px;border-radius:12px}
+.gbp{display:inline-block;width:84px;height:30px;border-radius:10px;margin:0}
+.gbrow{height:38px;border-radius:12px;margin-bottom:12px}
+.gblur{filter:blur(3px);pointer-events:none;user-select:none;-webkit-user-select:none}
+.gblurwrap{position:relative;cursor:pointer}
+.glock{position:absolute;right:14px;top:12px;font-size:16px;opacity:.85}
+.glockbox{position:relative;padding:14px 0 2px;cursor:pointer}
+.glockmsg{position:absolute;inset:0;display:grid;place-items:center;font-weight:800;font-size:14px;color:var(--ink)}
+.gsh-ic{width:56px;height:56px;border-radius:18px;background:var(--brand-soft);display:grid;place-items:center;font-size:28px;margin:4px auto 10px}
+.gsheet-bg .usheet .btn{width:100%}
+.gsheet-bg .usheet .link{margin-top:6px}
+.gfake{cursor:pointer}
 @keyframes grow{from{width:0;opacity:0}to{width:34px;opacity:1}}
 @keyframes cfx{from{opacity:1;transform:translate(0,0) rotate(0) scale(.5)}to{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(1.15)}}
 @keyframes pinpop{0%{transform:scale(.6) rotate(-20deg)}60%{transform:scale(1.25) rotate(8deg)}100%{transform:none}}
@@ -997,7 +1020,7 @@ html,body{overflow-x:clip;max-width:100%}
 </defs></svg>
 
 <div id="splash" class="hidden"><div class="logo"><svg class="i"><use href="#i-logo"/></svg></div><div class="sdots"><i></i><i></i><i></i></div><small>Memuat Study Hub…</small></div>
-<div id="login"><div class="login-box">
+<div id="login" class="hidden"><div class="login-box">
 <div class="logo"><svg class="i"><use href="#i-logo"/></svg></div>
 <h1>Study Hub</h1>
 <p class="sub" id="loginSub">Masuk untuk membuka materi dan jadwal kelas.</p>
@@ -1018,6 +1041,7 @@ html,body{overflow-x:clip;max-width:100%}
 </form>
 <div id="authLinks"><button type="button" class="link" id="registerToggle">Belum punya akun? Daftar</button><button type="button" class="link quiet" id="forgotToggle">Lupa password?</button></div>
 <div id="forgotLinks" class="hidden"><button type="button" class="link quiet" id="forgotBack">Kembali ke halaman masuk</button></div>
+<button type="button" class="link quiet hidden" id="guestBack">Lanjut sebagai tamu</button>
 </div></div>
 
 <div id="app" class="hidden">
@@ -1042,6 +1066,7 @@ html,body{overflow-x:clip;max-width:100%}
 <div class="hero">
 <div class="hero-top"><div><p id="dateText">Memuat tanggal…</p><div class="clock" id="liveClock">00:00<small>00</small></div></div><button type="button" class="hero-av" id="heroAv" data-go="settings" aria-label="Buka akun">US</button></div>
 <h1 id="greetingText">Halo!</h1><div class="strip" id="strip"></div></div>
+<div class="gcta" id="guestBanner"><b>👋 Kamu masuk sebagai tamu</b><p>Daftar gratis untuk melihat materi, ikut chat kelas, dan upload.</p><div class="gbtns"><button type="button" class="btn btn-primary" data-auth="login">Masuk</button><button type="button" class="btn btn-soft" data-auth="register">Daftar</button></div></div>
 <div class="card next" id="nextCard"></div>
 <div class="quick">
 <button type="button" class="pri" data-go="upload"><span class="ic"><svg class="i"><use href="#i-up"/></svg></span>Upload</button>
@@ -1115,6 +1140,7 @@ html,body{overflow-x:clip;max-width:100%}
 
 <section class="view" id="view-settings">
 <div id="setMain"><h2 class="page-title">Akun</h2>
+<div class="gcta" id="guestAcc"><b>🔒 Belum masuk</b><p>Masuk atau daftar untuk membuka profil, materi, chat kelas, notifikasi, dan fitur lainnya.</p><div class="gbtns"><button type="button" class="btn btn-primary" data-auth="login">Masuk</button><button type="button" class="btn btn-soft" data-auth="register">Daftar</button></div></div>
 <button type="button" class="prof-row" id="profRow"><div class="avatar" id="setAvatar">US</div><span class="pt"><b id="setName">Nama</b><small id="setBioLine"></small><small id="setUser">@username</small><small id="setNim" class="hidden"></small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <div class="menu">
 <button type="button" class="menu-row" data-sub="tampilan"><span class="mi">🎨</span><span class="mt"><b>Tampilan</b><small>Tema dan warna aplikasi</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
@@ -1264,6 +1290,97 @@ function stagger(root, sel) {
   root.classList.add("stag");
   clearTimeout(root._st);
   root._st = setTimeout(() => root.classList.remove("stag"), 1400);
+}
+let guest = false;
+async function gFetch(path) {
+  const res = await fetch(API + path);
+  let d = {};
+  try { d = await res.json(); } catch (e) {}
+  if (res.status === 503 && d.maintenance) { showMaint(d.message); throw new Error("Website sedang maintenance."); }
+  if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat.");
+  return d;
+}
+function showAuth(register) {
+  $("login").classList.remove("hidden");
+  setForgotMode(false);
+  setRegisterMode(!!register);
+  $("guestBack").classList.toggle("hidden", !guest);
+}
+$("guestBack").addEventListener("click", () => $("login").classList.add("hidden"));
+function needLogin(msg) {
+  if (document.querySelector(".gsheet-bg")) return;
+  const bg = document.createElement("div");
+  bg.className = "usheet-bg gsheet-bg";
+  bg.innerHTML = `<div class="usheet" role="dialog" aria-label="Masuk dulu"><div class="grab"></div><div class="gsh-ic">🔒</div><h4 style="text-align:center">Masuk dulu ya</h4><small style="text-align:center">${esc(msg || "Fitur ini hanya untuk anggota kelas.")}</small><button type="button" class="btn btn-primary" data-g="login">Masuk</button><button type="button" class="btn btn-line" data-g="register" style="margin-top:10px">Daftar gratis</button><button type="button" class="link quiet" data-g="close">Nanti saja</button></div>`;
+  document.body.append(bg);
+  bg.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-g]");
+    if (!b && e.target.closest(".usheet")) return;
+    bg.remove();
+    if (b && b.dataset.g !== "close") showAuth(b.dataset.g === "register");
+  });
+}
+document.addEventListener("click", (e) => {
+  if (!guest) return;
+  const a = e.target.closest("[data-auth]");
+  if (a) { showAuth(a.dataset.auth === "register"); return; }
+  const n = e.target.closest("[data-needlogin]");
+  if (n) needLogin(n.dataset.needlogin);
+});
+function guestLock(label, n) {
+  return `<div class="glockbox" data-needlogin="${esc(label)} hanya untuk anggota kelas."><div class="gblur">${Array.from({ length: n }, () => '<div class="gb gbrow"></div>').join("")}</div><div class="glockmsg">🔒 Masuk untuk melihat</div></div>`;
+}
+function guestChatHtml() {
+  const W = [[62, 38], [48, 66], [70, 44], [54, 58], [66, 36]];
+  return `<div class="gcta"><b>💬 Chat & forum kelas</b><p>Ngobrol dengan teman sekelas dan tanya langsung ke admin. Masuk atau daftar dulu untuk bergabung.</p><div class="gbtns"><button type="button" class="btn btn-primary" data-auth="login">Masuk</button><button type="button" class="btn btn-soft" data-auth="register">Daftar</button></div></div>` +
+    W.map(([a, b]) => `<div class="inrow gfake" data-needlogin="Chat kelas hanya untuk anggota."><div class="gblur" style="display:flex;gap:12px;align-items:center;width:100%"><i class="gb" style="width:52px;height:52px;border-radius:50%;flex:none;margin:0"></i><div style="flex:1"><div class="gb" style="width:${a}%;margin-bottom:8px"></div><div class="gb" style="width:${b}%;height:10px;margin:0"></div></div></div></div>`).join("");
+}
+function enterGuest(keepLogin) {
+  guest = true; isAdmin = false; token = ""; currentUser = ""; fullUserName = "Tamu";
+  myProfile = { pid: "", av: false, avv: 0, bio: "" };
+  document.body.classList.add("guest");
+  $("app").classList.remove("hidden");
+  if (!keepLogin) $("login").classList.add("hidden");
+  $("navName").textContent = "Tamu"; $("navRole").textContent = "Belum masuk";
+  $("navLogout").setAttribute("aria-label", "Masuk"); $("navLogout").title = "Masuk";
+  ["navAvatar", "setAvatar", "profAvatar", "heroAv"].forEach((id) => { $(id).textContent = "👤"; });
+  $("taskList").innerHTML = guestLock("Tugas & deadline", 2);
+  topicsList = []; selectedTopicId = "";
+  renderTopicsGrid(); renderUploadSelect(); renderJadwal();
+  hubHtmlPrev = ""; $("hubList").innerHTML = ""; delete $("hubList").dataset.g;
+  navGuardInit();
+  clearInterval(clockTimer); tickClock(); clockTimer = setInterval(tickClock, 1000);
+  switchView("home");
+  loadGuestTopics();
+}
+async function loadGuestTopics() {
+  try {
+    const d = await gFetch("/api/guest/topics");
+    if (!guest) return;
+    topicsList = (d.topics || []).map((t) => ({ ...t, id: String(t.id) }));
+    renderTopicsGrid(); renderUploadSelect(); renderHomeExtras();
+  } catch (e) { console.error(e); }
+}
+async function loadGuestMaterials() {
+  const tid = selectedTopicId, box = $("materialsList");
+  box.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+  try {
+    const d = await gFetch("/api/guest/materials?topic=" + encodeURIComponent(tid));
+    if (!guest || tid !== selectedTopicId) return;
+    renderGuestMaterials(d);
+  } catch (e) { box.innerHTML = `<div class="empty"><span class="big">⚠️</span>Gagal memuat: ${esc(e.message)}.</div>`; }
+}
+function renderGuestMaterials(d) {
+  const box = $("materialsList"), total = d.total || 0, W = [78, 62, 86, 56, 72, 90, 66, 82];
+  if (!total) { box.innerHTML = '<div class="empty"><span class="big">📭</span>Belum ada materi di mata kuliah ini.</div>'; return; }
+  const head = d.locked ? "Topik ini dikunci oleh admin" : total + " materi di mata kuliah ini";
+  const cta = `<div class="gcta"><b>🔒 ${esc(head)}</b><p>Isinya hanya bisa dilihat anggota kelas. Masuk atau daftar gratis untuk membukanya.</p><div class="gbtns"><button type="button" class="btn btn-primary" data-auth="login">Masuk</button><button type="button" class="btn btn-soft" data-auth="register">Daftar</button></div></div>`;
+  const cards = (d.kinds || []).map((k, i) => {
+    const media = ["photo", "video", "animation"].includes(k);
+    return `<article class="mitem gblurwrap" data-needlogin="Masuk untuk melihat isi materi."><div class="gblur"><div class="gb" style="width:${W[i % 8]}%;height:16px"></div><div class="gb" style="width:42%"></div>${media ? '<div class="gb gbm"></div>' : '<div class="gb" style="width:88%"></div><div class="gb" style="width:64%"></div>'}<div><i class="gb gbp"></i> <i class="gb gbp"></i></div></div><span class="glock">🔒</span></article>`;
+  }).join("");
+  box.innerHTML = cta + cards;
+  stagger(box, ".gcta,.mitem");
 }
 const EMO = ["🎉", "✨", "⭐", "💚", "🎊", "🌟"];
 function burst(el) {
@@ -1477,6 +1594,7 @@ function updateGreeting() {
 /* ---------- navigation ---------- */
 function switchView(id) {
   if (id === "admin" && !isAdmin) id = "home";
+  if (guest && (id === "upload" || id === "forum")) { needLogin(id === "upload" ? "Upload materi hanya untuk anggota kelas." : "Forum kelas hanya untuk anggota kelas."); return; }
   if (activeView === "forum" && id !== "forum") closeForum();
   activeView = id;
   document.body.classList.toggle("forum-open", id === "forum");
@@ -1517,6 +1635,7 @@ $("subBack").addEventListener("click", closeSub);
 
 /* ---------- tombol cepat beranda ---------- */
 $("qTask").addEventListener("click", async () => {
+  if (guest) return needLogin("Daftar tugas dan deadline hanya untuk anggota kelas.");
   if (!topicsList.length) await loadTopics();
   try { await loadTasks(true); } catch (e) { /* diabaikan, kartu tetap tampil */ }
   $("taskCard").scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1840,12 +1959,11 @@ function logout(manual = true) {
   selectedTopicId = "";
   $("navAdminLi").classList.add("hidden");
   $("setAdminBtn").classList.add("hidden");
-  $("app").classList.add("hidden");
-  $("login").classList.remove("hidden");
   $("authForm").reset();
+  enterGuest(!$("login").classList.contains("hidden"));
   if (manual) showToast("Berhasil keluar.");
 }
-$("navLogout").addEventListener("click", () => logout());
+$("navLogout").addEventListener("click", () => (guest ? showAuth(false) : logout()));
 $("mobileLogout").addEventListener("click", () => logout());
 
 async function initApp() {
@@ -1856,6 +1974,11 @@ async function initApp() {
     const data = await res.json().catch(() => ({}));
     if (res.status === 503 && data.maintenance) { showMaint(data.message); return false; }
     if (!res.ok || !data.ok) throw new Error(data.error || "Sesi tidak valid.");
+    guest = false; document.body.classList.remove("guest");
+    topicsList = []; backToTopics();
+    $("navLogout").setAttribute("aria-label", "Keluar"); $("navLogout").title = "Keluar";
+    hubHtmlPrev = ""; $("hubList").innerHTML = ""; delete $("hubList").dataset.g;
+    $("taskList").innerHTML = '<div class="tskel"><i></i><i></i></div>';
     currentUser = data.username;
     fullUserName = data.full_name || currentUser;
     const isOwner = currentUser.toLowerCase() === "admin";
@@ -1909,6 +2032,7 @@ function toggleIn(arr, id) {
   if (i >= 0) arr.splice(i, 1); else arr.push(id);
 }
 async function loadTopics() {
+  if (guest) return loadGuestTopics();
   try {
     const res = await apiCall("/api/topics");
     const data = await res.json();
@@ -1940,7 +2064,7 @@ function renderTopicsGrid() {
     const pinned = pinnedTopics.includes(t.id);
     return `<div class="tcard ${pinned ? "pin" : ""}" data-id="${esc(t.id)}" role="button" tabindex="0">
       <div class="ticon">${ICONS[t.name] || "📚"}</div>
-      <div class="tinfo"><b>${t.locked && !t.unlocked ? "🔒 " : ""}${esc(t.name || "Mata kuliah")}</b><small>${t.locked && !t.unlocked ? "🔒 Terkunci · ketuk lalu masukkan password" : t.locked ? "🔓 Terbuka" : pinned ? "Dipin" : "Ketuk untuk membuka"}</small></div>
+      <div class="tinfo"><b>${t.locked && !t.unlocked ? "🔒 " : ""}${esc(t.name || "Mata kuliah")}</b><small>${guest ? esc((t.count || 0) + " materi · masuk untuk melihat") : t.locked && !t.unlocked ? "🔒 Terkunci · ketuk lalu masukkan password" : t.locked ? "🔓 Terbuka" : pinned ? "Dipin" : "Ketuk untuk membuka"}</small></div>
       <button type="button" class="pinbtn" data-pin="${esc(t.id)}" aria-label="${pinned ? "Lepas pin" : "Pin"}">${svg("pin", 22)}</button>
     </div>`;
   }).join("");
@@ -2066,7 +2190,7 @@ async function askUnlock(t) {
 async function openTopic(id) {
   const t = topicsList.find((x) => x.id === id);
   if (!t) return;
-  if (t.locked && !t.unlocked && !(await askUnlock(t))) return;
+  if (!guest && t.locked && !t.unlocked && !(await askUnlock(t))) return;
   selectedTopicId = id;
   matStag = true;
   lastMaterials = [];
@@ -2090,6 +2214,7 @@ $("refreshBtn").addEventListener("click", () => loadMaterials(false));
 /* ---------- materials ---------- */
 async function loadMaterials(silent) {
   if (!selectedTopicId) return;
+  if (guest) return loadGuestMaterials();
   const topicAtCall = selectedTopicId;
   if (!silent) $("materialsList").innerHTML = `<div class="skel"></div><div class="skel"></div><div class="skel"></div>`;
   try {
@@ -3160,6 +3285,11 @@ function renderChatHub(force) {
   if (activeView !== "chat") return;
   const box = $("hubList");
   if (!box) return;
+  if (guest) {
+    if ($("hubNew")) $("hubNew").classList.add("hidden");
+    if (force || !box.dataset.g) { box.dataset.g = "1"; box.innerHTML = guestChatHtml(); stagger(box, ":scope > *"); }
+    return;
+  }
   const hn = $("hubNew");
   if (hn) { hn.classList.toggle("hidden", !(isAdmin && inOn)); if (!hn.innerHTML) hn.innerHTML = IC.compose; }
   const rows = [];
@@ -5121,7 +5251,7 @@ renderForum(false);
 fetch(API + "/api/status", { cache: "no-store" }).then((r) => r.json())
   .then((d) => { if (d.maintenance) showMaint(d.message); }).catch(() => {});
 function hideSplash() { const sp = $("splash"); sp.classList.add("out"); setTimeout(() => sp.classList.add("hidden"), 400); }
-if (token) { $("splash").classList.remove("hidden"); initApp().finally(hideSplash); } else $("login").classList.remove("hidden");
+if (token) { $("splash").classList.remove("hidden"); initApp().finally(hideSplash); } else enterGuest(false);
 
 /* ===== v2: viewport keyboard-aware, pratinjau profil + tombol Rincian ===== */
 (function () {
@@ -5205,6 +5335,7 @@ function navGuardInit() {
 }
 function navBack() {
   const last = (sel) => { const l = document.querySelectorAll(sel); return l[l.length - 1] || null; };
+  if (guest && !$("login").classList.contains("hidden")) { $("login").classList.add("hidden"); return true; }
   const md = last(".modal-bg");
   if (md) { const c = md.querySelector('[data-m="cancel"]'); if (c) c.click(); return true; }
   const lb = last(".lb"); if (lb) { lb.remove(); return true; }
