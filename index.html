@@ -666,6 +666,15 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .inwho small{display:block;font-size:12px;color:var(--mute)}
 .inwho small.inon{color:#1a9e5c;font-weight:700}
 .ityp{align-items:flex-end;gap:6px}
+/* ===== v8: scroll internal supaya navbar tidak melayang di iOS/Android ===== */
+html,body{height:100%;min-height:0;overflow:hidden;overscroll-behavior:none}
+#app{position:fixed;inset:0;min-height:0;overflow-x:clip;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
+.nav{bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+@media (min-width:900px){.nav{bottom:0}}
+#splash .shelp{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:300px;text-align:center}
+#splash .shelp p{color:var(--mute);font-size:14px;line-height:1.45;margin:0}
+#splash .shelp .row{display:flex;gap:8px;width:100%}
+#splash .shelp .btn{flex:1;width:auto;padding:11px 10px;font-size:14px}
 </style>
 <style>
 .fpinbar{display:flex;align-items:center;gap:8px;padding:8px 12px;margin-bottom:8px;background:var(--amber-soft);color:var(--ink);border-radius:var(--r-s);font-size:13px;cursor:pointer}
@@ -971,7 +980,6 @@ html,body{overflow-x:clip;max-width:100%}
 .main{overflow-x:clip}
 .hero::before{left:-10px!important;top:-30px!important;width:150px!important;height:150px!important}
 .hero::after{right:-10px!important;top:10px!important;width:140px!important;height:140px!important}
-.nav{transform:translateZ(0);will-change:transform;contain:layout}
 @media (max-width:899px){.nav{bottom:calc(10px + env(safe-area-inset-bottom))}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes rise{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
@@ -1065,7 +1073,7 @@ html,body{overflow-x:clip;max-width:100%}
 <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
 </defs></svg>
 
-<div id="splash" class="hidden"><div class="logo"><svg class="i"><use href="#i-logo"/></svg></div><div class="sdots"><i></i><i></i><i></i></div><small>Memuat Study Hub…</small></div>
+<div id="splash" class="hidden"><div class="logo"><svg class="i"><use href="#i-logo"/></svg></div><div class="sdots"><i></i><i></i><i></i></div><small id="splashMsg">Memuat Study Hub…</small><div class="shelp hidden" id="splashHelp"><p id="splashHelpMsg"></p><div class="row"><button type="button" class="btn btn-primary" id="splashRetry">Coba lagi</button><button type="button" class="btn btn-line" id="splashGuest">Lanjut sebagai tamu</button></div></div></div>
 <div id="login" class="hidden"><div class="login-box">
 <div class="logo"><svg class="i"><use href="#i-logo"/></svg></div>
 <h1>Study Hub</h1>
@@ -1325,6 +1333,10 @@ let pinnedMaterials = readJSON("semester5_pinned_materials").map(String);
 
 /* ---------- helpers ---------- */
 const $ = (id) => document.getElementById(id);
+function scrollAppTop(smooth) {
+  const a = document.getElementById("app");
+  try { if (a) a.scrollTo({ top: 0, behavior: smooth ? "smooth" : "auto" }); window.scrollTo(0, 0); } catch (e) { if (a) a.scrollTop = 0; }
+}
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (m) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 const svg = (id, size) => `<svg class="i"${size ? ` style="width:${size}px;height:${size}px"` : ""}><use href="#i-${id}"/></svg>`;
 const pad = (n) => String(n).padStart(2, "0");
@@ -1660,7 +1672,7 @@ function switchView(id) {
   if (id === "forum") openForum();
   if (id === "chat") { hubStagUntil = Date.now() + 2500; renderChatHub(true); pollForum(); hubLoadThreads(true); }
   if (id === "home") { updateGreeting(); renderHome(); renderHomeExtras(); loadTasks(false); }
-  window.scrollTo({ top: 0 });
+  scrollAppTop();
 }
 document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click", () => switchView(b.dataset.view)));
 document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => switchView(b.dataset.go)));
@@ -1675,7 +1687,7 @@ function openSub(name) {
   $("subTitle").textContent = SUB_TITLES[name] || "";
   stagger($("setSub"), ".subpane:not(.hidden)>.card,.subpane:not(.hidden)>.secnote,.subpane:not(.hidden)>.seclist,.subpane:not(.hidden)>.prof-hero");
   if (name === "notif") { $("notifTestMsg").textContent = ""; notifDiag(); }
-  window.scrollTo({ top: 0 });
+  scrollAppTop();
 }
 function closeSub() {
   $("setSub").classList.add("hidden");
@@ -2140,13 +2152,23 @@ $("trTip").addEventListener("click", async (e) => {
 window.addEventListener("resize", () => { if (tourOn) tourPlace(); });
 $("rowGuide").addEventListener("click", tourOpen);
 
+var initTransient = false;
 async function initApp() {
   if (!token) return false;
-  lastInitError = "";
+  lastInitError = ""; initTransient = false;
   try {
-    const res = await offFetch("/api/me", { headers: { Authorization: "Bearer " + token } });
-    const data = await res.json().catch(() => ({}));
+    let res, data;
+    const ctl = new AbortController(), tmo = setTimeout(() => ctl.abort(), 25000);
+    try {
+      res = await offFetch("/api/me", { headers: { Authorization: "Bearer " + token }, signal: ctl.signal });
+      data = await res.json().catch(() => ({}));
+    } catch (netErr) {
+      initTransient = true;
+      lastInitError = "Server belum merespons. Coba lagi sebentar lagi.";
+      return false;
+    } finally { clearTimeout(tmo); }
     if (res.status === 503 && data.maintenance) { showMaint(data.message); return false; }
+    if (res.status >= 500) { initTransient = true; lastInitError = "Server sedang sibuk. Coba lagi sebentar lagi."; return false; }
     if (!res.ok || !data.ok) throw new Error(data.error || "Sesi tidak valid.");
     guest = false; document.body.classList.remove("guest");
     topicsList = []; backToTopics();
@@ -2169,7 +2191,7 @@ async function initApp() {
     $("login").classList.add("hidden");
     $("app").classList.remove("hidden");
     renderJadwal();
-    await loadTopics();
+    await Promise.race([loadTopics(), new Promise((r) => setTimeout(r, 6000))]);
     switchView("home");
     navGuardInit();
     clearInterval(clockTimer);
@@ -3720,7 +3742,7 @@ function clearForumReply() { fReplyTo = null; $("fReply").classList.add("hidden"
 function forumResetScroll() {
   if (activeView !== "forum") return;
   setTimeout(() => {
-    if (activeView === "forum" && document.activeElement !== $("fInput") && window.scrollY > 0) window.scrollTo({ top: 0, behavior: "smooth" });
+    if (activeView === "forum" && document.activeElement !== $("fInput") && (window.scrollY > 0 || $("app").scrollTop > 0)) scrollAppTop(true);
   }, 250);
 }
 function setForumReply(id) {
@@ -5426,7 +5448,30 @@ renderForum(false);
 fetch(API + "/api/status", { cache: "no-store" }).then((r) => r.json())
   .then((d) => { if (d.maintenance) showMaint(d.message); }).catch(() => {});
 function hideSplash() { const sp = $("splash"); sp.classList.add("out"); setTimeout(() => sp.classList.add("hidden"), 400); }
-if (token) { $("splash").classList.remove("hidden"); initApp().finally(hideSplash); } else enterGuest(false);
+function showSplashHelp(msg) {
+  const sp = $("splash");
+  sp.classList.remove("hidden", "out");
+  $("splashHelpMsg").textContent = msg || "Server lambat merespons.";
+  $("splashHelp").classList.remove("hidden");
+  $("splashMsg").classList.add("hidden");
+}
+function bootSession() {
+  const sp = $("splash");
+  sp.classList.remove("hidden", "out");
+  $("splashHelp").classList.add("hidden");
+  $("splashMsg").classList.remove("hidden");
+  $("splashMsg").textContent = "Memuat Study Hub…";
+  const t1 = setTimeout(() => { $("splashMsg").textContent = "Server sedang bangun, mohon tunggu sebentar…"; }, 6000);
+  const t2 = setTimeout(() => showSplashHelp("Server lambat merespons. Kamu bisa menunggu, coba lagi, atau lanjut sebagai tamu dulu."), 15000);
+  const done = () => { clearTimeout(t1); clearTimeout(t2); };
+  initApp().then((ok) => {
+    done();
+    if (!ok && initTransient) showSplashHelp(lastInitError); else hideSplash();
+  }).catch(() => { done(); showSplashHelp("Terjadi kesalahan saat memuat. Coba lagi."); });
+}
+$("splashRetry").addEventListener("click", () => location.reload());
+$("splashGuest").addEventListener("click", () => { enterGuest(false); hideSplash(); });
+if (token) bootSession(); else enterGuest(false);
 
 /* ===== v2: viewport keyboard-aware, pratinjau profil + tombol Rincian ===== */
 (function () {
