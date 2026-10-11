@@ -855,6 +855,35 @@ html[data-cstyle="msg"] .fmsg.me .fname,html[data-cstyle="msg"] .fmsg.me a{color
 
 /* ===== v3: back iOS, loading, animasi beranda ===== */
 /* ===== v4: polesan + animasi di semua bagian ===== */
+/* ===== v6: panduan aplikasi (onboarding) ===== */
+#onb{position:fixed;inset:0;z-index:1300;background:var(--bg);display:flex;flex-direction:column;align-items:center;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);overflow:hidden}
+#onb::before{content:"";position:absolute;width:300px;height:300px;left:-90px;top:-70px;border-radius:50%;filter:blur(60px);background:color-mix(in srgb,var(--brand) 22%,transparent);pointer-events:none}
+#onb::after{content:"";position:absolute;width:280px;height:280px;right:-90px;bottom:-60px;border-radius:50%;filter:blur(60px);background:color-mix(in srgb,#8b5cf6 24%,transparent);pointer-events:none}
+#onb .ob-top,#onb .ob-body,#onb .ob-bot{position:relative;z-index:1;width:100%;max-width:440px;padding-left:22px;padding-right:22px}
+#onb .ob-top{display:flex;align-items:center;justify-content:space-between;padding-top:18px;padding-bottom:6px}
+#onb .ob-dots{display:flex;gap:6px}
+#onb .ob-dots i{width:8px;height:8px;border-radius:99px;background:var(--line);transition:width .25s,background .25s}
+#onb .ob-dots i.on{width:24px;background:var(--brand)}
+#onb .ob-dots i.done{background:color-mix(in srgb,var(--brand) 45%,var(--line))}
+#onb .ob-skip{font-weight:700;font-size:14px;color:var(--mute);padding:8px 4px}
+#onb .ob-body{flex:1;overflow-y:auto;display:flex;flex-direction:column;justify-content:center;padding-top:10px;padding-bottom:10px}
+#onb .ob-slide{animation:onbIn .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes onbIn{from{opacity:0;transform:translateX(22px)}to{opacity:1;transform:none}}
+#onb .ob-ic{width:76px;height:76px;border-radius:24px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;font-size:36px;margin-bottom:20px;box-shadow:0 14px 34px -16px rgba(0,0,0,.3)}
+#onb h2{font-family:var(--font-d);font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1.12;margin-bottom:8px;overflow-wrap:anywhere}
+#onb .ob-p{color:var(--mute);font-size:15px;line-height:1.5;margin-bottom:18px}
+#onb .ob-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:14px 16px}
+#onb .ob-list{display:flex;flex-direction:column;gap:10px}
+#onb .ob-row{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:12px 14px}
+#onb .ob-row .e{font-size:22px;width:34px;text-align:center;flex:none}
+#onb .ob-row b{display:block;font-size:15px}
+#onb .ob-row small{color:var(--mute);font-size:13px}
+#onb .ob-av{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:16px}
+#onb .ob-av .avatar{width:92px;height:92px;font-size:30px}
+#onb .ob-bot{display:flex;gap:10px;padding-top:10px;padding-bottom:22px}
+#onb .ob-bot .btn{flex:1;width:auto}
+#onb .ob-bot .ob-back{flex:0 0 auto;padding-left:22px;padding-right:22px}
+#onb .ob-ok{color:var(--ok);font-weight:700;font-size:14px;margin-top:10px}
 /* ===== v6: form daftar ringkas ===== */
 .login-box.reg{display:grid;grid-template-columns:auto 1fr;column-gap:12px;align-items:center;padding:20px 20px 16px}
 .login-box.reg>*{grid-column:1/-1}
@@ -886,7 +915,7 @@ html[data-cstyle="msg"] .fmsg.me .fname,html[data-cstyle="msg"] .fmsg.me a{color
 body.guest #nextCard,body.guest #strip,body.guest #todayCard,body.guest #dayChips,body.guest #view-jadwal .page-sub{display:none!important}
 body.guest #guestBanner,body.guest #guestAcc{display:flex}
 #guestBanner{margin-bottom:18px}
-body.guest #profRow,body.guest .logout-mobile,body.guest .menu-row[data-sub="chat"],body.guest .menu-row[data-sub="stars"],body.guest .menu-row[data-sub="notif"],body.guest .menu-row[data-sub="keamanan"],body.guest .menu-row[data-sub="perangkat"],body.guest #matSearch,body.guest #matFilters,body.guest #matUpBtn,body.guest #matFab,body.guest #refreshBtn{display:none!important}
+body.guest #profRow,body.guest .logout-mobile,body.guest #rowGuide,body.guest .menu-row[data-sub="chat"],body.guest .menu-row[data-sub="stars"],body.guest .menu-row[data-sub="notif"],body.guest .menu-row[data-sub="keamanan"],body.guest .menu-row[data-sub="perangkat"],body.guest #matSearch,body.guest #matFilters,body.guest #matUpBtn,body.guest #matFab,body.guest #refreshBtn{display:none!important}
 .gb{display:block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--line) 25%,color-mix(in srgb,var(--line) 50%,var(--surface)) 50%,var(--line) 75%);background-size:200% 100%;animation:shine 1.6s infinite linear;margin-bottom:9px}
 .gbm{height:130px;border-radius:12px}
 .gbp{display:inline-block;width:84px;height:30px;border-radius:10px;margin:0}
@@ -1067,6 +1096,12 @@ html,body{overflow-x:clip;max-width:100%}
 <button type="button" class="link quiet hidden" id="guestBack">Lanjut sebagai tamu</button>
 </div></div>
 
+<div id="onb" class="hidden" role="dialog" aria-label="Panduan aplikasi">
+<div class="ob-top"><div class="ob-dots" id="obDots"></div><button type="button" class="ob-skip" id="obSkip">Lewati</button></div>
+<div class="ob-body" id="obBody"></div>
+<div class="ob-bot"><button type="button" class="btn btn-line ob-back hidden" id="obBack">Kembali</button><button type="button" class="btn btn-primary" id="obNext">Lanjut</button></div>
+</div>
+
 <div id="app" class="hidden">
 <nav class="nav" aria-label="Menu utama">
 <div class="nav-brand"><div class="logo"><svg class="i"><use href="#i-logo"/></svg></div><div><b>Study Hub</b><small>Semester 5</small></div></div>
@@ -1173,6 +1208,7 @@ html,body{overflow-x:clip;max-width:100%}
 <button type="button" class="menu-row" data-sub="keamanan"><span class="mi">🔐</span><span class="mt"><b>Keamanan</b><small>Ganti password</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="perangkat"><span class="mi">📱</span><span class="mt"><b>Perangkat</b><small id="devCount">Lihat dan keluarkan perangkat yang login</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="pasang" id="rowInstall"><span class="mi">📲</span><span class="mt"><b>Pasang aplikasi</b><small>Tambahkan ke layar utama</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+<button type="button" class="menu-row" id="rowGuide"><span class="mi">🧭</span><span class="mt"><b>Panduan aplikasi</b><small>Lihat lagi tur singkat Study Hub</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row hidden" id="setAdminBtn" data-go="admin"><span class="mi">🛡️</span><span class="mt"><b>Panel admin</b><small>Akun, blokir, log, forum</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 </div>
 <button class="btn btn-danger logout-mobile" id="mobileLogout" type="button">Keluar dari akun</button></div>
@@ -1491,7 +1527,7 @@ let myProfile = { pid: "", av: false, avv: 0, bio: "" };
 function setMyAvatars() {
   const html = myProfile.av && myProfile.pid
     ? `<img src="${API}/api/avatar/${myProfile.pid}?v=${myProfile.avv}" alt="">` : esc(initials());
-  ["navAvatar", "setAvatar", "profAvatar", "heroAv"].forEach((id) => { $(id).innerHTML = html; });
+  ["navAvatar", "setAvatar", "profAvatar", "heroAv", "obAv"].forEach((id) => { const e = $(id); if (e) e.innerHTML = html; });
 }
 
 let toastTimer;
@@ -1813,6 +1849,7 @@ $("authForm").addEventListener("submit", async (e) => {
         username, password, confirm: $("confirmPassword").value,
         full_name: $("fullName").value.trim(), nim });
       if (!res.ok || !data.ok) throw new Error(data.error || "Pendaftaran gagal.");
+      try { localStorage.setItem("s5_onb_" + username.toLowerCase(), "1"); } catch (e) {}
       showToast("Akun berhasil dibuat. Silakan masuk.");
       setRegisterMode(false);
       $("password").value = "";
@@ -2002,6 +2039,92 @@ function logout(manual = true) {
 $("navLogout").addEventListener("click", () => (guest ? showAuth(false) : logout()));
 $("mobileLogout").addEventListener("click", () => logout());
 
+/* ---------- panduan aplikasi untuk akun baru ---------- */
+var onbStep = 0;
+const ONB_STEPS = [
+  () => `<div class="ob-ic">👋</div><h2>Selamat datang, ${esc(callName())}!</h2><p class="ob-p">Study Hub adalah tempat kelas 5P52 dan 5P52A menyimpan materi, jadwal, tugas, dan ngobrol bareng. Panduan singkat ini cuma sebentar, dan kamu boleh melewatinya kapan saja.</p><div class="ob-list"><div class="ob-row"><span class="e">📚</span><div><b>Materi dan tugas</b><small>Semua file kelas rapi per mata kuliah</small></div></div><div class="ob-row"><span class="e">🗓️</span><div><b>Jadwal dan pengingat</b><small>Tidak ketinggalan kelas dan deadline</small></div></div><div class="ob-row"><span class="e">💬</span><div><b>Chat kelas</b><small>Forum kelas dan chat langsung ke admin</small></div></div></div>`,
+  () => `<div class="ob-av"><div class="avatar" id="obAv"></div><button type="button" class="btn btn-soft" id="obPick" style="padding:9px 18px;font-size:14px">Pilih foto</button></div><h2 style="text-align:center">Pasang profilmu</h2><p class="ob-p" style="text-align:center">Foto dan bio bikin teman sekelas gampang mengenalimu. Boleh dilewati, nanti bisa diubah di Akun.</p><div class="field" style="margin:0"><label for="obBio">Bio singkat</label><input class="input" id="obBio" maxlength="120" placeholder="Contoh: Suka ngoding, anak kos" value="${esc(myProfile.bio || "")}"></div>`,
+  () => `<div class="ob-ic">🔔</div><h2>Aktifkan notifikasi</h2><p class="ob-p">Dapat pengingat deadline tugas (24 jam, 3 jam, 1 jam, dan 5 menit sebelumnya), kabar materi baru, dan pesan chat, walau aplikasinya sedang ditutup.</p><button type="button" class="btn btn-soft" id="obNotif" style="width:100%"></button><div class="ob-ok" id="obNotifOk"></div>`,
+  () => `<div class="ob-ic">🧭</div><h2>Kenali menunya</h2><p class="ob-p">Lima tab di bawah layar, semuanya mudah dicari.</p><div class="ob-list"><div class="ob-row"><span class="e">🏠</span><div><b>Beranda</b><small>Kelas berikutnya dan tugas mendatang</small></div></div><div class="ob-row"><span class="e">📚</span><div><b>Materi</b><small>Cari, buka, dan upload materi per matkul</small></div></div><div class="ob-row"><span class="e">🗓️</span><div><b>Jadwal</b><small>Jadwal kuliah per hari</small></div></div><div class="ob-row"><span class="e">💬</span><div><b>Chat</b><small>Admin dan forum kelas</small></div></div><div class="ob-row"><span class="e">⚙️</span><div><b>Akun</b><small>Profil, tampilan chat, dan notifikasi</small></div></div></div>`,
+  () => `<div class="ob-ic">📲</div><h2>Pasang ke layar utama</h2><p class="ob-p">${standalone ? "Study Hub sudah terpasang di perangkatmu. Mantap!" : "Biar terbuka seperti aplikasi biasa, cepat dan layar penuh. iPhone: buka lewat Safari, ketuk Bagikan, lalu Tambahkan ke Layar Utama."}</p>${standalone ? "" : '<button type="button" class="btn btn-soft" id="obInstall" style="width:100%">Pasang aplikasi</button>'}`
+];
+function onbDots() {
+  $("obDots").innerHTML = ONB_STEPS.map((_, i) => `<i class="${i === onbStep ? "on" : i < onbStep ? "done" : ""}"></i>`).join("");
+}
+function onbNotifUi() {
+  const b = $("obNotif"); if (!b) return;
+  if (!pushSupported()) { b.textContent = "Tidak didukung di browser ini"; b.disabled = true; return; }
+  if (pushOn) { b.textContent = "Notifikasi aktif ✓"; b.disabled = true; $("obNotifOk").textContent = "Siap! Pengingat akan datang otomatis."; return; }
+  b.disabled = false;
+  b.textContent = Notification.permission === "denied" ? "Diblokir. Atur lewat pengaturan situs di browser" : "Aktifkan notifikasi";
+}
+function onbRender() {
+  const last = onbStep === ONB_STEPS.length - 1;
+  $("obBody").innerHTML = `<div class="ob-slide">${ONB_STEPS[onbStep]()}</div>`;
+  $("obBack").classList.toggle("hidden", onbStep === 0);
+  $("obNext").textContent = last ? "Mulai pakai" : onbStep === 0 ? "Mulai panduan" : "Lanjut";
+  $("obSkip").classList.toggle("hidden", last);
+  onbDots();
+  if (onbStep === 1) setMyAvatars();
+  if (onbStep === 2) onbNotifUi();
+  $("obBody").scrollTop = 0;
+}
+function onbClose() {
+  $("onb").classList.add("hidden");
+  document.body.style.overflow = "";
+  switchView("home");
+}
+async function onbSaveBio() {
+  const el = $("obBio");
+  if (!el) return;
+  const bio = el.value.trim();
+  if (bio === (myProfile.bio || "")) return;
+  try {
+    const { res, data } = await postJSON("/api/profile", { full_name: fullUserName, bio }, true);
+    if (!res.ok || !data.ok) throw new Error(data.error || "Gagal menyimpan bio.");
+    myProfile.bio = data.bio || "";
+    $("newBio").value = myProfile.bio;
+    $("setBioLine").textContent = myProfile.bio || "Tambahkan bio";
+    showToast("Bio disimpan.");
+  } catch (err) { showToast(err.message, true); }
+}
+function showOnb() {
+  onbStep = 0;
+  $("onb").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  onbRender();
+}
+function maybeOnboard() {
+  if (guest || !currentUser) return;
+  const k = "s5_onb_" + currentUser.toLowerCase();
+  let pending = false;
+  try { pending = localStorage.getItem(k) === "1"; if (pending) localStorage.removeItem(k); } catch (e) {}
+  if (pending) setTimeout(showOnb, 400);
+}
+$("obSkip").addEventListener("click", onbClose);
+$("obBack").addEventListener("click", () => { if (onbStep > 0) { onbStep--; onbRender(); } });
+$("obNext").addEventListener("click", async () => {
+  if (onbStep === ONB_STEPS.length - 1) { onbClose(); showToast("Selamat belajar!"); return; }
+  const b = $("obNext");
+  if (onbStep === 1) { b.disabled = true; await onbSaveBio(); b.disabled = false; }
+  onbStep++; onbRender();
+});
+$("obBody").addEventListener("click", async (e) => {
+  if (e.target.closest("#obPick")) { $("avFile").click(); return; }
+  if (e.target.closest("#obNotif")) {
+    if (Notification.permission === "denied") { showToast("Notifikasi diblokir. Aktifkan lewat pengaturan situs di browser.", true); return; }
+    const ok = await syncPush(true);
+    updateNotifBtn(); onbNotifUi();
+    showToast(ok ? "Notifikasi aktif." : "Notifikasi belum aktif.", !ok);
+    return;
+  }
+  if (e.target.closest("#obInstall")) {
+    if (deferredInstall) { deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall = null; return; }
+    showToast("Buka menu browser lalu pilih Pasang aplikasi / Tambahkan ke Layar Utama.");
+  }
+});
+$("rowGuide").addEventListener("click", showOnb);
+
 async function initApp() {
   if (!token) return false;
   lastInitError = "";
@@ -2040,6 +2163,7 @@ async function initApp() {
     clockTimer = setInterval(tickClock, 1000);
     startReminders();
     startForum();
+    maybeOnboard();
     syncPush(false).then(updateNotifBtn);
     syncTimer = setInterval(() => {
       if (!document.hidden && token && selectedTopicId && activeView === "materi") loadMaterials(true);
@@ -5370,6 +5494,7 @@ function navGuardInit() {
 }
 function navBack() {
   const last = (sel) => { const l = document.querySelectorAll(sel); return l[l.length - 1] || null; };
+  if (!$("onb").classList.contains("hidden")) { onbClose(); return true; }
   if (guest && !$("login").classList.contains("hidden")) { $("login").classList.add("hidden"); return true; }
   const md = last(".modal-bg");
   if (md) { const c = md.querySelector('[data-m="cancel"]'); if (c) c.click(); return true; }
