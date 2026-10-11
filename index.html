@@ -26,7 +26,8 @@ button{cursor:pointer;border:0;background:none}
 :focus-visible{outline:3px solid var(--brand);outline-offset:2px}
 .hidden{display:none!important}
 svg.i{width:22px;height:22px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-#login{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+#login{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+#login .login-box{margin:auto 0}
 .login-box{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-l);padding:32px 28px}
 .logo{width:56px;height:56px;border-radius:18px;background:#0b0b0c;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);display:grid;place-items:center;margin-bottom:18px}
 .logo svg{width:34px;height:34px}
@@ -854,6 +855,27 @@ html[data-cstyle="msg"] .fmsg.me .fname,html[data-cstyle="msg"] .fmsg.me a{color
 
 /* ===== v3: back iOS, loading, animasi beranda ===== */
 /* ===== v4: polesan + animasi di semua bagian ===== */
+/* ===== v6: form daftar ringkas ===== */
+.login-box.reg{display:grid;grid-template-columns:auto 1fr;column-gap:12px;align-items:center;padding:20px 20px 16px}
+.login-box.reg>*{grid-column:1/-1}
+.login-box.reg .logo{grid-column:1;width:44px;height:44px;border-radius:14px;margin:0}
+.login-box.reg .logo svg{width:26px;height:26px}
+.login-box.reg h1{grid-column:2;font-size:24px}
+.login-box.reg .sub{margin:10px 0 14px;font-size:13.5px}
+.login-box.reg #authForm{display:grid;grid-template-columns:1fr 1fr;column-gap:10px}
+.login-box.reg #authForm>*{grid-column:1/-1}
+.login-box.reg #authForm>.field:first-child{grid-column:1;order:1}
+.login-box.reg #nimWrap{grid-column:2;order:2}
+.login-box.reg #nameWrap{order:3}
+.login-box.reg #authForm>.field:nth-of-type(4){order:4}
+.login-box.reg #confirmWrap{order:5}
+.login-box.reg #loginButton{order:6}
+.login-box.reg .field{margin-bottom:10px}
+.login-box.reg .field label{font-size:12.5px;margin-bottom:4px}
+.login-box.reg .input{padding:10px 12px;font-size:15px}
+.login-box.reg .btn{padding:12px}
+.login-box.reg .link{margin-top:8px}
+.login-box.reg #forgotToggle{display:none}
 /* ===== v5: guest mode ===== */
 .gcta{display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:var(--r-m);background:linear-gradient(135deg,var(--brand-soft),color-mix(in srgb,var(--brand) 8%,var(--surface)));border:1px solid color-mix(in srgb,var(--brand) 25%,var(--line));margin-bottom:14px;text-align:left}
 .gcta b{font-family:var(--font-d);font-size:17px;font-weight:800;letter-spacing:-.02em}
@@ -861,9 +883,10 @@ html[data-cstyle="msg"] .fmsg.me .fname,html[data-cstyle="msg"] .fmsg.me a{color
 .gcta .gbtns{display:flex;gap:8px}
 .gcta .gbtns .btn{flex:1;padding:11px;width:auto}
 #guestBanner,#guestAcc{display:none}
+body.guest #nextCard,body.guest #strip,body.guest #todayCard,body.guest #dayChips,body.guest #view-jadwal .page-sub{display:none!important}
 body.guest #guestBanner,body.guest #guestAcc{display:flex}
 #guestBanner{margin-bottom:18px}
-body.guest #profRow,body.guest .logout-mobile,body.guest .menu-row[data-sub="stars"],body.guest .menu-row[data-sub="notif"],body.guest .menu-row[data-sub="keamanan"],body.guest .menu-row[data-sub="perangkat"],body.guest #matSearch,body.guest #matFilters,body.guest #matUpBtn,body.guest #matFab,body.guest #refreshBtn{display:none!important}
+body.guest #profRow,body.guest .logout-mobile,body.guest .menu-row[data-sub="chat"],body.guest .menu-row[data-sub="stars"],body.guest .menu-row[data-sub="notif"],body.guest .menu-row[data-sub="keamanan"],body.guest .menu-row[data-sub="perangkat"],body.guest #matSearch,body.guest #matFilters,body.guest #matUpBtn,body.guest #matFab,body.guest #refreshBtn{display:none!important}
 .gb{display:block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--line) 25%,color-mix(in srgb,var(--line) 50%,var(--surface)) 50%,var(--line) 75%);background-size:200% 100%;animation:shine 1.6s infinite linear;margin-bottom:9px}
 .gbm{height:130px;border-radius:12px}
 .gbp{display:inline-block;width:84px;height:30px;border-radius:10px;margin:0}
@@ -1074,7 +1097,7 @@ html,body{overflow-x:clip;max-width:100%}
 <button type="button" id="qSearch"><span class="ic"><svg class="i"><use href="#i-folder"/></svg></span>Matkul</button>
 </div>
 <div class="card" id="taskCard"><h3>Tugas mendatang</h3><div id="taskList"><div class="tskel"><i></i><i></i></div></div></div>
-<div class="card"><h3>Kelas hari ini</h3><div id="todayList"></div></div>
+<div class="card" id="todayCard"><h3>Kelas hari ini</h3><div id="todayList"></div></div>
 <div class="card hidden" id="favCard"><h3>Matkul favorit</h3><div class="favs" id="favList"></div></div>
 <div class="card hidden" id="adminPanel"><h3>Pengaturan topik (admin)</h3><div id="adminTopics"></div></div>
 </section>
@@ -1292,6 +1315,8 @@ function stagger(root, sel) {
   root._st = setTimeout(() => root.classList.remove("stag"), 1400);
 }
 let guest = false;
+let navInited = false, navExiting = false;
+const GUEST_AV = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
 async function gFetch(path) {
   const res = await fetch(API + path);
   let d = {};
@@ -1343,7 +1368,7 @@ function enterGuest(keepLogin) {
   if (!keepLogin) $("login").classList.add("hidden");
   $("navName").textContent = "Tamu"; $("navRole").textContent = "Belum masuk";
   $("navLogout").setAttribute("aria-label", "Masuk"); $("navLogout").title = "Masuk";
-  ["navAvatar", "setAvatar", "profAvatar", "heroAv"].forEach((id) => { $(id).textContent = "👤"; });
+  ["navAvatar", "setAvatar", "profAvatar", "heroAv"].forEach((id) => { $(id).innerHTML = GUEST_AV; });
   $("taskList").innerHTML = guestLock("Tugas & deadline", 2);
   topicsList = []; selectedTopicId = "";
   renderTopicsGrid(); renderUploadSelect(); renderJadwal();
@@ -1587,7 +1612,8 @@ function tickClock() {
 function updateGreeting() {
   const h = new Date().getHours();
   const w = h >= 5 && h < 11 ? "pagi" : h >= 11 && h < 15 ? "siang" : h >= 15 && h < 18 ? "sore" : "malam";
-  $("greetingText").innerHTML = `Selamat ${w}, ${esc(callName())}${isAdmin ? BADGE : verOf(myPid()) ? VUSER(verOf(myPid())) : ""} <span class="wave">👋</span>`;
+  if (guest) $("greetingText").innerHTML = `Halo, Strangers <span class="wave">👋</span>`;
+  else $("greetingText").innerHTML = `Selamat ${w}, ${esc(callName())}${isAdmin ? BADGE : verOf(myPid()) ? VUSER(verOf(myPid())) : ""} <span class="wave">👋</span>`;
   $("dateText").textContent = new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
@@ -1616,6 +1642,7 @@ document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click"
 /* ---------- Akun: daftar menu + sub-halaman (gaya WhatsApp) ---------- */
 const SUB_TITLES = { profil: "Profil", tampilan: "Tampilan", chat: "Tampilan chat", stars: "Pesan berbintang", perangkat: "Perangkat", notif: "Notifikasi", keamanan: "Keamanan", pasang: "Pasang aplikasi" };
 function openSub(name) {
+  if (guest && !["tampilan", "pasang"].includes(name)) return needLogin("Fitur ini hanya untuk anggota kelas.");
   $("setMain").classList.add("hidden");
   $("setSub").classList.remove("hidden");
   document.querySelectorAll("#setSub .subpane").forEach((p) => p.classList.toggle("hidden", p.dataset.sub !== name));
@@ -1667,6 +1694,7 @@ function renderHome() {
   const now = new Date(), mins = now.getHours() * 60 + now.getMinutes();
   const today = JADWAL.find((d) => d.dayNum === now.getDay());
   const list = $("todayList"), next = $("nextCard"), strip = $("strip");
+  if (guest) { next.innerHTML = ""; strip.innerHTML = ""; list.innerHTML = ""; return; }
   const meta = (c) => `<span>${svg("clock", 14)}${esc(c.time)}</span><span>${svg("room", 14)}Ruang ${esc(c.room)}</span><span>${svg("user", 14)}${esc(c.dosen)}</span>`;
   if (!today) {
     strip.innerHTML = `<div class="stxt">Tidak ada kuliah hari ini. Santai dulu.</div>`;
@@ -1702,6 +1730,11 @@ function renderHome() {
   }
 }
 function renderJadwal() {
+  if (guest) {
+    $("dayChips").innerHTML = "";
+    $("scheduleList").innerHTML = `<div class="gcta"><b>🗓️ Jadwal kuliah</b><p>Masuk atau daftar gratis untuk melihat jadwal, ruang, dan dosen tiap mata kuliah.</p><div class="gbtns"><button type="button" class="btn btn-primary" data-auth="login">Masuk</button><button type="button" class="btn btn-soft" data-auth="register">Daftar</button></div></div>` + guestLock("Jadwal kuliah", 4);
+    return;
+  }
   const todayNum = new Date().getDay();
   if (chosenDay === null) {
     const d = JADWAL.find((x) => x.dayNum >= todayNum) || JADWAL[0];
@@ -1731,6 +1764,9 @@ function setRegisterMode(on) {
   $("loginSub").textContent = on ? "Buat akun baru untuk kelas ini." : "Masuk untuk membuka materi dan jadwal kelas.";
   $("loginButton").textContent = on ? "Buat akun" : "Masuk";
   $("registerToggle").textContent = on ? "Sudah punya akun? Masuk" : "Belum punya akun? Daftar";
+  document.querySelector(".login-box").classList.toggle("reg", !!on);
+  $("username").placeholder = on ? "Username" : "Masukkan username";
+  $("nim").placeholder = on ? "NIM kamu" : "Masukkan NIM";
   $("confirmWrap").classList.toggle("hidden", !on);
   $("nameWrap").classList.toggle("hidden", !on);
   $("nimWrap").classList.toggle("hidden", !on);
@@ -5327,7 +5363,6 @@ document.addEventListener("contextmenu", (e) => {
 }, true);
 
 /* ---------- tombol kembali HP: mundur satu langkah, di beranda tanya dulu sebelum keluar ---------- */
-let navInited = false, navExiting = false;
 function navGuardInit() {
   if (navInited) return;
   navInited = true;
