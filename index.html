@@ -1045,6 +1045,25 @@ html,body{overflow-x:clip;max-width:100%}
 #favList .fav:active{transform:scale(.95)}
 .tskel{display:flex;flex-direction:column;gap:12px;padding:14px 0}
 .tskel i{display:block;height:38px;border-radius:12px;background:linear-gradient(90deg,var(--line) 25%,var(--surface) 50%,var(--line) 75%);background-size:200% 100%;animation:shine 1.2s infinite linear}
+
+/* ===== fix v8: navbar iOS tenggelam + panduan ===== */
+:root{--nav-lift:0px}
+html.tour-lock,html.tour-lock body{overflow:hidden;overscroll-behavior:none}
+#tour{top:0;left:0;right:auto;bottom:auto;width:100%;height:100%}
+@supports (height:100dvh){#tour{height:100dvh}}
+#tour .tr-tip{max-height:calc(100% - 28px);overflow:auto}
+@media (max-width:899px){
+  .nav{bottom:calc(10px + env(safe-area-inset-bottom,0px) + var(--nav-lift))!important}
+  .fab,.mfab{bottom:calc(var(--nav-h) + 28px + env(safe-area-inset-bottom,0px) + var(--nav-lift))!important}
+  #updBar{bottom:calc(env(safe-area-inset-bottom,0px) + 96px + var(--nav-lift))!important}
+  .main{padding-bottom:calc(var(--nav-h) + 48px + env(safe-area-inset-bottom,0px) + var(--nav-lift))}
+}
+@supports (-webkit-touch-callout:none){
+  @media (max-width:899px){
+    .nav{bottom:calc(10px + max(env(safe-area-inset-bottom,0px),8px) + var(--nav-lift))!important}
+  }
+}
+@media (min-width:900px){.nav{bottom:0!important}.fab,.mfab{bottom:28px!important}}
 </style>
 
 </head>
@@ -2085,7 +2104,7 @@ function tourRender() {
   const st = TOUR[tourI], last = tourI === TOUR.length - 1;
   if (st.view && activeView !== st.view) switchView(st.view);
   const el = st.sel ? tourVisible(st.sel) : null;
-  if (el && !st.fixed) el.scrollIntoView({ block: "center" });
+  if (el && !st.fixed) el.scrollIntoView({ block: "center", behavior: "instant" });
   const tip = $("trTip");
   tip.style.animation = "none"; void tip.offsetWidth; tip.style.animation = "";
   const showAct = st.act && st.act.show();
@@ -2094,41 +2113,51 @@ function tourRender() {
 }
 function tourPlace() {
   if (!tourOn) return;
-  const st = TOUR[tourI], tip = $("trTip"), spot = $("trSpot"), dim = $("trDim"), arrow = $("trArrow");
-  const W = innerWidth, H = innerHeight, M = 14, tw = Math.min(W - 2 * M, 380);
-  tip.style.width = tw + "px";
+  const st = TOUR[tourI], root = $("tour"), tip = $("trTip"), spot = $("trSpot"), dim = $("trDim"), arrow = $("trArrow");
+  if (!tip || !spot) return;
+  /* Semua koordinat diukur relatif ke overlay itu sendiri, bukan ke window.
+     Dengan begini tidak ada selisih lagi saat toolbar Safari iOS naik/turun atau viewport bergeser. */
+  const T = root.getBoundingClientRect(), W = T.width, H = T.height, M = 14, tw = Math.min(W - 2 * M, 380);
+  if (tip.style.width !== tw + "px") tip.style.width = tw + "px";
   const th = tip.offsetHeight, el = st.sel ? tourVisible(st.sel) : null;
   if (!el) {
     spot.style.opacity = "0"; dim.classList.add("full"); if (arrow) arrow.style.display = "none";
-    tip.style.left = (W - tw) / 2 + "px"; tip.style.top = Math.max(M, (H - th) / 2) + "px";
+    tip.style.left = Math.round((W - tw) / 2) + "px"; tip.style.top = Math.round(Math.max(M, (H - th) / 2)) + "px";
     return;
   }
   dim.classList.remove("full"); spot.style.opacity = "1"; if (arrow) arrow.style.display = "";
   const r = el.getBoundingClientRect(), pad = 6, gap = 14;
-  spot.style.left = r.left - pad + "px"; spot.style.top = r.top - pad + "px";
-  spot.style.width = r.width + pad * 2 + "px"; spot.style.height = r.height + pad * 2 + "px";
+  const rl = r.left - T.left, rt = r.top - T.top, rb = r.bottom - T.top;
+  spot.style.left = Math.round(rl - pad) + "px"; spot.style.top = Math.round(rt - pad) + "px";
+  spot.style.width = Math.round(r.width + pad * 2) + "px"; spot.style.height = Math.round(r.height + pad * 2) + "px";
   const rad = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 14;
   spot.style.borderRadius = Math.min(rad + pad, 28) + "px";
-  const spBelow = H - (r.bottom + pad) - gap - M, spAbove = r.top - pad - gap - M;
-  const cy = r.top + r.height / 2;
-  let below = cy < H / 2 ? (spBelow >= th || spBelow >= spAbove) : !(spAbove >= th || spAbove >= spBelow);
-  let top = below ? r.bottom + pad + gap : r.top - pad - gap - th;
+  const spBelow = H - (rb + pad) - gap - M, spAbove = rt - pad - gap - M;
+  const cy = rt + r.height / 2;
+  const below = cy < H / 2 ? (spBelow >= th || spBelow >= spAbove) : !(spAbove >= th || spAbove >= spBelow);
+  let top = below ? rb + pad + gap : rt - pad - gap - th;
   top = Math.max(M, Math.min(top, H - th - M));
-  const left = Math.max(M, Math.min(r.left + r.width / 2 - tw / 2, W - tw - M));
-  tip.style.left = left + "px"; tip.style.top = top + "px";
+  const left = Math.max(M, Math.min(rl + r.width / 2 - tw / 2, W - tw - M));
+  tip.style.left = Math.round(left) + "px"; tip.style.top = Math.round(top) + "px";
   arrow.className = "tr-arrow " + (below ? "up" : "down");
-  arrow.style.left = Math.max(22, Math.min(r.left + r.width / 2 - left - 8, tw - 38)) + "px";
+  arrow.style.left = Math.round(Math.max(22, Math.min(rl + r.width / 2 - left - 8, tw - 38))) + "px";
 }
+var tourRaf = 0;
+function tourLoop() { if (!tourOn) { tourRaf = 0; return; } tourPlace(); tourRaf = requestAnimationFrame(tourLoop); }
 function tourOpen() {
   tourI = 0; tourOn = true;
   if (activeView !== "home") switchView("home");
   $("tour").classList.remove("hidden");
+  document.documentElement.classList.add("tour-lock");
   tourRender();
+  if (!tourRaf) tourRaf = requestAnimationFrame(tourLoop);
 }
 function tourClose(finished) {
   if (!tourOn) return;
   tourOn = false;
   $("tour").classList.add("hidden");
+  document.documentElement.classList.remove("tour-lock");
+  if (tourRaf) { cancelAnimationFrame(tourRaf); tourRaf = 0; }
   switchView("home");
   if (finished) {
     try { localStorage.setItem(guideKey(), "1"); } catch (e) {}
@@ -2150,6 +2179,7 @@ $("trTip").addEventListener("click", async (e) => {
   if (e.target.closest("#trAct")) { const b = $("trAct"); b.disabled = true; try { await TOUR[tourI].act.run(); } catch (err) {} if (tourOn) tourRender(); }
 });
 window.addEventListener("resize", () => { if (tourOn) tourPlace(); });
+if (window.visualViewport) { visualViewport.addEventListener("resize", () => { if (tourOn) tourPlace(); }); visualViewport.addEventListener("scroll", () => { if (tourOn) tourPlace(); }); }
 $("rowGuide").addEventListener("click", tourOpen);
 
 var initTransient = false;
@@ -5619,6 +5649,24 @@ function showUpdateBar() {
 checkUpdate();
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkUpdate(); });
 setInterval(checkUpdate, 10 * 60 * 1000);
+</script>
+<script>
+/* Naikkan navbar kalau area bawah layar tertutup toolbar/home bar (bug Safari & webview iOS) */
+(function(){
+  var vv = window.visualViewport, root = document.documentElement, raf = 0;
+  function upd(){
+    raf = 0; var lift = 0;
+    if (vv && vv.scale <= 1.02 && matchMedia("(max-width:899px)").matches) {
+      var gap = root.clientHeight - (vv.height + vv.offsetTop);
+      if (gap > 2 && gap < 140) lift = Math.round(gap);
+    }
+    root.style.setProperty("--nav-lift", lift + "px");
+  }
+  function sched(){ if (!raf) raf = requestAnimationFrame(upd); }
+  if (vv) { vv.addEventListener("resize", sched); vv.addEventListener("scroll", sched); }
+  addEventListener("resize", sched); addEventListener("orientationchange", sched); addEventListener("pageshow", sched);
+  upd();
+})();
 </script>
 </body>
 </html>
