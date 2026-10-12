@@ -1094,6 +1094,21 @@ html.tour-lock,html.tour-lock body{overflow:hidden;overscroll-behavior:none}
 .fghead .fgtx{min-width:0;flex:1}
 .invbox{display:flex;gap:8px;align-items:center;background:var(--bg);border-radius:12px;padding:10px 12px;margin:12px 0;font-size:13px;word-break:break-all;text-align:left}
 .invbtns{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+
+.invb{display:flex;align-items:center;justify-content:center;width:100%;padding:14px;border-radius:14px;font-size:15px;font-weight:700;text-decoration:none;background:var(--ink);color:var(--surface);border:0;cursor:pointer}
+.invb.wa{background:#25D366;color:#fff}
+.invb.sec{background:var(--bg);color:var(--ink)}
+.fghead{gap:8px}
+#callUI .cl-parts{display:none;width:100%;max-width:420px;flex:1;min-height:0;overflow:auto;margin:18px 0;padding:4px;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:16px 10px;align-content:start}
+#callUI.group .cl-parts{display:grid}
+#callUI.group .cl-av{width:104px;height:104px;font-size:38px;margin-bottom:6px;box-shadow:0 0 0 8px rgba(255,255,255,.06)}
+#callUI .gp{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.85);min-width:0}
+#callUI .gp .pa{width:58px;height:58px;border-radius:50%;background:#2a2c3a;display:grid;place-items:center;font-weight:800;font-size:20px;overflow:hidden;position:relative;box-shadow:0 0 0 2px rgba(255,255,255,.12);transition:box-shadow .2s,opacity .2s}
+#callUI .gp .pa img{width:100%;height:100%;object-fit:cover}
+#callUI .gp.ok .pa{box-shadow:0 0 0 3px #27ae60}
+#callUI .gp.wait .pa{opacity:.55}
+#callUI .gp b{font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#callUI .gp small{font-size:11px;color:rgba(255,255,255,.55)}
 </style>
 
 </head>
@@ -1147,7 +1162,7 @@ html.tour-lock,html.tour-lock body{overflow:hidden;overscroll-behavior:none}
 <button type="button" class="link quiet hidden" id="guestBack">Lanjut sebagai tamu</button>
 </div></div>
 
-<div id="callUI" class="hidden" role="dialog" aria-label="Panggilan suara"><div class="cl-top"><div class="cl-av" id="clAv"></div><div class="cl-name" id="clName"></div><div class="cl-sub" id="clSub"></div><div class="cl-st" id="clSt"></div></div><div class="cl-btns" id="clBtns"></div></div>
+<div id="callUI" class="hidden" role="dialog" aria-label="Panggilan suara"><div class="cl-top"><div class="cl-av" id="clAv"></div><div class="cl-name" id="clName"></div><div class="cl-sub" id="clSub"></div><div class="cl-st" id="clSt"></div></div><div class="cl-parts" id="clParts"></div><div class="cl-btns" id="clBtns"></div></div><div id="gcAudios" style="display:none"></div>
 <audio id="callAudio" autoplay playsinline></audio>
 
 <div id="tour" class="hidden" role="dialog" aria-label="Panduan aplikasi"><div class="tr-dim" id="trDim"></div><div class="tr-spot" id="trSpot"></div><div class="tr-tip" id="trTip"></div></div>
@@ -1203,7 +1218,7 @@ html.tour-lock,html.tour-lock body{overflow:hidden;overscroll-behavior:none}
 
 <section class="view" id="view-chat"><div class="hubhd"><h2 class="page-title">Chat</h2><button type="button" class="hubnew hidden" id="hubNew" aria-label="Pesan baru"></button></div><div class="hublist" id="hubList"></div></section>
 
-<section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><button type="button" class="fgback" id="fBack" aria-label="Kembali ke daftar chat"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div><button type="button" class="fginv" id="fInvite" aria-label="Undang teman"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.6"/><path d="M2.8 20c.4-3.6 3.200-5.600 6.700-5.600s6.300 2 6.700 5.600"/><path d="M19 7.500v6M16 10.500h6"/></svg></button></div>
+<section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><button type="button" class="fgback" id="fBack" aria-label="Kembali ke daftar chat"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div><button type="button" class="fginv" id="fCall" aria-label="Telepon grup"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></button><button type="button" class="fginv" id="fInvite" aria-label="Undang teman"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.6"/><path d="M2.8 20c.4-3.6 3.200-5.600 6.700-5.600s6.300 2 6.700 5.600"/><path d="M19 7.500v6M16 10.500h6"/></svg></button></div>
 <div class="fpinbar hidden" id="fPinBar"></div><div class="fmsgs" id="fMsgs"></div><div class="freply hidden" id="fReply"></div>
 <div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fcount hidden" id="fCount"></div><div class="fbar inbar"><div class="inpillbox"><textarea id="fInput" rows="1" placeholder="Tulis pesan…" enterkeyhint="send" autocomplete="off"></textarea></div><button class="inround" id="fPollBtn" type="button" aria-label="Buat polling"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button><button class="inround inprimary" id="fSend" type="button" aria-label="Kirim"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.5-7.6a1 1 0 0 0 0-1.8L3.4 3.4a1 1 0 0 0-1.4 1.2L4 11l9 1-9 1-2 6.4a1 1 0 0 0 1.4 1z"/></svg></button></div></div></section>
 
@@ -2261,6 +2276,8 @@ function callRingStop() {
 function callFmt(ms) { const s = Math.floor(ms / 1000); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); }
 function callRender() {
   const ui = callEl("callUI");
+  if (gc || gcInc) { gcRender(); return; }
+  ui.classList.remove("group");
   if (!call) { ui.classList.add("hidden"); return; }
   ui.classList.remove("hidden");
   const nm = call.peer.name || call.peer.username || "";
@@ -2327,7 +2344,7 @@ async function callMic() {
 }
 async function callStart(peer) {
   if (!isAdmin || !peer) return;
-  if (call) { showToast("Masih ada panggilan yang berlangsung.", true); return; }
+  if (call || gc || gcInc) { showToast("Masih ada panggilan yang berlangsung.", true); return; }
   const mine = (call = { role: "caller", state: "preparing", peer: { username: peer.username || "", name: peer.name || "", pid: peer.pid || "", av: !!peer.av, avv: peer.avv || 0 } });
   callRender();
   try {
@@ -2393,29 +2410,193 @@ async function callOnState(c) {
 }
 async function callTick() {
   clearTimeout(callPollT); callPollT = 0;
-  if (!token || guest || !currentUser) { if (call) callCleanup(""); callSchedule(); return; }
+  if (!token || guest || !currentUser) { if (call) callCleanup(""); if (gc || gcInc) gcCleanup(""); callSchedule(); return; }
   try {
-    const { res, d } = await callApi("/api/call/poll");
+    const { res, d } = await callApi("/api/call/poll?since=" + gcSeq);
     if (res.ok && d.ok) {
-      if (d.call) await callOnState(d.call);
-      else if (call && call.id && call.state !== "preparing" && !(call.role === "caller" && call.state === "ringing" && Date.now() - (call.t || 0) < 3000)) callCleanup("Panggilan berakhir");
+      gcOnState(d.g || null);
+      if (d.call) { if (gc || gcInc) { if (d.call.role === "callee" && d.call.state === "ringing") callApi("/api/call/decline", { id: d.call.id }).catch(() => {}); } else await callOnState(d.call); }
+      else if (!gc && !gcInc && call && call.id && call.state !== "preparing" && !(call.role === "caller" && call.state === "ringing" && Date.now() - (call.t || 0) < 3000)) callCleanup("Panggilan berakhir");
     }
   } catch (e) {}
   callSchedule();
 }
 function callSchedule(ms) {
   if (callPollT) clearTimeout(callPollT);
-  const d = ms || (call ? 1500 : document.hidden ? 12000 : isAdmin ? 8000 : 4000);
+  const d = ms || (gc ? 1000 : call ? 1500 : document.hidden ? 12000 : isAdmin ? 8000 : 4000);
   callPollT = setTimeout(callTick, d);
 }
+
+/* ---------- panggilan grup (admin memulai, anggota bergabung; mesh WebRTC maks 8 orang) ---------- */
+var gc = null, gcInc = null, gcSeq = 0, gcBusy = false, gcDismiss = {}, gcRingT = 0;
+function gcMe() { return myPid(); }
+function gcPartName(p) { return p.pid === gcMe() ? "Kamu" : p.name || "Anggota"; }
+function gcRender() {
+  const ui = callEl("callUI");
+  const cur = gc || gcInc;
+  if (!cur) { ui.classList.add("hidden"); ui.classList.remove("group"); return; }
+  ui.classList.remove("hidden"); ui.classList.add("group");
+  const g = gc || gcInc, nm = fGroup.name || "Forum Kelas";
+  const av = callEl("clAv"), key = "g|" + (fGroup.av ? fGroup.avv || 1 : 0) + "|" + nm;
+  if (av.dataset.k !== key) {
+    av.dataset.k = key;
+    av.innerHTML = fGroup.av ? `<img src="${esc(avSrc(API + "/api/forum/group/photo?v=" + (fGroup.avv || 0)))}" alt="" style="width:100%;height:100%;object-fit:cover">` : "👥";
+  }
+  callEl("clName").textContent = nm;
+  const parts = g.parts || [], n = parts.length;
+  ui.classList.toggle("ring", !!gcInc);
+  callEl("clSub").textContent = gcInc ? "Admin memulai panggilan suara grup" : "Panggilan suara grup";
+  const connected = gc ? Object.values(gc.peers).filter((x) => x.state === "connected").length : 0;
+  callEl("clSt").textContent = gcInc ? n + " orang sudah bergabung" : (n <= 1 ? "Menunggu yang lain…" : (gc.t0 ? callFmt(Date.now() - gc.t0) + " · " : "") + n + " peserta");
+  callEl("clParts").innerHTML = parts.map((p) => {
+    const me = p.pid === gcMe(), st = me ? "ok" : ((gc && gc.peers[p.pid] && gc.peers[p.pid].state === "connected") ? "ok" : "wait");
+    const lbl = me ? (gc && gc.muted ? "Mikrofon mati" : "Kamu") : st === "ok" ? "Tersambung" : "Menghubungkan…";
+    const img = p.av && p.pid ? `<img src="${esc(avSrc(API + "/api/avatar/" + p.pid + "?v=" + (p.avv || 0)))}" alt="">` : esc(initialsOf(p.name));
+    return `<div class="gp ${st}"><div class="pa">${img}</div><b>${esc(me ? "Kamu" : p.name || "Anggota")}</b><small>${esc(gcInc ? (p.owner ? "Admin" : "") : lbl)}</small></div>`;
+  }).join("");
+  const b = (cls, id, ic, label) => `<div class="cl-b"><button type="button" class="${cls}" id="${id}" aria-label="${label}">${ic}</button>${label}</div>`;
+  callEl("clBtns").innerHTML = gcInc
+    ? b("red", "gcIgnore", "✕", "Abaikan") + b("green", "gcJoin", "📞", "Gabung")
+    : b(gc.muted ? "on" : "", "gcMute", gc.muted ? "🔇" : "🎙️", gc.muted ? "Suara mati" : "Bisukan") + b("red", "gcLeave", "✕", isAdmin ? "Akhiri semua" : "Keluar");
+}
+function gcMakePC(pid, servers) {
+  const pc = new RTCPeerConnection({ iceServers: servers });
+  const rec = (gc.peers[pid] = { pc, state: "connecting", audio: null });
+  pc.ontrack = (e) => {
+    if (!rec.audio) { rec.audio = document.createElement("audio"); rec.audio.autoplay = true; rec.audio.setAttribute("playsinline", ""); callEl("gcAudios").append(rec.audio); }
+    rec.audio.srcObject = e.streams[0] || new MediaStream([e.track]); rec.audio.play().catch(() => {});
+  };
+  pc.onconnectionstatechange = () => {
+    if (!gc || gc.peers[pid] !== rec) return;
+    rec.state = pc.connectionState === "connected" ? "connected" : pc.connectionState === "failed" ? "failed" : "connecting";
+    if (rec.state === "connected" && !gc.t0) gc.t0 = Date.now();
+    if (rec.state === "failed") gcRetry(pid);
+    gcRender();
+  };
+  gc.stream.getTracks().forEach((t) => pc.addTrack(t, gc.stream));
+  return pc;
+}
+function gcClosePeer(pid) {
+  const r = gc && gc.peers[pid]; if (!r) return;
+  try { r.pc.close(); } catch (e) {}
+  if (r.audio) { r.audio.srcObject = null; r.audio.remove(); }
+  delete gc.peers[pid];
+}
+async function gcOffer(pid) {
+  if (!gc) return;
+  const mine = gc; gcClosePeer(pid);
+  const pc = gcMakePC(pid, await callIceServers());
+  await pc.setLocalDescription(await pc.createOffer());
+  await callWaitIce(pc);
+  if (gc !== mine) return;
+  await callApi("/api/gcall/signal", { id: gc.id, to: pid, type: "offer", sdp: pc.localDescription.sdp });
+}
+async function gcAnswer(pid, sdp) {
+  if (!gc) return;
+  const mine = gc; gcClosePeer(pid);
+  const pc = gcMakePC(pid, await callIceServers());
+  await pc.setRemoteDescription({ type: "offer", sdp });
+  await pc.setLocalDescription(await pc.createAnswer());
+  await callWaitIce(pc);
+  if (gc !== mine) return;
+  await callApi("/api/gcall/signal", { id: gc.id, to: pid, type: "answer", sdp: pc.localDescription.sdp });
+}
+function gcRetry(pid) {            // yang bergabung belakangan menawarkan ulang
+  if (!gc) return;
+  const order = gc.parts.map((x) => x.pid), later = order.indexOf(gcMe()) > order.indexOf(pid);
+  gcClosePeer(pid);
+  if (later && order.includes(pid)) gcOffer(pid).catch(() => {});
+}
+function gcCleanup(msg, isErr) {
+  gcRingStop();
+  if (gc) {
+    Object.keys(gc.peers).forEach(gcClosePeer);
+    try { gc.stream && gc.stream.getTracks().forEach((t) => t.stop()); } catch (e) {}
+  }
+  const id = gc ? gc.id : gcInc ? gcInc.id : "";
+  if (id) gcDismiss[id] = 1;
+  gc = null; gcInc = null; gcSeq = 0; callRender();
+  if (msg) showToast(msg, isErr);
+  callSchedule(1500);
+}
+function gcRingStop() { clearTimeout(gcRingT); callRingStop(); }
+async function gcStart() {
+  if (!isAdmin) return;
+  if (call || gc) { showToast("Masih ada panggilan yang berlangsung.", true); return; }
+  const mine = (gc = { id: "", peers: {}, parts: [], stream: null, muted: false, t0: 0 });
+  callRender();
+  try {
+    mine.stream = await callMic();
+    const { res, d } = await callApi("/api/gcall/start", {});
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memulai panggilan grup.");
+    if (gc !== mine) { callApi("/api/gcall/leave", { id: d.id }).catch(() => {}); return; }
+    mine.id = d.id; mine.parts = d.parts || []; gcSeq = d.seq || 0; callRender(); callSchedule(1000);
+  } catch (e) { if (gc === mine) gcCleanup(e.message || "Gagal memulai panggilan grup.", true); }
+}
+async function gcJoin() {
+  if (!gcInc || gc) return;
+  const inc = gcInc; gcRingStop(); gcBusy = true;
+  try {
+    const stream = await callMic();
+    const { res, d } = await callApi("/api/gcall/join", { id: inc.id });
+    if (!res.ok || !d.ok) { stream.getTracks().forEach((t) => t.stop()); throw new Error(d.error || "Gagal bergabung."); }
+    gc = { id: inc.id, peers: {}, parts: d.parts || [], stream, muted: false, t0: 0 };
+    gcInc = null; gcSeq = d.seq || 0; callRender();
+    await Promise.all(gc.parts.filter((x) => x.pid !== gcMe()).map((x) => gcOffer(x.pid).catch(() => {})));
+    callSchedule(1000);
+  } catch (e) { gcCleanup(e.message || "Gagal bergabung.", true); }
+  finally { gcBusy = false; }
+}
+function gcLeave() {
+  if (!gc) return;
+  if (gc.id) callApi("/api/gcall/leave", { id: gc.id }).catch(() => {});
+  gcCleanup("");
+}
+function gcOnState(g) {
+  if (gcBusy || (gc && !gc.id)) return;
+  if (!g) {
+    if (gc) gcCleanup("Panggilan grup berakhir");
+    else if (gcInc) { gcRingStop(); gcInc = null; callRender(); }
+    return;
+  }
+  if (gc) {
+    if (g.id !== gc.id) return;
+    if (!g.joined && gc.id) { gcCleanup("Kamu keluar dari panggilan grup"); return; }
+    const ids = g.parts.map((x) => x.pid);
+    gc.parts = g.parts;
+    Object.keys(gc.peers).forEach((pid) => { if (!ids.includes(pid)) gcClosePeer(pid); });
+    (g.signals || []).forEach((sg) => {
+      if (sg.seq > gcSeq) gcSeq = sg.seq;
+      if (sg.type === "offer") gcAnswer(sg.from, sg.sdp).catch(() => {});
+      else if (sg.type === "answer" && gc.peers[sg.from]) gc.peers[sg.from].pc.setRemoteDescription({ type: "answer", sdp: sg.sdp }).catch(() => {});
+    });
+    gcRender(); return;
+  }
+  if (g.joined) { callApi("/api/gcall/leave", { id: g.id }).catch(() => {}); return; }   // sisa sesi sebelum halaman dimuat ulang
+  if (gcDismiss[g.id] || call) return;
+  if (!gcInc || gcInc.id !== g.id) {
+    gcInc = { id: g.id, parts: g.parts }; callRender();
+    if (!fGroup.av && !fGroupAt) fLoadGroup(true);
+    callRingStart(); gcRingT = setTimeout(callRingStop, 30000);
+  } else { gcInc.parts = g.parts; gcRender(); }
+}
+function gcCallTap() {
+  if (!isAdmin) { showToast("📞 Panggilan grup akan segera hadir untuk kamu. Untuk saat ini hanya admin yang bisa memulainya."); return; }
+  gcStart();
+}
+
 function callInit() {
   if (callStarted) { callTick(); return; }
   callStarted = true; callTick();
   document.addEventListener("visibilitychange", () => { if (!document.hidden) callTick(); });
   document.addEventListener("click", (e) => {
-    const t = e.target.closest("#clAccept,#clDecline,#clEnd,#clMute");
+    const t = e.target.closest("#clAccept,#clDecline,#clEnd,#clMute,#gcJoin,#gcIgnore,#gcLeave,#gcMute");
     if (!t) return;
-    if (t.id === "clAccept") callAnswer();
+    if (t.id === "gcJoin") gcJoin();
+    else if (t.id === "gcIgnore") { if (gcInc) gcDismiss[gcInc.id] = 1; gcRingStop(); gcInc = null; callRender(); }
+    else if (t.id === "gcLeave") gcLeave();
+    else if (t.id === "gcMute" && gc && gc.stream) { gc.muted = !gc.muted; gc.stream.getAudioTracks().forEach((x) => { x.enabled = !gc.muted; }); gcRender(); }
+    else if (t.id === "clAccept") callAnswer();
     else if (t.id === "clDecline") callHangup(true);
     else if (t.id === "clEnd") callHangup(false);
     else if (t.id === "clMute" && call && call.stream) {
@@ -4599,12 +4780,13 @@ function inviteLink() { return location.origin + location.pathname.replace(/inde
 function openInvite() {
   const link = inviteLink(), nm = (fGroup && fGroup.name) || "Forum Kelas";
   const msg = `Gabung ${nm} di Study Hub, daftar pakai nama lengkap dan NIM: ${link}`;
-  const s = fgSheet(`<h3>Undang teman</h3><p class="fgsub">Bagikan link ini ke teman sekelas. Mereka daftar dengan nama lengkap dan NIM yang valid, lalu otomatis masuk ${esc(nm)}.</p><div class="invbox">${esc(link)}</div><div class="invbtns"><a class="btn" id="invWa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}" style="text-align:center;text-decoration:none">Kirim lewat WhatsApp</a>${navigator.share ? '<button type="button" class="btn" id="invShare">Bagikan…</button>' : ""}<button type="button" class="btn" id="invCopy">Salin link</button><button type="button" class="btn" data-close style="background:var(--bg);color:var(--ink)">Tutup</button></div>`);
+  const s = fgSheet(`<h3>Undang teman</h3><p class="fgsub">Bagikan link ini ke teman sekelas. Mereka daftar dengan nama lengkap dan NIM yang valid, lalu otomatis masuk ${esc(nm)}.</p><div class="invbox">${esc(link)}</div><div class="invbtns"><a class="invb wa" id="invWa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">Kirim lewat WhatsApp</a>${navigator.share ? '<button type="button" class="invb" id="invShare">Bagikan…</button>' : ""}<button type="button" class="invb" id="invCopy">Salin link</button><button type="button" class="invb sec" data-close>Tutup</button></div>`);
   s.querySelector("[data-close]").addEventListener("click", () => s.remove());
   s.querySelector("#invCopy").addEventListener("click", async () => { await copyText(link); showToast("Link undangan disalin."); });
   const sh = s.querySelector("#invShare");
   if (sh) sh.addEventListener("click", () => { navigator.share({ title: "Study Hub", text: msg, url: link }).catch(() => {}); });
 }
+$("fCall").addEventListener("click", (e) => { e.stopPropagation(); gcCallTap(); });
 $("fInvite").addEventListener("click", (e) => { e.stopPropagation(); openInvite(); });
 $("fInvite").addEventListener("keydown", (e) => e.stopPropagation());
 $("fGroupHead").addEventListener("click", fOpenGroup);
@@ -5868,7 +6050,7 @@ function navGuardInit() {
 }
 function navBack() {
   const last = (sel) => { const l = document.querySelectorAll(sel); return l[l.length - 1] || null; };
-  if (call) return true;
+  if (call || gc || gcInc) return true;
   if (!$("tour").classList.contains("hidden")) { tourClose(); return true; }
   if (guest && !$("login").classList.contains("hidden")) { $("login").classList.add("hidden"); return true; }
   const md = last(".modal-bg");
