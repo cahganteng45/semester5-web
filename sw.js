@@ -1,5 +1,5 @@
-/* Service worker Study Hub: cache cangkang aplikasi + notifikasi push */
-const CACHE = "s5-shell-v1";
+/* Service worker Semester 5: cache cangkang aplikasi + notifikasi push */
+const CACHE = "s5-shell-v2";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon-192.png"];
 
 self.addEventListener("install", (e) => {
@@ -33,15 +33,16 @@ self.addEventListener("fetch", (e) => {
 self.addEventListener("push", (e) => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; } catch (_) { d = { body: e.data ? e.data.text() : "" }; }
-  const show = () => self.registration.showNotification(d.title || "Study Hub", {
+  const show = () => self.registration.showNotification(d.title || "Semester 5", {
     body: d.body || "",
     icon: "icon-192.png",
     badge: "icon-192.png",
     tag: d.tag || undefined,
-    data: { url: d.url || "./" }
+    data: { url: d.url || "./" },
+    ...(d.tag === "call" ? { requireInteraction: true, renotify: true, vibrate: [400, 200, 400, 200, 400] } : {})
   });
   // Pesan forum dan chat admin: kalau aplikasi sedang terlihat, cukup tampil di dalam aplikasi (hindari dobel).
-  const inApp = d.tag === "forum" || String(d.tag || "").startsWith("inbox");
+  const inApp = d.tag === "forum" || d.tag === "call" || String(d.tag || "").startsWith("inbox");
   e.waitUntil(inApp
     ? self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => (list.some((c) => c.visibilityState === "visible") ? null : show()))
     : show());
@@ -56,6 +57,7 @@ self.addEventListener("notificationclick", (e) => {
       for (const c of list) {
         if ("focus" in c) {
           if (tag.startsWith("inbox")) c.postMessage({ type: "open-inbox" });   // buka chat admin di aplikasi
+          if (tag === "call") c.postMessage({ type: "call-check" });             // langsung cek telepon masuk
           return c.focus();
         }
       }

@@ -1064,6 +1064,26 @@ html.tour-lock,html.tour-lock body{overflow:hidden;overscroll-behavior:none}
   }
 }
 @media (min-width:900px){.nav{bottom:0!important}.fab,.mfab{bottom:28px!important}}
+
+/* ===== telepon admin -> user ===== */
+#toast{z-index:1600!important}
+#callUI{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1500;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;color:#fff;background:radial-gradient(120% 80% at 50% 0%,#2b2f45 0%,#12131a 62%,#0a0a0d 100%);padding:calc(56px + env(safe-area-inset-top,0px)) 24px calc(44px + env(safe-area-inset-bottom,0px));overflow:hidden}
+@supports (height:100dvh){#callUI{height:100dvh}}
+#callUI .cl-top{display:flex;flex-direction:column;align-items:center;gap:10px;min-height:0}
+#callUI .cl-av{width:132px;height:132px;border-radius:50%;background:#2a2c3a;display:grid;place-items:center;font-family:var(--font-d);font-size:48px;font-weight:800;box-shadow:0 0 0 10px rgba(255,255,255,.06),0 0 0 22px rgba(255,255,255,.03);margin-bottom:18px;overflow:hidden}
+#callUI.ring .cl-av{animation:clPulse 1.6s ease-in-out infinite}
+@keyframes clPulse{0%,100%{box-shadow:0 0 0 10px rgba(255,255,255,.07),0 0 0 22px rgba(255,255,255,.03)}50%{box-shadow:0 0 0 18px rgba(255,255,255,.10),0 0 0 36px rgba(255,255,255,.04)}}
+#callUI .cl-name{font-family:var(--font-d);font-size:30px;font-weight:800;letter-spacing:-.02em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#callUI .cl-sub{font-size:15px;color:rgba(255,255,255,.62)}
+#callUI .cl-st{font-size:17px;font-weight:700;color:rgba(255,255,255,.88);font-variant-numeric:tabular-nums}
+#callUI .cl-btns{display:flex;gap:34px;align-items:flex-start;justify-content:center}
+#callUI .cl-b{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;font-weight:700;color:rgba(255,255,255,.8)}
+#callUI .cl-b button{width:68px;height:68px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:28px;background:rgba(255,255,255,.14);transition:transform .12s,background .2s}
+#callUI .cl-b button:active{transform:scale(.92)}
+#callUI .cl-b button.red{background:#e5322d}
+#callUI .cl-b button.green{background:#27ae60}
+#callUI .cl-b button.on{background:#fff;color:#111}
+#callUI .cl-b button:disabled{opacity:.5}
 </style>
 
 </head>
@@ -1116,6 +1136,9 @@ html.tour-lock,html.tour-lock body{overflow:hidden;overscroll-behavior:none}
 <div id="forgotLinks" class="hidden"><button type="button" class="link quiet" id="forgotBack">Kembali ke halaman masuk</button></div>
 <button type="button" class="link quiet hidden" id="guestBack">Lanjut sebagai tamu</button>
 </div></div>
+
+<div id="callUI" class="hidden" role="dialog" aria-label="Panggilan suara"><div class="cl-top"><div class="cl-av" id="clAv"></div><div class="cl-name" id="clName"></div><div class="cl-sub" id="clSub"></div><div class="cl-st" id="clSt"></div></div><div class="cl-btns" id="clBtns"></div></div>
+<audio id="callAudio" autoplay playsinline></audio>
 
 <div id="tour" class="hidden" role="dialog" aria-label="Panduan aplikasi"><div class="tr-dim" id="trDim"></div><div class="tr-spot" id="trSpot"></div><div class="tr-tip" id="trTip"></div></div>
 
@@ -2182,6 +2205,202 @@ window.addEventListener("resize", () => { if (tourOn) tourPlace(); });
 if (window.visualViewport) { visualViewport.addEventListener("resize", () => { if (tourOn) tourPlace(); }); visualViewport.addEventListener("scroll", () => { if (tourOn) tourPlace(); }); }
 $("rowGuide").addEventListener("click", tourOpen);
 
+
+/* ---------- telepon suara (HANYA admin -> user; dicek juga di server) ---------- */
+var call = null, callPollT = 0, callRing = null, callIce = null, callStarted = false;
+const callEl = (id) => document.getElementById(id);
+async function callApi(path, body) {
+  const opt = { headers: { "Content-Type": "application/json" } };
+  if (token) opt.headers.Authorization = "Bearer " + token;
+  if (body !== undefined) { opt.method = "POST"; opt.body = JSON.stringify(body); }
+  const res = await fetch(API + path, Object.assign(opt, { cache: "no-store" }));
+  let d = {}; try { d = await res.json(); } catch (e) {}
+  return { res, d };
+}
+function callRingStart() {
+  callRingStop();
+  try { if (navigator.vibrate) navigator.vibrate([400, 200, 400]); } catch (e) {}
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    const ctx = new AC(); try { ctx.resume(); } catch (e) {}
+    const beep = () => {
+      [[440, 0], [480, 0.5]].forEach(([f, dt]) => {
+        const o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime + dt;
+        o.frequency.value = f; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.18, t + 0.04); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+        o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + 0.42);
+      });
+      try { if (navigator.vibrate) navigator.vibrate([400, 200, 400]); } catch (e) {}
+    };
+    beep(); callRing = { ctx, iv: setInterval(beep, 2200) };
+  } catch (e) {}
+}
+function callRingStop() {
+  if (!callRing) return;
+  clearInterval(callRing.iv); try { callRing.ctx.close(); } catch (e) {}
+  callRing = null; try { if (navigator.vibrate) navigator.vibrate(0); } catch (e) {}
+}
+function callFmt(ms) { const s = Math.floor(ms / 1000); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); }
+function callRender() {
+  const ui = callEl("callUI");
+  if (!call) { ui.classList.add("hidden"); return; }
+  ui.classList.remove("hidden");
+  const nm = call.peer.name || call.peer.username || "";
+  callEl("clAv").textContent = initialsOf(nm);
+  callEl("clName").textContent = nm;
+  callEl("clSub").textContent = call.role === "callee" ? "Panggilan suara dari Admin" : "Panggilan suara";
+  const st = { preparing: "Menyiapkan…", ringing: "Berdering…", incoming: "Admin menelepon…", connecting: "Menghubungkan…", connected: "Tersambung" }[call.state] || "";
+  ui.classList.toggle("ring", call.state === "incoming" || call.state === "ringing");
+  callEl("clSt").textContent = call.state === "connected" && call.t0 ? callFmt(Date.now() - call.t0) : st;
+  const b = (cls, id, ic, label) => `<div class="cl-b"><button type="button" class="${cls}" id="${id}" aria-label="${label}">${ic}</button>${label}</div>`;
+  callEl("clBtns").innerHTML = call.state === "incoming"
+    ? b("red", "clDecline", "✕", "Tolak") + b("green", "clAccept", "📞", "Terima")
+    : b(call.muted ? "on" : "", "clMute", call.muted ? "🔇" : "🎙️", call.muted ? "Suara mati" : "Bisukan") + b("red", "clEnd", "✕", call.state === "ringing" || call.state === "preparing" ? "Batal" : "Akhiri");
+}
+function callCleanup(msg, isErr) {
+  callRingStop();
+  if (call) {
+    clearInterval(call.timer);
+    try { call.pc && call.pc.close(); } catch (e) {}
+    try { call.stream && call.stream.getTracks().forEach((t) => t.stop()); } catch (e) {}
+  }
+  const a = callEl("callAudio"); try { a.srcObject = null; } catch (e) {}
+  call = null; callRender();
+  if (msg) showToast(msg, isErr);
+  callSchedule(1500);
+}
+async function callIceServers() {
+  try { const { d } = await callApi("/api/call/ice"); if (d.ok && d.iceServers) callIce = d.iceServers; } catch (e) {}
+  return callIce || [{ urls: "stun:stun.l.google.com:19302" }];
+}
+function callWaitIce(pc) {
+  return new Promise((ok) => {
+    if (pc.iceGatheringState === "complete") return ok();
+    const done = () => { pc.removeEventListener("icegatheringstatechange", chk); clearTimeout(t); ok(); };
+    const chk = () => { if (pc.iceGatheringState === "complete") done(); };
+    const t = setTimeout(done, 3500);
+    pc.addEventListener("icegatheringstatechange", chk);
+  });
+}
+function callMakePC(servers) {
+  const pc = new RTCPeerConnection({ iceServers: servers });
+  pc.ontrack = (e) => { const a = callEl("callAudio"); a.srcObject = e.streams[0] || new MediaStream([e.track]); a.play().catch(() => {}); };
+  pc.onconnectionstatechange = () => {
+    if (!call || call.pc !== pc) return;
+    if (pc.connectionState === "connected" && call.state !== "connected") {
+      call.state = "connected"; call.t0 = Date.now();
+      clearInterval(call.timer); call.timer = setInterval(() => { if (call && call.t0) callEl("clSt").textContent = callFmt(Date.now() - call.t0); }, 1000);
+      callRender();
+    } else if (pc.connectionState === "failed") {
+      const id = call.id; callApi("/api/call/end", { id }).catch(() => {});
+      callCleanup("Sambungan gagal. Coba lagi (jaringan mungkin butuh server TURN).", true);
+    }
+  };
+  return pc;
+}
+async function callMic() {
+  if (!window.RTCPeerConnection || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("Browser ini belum mendukung panggilan suara.");
+  try { return await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }); }
+  catch (e) { throw new Error("Izin mikrofon ditolak. Aktifkan mikrofon untuk situs ini lalu coba lagi."); }
+}
+async function callStart(username, name) {
+  if (!isAdmin) return;
+  if (call) { showToast("Masih ada panggilan yang berlangsung.", true); return; }
+  const mine = (call = { role: "caller", state: "preparing", peer: { username, name } });
+  callRender();
+  try {
+    mine.stream = await callMic();
+    if (call !== mine) { mine.stream.getTracks().forEach((t) => t.stop()); return; }
+    const pc = (mine.pc = callMakePC(await callIceServers()));
+    mine.stream.getTracks().forEach((t) => pc.addTrack(t, mine.stream));
+    await pc.setLocalDescription(await pc.createOffer());
+    await callWaitIce(pc);
+    if (call !== mine) return;
+    const { res, d } = await callApi("/api/call/start", { to: username, offer: pc.localDescription.sdp });
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memulai panggilan.");
+    if (call !== mine) { callApi("/api/call/end", { id: d.id }).catch(() => {}); return; }
+    mine.id = d.id; mine.t = Date.now(); mine.state = "ringing"; callRender(); callSchedule(1200);
+  } catch (e) { if (call === mine) callCleanup(e.message || "Gagal memulai panggilan.", true); }
+}
+async function callAnswer() {
+  if (!call || call.state !== "incoming") return;
+  const mine = call; callRingStop(); mine.state = "connecting"; callRender();
+  try {
+    mine.stream = await callMic();
+    const pc = (mine.pc = callMakePC(await callIceServers()));
+    await pc.setRemoteDescription({ type: "offer", sdp: mine.offer });
+    mine.stream.getTracks().forEach((t) => pc.addTrack(t, mine.stream));
+    await pc.setLocalDescription(await pc.createAnswer());
+    await callWaitIce(pc);
+    const { res, d } = await callApi("/api/call/answer", { id: mine.id, answer: pc.localDescription.sdp });
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menjawab panggilan.");
+    callSchedule(1200);
+  } catch (e) {
+    if (call === mine) { callApi("/api/call/decline", { id: mine.id }).catch(() => {}); callCleanup(e.message || "Gagal menjawab panggilan.", true); }
+  }
+}
+function callHangup(decline) {
+  if (!call) return;
+  const id = call.id;
+  if (id) callApi(decline ? "/api/call/decline" : "/api/call/end", { id }).catch(() => {});
+  callCleanup("");
+}
+async function callOnState(c) {
+  if (!call) {
+    if (c.state === "ended") return;
+    if (c.role === "callee" && c.state === "ringing") {
+      call = { id: c.id, role: "callee", state: "incoming", peer: c.peer, offer: c.offer };
+      callRender(); callRingStart(); return;
+    }
+    if (c.role === "caller") callApi("/api/call/end", { id: c.id }).catch(() => {}); // sisa panggilan sebelum halaman dimuat ulang
+    return;
+  }
+  if (c.id !== call.id) return;
+  if (c.state === "ended") {
+    const r = c.reason, me = call.role;
+    const msg = r === "declined" ? "Panggilan ditolak" : r === "missed" ? (me === "callee" ? "Panggilan dari Admin tak terjawab" : "Tidak dijawab")
+      : r === "cancelled" ? (me === "callee" ? "Panggilan dari Admin dibatalkan" : "") : r === "lost" ? "Koneksi terputus" : "Panggilan selesai";
+    callCleanup(msg); return;
+  }
+  if (call.role === "caller" && c.state === "active" && c.answer && !call.answered) {
+    call.answered = true; call.state = "connecting"; callRender();
+    try { await call.pc.setRemoteDescription({ type: "answer", sdp: c.answer }); }
+    catch (e) { callApi("/api/call/end", { id: call.id }).catch(() => {}); callCleanup("Gagal menyambungkan panggilan.", true); }
+  }
+}
+async function callTick() {
+  clearTimeout(callPollT); callPollT = 0;
+  if (!token || guest || !currentUser) { if (call) callCleanup(""); callSchedule(); return; }
+  try {
+    const { res, d } = await callApi("/api/call/poll");
+    if (res.ok && d.ok) {
+      if (d.call) await callOnState(d.call);
+      else if (call && call.id && call.state !== "preparing" && !(call.role === "caller" && call.state === "ringing" && Date.now() - (call.t || 0) < 3000)) callCleanup("Panggilan berakhir");
+    }
+  } catch (e) {}
+  callSchedule();
+}
+function callSchedule(ms) {
+  if (callPollT) clearTimeout(callPollT);
+  const d = ms || (call ? 1500 : document.hidden ? 12000 : isAdmin ? 8000 : 4000);
+  callPollT = setTimeout(callTick, d);
+}
+function callInit() {
+  if (callStarted) { callTick(); return; }
+  callStarted = true; callTick();
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) callTick(); });
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-call],#clAccept,#clDecline,#clEnd,#clMute");
+    if (!t) return;
+    if (t.dataset.call) { callStart(t.dataset.call, t.dataset.name || t.dataset.call); return; }
+    if (t.id === "clAccept") callAnswer();
+    else if (t.id === "clDecline") callHangup(true);
+    else if (t.id === "clEnd") callHangup(false);
+    else if (t.id === "clMute" && call && call.stream) {
+      call.muted = !call.muted; call.stream.getAudioTracks().forEach((x) => { x.enabled = !call.muted; }); callRender();
+    }
+  });
+}
+
 var initTransient = false;
 async function initApp() {
   if (!token) return false;
@@ -2231,6 +2450,7 @@ async function initApp() {
     startReminders();
     startForum();
     maybeOnboard();
+    callInit();
     syncPush(false).then(updateNotifBtn);
     syncTimer = setInterval(() => {
       if (!document.hidden && token && selectedTopicId && activeView === "materi") loadMaterials(true);
@@ -3219,6 +3439,7 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
   // notifikasi chat admin diketuk -> buka forum lalu chat admin
   navigator.serviceWorker.addEventListener("message", (ev) => {
+    if (ev.data && ev.data.type === "call-check" && token && typeof callTick === "function") callTick();
     if (ev.data && ev.data.type === "open-inbox" && token && typeof inOpen === "function" && inOn) { switchView("chat"); if (!isAdmin) setTimeout(inOpen, 300); }
   });
 }
@@ -3325,6 +3546,7 @@ function adUserHtml(u) {
   return `<div class="au"><div class="n">${esc(u.full_name || u.username)} <span class="tag">@${un}</span>${u.banned ? '<span class="vis priv">Banned</span>' : ""}</div>
     <div class="m">NIM ${esc(u.nim || "belum diisi")} · Login ${u.login_count || 0} · Upload ${u.upload_count || 0} · IP ${esc(u.last_ip || "-")} · ${esc(u.last_device || "-")}</div>
     <div class="mbtns">
+      ${me || u.banned ? "" : `<button class="mbtn" data-call="${un}" data-name="${esc(u.full_name || u.username)}">📞 Telepon</button>`}
       ${me ? "" : `<button class="mbtn" data-ad="${u.banned ? "unban_web" : "ban_web"}" data-t="${un}">${u.banned ? "Unban" : "Ban"}</button>`}
       ${me ? "" : `<button class="mbtn" data-ad="logout_web" data-t="${un}">Keluarkan semua perangkat</button>`}
       <button class="mbtn" data-ad="reset_web" data-t="${un}">Reset password</button>
@@ -5584,6 +5806,7 @@ function navGuardInit() {
 }
 function navBack() {
   const last = (sel) => { const l = document.querySelectorAll(sel); return l[l.length - 1] || null; };
+  if (call) return true;
   if (!$("tour").classList.contains("hidden")) { tourClose(); return true; }
   if (guest && !$("login").classList.contains("hidden")) { $("login").classList.add("hidden"); return true; }
   const md = last(".modal-bg");
