@@ -2580,8 +2580,14 @@ function gcOnState(g) {
     callRingStart(); gcRingT = setTimeout(callRingStop, 30000);
   } else { gcInc.parts = g.parts; gcRender(); }
 }
+function callSoonSheet(what) {
+  document.querySelectorAll(".fgsheet[data-soon]").forEach((x) => x.remove());
+  const sh = fgSheet(`<div style="font-size:46px;line-height:1">📞</div><h3>Fitur belum tersedia</h3><p class="fgsub">${esc(what)} belum tersedia untuk kamu. Kami usahakan secepatnya ya.</p><div class="invbtns"><button type="button" class="invb sec" data-close>Tutup</button></div>`);
+  sh.dataset.soon = "1";
+  sh.querySelector("[data-close]").addEventListener("click", () => sh.remove());
+}
 function gcCallTap() {
-  if (!isAdmin) { showToast("📞 Panggilan grup akan segera hadir untuk kamu. Untuk saat ini hanya admin yang bisa memulainya."); return; }
+  if (!isAdmin) { callSoonSheet("Panggilan grup"); return; }
   gcStart();
 }
 
@@ -4807,7 +4813,7 @@ document.addEventListener("click", (e) => {
   if (!b) return;
   e.stopPropagation(); e.preventDefault();
   const admin = b.dataset.t === "admin", label = b.dataset.l || "Terverifikasi";
-  const s = fgSheet(`<div style="font-size:46px;line-height:1">${admin ? BADGE : VUSER(label)}</div><h3>${admin ? "Terverifikasi admin" : esc(label)}</h3><p class="fgsub">${admin ? "Akun resmi admin Semester 5." : "Diverifikasi oleh admin Semester 5."}</p><button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
+  const s = fgSheet(`<div style="font-size:46px;line-height:1">${admin ? BADGE : VUSER(label)}</div><h3>${admin ? "Terverifikasi admin" : esc(label)}</h3><p class="fgsub">${admin ? "Akun resmi admin Study Hub." : "Diverifikasi oleh admin Study Hub."}</p><button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
   s.querySelector("[data-close]").addEventListener("click", () => s.remove());
 }, true);
 
@@ -5155,7 +5161,7 @@ const inCurThread = () => {
   return { pid: inWith, name: (inPeer && inPeer.name) || t.name || "Pengguna", pin: inMeta ? inMeta.pin > 0 : !!t.pin, arch: inMeta ? !!inMeta.arch : !!t.arch, unread: 0 };
 };
 function inCallTap() {
-  if (!isAdmin) { showToast("📞 Fitur panggilan akan tersedia untuk kamu nanti. Untuk saat ini hanya admin yang bisa menelepon."); return; }
+  if (!isAdmin) { callSoonSheet("Panggilan suara"); return; }
   if (!inPeer || !inPeer.pid) { showToast("Tunggu sebentar, profil belum termuat.", true); return; }
   callStart(inPeer);
 }
