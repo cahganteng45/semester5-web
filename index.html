@@ -4963,20 +4963,24 @@ function inPaintPill() {
   if (!p) return;
   if (inView !== "conv") { p.classList.add("hidden"); return; }
   p.classList.remove("hidden");
-  const html = `<button type="button" id="inCall" aria-label="Telepon">${IC_CALL}</button>` + (isAdmin ? `<button type="button" id="inMore" aria-label="Menu percakapan">${IC.more}</button>` : "");
+  const html = `<button type="button" id="inCall" aria-label="Telepon">${IC_CALL}</button>`;
   if (p.dataset.h !== html) { p.dataset.h = html; p.innerHTML = html; }
 }
+var inSheetBlock = 0;
 function inThreadSheet(t) {
-  if (!t) return;
+  if (!t || Date.now() < inSheetBlock) return;
+  document.querySelectorAll(".fgsheet[data-thr]").forEach((x) => x.remove());   // cegah sheet menumpuk
   const s = fgSheet(`<h3>${esc(t.name)}</h3><div class="inacts">` +
     (t.arch ? "" : `<button type="button" data-ia="pin">${IC.pin}<span>${t.pin ? "Lepas sematan" : "Sematkan"}</span></button>`) +
     `<button type="button" data-ia="arch">${IC.archive}<span>${t.arch ? "Keluarkan dari arsip" : "Arsipkan"}</span></button>` +
     (t.unread ? `<button type="button" data-ia="read">${IC.check}<span>Tandai sudah dibaca</span></button>` : "") +
     `<button type="button" data-ia="del" class="danger">${IC.trash}<span>Hapus percakapan</span></button></div>`);
+  s.dataset.thr = "1";
   s.addEventListener("click", (e) => {
     const b = e.target.closest("[data-ia]");
     if (!b) return;
-    s.remove();
+    document.querySelectorAll(".fgsheet[data-thr]").forEach((x) => x.remove());
+    inSheetBlock = Date.now() + 700;               // abaikan sisa sentuhan setelah memilih aksi
     const a = b.dataset.ia;
     if (a === "pin") inMetaSet(t.pid, { pin: !t.pin });
     else if (a === "arch") inMetaSet(t.pid, { arch: !t.arch });
