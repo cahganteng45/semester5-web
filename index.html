@@ -1084,6 +1084,10 @@ html.tour-lock,html.tour-lock body{overflow:hidden;overscroll-behavior:none}
 #callUI .cl-b button.green{background:#27ae60}
 #callUI .cl-b button.on{background:#fff;color:#111}
 #callUI .cl-b button:disabled{opacity:.5}
+
+.strow .sav{position:relative;overflow:hidden}
+.strow .sav img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.inpill #inCall{color:var(--ink)}
 </style>
 
 </head>
@@ -1527,10 +1531,19 @@ function myPid() { try { return myProfile.pid || ""; } catch (e) { return ""; } 
 const VUSER = (label) => '<svg class="vbadge user" data-t="user" data-l="' + esc(label) + '" viewBox="0 0 24 24" role="img" aria-label="Terverifikasi"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#e0a100"/><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#e0a100" transform="rotate(45 12 12)"/><path d="M7.4 12.4l3.1 3.1 6.1-6.6" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const nameHtml = (name, owner, ver) => esc(name) + (owner ? BADGE : ver ? VUSER(ver) : "");
 const initialsOf = (n) => String(n || "?").replace(/[^\p{L}\p{N} ]/gu, "").trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "?";
+const avBlob = {}, avPend = {};
+function avSrc(url) {
+  if (avBlob[url]) return avBlob[url];
+  if (!avPend[url] && window.fetch && window.URL) {
+    avPend[url] = 1;
+    fetch(url).then((r) => (r.ok ? r.blob() : null)).then((b) => { if (b) avBlob[url] = URL.createObjectURL(b); }).catch(() => {});
+  }
+  return url;
+}
 function avatarHtml(o, size) {
   const cls = "av " + (size || "s");
   return o.av && o.pid
-    ? `<img class="${cls}" src="${esc(API)}/api/avatar/${esc(o.pid)}?v=${esc(o.avv || 0)}" alt="" loading="lazy">`
+    ? `<img class="${cls}" src="${esc(avSrc(API + "/api/avatar/" + o.pid + "?v=" + (o.avv || 0)))}" alt="" decoding="async">`
     : `<span class="${cls}">${esc(initialsOf(o.name))}</span>`;
 }
 async function copyText(t) {
@@ -2245,7 +2258,11 @@ function callRender() {
   if (!call) { ui.classList.add("hidden"); return; }
   ui.classList.remove("hidden");
   const nm = call.peer.name || call.peer.username || "";
-  callEl("clAv").textContent = initialsOf(nm);
+  const av = callEl("clAv"), pr = call.peer, key = (pr.pid || "") + "|" + (pr.av ? pr.avv || 1 : 0) + "|" + nm;
+  if (av.dataset.k !== key) {
+    av.dataset.k = key;
+    av.innerHTML = pr.av && pr.pid ? `<img src="${esc(avSrc(API + "/api/avatar/" + pr.pid + "?v=" + (pr.avv || 0)))}" alt="" style="width:100%;height:100%;object-fit:cover">` : esc(initialsOf(nm));
+  }
   callEl("clName").textContent = nm;
   callEl("clSub").textContent = call.role === "callee" ? "Panggilan suara dari Admin" : "Panggilan suara";
   const st = { preparing: "Menyiapkan…", ringing: "Berdering…", incoming: "Admin menelepon…", connecting: "Menghubungkan…", connected: "Tersambung" }[call.state] || "";
@@ -2302,10 +2319,10 @@ async function callMic() {
   try { return await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }); }
   catch (e) { throw new Error("Izin mikrofon ditolak. Aktifkan mikrofon untuk situs ini lalu coba lagi."); }
 }
-async function callStart(username, name) {
-  if (!isAdmin) return;
+async function callStart(peer) {
+  if (!isAdmin || !peer) return;
   if (call) { showToast("Masih ada panggilan yang berlangsung.", true); return; }
-  const mine = (call = { role: "caller", state: "preparing", peer: { username, name } });
+  const mine = (call = { role: "caller", state: "preparing", peer: { username: peer.username || "", name: peer.name || "", pid: peer.pid || "", av: !!peer.av, avv: peer.avv || 0 } });
   callRender();
   try {
     mine.stream = await callMic();
@@ -2315,9 +2332,10 @@ async function callStart(username, name) {
     await pc.setLocalDescription(await pc.createOffer());
     await callWaitIce(pc);
     if (call !== mine) return;
-    const { res, d } = await callApi("/api/call/start", { to: username, offer: pc.localDescription.sdp });
+    const { res, d } = await callApi("/api/call/start", { pid: peer.pid, to: peer.username || "", offer: pc.localDescription.sdp });
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memulai panggilan.");
     if (call !== mine) { callApi("/api/call/end", { id: d.id }).catch(() => {}); return; }
+    if (d.peer) mine.peer = d.peer;
     mine.id = d.id; mine.t = Date.now(); mine.state = "ringing"; callRender(); callSchedule(1200);
   } catch (e) { if (call === mine) callCleanup(e.message || "Gagal memulai panggilan.", true); }
 }
@@ -2389,9 +2407,8 @@ function callInit() {
   callStarted = true; callTick();
   document.addEventListener("visibilitychange", () => { if (!document.hidden) callTick(); });
   document.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-call],#clAccept,#clDecline,#clEnd,#clMute");
+    const t = e.target.closest("#clAccept,#clDecline,#clEnd,#clMute");
     if (!t) return;
-    if (t.dataset.call) { callStart(t.dataset.call, t.dataset.name || t.dataset.call); return; }
     if (t.id === "clAccept") callAnswer();
     else if (t.id === "clDecline") callHangup(true);
     else if (t.id === "clEnd") callHangup(false);
@@ -3021,7 +3038,7 @@ function toggleStar(m, src = "f") {
   else {
     const mine = src === "f" ? !!m.mine : inMine(m);
     const name = src === "f" ? shortName(m.name) : (mine ? (fullUserName || "Kamu") : ((inPeer && inPeer.name) || "Chat pribadi"));
-    a.unshift({ k, src, id: m.id, name, ts: m.ts, mine, owner: src === "f" ? !!m.owner : m.from === "admin", vp: src === "f" ? (m.pid || "") : "", pid: src === "i" ? inWith : "", peer: src === "i" ? ((inPeer && inPeer.name) || "") : "", text: String(m.text || (m.file ? "📎 Lampiran" : "")).slice(0, 4000) });
+    a.unshift({ k, src, id: m.id, name, ts: m.ts, mine, owner: src === "f" ? !!m.owner : m.from === "admin", vp: src === "f" ? (m.pid || "") : "", ap: src === "f" ? (m.pid || "") : (mine ? myPid() : ((inPeer && inPeer.pid) || "")), av: src === "f" ? !!m.av : (mine ? !!myProfile.av : !!(inPeer && inPeer.av)), avv: src === "f" ? (m.avv || 0) : (mine ? (myProfile.avv || 0) : ((inPeer && inPeer.avv) || 0)), pid: src === "i" ? inWith : "", peer: src === "i" ? ((inPeer && inPeer.name) || "") : "", text: String(m.text || (m.file ? "📎 Lampiran" : "")).slice(0, 4000) });
     showToast("Pesan diberi bintang ★");
   }
   starsSet(a); starMark(src, m.id, i < 0); renderStars();
@@ -3034,10 +3051,14 @@ function renderStars() {
     const live = x.src === "f" ? fMsgs.find((m) => m.id === x.id) : null;
     const isOwner = !!(x.owner || (live && live.owner));
     const vp = x.vp || (live && live.pid) || "";
+    const ap = x.mine ? myPid() : (x.ap || vp || (live && live.pid) || (x.src === "i" && !isAdmin ? ((inPeer && inPeer.pid) || "") : "") || (x.src === "i" && isAdmin ? x.pid : ""));
+    const mem = ap && fGroupMembers.find((g) => g.pid === ap);
+    const avv = x.mine ? (myProfile.avv || 0) : ((mem && mem.avv) || (live && live.avv) || x.avv || 0);
+    const avImg = ap ? `<img src="${esc(avSrc(API + "/api/avatar/" + ap + "?v=" + avv))}" alt="" onerror="this.remove()">` : "";
     const nm = x.mine ? "Kamu" : (x.name || "");
     const sub = x.src === "i" ? "Chat pribadi" : "Forum Kelas";
     const txt = esc(x.text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
-    return `<div class="strow ${x.mine ? "me" : ""}" data-sid="${esc(x.k)}" role="button" tabindex="0"><div class="sth"><span class="sav">${esc((nm.trim()[0] || "?").toUpperCase())}</span><span class="snm">${nameHtml(nm, isOwner, verOf(vp))}<small>${sub}</small></span><span class="sdt">${esc(fDay(x.ts))}</span><button type="button" class="stun" data-sun="1" aria-label="Hapus bintang">★</button></div><div class="sbody"><div class="sbub"><div class="stt">${txt}</div><div class="stm"><span class="fstar">★</span>${esc(fTime(x.ts))}</div></div><span class="schev">›</span></div></div>`;
+    return `<div class="strow ${x.mine ? "me" : ""}" data-sid="${esc(x.k)}" role="button" tabindex="0"><div class="sth"><span class="sav">${avImg}${esc((nm.trim()[0] || "?").toUpperCase())}</span><span class="snm">${nameHtml(nm, isOwner, verOf(vp))}<small>${sub}</small></span><span class="sdt">${esc(fDay(x.ts))}</span><button type="button" class="stun" data-sun="1" aria-label="Hapus bintang">★</button></div><div class="sbody"><div class="sbub"><div class="stt">${txt}</div><div class="stm"><span class="fstar">★</span>${esc(fTime(x.ts))}</div></div><span class="schev">›</span></div></div>`;
   }).join("")
     : '<div class="stempty"><div class="stico">☆</div><b>Belum ada pesan berbintang</b>Tahan pesan di Forum Kelas atau chat pribadi, lalu pilih <b style="display:inline;font-size:inherit">Bintangi</b>, supaya mudah ditemukan lagi.</div>';
 }
@@ -3546,7 +3567,6 @@ function adUserHtml(u) {
   return `<div class="au"><div class="n">${esc(u.full_name || u.username)} <span class="tag">@${un}</span>${u.banned ? '<span class="vis priv">Banned</span>' : ""}</div>
     <div class="m">NIM ${esc(u.nim || "belum diisi")} · Login ${u.login_count || 0} · Upload ${u.upload_count || 0} · IP ${esc(u.last_ip || "-")} · ${esc(u.last_device || "-")}</div>
     <div class="mbtns">
-      ${me || u.banned ? "" : `<button class="mbtn" data-call="${un}" data-name="${esc(u.full_name || u.username)}">📞 Telepon</button>`}
       ${me ? "" : `<button class="mbtn" data-ad="${u.banned ? "unban_web" : "ban_web"}" data-t="${un}">${u.banned ? "Unban" : "Ban"}</button>`}
       ${me ? "" : `<button class="mbtn" data-ad="logout_web" data-t="${un}">Keluarkan semua perangkat</button>`}
       <button class="mbtn" data-ad="reset_web" data-t="${un}">Reset password</button>
@@ -4591,7 +4611,7 @@ document.addEventListener("click", (e) => {
 
 /* ---------- chat dengan admin (isi percakapan tersimpan di Telegram) ---------- */
 let inMsgs = [], inReplyTo = 0, inPressAt = 0;
-let inEl = null, inWith = "", inLast = 0, inTimer = null, inOn = false, inView = "", inPeer = null, inTypingOn = false, inTypeAt = 0;
+let inTitleSig = "", inEl = null, inWith = "", inLast = 0, inTimer = null, inOn = false, inView = "", inPeer = null, inTypingOn = false, inTypeAt = 0;
 function inPaintBtn() { renderChatHub(false); }
 function fApplyInbox(on, unread) {
   inOn = !!on;
@@ -4627,6 +4647,7 @@ function inOpen(o) {
     inEl.addEventListener("click", (e) => {
       if (e.target.closest("#inBack")) { if (isAdmin && inView === "conv") inBackToList(); else if (inView === "arch") inToList(); else inClose(); return; }
       if (e.target.closest("[data-archopen]")) { inArchive(); return; }
+      if (e.target.closest("#inCall")) { inCallTap(); return; }
       if (e.target.closest("#inTitle.tap")) { inProfile(); return; }
       if (e.target.closest("#inNew")) { inPick(); return; }
       if (e.target.closest("#inPin")) { inMetaSet(inWith, { pin: !(inMeta && inMeta.pin > 0) }); return; }
@@ -4705,7 +4726,7 @@ async function inPick() {
 function inConv(pid, title) {
   inFromArch = inView === "arch" ? true : inView === "conv" ? inFromArch : false;
   inRecStop(true); inCleanMedia();
-  inView = "conv"; inWith = pid; inLast = 0; inTypingOn = false; inTypeAt = 0; inPeer = null; inMsgs = []; inReplyTo = 0; inMeta = null;
+  inTitleSig = ""; inView = "conv"; inWith = pid; inLast = 0; inTypingOn = false; inTypeAt = 0; inPeer = null; inMsgs = []; inReplyTo = 0; inMeta = null;
   inPaintPill();
   $("inTitle").classList.remove("tap");
   $("inTitle").innerHTML = `<b>${esc(title)}</b>`;
@@ -4796,7 +4817,17 @@ function inSubText(p) {
   return st ? (p.sub ? p.sub + " · " + st : st) : (p.sub || "");
 }
 function inSetPeer(p) {
+  const sig = [p.pid, p.name, p.av, p.avv, p.owner, verOf(p.pid)].join("|");
+  const same = inPeer && inTitleSig === sig && $("inTitle").querySelector(".inwho");
   inPeer = p;
+  if (same) {                                   // hanya teks status yang boleh berubah
+    const sm = $("inTitle").querySelector(".inwho small");
+    const tx = inTypingOn ? "sedang mengetik…" : inSubText(p);
+    if (sm && sm.textContent !== tx) sm.textContent = tx;
+    if (sm) sm.classList.toggle("inon", inTypingOn || !!p.online);
+    return;
+  }
+  inTitleSig = sig;
   $("inTitle").classList.add("tap");
   $("inTitle").setAttribute("role", "button");
   $("inTitle").innerHTML = `${avatarHtml(p, "s")}<span class="inwho"><b>${nameHtml(p.name, p.owner, verOf(p.pid))}</b><small class="${p.online ? "inon" : ""}">${esc(inSubText(p))}</small></span>`;
@@ -4921,12 +4952,19 @@ const inCurThread = () => {
   const t = inThr.find((x) => x.pid === inWith) || {};
   return { pid: inWith, name: (inPeer && inPeer.name) || t.name || "Pengguna", pin: inMeta ? inMeta.pin > 0 : !!t.pin, arch: inMeta ? !!inMeta.arch : !!t.arch, unread: 0 };
 };
+function inCallTap() {
+  if (!isAdmin) { showToast("📞 Fitur panggilan akan tersedia untuk kamu nanti. Untuk saat ini hanya admin yang bisa menelepon."); return; }
+  if (!inPeer || !inPeer.pid) { showToast("Tunggu sebentar, profil belum termuat.", true); return; }
+  callStart(inPeer);
+}
+const IC_CALL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>';
 function inPaintPill() {
   const p = $("inPill");
   if (!p) return;
-  if (!isAdmin || inView !== "conv") { p.classList.add("hidden"); return; }
+  if (inView !== "conv") { p.classList.add("hidden"); return; }
   p.classList.remove("hidden");
-  p.innerHTML = `<button type="button" id="inMore" aria-label="Menu percakapan">${IC.more}</button>`;
+  const html = `<button type="button" id="inCall" aria-label="Telepon">${IC_CALL}</button>` + (isAdmin ? `<button type="button" id="inMore" aria-label="Menu percakapan">${IC.more}</button>` : "");
+  if (p.dataset.h !== html) { p.dataset.h = html; p.innerHTML = html; }
 }
 function inThreadSheet(t) {
   if (!t) return;
