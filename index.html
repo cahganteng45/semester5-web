@@ -3943,7 +3943,7 @@ $("view-admin").addEventListener("click", async (e) => {
   }
   if (a === "set_nim") {
     const r = await openModal({ title: "Ubah NIM", text: "Akun @" + t, icon: "edit", ok: "Simpan",
-      fields: [{ key: "nim", label: "NIM", placeholder: "24.230.0000", required: true }] });
+      fields: [{ key: "nim", label: "NIM (kosongkan untuk menghapus)", placeholder: "24.230.0000", required: false }] });
     if (!r) return;
     v = r.nim;
   }
