@@ -1,5 +1,5 @@
 /* Service worker Semester 5: cache cangkang aplikasi + notifikasi push */
-const CACHE = "s5-shell-v2";
+const CACHE = "s5-shell-v3";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon-192.png"];
 
 self.addEventListener("install", (e) => {
@@ -39,10 +39,11 @@ self.addEventListener("push", (e) => {
     badge: "icon-192.png",
     tag: d.tag || undefined,
     data: { url: d.url || "./" },
-    ...(d.tag === "call" ? { requireInteraction: true, renotify: true, vibrate: [400, 200, 400, 200, 400] } : {})
+    ...(d.tag === "call" || d.tag === "gcall" ? { requireInteraction: true, renotify: true, vibrate: [400, 200, 400, 200, 400] } : {}),
+    ...(d.tag === "gcall" ? { actions: [{ action: "join", title: "Gabung" }, { action: "ignore", title: "Abaikan" }] } : {})
   });
   // Pesan forum dan chat admin: kalau aplikasi sedang terlihat, cukup tampil di dalam aplikasi (hindari dobel).
-  const inApp = d.tag === "forum" || d.tag === "call" || String(d.tag || "").startsWith("inbox");
+  const inApp = d.tag === "forum" || d.tag === "call" || d.tag === "gcall" || String(d.tag || "").startsWith("inbox");
   e.waitUntil(inApp
     ? self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => (list.some((c) => c.visibilityState === "visible") ? null : show()))
     : show());
@@ -50,14 +51,16 @@ self.addEventListener("push", (e) => {
 
 self.addEventListener("notificationclick", (e) => {
   e.notification.close();
-  const url = new URL((e.notification.data && e.notification.data.url) || "./", self.registration.scope).href;
+  if (e.action === "ignore") return;                                         // tombol Abaikan: cukup tutup notifikasi
+  const wantJoin = e.action === "join";
+  const url = new URL((e.notification.data && e.notification.data.url) || "./", self.registration.scope).href + (wantJoin ? "&join=1" : "");
   e.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
       const tag = e.notification.tag || "";
       for (const c of list) {
         if ("focus" in c) {
           if (tag.startsWith("inbox")) c.postMessage({ type: "open-inbox" });   // buka chat admin di aplikasi
-          if (tag === "call") c.postMessage({ type: "call-check" });             // langsung cek telepon masuk
+          if (tag === "call" || tag === "gcall") c.postMessage({ type: "call-check", join: wantJoin });   // langsung cek telepon masuk
           return c.focus();
         }
       }
