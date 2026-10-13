@@ -2966,6 +2966,7 @@ function renderMaterials() {
     let url = m.url || "";
     if (url.startsWith("/")) url = API + url;
     const isProxy = !!m.file_id || (url.includes("/api/material/") && !m.mt);
+    const dlable = !!(m.file_id || m.mt), viewable = /^(image\/(png|jpeg|gif|webp)|video\/|audio\/)/.test(mime) || ["photo", "video", "audio", "voice"].includes(kind);
     let caption = esc(m.content || m.caption || ""), deadline = "";
     if (caption.includes("⏰ DEADLINE:")) {
       const p = caption.split("⏰ DEADLINE:");
@@ -2989,7 +2990,8 @@ function renderMaterials() {
       `<button class="mbtn ${pinned ? "on" : ""}" data-act="pin" data-id="${id}">${svg("pin", 15)} ${pinned ? "Lepas pin" : "Pin"}</button>`,
       isText ? `<button class="mbtn" data-act="copy">Salin teks</button>` : "",
       deadline ? `<button class="mbtn ${isDone(m.id) ? "on" : ""}" data-act="done" data-id="${id}">${isDone(m.id) ? "Selesai ✓" : "Tandai selesai"}</button>` : "",
-      url && !isText ? `<a class="mbtn dark" href="${esc(url)}" target="_blank" rel="noopener">${m.mt ? "Unduh" : "Buka file"}</a>` : "",
+      url && !isText && (!dlable || viewable) ? `<a class="mbtn dark" href="${esc(url)}" target="_blank" rel="noopener">Buka file</a>` : "",
+      url && !isText && dlable ? `<a class="mbtn" href="${esc(url + (url.includes("?") ? "&" : "?") + "dl=1")}" download rel="noopener">Unduh</a>` : "",
       m.telegram_url && isAdmin ? `<a class="mbtn tele" href="${esc(m.telegram_url)}" target="_blank" rel="noopener">Telegram</a>` : "",
       isAdmin ? `<button class="mbtn del" data-act="del" data-id="${id}">Hapus</button>` : ""
     ].join("");
