@@ -558,6 +558,12 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .fimg{display:block;position:relative;border:0;padding:0;background:var(--line);border-radius:12px;overflow:hidden;cursor:zoom-in;color:var(--mute);font:inherit;font-size:13px;width:240px;max-width:100%;aspect-ratio:var(--ar,4/3);margin:2px 0 4px}
 .fimg img{display:block;width:100%;height:100%;object-fit:cover}
 .fimg.load{display:grid;place-items:center;cursor:pointer;padding:8px;text-align:center}
+.fonce{display:flex;flex-direction:column;align-items:center;gap:2px;width:210px;max-width:100%;padding:18px 12px;margin:2px 0 4px;border:1.5px dashed var(--line);border-radius:12px;background:transparent;color:inherit;font:inherit;font-size:14px;cursor:pointer}
+.fonce small{opacity:.7;font-size:12px}
+.fonce.done{cursor:default;opacity:.7;border-style:solid;font-size:13px}
+.fonceview canvas{margin:auto;max-width:100%;max-height:100%;object-fit:contain;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;pointer-events:none}
+.fonceh{color:#fff;opacity:.8;font-size:13px;align-self:center}
+@media print{.fonceview{display:none!important}}
 .inv{display:grid;place-items:center;width:200px;height:120px;cursor:pointer;text-align:center}
 .inph video{display:block;max-width:100%;max-height:300px}
 .inaud{display:flex;align-items:center;gap:10px;min-width:210px;max-width:100%}
@@ -4333,6 +4339,9 @@ $("fSend").addEventListener("click", sendForum);
 const fImgUrls = new Map(), fImgBusy = new Set(), F_IMG_MB = 8;
 const fImgAr = (m) => { const r = m.img && m.img.w && m.img.h ? m.img.w / m.img.h : 4 / 3; return Math.min(1.8, Math.max(0.6, r)).toFixed(3); };
 function fImgHtml(m) {
+  if (m.img.once) return m.mine || m.img.seen
+    ? `<div class="fonce done">👁️ Foto sekali lihat · ${m.mine ? "Dibuka oleh " + (m.img.n || 0) + " orang" : "Sudah dibuka"}</div>`
+    : `<button type="button" class="fonce" data-fo="${m.id}">👁️ Foto sekali lihat<small>Ketuk untuk membuka</small></button>`;
   const u = fImgUrls.get(m.id), ar = fImgAr(m);
   return u ? `<button type="button" class="fimg" data-fi="${m.id}" style="--ar:${ar}"><img src="${u}" alt="Foto"></button>`
     : `<button type="button" class="fimg load" data-fi="${m.id}" style="--ar:${ar}">Memuat foto…</button>`;
@@ -4363,6 +4372,51 @@ $("fMsgs").addEventListener("click", (e) => {
   const u = fImgUrls.get(id);
   if (u) inViewer(u, "foto-" + id + ".jpg");
 });
+/* foto sekali lihat: dibuka lewat canvas (tanpa tombol unduh/simpan), ada watermark nama pembuka, tertutup saat halaman disembunyikan */
+async function fOnceOpen(id) {
+  const m = fMsgs.find((x) => x.id === id);
+  if (!m || !m.img || m.mine || m.img.seen) return;
+  const ok = await openModal({ title: "Buka foto sekali lihat?", text: "Foto hanya bisa dibuka satu kali. Setelah ditutup, kamu tidak bisa melihatnya lagi, di perangkat mana pun.", ok: "Buka" });
+  if (!ok) return;
+  let img;
+  try {
+    const res = await apiCall("/api/forum/once/" + id, { method: "POST" });
+    if (res.status === 410) { m.img.seen = true; renderForum(false); throw new Error("Foto ini sudah pernah kamu buka."); }
+    if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || "Gagal membuka foto."); }
+    const url = URL.createObjectURL(await res.blob());
+    img = new Image();
+    await new Promise((ok2, bad) => { img.onload = ok2; img.onerror = bad; img.src = url; });
+    URL.revokeObjectURL(url);
+  } catch (e) { showToast(e.message || "Gagal membuka foto.", true); return; }
+  m.img.seen = true; renderForum(false);
+  fOnceView(img);
+}
+function fOnceView(img) {
+  const o = document.createElement("div");
+  o.className = "inview fonceview";
+  o.innerHTML = `<div class="ivbar"><button type="button" class="ivx" aria-label="Tutup">✕ Tutup</button><span class="fonceh">👁️ Sekali lihat</span></div><div class="ivbody"><canvas></canvas></div>`;
+  const cv = o.querySelector("canvas"), sc = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+  cv.width = Math.max(1, Math.round(img.naturalWidth * sc)); cv.height = Math.max(1, Math.round(img.naturalHeight * sc));
+  const x = cv.getContext("2d");
+  x.drawImage(img, 0, 0, cv.width, cv.height);
+  x.save(); x.translate(cv.width / 2, cv.height / 2); x.rotate(-Math.PI / 7);
+  x.font = `700 ${Math.round(cv.width / 16)}px sans-serif`; x.textAlign = "center";
+  x.globalAlpha = 0.28; x.lineWidth = 3; x.strokeStyle = "#000"; x.fillStyle = "#fff";
+  for (let k = -2; k <= 2; k++) { const yy = k * cv.height / 4; x.strokeText("@" + currentUser, 0, yy); x.fillText("@" + currentUser, 0, yy); }
+  x.restore();
+  const close = () => { o.remove(); document.removeEventListener("visibilitychange", onHide); window.removeEventListener("pagehide", close); };
+  const onHide = () => { if (document.hidden) close(); };
+  document.addEventListener("visibilitychange", onHide);
+  window.addEventListener("pagehide", close);
+  o.addEventListener("contextmenu", (e) => e.preventDefault());
+  o.addEventListener("click", (e) => { if (e.target.closest(".ivx") || e.target.classList.contains("ivbody")) close(); });
+  document.body.append(o);
+}
+$("fMsgs").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-fo]");
+  if (!b || Date.now() - fPressAt < 700) return;
+  fOnceOpen(+b.dataset.fo);
+});
 function fImgDims(file) {
   return new Promise((res) => {
     const i = new Image(), u = URL.createObjectURL(file);
@@ -4372,7 +4426,7 @@ function fImgDims(file) {
   });
 }
 let fImgSending = false;
-async function fUploadImg(file, caption) {
+async function fUploadImg(file, caption, once) {
   if (fImgSending) return;
   fImgSending = true;
   const btn = $("fImgBtn");
@@ -4388,6 +4442,7 @@ async function fUploadImg(file, caption) {
     fd.append("reply_to", fReplyTo || 0);
     fd.append("w", dm.w); fd.append("h", dm.h);
     fd.append("push_endpoint", myPushEndpoint || "");
+    if (once) fd.append("once", "1");
     const res = await apiCall("/api/forum/upload", { method: "POST", body: fd });
     const d = await res.json().catch(() => ({}));
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim foto.");
@@ -4410,8 +4465,8 @@ $("fImgBtn").addEventListener("click", () => {
     if (!/^image\/(jpeg|png|webp)$/.test(f.type)) return showToast("Hanya foto JPG, PNG, atau WebP.", true);
     if (f.size > 25 * 1048576) return showToast("Foto terlalu besar (maks 25 MB).", true);
     const cap = ($("fInput").value || "").trim().slice(0, 500);
-    const ok = await openModal({ title: "Kirim foto ke grup?", text: `${f.name} · ${fmtSize(f.size)}${cap ? "\nTeks di kolom akan jadi keterangan." : ""}`, ok: "Kirim" });
-    if (ok) fUploadImg(f, cap);
+    const ok = await openModal({ title: "Kirim foto ke grup?", text: `${f.name} · ${fmtSize(f.size)}${cap ? "\nTeks di kolom akan jadi keterangan." : ""}`, ok: "Kirim biasa", extra: "Kirim sekali lihat 👁️" });
+    if (ok) fUploadImg(f, cap, ok === "extra");
   });
   i.click();
 });
@@ -6032,6 +6087,8 @@ function fApplyMeta(d) {
     if (!!m.pinned !== p) { m.pinned = p; ch = true; }
     const e = ed[String(m.id)];
     if (e && (m.text !== e.t || !m.edited)) { m.text = e.t; m.edited = true; ch = true; }
+    const oc = (d.onces || {})[String(m.id)];
+    if (oc && m.img && m.img.once && (m.img.seen !== oc.seen || m.img.n !== oc.n)) { m.img.seen = oc.seen; m.img.n = oc.n; ch = true; }
     const q = pl[String(m.id)];
     if (q && JSON.stringify(q) !== JSON.stringify(m.poll)) { m.poll = q; ch = true; }
   });
