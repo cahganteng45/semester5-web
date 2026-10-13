@@ -1115,6 +1115,11 @@ html.tour-lock,html.tour-lock body{overflow:hidden;overscroll-behavior:none}
 .ib .ibb small .tk.s,.ib .ibb small .tk.p{opacity:.6}
 .ib .ibb small .tk.r{opacity:1;color:#fff;filter:drop-shadow(0 0 .5px rgba(0,0,0,.25))}
 .ib.pend .ibb{opacity:.8}
+
+#gcBar{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:1250;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#12131a;color:#fff;border-radius:18px;padding:9px 10px 9px 16px;font-size:14px;font-weight:700;box-shadow:0 10px 28px rgba(0,0,0,.28)}
+#gcBar.hidden{display:none}
+#gcBar small{display:block;font-size:12px;font-weight:500;color:rgba(255,255,255,.65)}
+#gcBar button{background:#27ae60;color:#fff;font-weight:800;border-radius:13px;padding:10px 18px;border:0;cursor:pointer}
 </style>
 
 </head>
@@ -1168,7 +1173,7 @@ html.tour-lock,html.tour-lock body{overflow:hidden;overscroll-behavior:none}
 <button type="button" class="link quiet hidden" id="guestBack">Lanjut sebagai tamu</button>
 </div></div>
 
-<div id="callUI" class="hidden" role="dialog" aria-label="Panggilan suara"><div class="cl-top"><div class="cl-av" id="clAv"></div><div class="cl-name" id="clName"></div><div class="cl-sub" id="clSub"></div><div class="cl-st" id="clSt"></div></div><div class="cl-parts" id="clParts"></div><div class="cl-btns" id="clBtns"></div></div><div id="gcAudios" style="display:none"></div>
+<div id="callUI" class="hidden" role="dialog" aria-label="Panggilan suara"><div class="cl-top"><div class="cl-av" id="clAv"></div><div class="cl-name" id="clName"></div><div class="cl-sub" id="clSub"></div><div class="cl-st" id="clSt"></div></div><div class="cl-parts" id="clParts"></div><div class="cl-btns" id="clBtns"></div></div><div id="gcAudios" style="display:none"></div><div id="gcBar" class="hidden" role="status"><span>📞 Panggilan grup berlangsung<small id="gcBarN"></small></span><button type="button" id="gcBarJoin">Gabung</button></div>
 <audio id="callAudio" autoplay playsinline></audio>
 
 <div id="tour" class="hidden" role="dialog" aria-label="Panduan aplikasi"><div class="tr-dim" id="trDim"></div><div class="tr-spot" id="trSpot"></div><div class="tr-tip" id="trTip"></div></div>
@@ -2282,6 +2287,7 @@ function callRingStop() {
 function callFmt(ms) { const s = Math.floor(ms / 1000); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); }
 function callRender() {
   const ui = callEl("callUI");
+  setTimeout(gcBarUpdate, 0);
   if (gc || gcInc) { gcRender(); return; }
   ui.classList.remove("group");
   if (!call) { ui.classList.add("hidden"); return; }
@@ -2444,8 +2450,14 @@ function callSchedule(ms) {
 }
 
 /* ---------- panggilan grup (admin memulai, anggota bergabung; mesh WebRTC maks 8 orang) ---------- */
-var gc = null, gcInc = null, gcSeq = 0, gcBusy = false, gcDismiss = {}, gcRingT = 0;
+var gcLive = null, gc = null, gcInc = null, gcSeq = 0, gcBusy = false, gcDismiss = {}, gcRingT = 0;
 function gcMe() { return myPid(); }
+function gcBarUpdate() {
+  const bar = callEl("gcBar"); if (!bar) return;
+  const show = !!gcLive && !gc && !gcInc && !call && !gcBusy;
+  bar.classList.toggle("hidden", !show);
+  if (show) callEl("gcBarN").textContent = (gcLive.n || (gcLive.parts || []).length) + " peserta · ketuk Gabung untuk ikut";
+}
 function gcPartName(p) { return p.pid === gcMe() ? "Kamu" : p.name || "Anggota"; }
 function gcRender() {
   const ui = callEl("callUI");
@@ -2570,6 +2582,8 @@ function gcLeave() {
 }
 function gcOnState(g) {
   if (gcBusy || (gc && !gc.id)) return;
+  gcLive = g && !g.joined ? g : null;
+  setTimeout(gcBarUpdate, 0);
   if (!g) {
     if (gc) gcCleanup("Panggilan grup berakhir");
     else if (gcInc) { gcRingStop(); gcInc = null; callRender(); }
@@ -2612,9 +2626,10 @@ function callInit() {
   callStarted = true; callTick();
   document.addEventListener("visibilitychange", () => { if (!document.hidden) callTick(); });
   document.addEventListener("click", (e) => {
-    const t = e.target.closest("#clAccept,#clDecline,#clEnd,#clMute,#gcJoin,#gcIgnore,#gcLeave,#gcMute");
+    const t = e.target.closest("#clAccept,#clDecline,#clEnd,#clMute,#gcJoin,#gcIgnore,#gcLeave,#gcMute,#gcBarJoin");
     if (!t) return;
-    if (t.id === "gcJoin") gcJoin();
+    if (t.id === "gcBarJoin") { if (gcLive && !gc && !gcInc) { gcInc = { id: gcLive.id, parts: gcLive.parts }; gcJoin(); } }
+    else if (t.id === "gcJoin") gcJoin();
     else if (t.id === "gcIgnore") { if (gcInc) gcDismiss[gcInc.id] = 1; gcRingStop(); gcInc = null; callRender(); }
     else if (t.id === "gcLeave") gcLeave();
     else if (t.id === "gcMute" && gc && gc.stream) { gc.muted = !gc.muted; gc.stream.getAudioTracks().forEach((x) => { x.enabled = !gc.muted; }); gcRender(); }
