@@ -1120,6 +1120,17 @@ html.tour-lock,html.tour-lock body{overflow:hidden;overscroll-behavior:none}
 #gcBar.hidden{display:none}
 #gcBar small{display:block;font-size:12px;font-weight:500;color:rgba(255,255,255,.65)}
 #gcBar button{background:#27ae60;color:#fff;font-weight:800;border-radius:13px;padding:10px 18px;border:0;cursor:pointer}
+
+.fmsg.me .fquote,.ib.me .fquote{border-left-color:currentColor;color:inherit}
+.fmsg.me .fquote b,.ib.me .fquote b{color:inherit}
+.fmsg.me .fquote,.ib.me .fquote{background:rgba(255,255,255,.14)}
+html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,html[data-cstyle="tg"] .fmsg.me .fquote,html[data-cstyle="tg"] .ib.me .fquote{background:rgba(0,0,0,.07)}
+.fquote{border-left-width:4px}
+.inprev.ityp{color:#27ae60;font-weight:600;font-style:normal}
+.fclonehost{display:contents}
+.pvwrap.prot{position:relative}
+.pvwrap.prot::after{content:"";position:absolute;inset:0;margin:auto;width:132px;height:132px;border-radius:50%;background-image:var(--wm);background-size:120px 60px;pointer-events:none}
+.pvwrap.prot img{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
 </style>
 
 </head>
@@ -1608,7 +1619,8 @@ async function openProfile(pid) {
   document.body.appendChild(bg);
   const close = () => bg.remove();
   const pimg = bg.querySelector("img.av");
-  if (pimg) { pimg.style.cursor = "zoom-in"; pimg.addEventListener("click", () => viewPhoto(pimg.src)); }
+  if (pimg && (isAdmin || d.pid === myPid())) { pimg.style.cursor = "zoom-in"; pimg.addEventListener("click", () => viewPhoto(pimg.src)); }
+  else if (pimg) { pimg.draggable = false; pimg.addEventListener("contextmenu", (e) => e.preventDefault()); }
   bg.addEventListener("click", (e) => { if (e.target === bg) close(); });
   bg.querySelector("button").addEventListener("click", close);
 }
@@ -3992,7 +4004,8 @@ function renderChatHub(force) {
   // forum kelas (centang biru)
   const list = fMsgs.filter((m) => !isFHidden(m.id)), last = list[list.length - 1], gu = unreadForum();
   const prev = last ? `${last.mine ? "Kamu: " : esc(shortName(last.name)) + ": "}${esc(fPreview(last))}` : "Belum ada pesan";
-  rows.push(`<div class="inrow${gu ? " unr" : ""}" data-hub="group" role="button" tabindex="0">${fgPhotoHtml("fgimg")}<div class="inrowt"><div class="inrow1"><b>${esc(fGroup.name)}${VBADGE}</b>${last ? `<time>${esc(inRowTime(last.ts))}</time>` : ""}</div><div class="inrow2"><em class="inprev">${prev}</em>${gu ? `<span class="ubadge">${gu > 99 ? "99+" : gu}</span>` : ""}</div></div></div>`);
+  const typTxt = fTypers.length ? esc(fTypers.slice(0, 2).map((t) => shortName(t.name)).join(", ")) + (fTypers.length > 2 ? " dan lainnya" : "") + " sedang mengetik…" : "";
+  rows.push(`<div class="inrow${gu ? " unr" : ""}" data-hub="group" role="button" tabindex="0">${fgPhotoHtml("fgimg")}<div class="inrowt"><div class="inrow1"><b>${esc(fGroup.name)}${VBADGE}</b>${last ? `<time>${esc(inRowTime(last.ts))}</time>` : ""}</div><div class="inrow2"><em class="inprev${typTxt ? " ityp" : ""}">${typTxt || prev}</em>${gu ? `<span class="ubadge">${gu > 99 ? "99+" : gu}</span>` : ""}</div></div></div>`);
   if (inOn && isAdmin) {
     // admin: langsung daftar mahasiswa, geser kiri = arsipkan
     const live = inThr.filter((t) => !t.arch), arch = inThr.filter((t) => t.arch);
@@ -4525,6 +4538,7 @@ function fSetTyping(list) {
   const box = $("fMsgs");
   const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
   fTypers = next;
+  if (typeof activeView !== "undefined" && activeView === "chat") renderChatHub(false);
   fPaintTyping();
   if (atBottom) box.scrollTop = box.scrollHeight;
 }
@@ -5614,7 +5628,10 @@ function inOpenPress(bub, id) {
     <button type="button" data-a="copy">Salin<svg class="i"><use href="#i-edit"/></svg></button>
     ${starBtn(m.id, "i")}
     <button type="button" data-a="del" class="danger">Hapus<svg class="i"><use href="#i-trash"/></svg></button>`;
-  ov.append(clone, menu);
+  const hostEl = bub.closest(".fmsg, .ib"), host = document.createElement("div");
+  host.className = (hostEl ? hostEl.className : "fmsg").replace(/\b(pressing|mentioned|flash|hl)\b/g, "") + " fclonehost";
+  host.append(clone);
+  ov.append(host, menu);
   document.body.append(ov);
   inPressOv = ov;
   const vh = innerHeight, vw = innerWidth, gap = 10, pad = 16;
@@ -5756,7 +5773,10 @@ function openFPress(bub, id) {
     (canEdit ? '<button type="button" data-a="edit">Edit<svg class="i"><use href="#i-edit"/></svg></button>' : "") +
     (isAdmin ? `<button type="button" data-a="pin">${m.pinned ? "Lepas sematan" : "Sematkan"}<svg class="i"><use href="#i-pin"/></svg></button>` : "") +
     (!m.mine ? '<button type="button" data-a="report" class="danger">Laporkan<svg class="i"><use href="#i-shield"/></svg></button>' : ""));
-  ov.append(clone, menu);
+  const hostEl = bub.closest(".fmsg, .ib"), host = document.createElement("div");
+  host.className = (hostEl ? hostEl.className : "fmsg").replace(/\b(pressing|mentioned|flash|hl)\b/g, "") + " fclonehost";
+  host.append(clone);
+  ov.append(host, menu);
   document.body.append(ov);
   fPressOpen = ov;
   // posisi: bubble tetap di tempatnya; menu di bawah (atau di atas kalau tidak muat)
@@ -6069,6 +6089,11 @@ function profLocal(pid) {
   const o = Object.assign({}, f ? { pid, name: f.name, av: f.av, avv: f.avv, owner: f.owner } : {}, t || {}, m || {}, pe || {});
   return o.name ? o : null;
 }
+function wmUrl() {
+  const nm = String(fullUserName || currentUser || "").slice(0, 18).replace(/[<>&'"]/g, "");
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='120' height='60'><text x='60' y='34' text-anchor='middle' transform='rotate(-25 60 30)' font-size='12' font-family='sans-serif' font-weight='700' fill='rgba(255,255,255,.6)' stroke='rgba(0,0,0,.35)' stroke-width='.5'>${nm}</text></svg>`;
+  return "url(\"data:image/svg+xml," + encodeURIComponent(svg) + "\")";
+}
 async function showProfile(pid, hint) {
   if (!pid) return;
   document.querySelectorAll(".fgsheet.pv").forEach((x) => x.remove());
@@ -6082,10 +6107,12 @@ async function showProfile(pid, hint) {
   }
   p.pid = p.pid || pid;
   const sub = p.owner ? "Admin" : (isAdmin && p.real ? "@" + p.real : p.mask || p.sub || "");
-  const s = fgSheet(`<div class="pvwrap">${avatarHtml(p, "xl")}</div><h3>${nameHtml(p.mine ? p.name + " (kamu)" : p.name, p.owner, verOf(p.pid))}</h3>${sub ? `<p class="fgsub">${esc(sub)}</p>` : ""}<div class="pvact"><button type="button" class="btn btn-primary" data-det>Rincian</button><button type="button" class="btn" data-close>Tutup</button></div>`);
+  const protect = !isAdmin && p.pid !== myPid();
+  const s = fgSheet(`<div class="pvwrap${protect ? " prot" : ""}"${protect ? ` style="--wm:${wmUrl()}"` : ""}>${avatarHtml(p, protect ? "l" : "xl")}</div><h3>${nameHtml(p.mine ? p.name + " (kamu)" : p.name, p.owner, verOf(p.pid))}</h3>${sub ? `<p class="fgsub">${esc(sub)}</p>` : ""}<div class="pvact"><button type="button" class="btn btn-primary" data-det>Rincian</button><button type="button" class="btn" data-close>Tutup</button></div>`);
   s.classList.add("pv");
   const img = s.querySelector("img.av");
-  if (img) img.addEventListener("click", () => viewPhoto(img.src));
+  if (img && !protect) img.addEventListener("click", () => viewPhoto(img.src));
+  if (img && protect) { img.draggable = false; img.addEventListener("contextmenu", (e) => e.preventDefault()); }
   s.querySelector("[data-close]").addEventListener("click", () => s.remove());
   s.querySelector("[data-det]").addEventListener("click", async () => {
     s.remove();
