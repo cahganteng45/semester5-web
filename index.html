@@ -3996,11 +3996,11 @@ function fPreview(m) {
 const VBADGE = '<svg class="hubck" viewBox="0 0 24 24" role="img" aria-label="Terverifikasi"><circle cx="12" cy="12" r="11" fill="#1d9bf0"/><path d="M7.2 12.4l3.2 3.2 6.4-6.8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 let hubThrAt = 0, hubThrBusy = false, hubAdmTried = false;
 async function hubLoadThreads(force) {
-  if (!isAdmin || !inOn || hubThrBusy) return;
+  if (!(isAdmin ? inOn : ucOn) || hubThrBusy) return;
   if (!force && Date.now() - hubThrAt < 4000) return;
   hubThrBusy = true;
   try {
-    const res = await apiCall("/api/inbox/threads");
+    const res = await apiCall(inThrBase() + "/threads");
     const d = await res.json();
     if (res.ok && d.ok) { inThr = d.threads; inSortThr(); hubThrAt = Date.now(); renderChatHub(false); }
   } catch (e) {} finally { hubThrBusy = false; }
@@ -4015,7 +4015,7 @@ function renderChatHub(force) {
     return;
   }
   const hn = $("hubNew");
-  if (hn) { hn.classList.toggle("hidden", !(isAdmin && inOn)); if (!hn.innerHTML) hn.innerHTML = IC.compose; }
+  if (hn) { hn.classList.toggle("hidden", !(isAdmin ? inOn : ucOn)); if (!hn.innerHTML) hn.innerHTML = IC.compose; }
   const rows = [];
   // forum kelas (centang biru)
   const list = fMsgs.filter((m) => !isFHidden(m.id)), last = list[list.length - 1], gu = unreadForum();
@@ -4037,6 +4037,15 @@ function renderChatHub(force) {
     const aAv = am ? avatarHtml(am, "s") : '<span class="av hubadm">🛡️</span>', aNm = am ? nameHtml(am.name, true, "") : "Admin";
     rows.push(`<div class="inrow${u ? " unr" : ""}" data-hub="admin" role="button" tabindex="0">${aAv}<div class="inrowt"><div class="inrow1"><b>${aNm}</b></div><div class="inrow2"><em class="inprev">${u ? (inUnread > 1 ? inUnread + " pesan baru" : "Pesan baru") : "Tanya langsung ke admin"}</em>${u ? `<span class="ubadge">${inUnread > 99 ? "99+" : inUnread}</span>` : ""}</div></div></div>`);
   }
+  if (!isAdmin && ucOn) {
+    // mahasiswa: chat dengan teman. Chat admin & forum di atas TIDAK bisa diarsipkan; chat teman bisa (geser kiri = arsip, kanan = sematkan)
+    const live = inThr.filter((t) => !t.arch), arch = inThr.filter((t) => t.arch);
+    live.forEach((t) => {
+      rows.push(`<div class="swrow" data-swpid="${esc(t.pid)}"><div class="swpin">${IC.pin}<span>${t.pin ? "Lepas sematan" : "Sematkan"}</span></div><div class="swact">${IC.archive}<span>Arsipkan</span></div>${inRowHtml(t, false).replace('class="inrow', 'class="swfg inrow')}</div>`);
+    });
+    if (arch.length) rows.push(`<div class="inarchrow" data-archopen="1" role="button" tabindex="0"><span class="inarchic">${IC.archive}</span><b>Diarsipkan</b><em class="${arch.some((t) => t.unread > 0) ? "unr" : ""}">${arch.length}</em></div>`);
+    if (!inThr.length) rows.push('<p class="fgsub" style="text-align:center;margin-top:28px">Belum ada chat dengan teman. Ketuk ikon pensil untuk mulai chat.</p>');
+  }
   const html = rows.join("");
   if (force || html !== hubHtmlPrev) { box.innerHTML = html; hubHtmlPrev = html; if (Date.now() < hubStagUntil) { hubStagUntil = 0; stagger(box, ":scope > *"); } }
 }
@@ -4056,7 +4065,6 @@ let hubSwipedAt = 0;
   const box = $("hubList");
   let el = null, sx = 0, sy = 0, dx = 0, lock = 0;
   box.addEventListener("touchstart", (e) => {
-    if (!isAdmin) return;
     const r = e.target.closest(".swfg");
     if (!r || e.touches.length !== 1) return;
     el = r; sx = e.touches[0].clientX; sy = e.touches[0].clientY; dx = 0; lock = 0; r.style.transition = "none";
@@ -4097,6 +4105,9 @@ $("fBack").addEventListener("click", (e) => { e.stopPropagation(); switchView("c
 let fMsgs = [], fLastId = 0, fReplyTo = null, fBusy = false, fLoaded = false, fTimer = null, fTicks = 0;
 let fPins = [], fPinIdx = 0, fPrev = {}, fRepSeen = 0;
 let fDivId = 0, fDivCount = 0;   // pembatas "pesan belum dibaca"
+var ucOn = false, ucUnread = 0, ucSeen = null, ucAt = 0, ucBusy = false, inMode = "inbox";
+const inThrBase = () => (isAdmin ? "/api/inbox" : "/api/userchat");
+const inApi = (p) => (inMode === "dm" ? "/api/userchat" : "/api/inbox") + p;
 let inUnread = 0, inUnreadSeen = null;   // pesan belum dibaca di chat admin (dari server)
 const fTime = (iso) => new Date(iso).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
 /* ---- pesan belum dibaca + lompat ke pesan asli ---- */
@@ -4107,7 +4118,7 @@ function unreadForum() {
   return fMsgs.filter((m) => m.id > seen && !m.mine && !isFHidden(m.id)).length;
 }
 function updateForumBadge() {
-  const n = unreadForum() + inUnread, b = $("fDot");
+  const n = unreadForum() + inUnread + ucUnread, b = $("fDot");
   b.textContent = n > 99 ? "99+" : String(n);
   b.classList.toggle("hidden", n === 0);
   document.title = (n ? `(${n > 99 ? "99+" : n}) ` : "") + "Study Hub";
@@ -4203,6 +4214,7 @@ async function pollForum() {
     fSetTyping(d.typing || []);
     fApplyGroup(d.group);
     fApplyInbox(d.inbox, d.inbox_unread);
+    ucState();
     if (d.vers && JSON.stringify(d.vers) !== JSON.stringify(fVers)) {
       fVers = d.vers; changed = true; fRepaintSelf();
       if (fgEl && fgEl.classList.contains("show")) fRenderGroupPage();
@@ -4844,6 +4856,7 @@ function ensureBanner() {
   nbEl.addEventListener("click", () => {
     hideBanner();
     if (nbEl.dataset.k === "inbox") { switchView("chat"); if (!isAdmin) setTimeout(inOpen, 300); }
+    else if (nbEl.dataset.k === "dm") switchView("chat");
     else { switchView("forum"); setTimeout(() => jumpToMessage(nbId), 600); }
   });
   document.body.append(nbEl);
@@ -5056,6 +5069,35 @@ function fApplyInbox(on, unread) {
   // pesan baru saat chat admin tidak sedang terbuka: banner di dalam aplikasi (push HP dikirim server)
   if (prev !== null && n > prev && !(inEl && inEl.classList.contains("show"))) inNotify(n - prev);
 }
+async function ucState() {
+  if (isAdmin || guest || ucBusy || Date.now() - ucAt < 5000) return;
+  ucBusy = true;
+  try {
+    const res = await apiCall("/api/userchat/state");
+    const d = await res.json();
+    if (res.ok && d.ok) { ucAt = Date.now(); ucApply(d.on, d.unread); }
+  } catch (e) {} finally { ucBusy = false; }
+}
+function ucApply(on, unread) {
+  const was = ucOn;
+  ucOn = !!on;
+  const n = ucOn ? Math.max(0, +unread || 0) : 0, prev = ucSeen;
+  ucUnread = n; ucSeen = n;
+  updateForumBadge();
+  if (was !== ucOn) renderChatHub(true);
+  if (activeView === "chat" && ucOn) hubLoadThreads(prev !== null && n !== prev);
+  if (prev !== null && n > prev && !(inEl && inEl.classList.contains("show"))) ucNotify(n - prev);
+}
+function ucNotify(add) {
+  ensureBanner();
+  nbEl.dataset.k = "dm";
+  nbEl.className = "nbanner mention";
+  nbEl.innerHTML = `<b>💬 Chat teman</b><span>${add > 1 ? add + " pesan baru. " : "Pesan baru. "}Ketuk untuk membuka.</span>`;
+  requestAnimationFrame(() => nbEl.classList.add("show"));
+  clearTimeout(nbTimer);
+  nbTimer = setTimeout(hideBanner, 6000);
+  if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+}
 function inNotify(add) {
   ensureBanner();
   nbEl.dataset.k = "inbox";
@@ -5077,7 +5119,7 @@ function inOpen(o) {
     document.body.append(inEl);
     inBindGestures(inEl);
     inEl.addEventListener("click", (e) => {
-      if (e.target.closest("#inBack")) { if (isAdmin && inView === "conv") inBackToList(); else if (inView === "arch") inToList(); else inClose(); return; }
+      if (e.target.closest("#inBack")) { if (inView === "conv" && (isAdmin || inMode === "dm")) inBackToList(); else if (inView === "arch") inToList(); else inClose(); return; }
       if (e.target.closest("[data-archopen]")) { inArchive(); return; }
       if (e.target.closest("#inCall")) { inCallTap(); return; }
       if (e.target.closest("#inTitle.tap")) { inProfile(); return; }
@@ -5097,13 +5139,13 @@ function inOpen(o) {
   }
   requestAnimationFrame(() => inEl.classList.add("show"));
   inQuery = ""; inFlt = "all";
-  inHubMode = isAdmin && !!o;
-  if (isAdmin) {
-    if (o && o.arch) inArchive();
-    else if (o && o.pick) inPick();
-    else if (o) inConv(o.pid, o.name || "Pengguna");
-    else inThreads();
-  } else inConv("", "Chat dengan Admin");
+  inHubMode = !!o;
+  if (o) {
+    if (o.arch) inArchive();
+    else if (o.pick) inPick();
+    else inConv(o.pid, o.name || "Pengguna");
+  } else if (isAdmin) inThreads();
+  else inConv("", "Chat dengan Admin");
 }
 async function inThreads() {
   inView = "threads"; clearInterval(inTimer); inRecStop(true); inCleanMedia();
@@ -5117,7 +5159,7 @@ async function inThreads() {
   $("inQ").addEventListener("input", (e) => { inQuery = e.target.value; inPaintRows(); });
   inBindRows($("inRows"));
   try {
-    const res = await apiCall("/api/inbox/threads");
+    const res = await apiCall(inThrBase() + "/threads");
     const d = await res.json();
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat.");
     inThr = d.threads;
@@ -5137,7 +5179,7 @@ async function inArchive() {
   inBindRows($("inRows"));
   inPaintRows();
   try {
-    const res = await apiCall("/api/inbox/threads");
+    const res = await apiCall(inThrBase() + "/threads");
     const d = await res.json();
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat.");
     inThr = d.threads;
@@ -5149,13 +5191,22 @@ async function inArchive() {
 async function inPick() {
   inView = "pick";
   $("inTitle").classList.remove("tap");
-  $("inTitle").innerHTML = '<b class="inh1" style="font-size:20px">Pilih penerima</b>';
+  $("inTitle").innerHTML = `<b class="inh1" style="font-size:20px">${isAdmin ? "Pilih penerima" : "Chat baru"}</b>`;
   $("inPill").classList.add("hidden");
   await fLoadGroup(false);
-  $("inBody").innerHTML = fGroupMembers.filter((m) => !m.mine && !m.owner)
-    .map((m) => `<button type="button" class="fgm" data-open="${esc(m.pid)}" data-nm="${esc(m.name)}">${avatarHtml(m, "s")}<span class="fgmt"><b>${nameHtml(m.name, false, verOf(m.pid))}</b><small>${esc(m.real ? "@" + m.real : m.mask)}</small></span></button>`).join("");
+  $("inBody").innerHTML = `<div class="insearch">${IC.search}<input id="inPQ" type="search" placeholder="Cari nama" autocomplete="off"></div><div id="inPList"></div>`;
+  const paint = () => {
+    const q = $("inPQ").value.trim().toLowerCase();
+    const list = fGroupMembers.filter((m) => !m.mine && !m.owner && (!q || String(m.name).toLowerCase().includes(q)));
+    $("inPList").innerHTML = list.length
+      ? list.map((m) => `<button type="button" class="fgm" data-open="${esc(m.pid)}" data-nm="${esc(m.name)}">${avatarHtml(m, "s")}<span class="fgmt"><b>${nameHtml(m.name, false, verOf(m.pid))}</b><small>${esc(m.real ? "@" + m.real : m.mask)}</small></span></button>`).join("")
+      : '<p class="fgsub" style="text-align:center;margin-top:28px">Tidak ada yang cocok.</p>';
+  };
+  $("inPQ").addEventListener("input", paint);
+  paint();
 }
 function inConv(pid, title) {
+  inMode = (!isAdmin && pid) ? "dm" : "inbox";
   inFromArch = inView === "arch" ? true : inView === "conv" ? inFromArch : false;
   inRecStop(true); inCleanMedia();
   inTitleSig = ""; inPeerUnread = null; inView = "conv"; inWith = pid; inLast = 0; inTypingOn = false; inTypeAt = 0; inPeer = null; inMsgs = []; inReplyTo = 0; inMeta = null;
@@ -5176,7 +5227,7 @@ function inConv(pid, title) {
     const now = Date.now();
     if (t.value.trim() && now - inTypeAt > 2500) {
       inTypeAt = now;
-      apiCall("/api/inbox/typing", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: inWith }) }).catch(() => {});
+      apiCall(inApi("/typing"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: inWith }) }).catch(() => {});
     }
   });
   $("inText").addEventListener("keydown", (e) => {
@@ -5189,13 +5240,14 @@ function inConv(pid, title) {
 async function inFetch(first) {
   if (inView !== "conv") return;
   try {
-    const res = await apiCall(`/api/inbox/messages?after=${inLast}&with=${encodeURIComponent(inWith)}`);
+    const res = await apiCall(inApi(`/messages?after=${inLast}&with=${encodeURIComponent(inWith)}`));
     const d = await res.json();
     if (!res.ok || !d.ok) { if (first) showToast(d.error || "Gagal memuat.", true); return; }
     if (d.peer) inSetPeer(d.peer);
     if (d.meta && JSON.stringify(d.meta) !== JSON.stringify(inMeta)) { inMeta = d.meta; inPaintPill(); }
     if (d.deleted && d.deleted.length) inPrune(d.deleted);
-    if (!isAdmin && inUnread) { inUnread = 0; inUnreadSeen = 0; inPaintBtn(); updateForumBadge(); }
+    if (!isAdmin && inMode === "inbox" && inUnread) { inUnread = 0; inUnreadSeen = 0; inPaintBtn(); updateForumBadge(); }
+    if (inMode === "dm" && first) { const t = inThr.find((x) => x.pid === inWith); if (t) t.unread = 0; ucAt = 0; ucState(); }
     if (d.messages.length || first) inAppend(d.messages, first);
     inPaintTyping(!!d.typing);
     if (typeof d.peer_unread === "number") inPaintTicks(d.peer_unread);
@@ -5314,7 +5366,7 @@ async function inSend() {
     box.scrollTop = box.scrollHeight;
   }
   try {
-    const res = await apiCall("/api/inbox/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, to: inWith, reply_to: replyId }) });
+    const res = await apiCall(inApi("/send"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, to: inWith, reply_to: replyId }) });
     const d = await res.json();
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim.");
     inSyncAct();
@@ -5385,7 +5437,7 @@ function inPaintRows() {
     ? `<div class="inarchrow" data-archopen="1" role="button" tabindex="0"><span class="inarchic">${IC.archive}</span><b>Diarsipkan</b><em class="${arch.some((t) => t.unread > 0) ? "unr" : ""}">${arch.length}</em></div>` : "";
   if (!list.length) {
     const msg = q ? "Tidak ada percakapan yang cocok." : inArch ? "Belum ada percakapan yang diarsipkan." : inFlt === "unread" ? "Semua pesan sudah dibaca. 🎉"
-      : "Belum ada percakapan. Ketuk ikon pensil untuk mengirim pesan baru. Balasan juga bisa dikirim dari topiknya di Telegram.";
+      : isAdmin ? "Belum ada percakapan. Ketuk ikon pensil untuk mengirim pesan baru. Balasan juga bisa dikirim dari topiknya di Telegram." : "Belum ada chat dengan teman. Ketuk ikon pensil untuk mulai chat.";
     box.innerHTML = archRow + `<p class="fgsub" style="text-align:center;margin-top:28px">${msg}</p>`;
     return;
   }
@@ -5428,7 +5480,7 @@ function inPaintPill() {
   if (!p) return;
   if (inView !== "conv") { p.classList.add("hidden"); return; }
   p.classList.remove("hidden");
-  const html = `<button type="button" id="inCall" aria-label="Telepon">${IC_CALL}</button>`;
+  const html = inMode === "dm" ? `<button type="button" id="inMore" aria-label="Opsi">${IC.more}</button>` : `<button type="button" id="inCall" aria-label="Telepon">${IC_CALL}</button>`;
   if (p.dataset.h !== html) { p.dataset.h = html; p.innerHTML = html; }
 }
 var inSheetBlock = 0;
@@ -5455,7 +5507,7 @@ function inThreadSheet(t) {
 }
 async function inMetaSet(pid, patch) {
   try {
-    const res = await apiCall("/api/inbox/thread/meta", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ with: pid, ...patch }) });
+    const res = await apiCall(inThrBase() + "/thread/meta", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ with: pid, ...patch }) });
     const d = await res.json();
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal.");
     const t = inThr.find((x) => x.pid === pid);
@@ -5473,10 +5525,10 @@ async function inMetaSet(pid, patch) {
   } catch (e) { showToast(e.message, true); }
 }
 async function inDeleteThread(t) {
-  const ok = await openModal({ title: "Hapus percakapan?", text: `Seluruh pesan dengan ${t.name} akan dihapus untuk semua orang, termasuk di Telegram. Tidak bisa dibatalkan.`, ok: "Hapus", danger: true, icon: "trash" });
+  const ok = await openModal({ title: "Hapus percakapan?", text: isAdmin ? `Seluruh pesan dengan ${t.name} akan dihapus untuk semua orang, termasuk di Telegram. Tidak bisa dibatalkan.` : `Percakapan dengan ${t.name} akan dihapus dari daftar chat-mu. ${t.name} masih bisa melihat pesannya.`, ok: "Hapus", danger: true, icon: "trash" });
   if (!ok) return;
   try {
-    const res = await apiCall("/api/inbox/thread/delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ with: t.pid }) });
+    const res = await apiCall(inThrBase() + "/thread/delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ with: t.pid }) });
     const d = await res.json();
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menghapus.");
     inThr = inThr.filter((x) => x.pid !== t.pid);
@@ -5503,7 +5555,7 @@ function inCleanMedia() {
 async function inBlob(m, play) {
   const key = m.id + (play ? "p" : "");
   if (inBlobs.has(key)) return inBlobs.get(key);
-  const res = await apiCall(`/api/inbox/file/${m.id}?with=${encodeURIComponent(inWith)}${play ? "&play=1" : ""}`);
+  const res = await apiCall(inApi(`/file/${m.id}?with=${encodeURIComponent(inWith)}${play ? "&play=1" : ""}`));
   if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || "Gagal memuat lampiran."); }
   const url = URL.createObjectURL(await res.blob());
   inBlobs.set(key, url);
@@ -5640,7 +5692,7 @@ async function inUpload(file, opts = {}) {
     fd.append("caption", opts.caption || "");
     fd.append("reply_to", inReplyTo || 0);
     if (opts.voice) { fd.append("kind", "voice"); fd.append("dur", Math.round(opts.dur || 0)); }
-    const res = await apiCall("/api/inbox/upload", { method: "POST", body: fd });
+    const res = await apiCall(inApi("/upload"), { method: "POST", body: fd });
     const d = await res.json().catch(() => ({}));
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim lampiran.");
     if (opts.caption) { const t = $("inText"); if (t) { t.value = ""; t.style.height = "auto"; inSyncAct(); } }
@@ -5709,8 +5761,8 @@ function inRecStop(cancel) {
 }
 
 /* ---------- chat admin: balas, hapus, tekan lama, geser (sama seperti forum) ---------- */
-const inMine = (m) => (isAdmin ? m.from === "admin" : m.from === "user");
-const inWho = (m) => (inMine(m) ? "Kamu" : shortName((inPeer && inPeer.name) || (isAdmin ? "Pengguna" : "Admin")));
+const inMine = (m) => (typeof m.mine === "boolean" ? m.mine : (isAdmin ? m.from === "admin" : m.from === "user"));
+const inWho = (m) => (inMine(m) ? "Kamu" : shortName((inPeer && inPeer.name) || (isAdmin || inMode === "dm" ? "Pengguna" : "Admin")));
 const inHideKey = () => "s5_ihide_" + currentUser;
 function inHiddenList() { try { return JSON.parse(localStorage.getItem(inHideKey()) || "[]"); } catch (e) { return []; } }
 const inHidden = (id) => inHiddenList().includes(id);
@@ -5767,7 +5819,7 @@ async function inDelete(id) {
   if (!choice) return;
   if (choice === "extra") { inHideForMe(id); inRemoveNode(id); showToast("Pesan disembunyikan dari tampilanmu."); return; }
   try {
-    const res = await apiCall(`/api/inbox/message/${id}?with=${encodeURIComponent(inWith)}`, { method: "DELETE" });
+    const res = await apiCall(inApi(`/message/${id}?with=${encodeURIComponent(inWith)}`), { method: "DELETE" });
     const d = await res.json().catch(() => ({}));
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menghapus pesan.");
     inRemoveNode(id);
