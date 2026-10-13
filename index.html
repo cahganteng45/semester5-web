@@ -2450,7 +2450,8 @@ function callSchedule(ms) {
 }
 
 /* ---------- panggilan grup (admin memulai, anggota bergabung; mesh WebRTC maks 8 orang) ---------- */
-var gcLive = null, gc = null, gcInc = null, gcSeq = 0, gcBusy = false, gcDismiss = {}, gcRingT = 0;
+var gcAutoJoin = /[?&]join=1/.test(location.search), gcLive = null, gc = null, gcInc = null, gcSeq = 0, gcBusy = false, gcDismiss = {}, gcRingT = 0;
+if (gcAutoJoin) setTimeout(() => { gcAutoJoin = false; }, 25000);
 function gcMe() { return myPid(); }
 function gcBarUpdate() {
   const bar = callEl("gcBar"); if (!bar) return;
@@ -2473,19 +2474,19 @@ function gcRender() {
   callEl("clName").textContent = nm;
   const parts = g.parts || [], n = parts.length;
   ui.classList.toggle("ring", !!gcInc);
-  callEl("clSub").textContent = gcInc ? "Admin memulai panggilan suara grup" : "Panggilan suara grup";
+  callEl("clSub").textContent = gcInc ? ((g.host && g.host.name) || "Seseorang") + " memulai panggilan suara grup" : "Panggilan suara grup";
   const connected = gc ? Object.values(gc.peers).filter((x) => x.state === "connected").length : 0;
   callEl("clSt").textContent = gcInc ? n + " orang sudah bergabung" : (n <= 1 ? "Menunggu yang lain…" : (gc.t0 ? callFmt(Date.now() - gc.t0) + " · " : "") + n + " peserta");
   callEl("clParts").innerHTML = parts.map((p) => {
     const me = p.pid === gcMe(), st = me ? "ok" : ((gc && gc.peers[p.pid] && gc.peers[p.pid].state === "connected") ? "ok" : "wait");
     const lbl = me ? (gc && gc.muted ? "Mikrofon mati" : "Kamu") : st === "ok" ? "Tersambung" : "Menghubungkan…";
     const img = p.av && p.pid ? `<img src="${esc(avSrc(API + "/api/avatar/" + p.pid + "?v=" + (p.avv || 0)))}" alt="">` : esc(initialsOf(p.name));
-    return `<div class="gp ${st}"><div class="pa">${img}</div><b>${esc(me ? "Kamu" : p.name || "Anggota")}</b><small>${esc(gcInc ? (p.owner ? "Admin" : "") : lbl)}</small></div>`;
+    return `<div class="gp ${st}"><div class="pa">${img}</div><b>${esc(me ? "Kamu" : p.name || "Anggota")}</b><small>${esc(gcInc ? (p.owner ? "Memulai" : "") : lbl)}</small></div>`;
   }).join("");
   const b = (cls, id, ic, label) => `<div class="cl-b"><button type="button" class="${cls}" id="${id}" aria-label="${label}">${ic}</button>${label}</div>`;
   callEl("clBtns").innerHTML = gcInc
     ? b("red", "gcIgnore", "✕", "Abaikan") + b("green", "gcJoin", "📞", "Gabung")
-    : b(gc.muted ? "on" : "", "gcMute", gc.muted ? "🔇" : "🎙️", gc.muted ? "Suara mati" : "Bisukan") + b("red", "gcLeave", "✕", isAdmin ? "Akhiri semua" : "Keluar");
+    : b(gc.muted ? "on" : "", "gcMute", gc.muted ? "🔇" : "🎙️", gc.muted ? "Suara mati" : "Bisukan") + b("red", "gcLeave", "✕", "Keluar");
 }
 function gcMakePC(pid, servers) {
   const pc = new RTCPeerConnection({ iceServers: servers });
@@ -2549,8 +2550,8 @@ function gcCleanup(msg, isErr) {
 }
 function gcRingStop() { clearTimeout(gcRingT); callRingStop(); }
 async function gcStart() {
-  if (!isAdmin) return;
-  if (call || gc) { showToast("Masih ada panggilan yang berlangsung.", true); return; }
+  if (call || gc || gcInc) { showToast("Masih ada panggilan yang berlangsung.", true); return; }
+  if (gcLive) { gcInc = { id: gcLive.id, parts: gcLive.parts, host: gcLive.host }; gcJoin(); return; }   // sudah ada yang menelepon -> ikut bergabung
   const mine = (gc = { id: "", peers: {}, parts: [], stream: null, muted: false, t0: 0 });
   callRender();
   try {
@@ -2603,12 +2604,15 @@ function gcOnState(g) {
     gcRender(); return;
   }
   if (g.joined) { callApi("/api/gcall/leave", { id: g.id }).catch(() => {}); return; }   // sisa sesi sebelum halaman dimuat ulang
+  if (gcAutoJoin && !call) {            // datang dari tombol "Gabung" di notifikasi
+    gcAutoJoin = false; gcInc = { id: g.id, parts: g.parts, host: g.host }; gcJoin(); return;
+  }
   if (gcDismiss[g.id] || call) return;
   if (!gcInc || gcInc.id !== g.id) {
-    gcInc = { id: g.id, parts: g.parts }; callRender();
+    gcInc = { id: g.id, parts: g.parts, host: g.host }; callRender();
     if (!fGroup.av && !fGroupAt) fLoadGroup(true);
     callRingStart(); gcRingT = setTimeout(callRingStop, 30000);
-  } else { gcInc.parts = g.parts; gcRender(); }
+  } else { gcInc.parts = g.parts; gcInc.host = g.host; gcRender(); }
 }
 function callSoonSheet(what) {
   document.querySelectorAll(".fgsheet[data-soon]").forEach((x) => x.remove());
@@ -2617,7 +2621,6 @@ function callSoonSheet(what) {
   sh.querySelector("[data-close]").addEventListener("click", () => sh.remove());
 }
 function gcCallTap() {
-  if (!isAdmin) { callSoonSheet("Panggilan grup"); return; }
   gcStart();
 }
 
@@ -2628,7 +2631,7 @@ function callInit() {
   document.addEventListener("click", (e) => {
     const t = e.target.closest("#clAccept,#clDecline,#clEnd,#clMute,#gcJoin,#gcIgnore,#gcLeave,#gcMute,#gcBarJoin");
     if (!t) return;
-    if (t.id === "gcBarJoin") { if (gcLive && !gc && !gcInc) { gcInc = { id: gcLive.id, parts: gcLive.parts }; gcJoin(); } }
+    if (t.id === "gcBarJoin") { if (gcLive && !gc && !gcInc) { gcInc = { id: gcLive.id, parts: gcLive.parts, host: gcLive.host }; gcJoin(); } }
     else if (t.id === "gcJoin") gcJoin();
     else if (t.id === "gcIgnore") { if (gcInc) gcDismiss[gcInc.id] = 1; gcRingStop(); gcInc = null; callRender(); }
     else if (t.id === "gcLeave") gcLeave();
@@ -3684,7 +3687,7 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
   // notifikasi chat admin diketuk -> buka forum lalu chat admin
   navigator.serviceWorker.addEventListener("message", (ev) => {
-    if (ev.data && ev.data.type === "call-check" && token && typeof callTick === "function") callTick();
+    if (ev.data && ev.data.type === "call-check" && token && typeof callTick === "function") { if (ev.data.join) { gcAutoJoin = true; setTimeout(() => { gcAutoJoin = false; }, 25000); } callTick(); }
     if (ev.data && ev.data.type === "open-inbox" && token && typeof inOpen === "function" && inOn) { switchView("chat"); if (!isAdmin) setTimeout(inOpen, 300); }
   });
 }
