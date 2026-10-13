@@ -3621,6 +3621,7 @@ $("dueBanner").addEventListener("click", () => {
 /* ---------- PWA: pasang aplikasi & notifikasi push ---------- */
 let pushOn = false, deferredInstall = null;
 const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+if (standalone) { try { localStorage.setItem("s5_app", "1"); } catch (e) {} }   // tanda: aplikasi pernah dibuka dari ikon di perangkat ini
 const pushSupported = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
 const b64ToU8 = (b) => {
   const r = atob((b + "=".repeat((4 - (b.length % 4)) % 4)).replace(/-/g, "+").replace(/_/g, "/"));
@@ -3702,7 +3703,7 @@ $("notifBtn").addEventListener("click", async () => {
 updateNotifBtn();
 $("rowInstall").classList.toggle("hidden", standalone);
 window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferredInstall = e; });
-window.addEventListener("appinstalled", () => { deferredInstall = null; $("rowInstall").classList.add("hidden"); showToast("Aplikasi berhasil diunduh."); });
+window.addEventListener("appinstalled", () => { deferredInstall = null; try { localStorage.setItem("s5_app", "1"); } catch (e) {} $("rowInstall").classList.add("hidden"); showToast("Aplikasi berhasil diunduh."); });
 $("installBtn").addEventListener("click", async () => {
   if (deferredInstall) { deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall = null; return; }
   showToast("Buka menu browser, lalu pilih Instal aplikasi atau Tambahkan ke layar utama.");
@@ -4461,6 +4462,14 @@ async function fNeedInstall() {
   if (ios) {
     await openModal({ title: "Unduh aplikasinya dulu ya", icon: "shield", cancel: false, ok: "Oke",
       text: "Unduh Study Hub dulu biar kamu bisa menikmati fitur lengkapnya, termasuk kirim foto.\nKetuk Bagikan, pilih Tambah ke Layar Utama, lalu buka dari ikonnya." });
+    return;
+  }
+  let was = false;
+  try { was = !deferredInstall && localStorage.getItem("s5_app") === "1"; } catch (e) {}
+  if (was) {   // Chrome tidak memberi prompt unduh kalau aplikasinya sudah terpasang
+    const none = await openModal({ title: "Aplikasinya sudah terunduh", icon: "shield", ok: "Belum ada", cancel: "Oke",
+      text: "Buka Study Hub lewat ikonnya di layar utama ya, kirim fotonya dari sana." });
+    if (none) { try { localStorage.removeItem("s5_app"); } catch (e) {} showToast("Buka menu browser, lalu pilih Instal aplikasi atau Tambahkan ke layar utama."); }
     return;
   }
   const go = await openModal({ title: "Unduh aplikasinya dulu ya", icon: "shield", ok: "Unduh", cancel: "Oke",
