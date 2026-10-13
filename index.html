@@ -1109,6 +1109,12 @@ html.tour-lock,html.tour-lock body{overflow:hidden;overscroll-behavior:none}
 #callUI .gp.wait .pa{opacity:.55}
 #callUI .gp b{font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #callUI .gp small{font-size:11px;color:rgba(255,255,255,.55)}
+
+.ib .ibb small .tk{display:inline-flex;vertical-align:-3px;margin-left:4px}
+.ib .ibb small .tk svg{width:16px;height:16px}
+.ib .ibb small .tk.s,.ib .ibb small .tk.p{opacity:.6}
+.ib .ibb small .tk.r{opacity:1;color:#fff;filter:drop-shadow(0 0 .5px rgba(0,0,0,.25))}
+.ib.pend .ibb{opacity:.8}
 </style>
 
 </head>
@@ -2299,7 +2305,7 @@ function callRender() {
 function callCleanup(msg, isErr) {
   callRingStop();
   if (call) {
-    clearInterval(call.timer);
+    clearInterval(call.timer); clearTimeout(call.watchT);
     try { call.pc && call.pc.close(); } catch (e) {}
     try { call.stream && call.stream.getTracks().forEach((t) => t.stop()); } catch (e) {}
   }
@@ -2321,13 +2327,23 @@ function callWaitIce(pc) {
     pc.addEventListener("icegatheringstatechange", chk);
   });
 }
+function callWatch() {
+  if (!call) return;
+  clearTimeout(call.watchT);
+  const mine = call;
+  call.watchT = setTimeout(() => {
+    if (call !== mine || mine.state === "connected") return;
+    const id = mine.id; if (id) callApi("/api/call/end", { id }).catch(() => {});
+    callCleanup("Tidak bisa tersambung. Jaringan salah satu pihak mungkin memblokir panggilan langsung (butuh server TURN).", true);
+  }, 25000);
+}
 function callMakePC(servers) {
   const pc = new RTCPeerConnection({ iceServers: servers });
   pc.ontrack = (e) => { const a = callEl("callAudio"); a.srcObject = e.streams[0] || new MediaStream([e.track]); a.play().catch(() => {}); };
   pc.onconnectionstatechange = () => {
     if (!call || call.pc !== pc) return;
     if (pc.connectionState === "connected" && call.state !== "connected") {
-      call.state = "connected"; call.t0 = Date.now();
+      call.state = "connected"; call.t0 = Date.now(); clearTimeout(call.watchT);
       clearInterval(call.timer); call.timer = setInterval(() => { if (call && call.t0) callEl("clSt").textContent = callFmt(Date.now() - call.t0); }, 1000);
       callRender();
     } else if (pc.connectionState === "failed") {
@@ -2374,7 +2390,7 @@ async function callAnswer() {
     await callWaitIce(pc);
     const { res, d } = await callApi("/api/call/answer", { id: mine.id, answer: pc.localDescription.sdp });
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal menjawab panggilan.");
-    callSchedule(1200);
+    callWatch(); callSchedule(1200);
   } catch (e) {
     if (call === mine) { callApi("/api/call/decline", { id: mine.id }).catch(() => {}); callCleanup(e.message || "Gagal menjawab panggilan.", true); }
   }
@@ -2403,7 +2419,7 @@ async function callOnState(c) {
     callCleanup(msg); return;
   }
   if (call.role === "caller" && c.state === "active" && c.answer && !call.answered) {
-    call.answered = true; call.state = "connecting"; callRender();
+    call.answered = true; call.state = "connecting"; callRender(); callWatch();
     try { await call.pc.setRemoteDescription({ type: "answer", sdp: c.answer }); }
     catch (e) { callApi("/api/call/end", { id: call.id }).catch(() => {}); callCleanup("Gagal menyambungkan panggilan.", true); }
   }
@@ -4934,7 +4950,7 @@ async function inPick() {
 function inConv(pid, title) {
   inFromArch = inView === "arch" ? true : inView === "conv" ? inFromArch : false;
   inRecStop(true); inCleanMedia();
-  inTitleSig = ""; inView = "conv"; inWith = pid; inLast = 0; inTypingOn = false; inTypeAt = 0; inPeer = null; inMsgs = []; inReplyTo = 0; inMeta = null;
+  inTitleSig = ""; inPeerUnread = null; inView = "conv"; inWith = pid; inLast = 0; inTypingOn = false; inTypeAt = 0; inPeer = null; inMsgs = []; inReplyTo = 0; inMeta = null;
   inPaintPill();
   $("inTitle").classList.remove("tap");
   $("inTitle").innerHTML = `<b>${esc(title)}</b>`;
@@ -4974,6 +4990,7 @@ async function inFetch(first) {
     if (!isAdmin && inUnread) { inUnread = 0; inUnreadSeen = 0; inPaintBtn(); updateForumBadge(); }
     if (d.messages.length || first) inAppend(d.messages, first);
     inPaintTyping(!!d.typing);
+    if (typeof d.peer_unread === "number") inPaintTicks(d.peer_unread);
   } catch (e) {}
 }
 function inAppend(list, first) {
@@ -4992,12 +5009,31 @@ function inAppend(list, first) {
     const mine = inMine(m);
     const t = new Date(m.ts).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
     const q = m.reply ? `<div class="fquote" data-q="${m.reply.id}"><b>${esc(inWho(m.reply))}</b>${esc(m.reply.text)}</div>` : "";
-    box.insertAdjacentHTML("beforeend", `<div class="ib ${mine ? "me" : ""}" id="ib-${m.id}"><div class="ibb">${q}${inFileHtml(m)}${esc(m.text)}<small>${isStar(m.id, "i") ? '<span class="fstar">★</span> ' : ""}${esc(t)}</small></div></div>`);
+    box.insertAdjacentHTML("beforeend", `<div class="ib ${mine ? "me" : ""}" id="ib-${m.id}"><div class="ibb">${q}${inFileHtml(m)}${esc(m.text)}<small>${isStar(m.id, "i") ? '<span class="fstar">★</span> ' : ""}${esc(t)}${mine ? '<span class="tk s" data-s="s" aria-label="Terkirim">'+IN_TK1+'</span>' : ""}</small></div></div>`);
     const ph = m.file && m.file.kind === "photo" && !m.file.big ? document.querySelector(`#ib-${m.id} [data-f="photo"]`) : null;
     if (ph && inObs) inObs.observe(ph);
   });
   if (inTypingOn) inPaintTyping(true);
+  inPaintTicks(inPeerUnread);
   if (near || first) box.scrollTop = box.scrollHeight;
+}
+/* centang: 1 = terkirim, 2 = sudah dibaca (server memberi jumlah pesanku yang belum dibaca lawan bicara) */
+const IN_TK1 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>', IN_TK2 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12.5L6 17l9.5-9.5M9 15.5l1.5 1.5 9.5-9.5"/></svg>', IN_CLK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>';
+var inPeerUnread = null;
+function inPaintTicks(n) {
+  if (typeof n !== "number") return;
+  inPeerUnread = n;
+  const ids = inMsgs.filter(inMine).map((m) => m.id).sort((a, b) => a - b);
+  const unread = new Set(n > 0 ? ids.slice(-n) : []);
+  ids.forEach((id) => {
+    const el = document.querySelector("#ib-" + id + " .tk");
+    if (!el) return;
+    const st = unread.has(id) ? "s" : "r";
+    if (el.dataset.s === st) return;
+    el.dataset.s = st; el.className = "tk " + st;
+    el.innerHTML = st === "r" ? IN_TK2 : IN_TK1;
+    el.setAttribute("aria-label", st === "r" ? "Dibaca" : "Terkirim");
+  });
 }
 async function inProfile() { if (inPeer) showProfile(inPeer.pid, inPeer); }
 async function inDetail(p) {
@@ -5053,22 +5089,35 @@ function inPaintTyping(on) {
   box.insertAdjacentHTML("beforeend", `<div class="ib ityp" id="inTyp">${inPeer ? `<span>${avatarHtml(inPeer, "s")}</span>` : ""}<div class="ibb"><div class="tdots"><i class="tdot"></i><i class="tdot"></i><i class="tdot"></i></div></div></div>`);
   if (near) box.scrollTop = box.scrollHeight;
 }
+var inTmp = 0;
 async function inSend() {
   if (inRec) { inRecStop(false); return; }
   const inp = $("inText"), text = inp.value.trim();
   if (!text) return;
-  $("inSend").disabled = true;
+  const replyId = inReplyTo || 0, box = $("inList");
+  // tampil langsung di layar, tidak menunggu server
+  inp.value = ""; inp.style.height = "auto"; inSyncAct(); inClearReply();
+  const tmp = "ibp-" + (++inTmp);
+  if (box) {
+    if (box.querySelector("p")) box.innerHTML = "";
+    const typ = $("inTyp"); if (typ) typ.remove();
+    const t = new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+    box.insertAdjacentHTML("beforeend", `<div class="ib me pend" id="${tmp}"><div class="ibb">${esc(text)}<small>${esc(t)}<span class="tk p" aria-label="Mengirim">${IN_CLK}</span></small></div></div>`);
+    box.scrollTop = box.scrollHeight;
+  }
   try {
-    const res = await apiCall("/api/inbox/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, to: inWith, reply_to: inReplyTo || 0 }) });
+    const res = await apiCall("/api/inbox/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, to: inWith, reply_to: replyId }) });
     const d = await res.json();
     if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim.");
-    inp.value = "";
-    inp.style.height = "auto";
     inSyncAct();
-    inClearReply();
+    const el = document.getElementById(tmp); if (el) el.remove();
     inAppend([d.message], false);
-  } catch (e) { showToast(e.message, true); }
-  $("inSend").disabled = false;
+    if (box) box.scrollTop = box.scrollHeight;
+  } catch (e) {
+    const el = document.getElementById(tmp); if (el) el.remove();
+    if (!inp.value) { inp.value = text; inSyncAct(); }       // kembalikan teks supaya bisa dikirim ulang
+    showToast(e.message || "Gagal mengirim.", true);
+  }
 }
 
 /* ---------- tampilan kotak masuk: ikon, daftar chat (pin/arsip/hapus), pill header ---------- */
