@@ -4937,13 +4937,14 @@ function fgSheet(html) {
   document.body.append(s);
   return s;
 }
+const CS_ROWS = '<dt>Kategori</dt><dd>Layanan pelanggan</dd><dt>Tentang</dt><dd>Akun resmi Study Hub. Tanya soal akun, materi, atau kirim kendala dan saran, nanti dibalas.</dd>';
 function fOpenMember(pid) {
   const m = fGroupMembers.find((x) => x.pid === pid);
   if (!m) return;
   const adm = isAdmin;
-  const rows = adm
+  const rows = m.owner ? CS_ROWS : adm
     ? `<dt>Username</dt><dd>${esc(m.real ? "@" + m.real : "-")}</dd><dt>NIM</dt><dd>${esc(m.nim || "-")}</dd>${m.mine || m.owner ? "" : '<dt>Terakhir online</dt><dd id="fgSeen">memuat…</dd>'}`
-    : `<dt>Username</dt><dd>${esc(m.owner ? "Study Hub" : m.mask)}</dd>`;
+    : (m.owner ? CS_ROWS : `<dt>Username</dt><dd>${esc(m.mask)}</dd>`);
   const cur = verOf(m.pid);
   const ctl = adm && !m.owner ? `<div class="fgver"><div class="fgchips">${["Terverifikasi", "Ketua Kelas", "Sekretaris", "Bendahara", "Asisten Lab"].map((x) => `<button type="button" data-pre="${esc(x)}">${esc(x)}</button>`).join("")}</div><input class="input" id="fgVerIn" maxlength="30" placeholder="Keterangan centang" value="${esc(cur)}"><div class="fgrow"><button type="button" class="btn btn-primary" id="fgVerOn">${cur ? "Perbarui centang" : "Beri centang"}</button>${cur ? '<button type="button" class="btn" id="fgVerOff">Cabut</button>' : ""}</div></div>` : "";
   const s = fgSheet(`<div>${avatarHtml(m, "l")}</div><h3>${nameHtml(m.mine ? m.name + " (kamu)" : m.name, m.owner, verOf(m.pid))}</h3>${m.bio ? `<p class="fgsub">${esc(m.bio)}</p>` : ""}<dl>${rows}</dl>${adm ? '<p class="fgnote">Username asli dan NIM hanya terlihat oleh admin.</p>' : ""}${ctl}<button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
@@ -5302,7 +5303,7 @@ async function inDetail(p) {
     if (!fGroupMembers.length) { try { await fLoadGroup(false); } catch (e) {} }
     if (fGroupMembers.some((x) => x.pid === p.pid)) return fOpenMember(p.pid);   // admin: lengkap dengan kontrol centang
   }
-  const s = fgSheet(`<div>${avatarHtml(p, "l")}</div><h3>${nameHtml(p.name, p.owner, verOf(p.pid))}</h3><p class="fgsub">${esc(inSubText(p))}</p><dl><dt>Peran</dt><dd>${p.owner ? "Admin" : "Anggota"}</dd></dl><button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
+  const s = fgSheet(`<div>${avatarHtml(p, "l")}</div><h3>${nameHtml(p.name, p.owner, verOf(p.pid))}</h3><p class="fgsub">${esc(inSubText(p))}</p><dl>${p.owner ? CS_ROWS : '<dt>Peran</dt><dd>Anggota</dd>'}</dl><button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
   s.querySelector("[data-close]").addEventListener("click", () => s.remove());
 }
 function seenText(p) {
@@ -6332,7 +6333,7 @@ async function showProfile(pid, hint) {
     } catch (e) { return showToast(e.message, true); }
   }
   p.pid = p.pid || pid;
-  const sub = p.owner ? "Study Hub" : (isAdmin && p.real ? "@" + p.real : p.mask || p.sub || "");
+  const sub = p.owner ? "Layanan Study Hub" : (isAdmin && p.real ? "@" + p.real : p.mask || p.sub || "");
   const s = fgSheet(`<div class="pvwrap">${avatarHtml(p, "xl")}</div><h3>${nameHtml(p.mine ? p.name + " (kamu)" : p.name, p.owner, verOf(p.pid))}</h3>${sub ? `<p class="fgsub">${esc(sub)}</p>` : ""}<div class="pvact"><button type="button" class="btn btn-primary" data-det>Rincian</button><button type="button" class="btn" data-close>Tutup</button></div>`);
   s.classList.add("pv");
   const img = s.querySelector("img.av");
