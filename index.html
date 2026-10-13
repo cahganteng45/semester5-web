@@ -1306,7 +1306,7 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 <button type="button" class="menu-row" data-sub="notif"><span class="mi">🔔</span><span class="mt"><b>Notifikasi</b><small id="notifSub">Belum aktif</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="keamanan"><span class="mi">🔐</span><span class="mt"><b>Keamanan</b><small>Ganti password</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="perangkat"><span class="mi">📱</span><span class="mt"><b>Perangkat</b><small id="devCount">Lihat dan keluarkan perangkat yang login</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
-<button type="button" class="menu-row" data-sub="pasang" id="rowInstall"><span class="mi">📲</span><span class="mt"><b>Pasang aplikasi</b><small>Tambahkan ke layar utama</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+<button type="button" class="menu-row" data-sub="pasang" id="rowInstall"><span class="mi">📲</span><span class="mt"><b>Unduh aplikasi</b><small>Biar fitur lengkap dan terbuka cepat</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row hidden" id="rowGuide"><span class="mi">🧭</span><span class="mt"><b>Panduan aplikasi<span class="newtag">BARU</span></b><small>Kenali fitur Study Hub lewat tur singkat</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row hidden" id="setAdminBtn" data-go="admin"><span class="mi">🛡️</span><span class="mt"><b>Panel admin</b><small>Akun, blokir, log, forum</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 </div>
@@ -1385,7 +1385,7 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 </div>
 
 </div>
-<div class="subpane hidden" data-sub="pasang"><div class="card" id="installCard"><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Pasang ke layar utama HP supaya terbuka seperti aplikasi. iPhone: buka lewat Safari, ketuk Bagikan, lalu Tambahkan ke Layar Utama (perlu iOS 16.4 atau lebih baru untuk notifikasi).</p><button type="button" class="btn btn-soft" id="installBtn">Pasang aplikasi</button></div></div>
+<div class="subpane hidden" data-sub="pasang"><div class="card" id="installCard"><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Unduh Study Hub ke HP supaya terbuka seperti aplikasi biasa: cepat, layar penuh, dan semua fitur bisa dinikmati. iPhone: buka lewat Safari, ketuk Bagikan, lalu Tambahkan ke Layar Utama (perlu iOS 16.4 atau lebih baru untuk notifikasi).</p><button type="button" class="btn btn-soft" id="installBtn">Unduh aplikasi</button></div></div>
 </div>
 </section>
 </main>
@@ -1788,7 +1788,7 @@ document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click"
 document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => switchView(b.dataset.go)));
 
 /* ---------- Akun: daftar menu + sub-halaman (gaya WhatsApp) ---------- */
-const SUB_TITLES = { profil: "Profil", tampilan: "Tampilan", chat: "Tampilan chat", stars: "Pesan berbintang", perangkat: "Perangkat", notif: "Notifikasi", keamanan: "Keamanan", pasang: "Pasang aplikasi" };
+const SUB_TITLES = { profil: "Profil", tampilan: "Tampilan", chat: "Tampilan chat", stars: "Pesan berbintang", perangkat: "Perangkat", notif: "Notifikasi", keamanan: "Keamanan", pasang: "Unduh aplikasi" };
 function openSub(name) {
   if (guest && !["tampilan", "pasang"].includes(name)) return needLogin("Fitur ini hanya untuk anggota kelas.");
   $("setMain").classList.add("hidden");
@@ -2186,9 +2186,9 @@ const TOUR = [
   { sel: '.nav-item[data-view="settings"]', ic: "🔔", t: "Akun dan notifikasi", p: "Atur profil, tampilan chat, dan keamanan di sini. Aktifkan notifikasi supaya pengingat deadline tetap datang walau aplikasi ditutup.", fixed: true,
     act: { label: "Aktifkan notifikasi", show: () => pushSupported() && !pushOn && Notification.permission !== "denied",
       run: async () => { const ok = await syncPush(true); updateNotifBtn(); showToast(ok ? "Notifikasi aktif." : "Notifikasi belum aktif.", !ok); } } },
-  { ic: "📲", t: "Pasang ke layar utama", p: () => standalone ? "Study Hub sudah terpasang di perangkatmu. Semua siap, selamat belajar!" : "Biar terbuka seperti aplikasi biasa: cepat dan layar penuh. iPhone: buka lewat Safari, ketuk Bagikan, lalu Tambahkan ke Layar Utama.",
-    act: { label: "Pasang aplikasi", show: () => !standalone,
-      run: async () => { if (deferredInstall) { deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall = null; } else showToast("Buka menu browser lalu pilih Pasang aplikasi / Tambahkan ke Layar Utama."); } } }
+  { ic: "📲", t: "Unduh aplikasinya", p: () => standalone ? "Study Hub sudah terunduh di perangkatmu. Semua siap, selamat belajar!" : "Unduh dulu biar terbuka seperti aplikasi biasa: cepat dan layar penuh. iPhone: buka lewat Safari, ketuk Bagikan, lalu Tambahkan ke Layar Utama.",
+    act: { label: "Unduh aplikasi", show: () => !standalone,
+      run: async () => { if (deferredInstall) { deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall = null; } else showToast("Buka menu browser, lalu pilih Instal aplikasi atau Tambahkan ke layar utama."); } } }
 ];
 const trVal = (v) => (typeof v === "function" ? v() : v);
 function tourRender() {
@@ -3702,10 +3702,10 @@ $("notifBtn").addEventListener("click", async () => {
 updateNotifBtn();
 $("rowInstall").classList.toggle("hidden", standalone);
 window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferredInstall = e; });
-window.addEventListener("appinstalled", () => { deferredInstall = null; $("rowInstall").classList.add("hidden"); showToast("Aplikasi terpasang."); });
+window.addEventListener("appinstalled", () => { deferredInstall = null; $("rowInstall").classList.add("hidden"); showToast("Aplikasi berhasil diunduh."); });
 $("installBtn").addEventListener("click", async () => {
   if (deferredInstall) { deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall = null; return; }
-  showToast("Buka menu browser lalu pilih Pasang aplikasi / Tambahkan ke Layar Utama.");
+  showToast("Buka menu browser, lalu pilih Instal aplikasi atau Tambahkan ke layar utama.");
 });
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
@@ -4459,15 +4459,15 @@ async function fUploadImg(file, caption, once) {
 async function fNeedInstall() {
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   if (ios) {
-    await openModal({ title: "Pasang aplikasi dulu", icon: "shield", cancel: false, ok: "Oke",
-      text: "Kirim foto hanya dari aplikasi yang sudah terpasang.\nKetuk Bagikan, pilih Tambah ke Layar Utama, lalu buka dari ikonnya." });
+    await openModal({ title: "Unduh aplikasinya dulu ya", icon: "shield", cancel: false, ok: "Oke",
+      text: "Unduh Study Hub dulu biar kamu bisa menikmati fitur lengkapnya, termasuk kirim foto.\nKetuk Bagikan, pilih Tambah ke Layar Utama, lalu buka dari ikonnya." });
     return;
   }
-  const go = await openModal({ title: "Pasang aplikasi dulu", icon: "shield", ok: "Pasang", cancel: "Oke",
-    text: "Kirim foto hanya dari aplikasi yang sudah terpasang." });
+  const go = await openModal({ title: "Unduh aplikasinya dulu ya", icon: "shield", ok: "Unduh", cancel: "Oke",
+    text: "Unduh Study Hub dulu biar kamu bisa menikmati fitur lengkapnya, termasuk kirim foto." });
   if (!go) return;
   if (deferredInstall) { const ev = deferredInstall; deferredInstall = null; ev.prompt(); try { await ev.userChoice; } catch (e) {} }
-  else showToast("Buka menu browser lalu pilih Pasang aplikasi / Tambahkan ke Layar Utama.");
+  else showToast("Buka menu browser, lalu pilih Instal aplikasi atau Tambahkan ke layar utama.");
 }
 $("fImgBtn").addEventListener("click", () => {
   if (fImgSending) return;
