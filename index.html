@@ -2965,7 +2965,7 @@ function renderMaterials() {
     const isText = kind === "text";
     let url = m.url || "";
     if (url.startsWith("/")) url = API + url;
-    const isProxy = !!m.file_id || url.includes("/api/material/");
+    const isProxy = !!m.file_id || (url.includes("/api/material/") && !m.mt);
     let caption = esc(m.content || m.caption || ""), deadline = "";
     if (caption.includes("⏰ DEADLINE:")) {
       const p = caption.split("⏰ DEADLINE:");
@@ -2980,8 +2980,8 @@ function renderMaterials() {
       if (kind === "photo" || mime.startsWith("image/")) preview = `<div class="mprev"><img src="${esc(url)}" loading="lazy" alt=""></div>`;
       else if (kind === "video" || mime.startsWith("video/")) preview = `<div class="mprev"><video controls preload="metadata" src="${esc(url)}"></video></div>`;
       else if (["audio", "voice"].includes(kind) || mime.startsWith("audio/")) preview = `<div class="mprev"><audio controls src="${esc(url)}"></audio></div>`;
-    } else if (!isProxy && kind !== "document") {
-      preview = `<div class="mnote warn">File masih diproses Telegram. Buka lewat tombol Telegram di bawah.</div>`;
+    } else if (!isProxy && !m.mt && kind !== "document") {
+      preview = `<div class="mnote warn">${isAdmin ? "File masih diproses Telegram. Buka lewat tombol Telegram di bawah." : "File masih diproses. Coba lagi sebentar lagi."}</div>`;
     }
     const owner = !!m.owner, sname = m.sender_name || "Pengguna";
     const pinned = pinnedMaterials.includes(m.id), id = esc(m.id);
@@ -2989,8 +2989,8 @@ function renderMaterials() {
       `<button class="mbtn ${pinned ? "on" : ""}" data-act="pin" data-id="${id}">${svg("pin", 15)} ${pinned ? "Lepas pin" : "Pin"}</button>`,
       isText ? `<button class="mbtn" data-act="copy">Salin teks</button>` : "",
       deadline ? `<button class="mbtn ${isDone(m.id) ? "on" : ""}" data-act="done" data-id="${id}">${isDone(m.id) ? "Selesai ✓" : "Tandai selesai"}</button>` : "",
-      url && !isText ? `<a class="mbtn dark" href="${esc(url)}" target="_blank" rel="noopener">Buka file</a>` : "",
-      m.telegram_url ? `<a class="mbtn tele" href="${esc(m.telegram_url)}" target="_blank" rel="noopener">Telegram</a>` : "",
+      url && !isText ? `<a class="mbtn dark" href="${esc(url)}" target="_blank" rel="noopener">${m.mt ? "Unduh" : "Buka file"}</a>` : "",
+      m.telegram_url && isAdmin ? `<a class="mbtn tele" href="${esc(m.telegram_url)}" target="_blank" rel="noopener">Telegram</a>` : "",
       isAdmin ? `<button class="mbtn del" data-act="del" data-id="${id}">Hapus</button>` : ""
     ].join("");
     return `<article class="mitem ${pinned ? "pinned" : ""}">
