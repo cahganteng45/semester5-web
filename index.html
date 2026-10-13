@@ -1625,7 +1625,7 @@ async function openProfile(pid) {
   bg.innerHTML = `<div class="modal" role="dialog" aria-modal="true" style="text-align:center">
     <div style="display:flex;justify-content:center;margin-bottom:12px">${avatarHtml(d, "l")}</div>
     <h3>${nameHtml(d.name, d.owner, verOf(d.pid))}</h3>
-    <p style="margin-bottom:6px">${d.owner ? "Admin" : esc(d.real ? "@" + d.real : d.mask)}</p>
+    <p style="margin-bottom:6px">${d.owner ? "Study Hub" : esc(d.real ? "@" + d.real : d.mask)}</p>
     ${d.bio ? `<p style="color:var(--ink)">${esc(d.bio)}</p>` : ""}
     <div class="m-btns"><button type="button" class="btn btn-line">Tutup</button></div></div>`;
   document.body.appendChild(bg);
@@ -4923,7 +4923,7 @@ async function fgPost(path, body, raw) {
 function fRenderGroupPage() {
   if (!fgEl) return;
   const adm = isAdmin;
-  const row = (m) => `<button type="button" class="fgm" data-pid="${esc(m.pid)}">${avatarHtml(m, "s")}<span class="fgmt"><b>${nameHtml(m.mine ? "Kamu" : m.name, m.owner, verOf(m.pid))}</b><small>${esc(m.owner ? "Admin" : adm && m.real ? "@" + m.real : m.mask)}</small></span>${m.owner ? '<em class="fgadm">Admin grup</em>' : ""}</button>`;
+  const row = (m) => `<button type="button" class="fgm" data-pid="${esc(m.pid)}">${avatarHtml(m, "s")}<span class="fgmt"><b>${nameHtml(m.mine ? "Kamu" : m.name, m.owner, verOf(m.pid))}</b><small>${esc(m.owner ? "Study Hub" : adm && m.real ? "@" + m.real : m.mask)}</small></span>${m.owner ? '<em class="fgadm">Admin grup</em>' : ""}</button>`;
   $("fgBody").innerHTML = `<div class="fgtop"><div class="fgbig ${adm ? "edit" : ""}" id="fgPhoto">${fgPhotoHtml("fgimg big")}${adm ? '<button type="button" class="fgcam" id="fgCam" aria-label="Ganti foto grup">📷</button>' : ""}</div>
 <h2 class="fgname">${esc(fGroup.name)}${adm ? ' <button type="button" class="fgedit" id="fgRename" aria-label="Ubah nama grup">✎</button>' : ""}</h2>
 <p class="fgsub">Grup · ${fGroupMembers.length || fGroup.n} anggota</p>${adm && fGroup.av ? '<button type="button" class="fgdel" id="fgDelPhoto">Hapus foto grup</button>' : ""}</div>
@@ -4943,7 +4943,7 @@ function fOpenMember(pid) {
   const adm = isAdmin;
   const rows = adm
     ? `<dt>Username</dt><dd>${esc(m.real ? "@" + m.real : "-")}</dd><dt>NIM</dt><dd>${esc(m.nim || "-")}</dd>${m.mine || m.owner ? "" : '<dt>Terakhir online</dt><dd id="fgSeen">memuat…</dd>'}`
-    : `<dt>Username</dt><dd>${esc(m.owner ? "Admin" : m.mask)}</dd>`;
+    : `<dt>Username</dt><dd>${esc(m.owner ? "Study Hub" : m.mask)}</dd>`;
   const cur = verOf(m.pid);
   const ctl = adm && !m.owner ? `<div class="fgver"><div class="fgchips">${["Terverifikasi", "Ketua Kelas", "Sekretaris", "Bendahara", "Asisten Lab"].map((x) => `<button type="button" data-pre="${esc(x)}">${esc(x)}</button>`).join("")}</div><input class="input" id="fgVerIn" maxlength="30" placeholder="Keterangan centang" value="${esc(cur)}"><div class="fgrow"><button type="button" class="btn btn-primary" id="fgVerOn">${cur ? "Perbarui centang" : "Beri centang"}</button>${cur ? '<button type="button" class="btn" id="fgVerOff">Cabut</button>' : ""}</div></div>` : "";
   const s = fgSheet(`<div>${avatarHtml(m, "l")}</div><h3>${nameHtml(m.mine ? m.name + " (kamu)" : m.name, m.owner, verOf(m.pid))}</h3>${m.bio ? `<p class="fgsub">${esc(m.bio)}</p>` : ""}<dl>${rows}</dl>${adm ? '<p class="fgnote">Username asli dan NIM hanya terlihat oleh admin.</p>' : ""}${ctl}<button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
@@ -5318,7 +5318,8 @@ function seenText(p) {
 // status online hanya dikirim server ke admin; untuk pengguna biasa teks ini tetap peran saja
 function inSubText(p) {
   const st = seenText(p);
-  return st ? (p.sub ? p.sub + " · " + st : st) : (p.sub || "");
+  const sb = p.owner ? "Study Hub" : p.sub;
+  return st ? (sb ? sb + " · " + st : st) : (sb || "");
 }
 function inSetPeer(p) {
   const sig = [p.pid, p.name, p.av, p.avv, p.owner, verOf(p.pid)].join("|");
@@ -6331,7 +6332,7 @@ async function showProfile(pid, hint) {
     } catch (e) { return showToast(e.message, true); }
   }
   p.pid = p.pid || pid;
-  const sub = p.owner ? "Admin" : (isAdmin && p.real ? "@" + p.real : p.mask || p.sub || "");
+  const sub = p.owner ? "Study Hub" : (isAdmin && p.real ? "@" + p.real : p.mask || p.sub || "");
   const s = fgSheet(`<div class="pvwrap">${avatarHtml(p, "xl")}</div><h3>${nameHtml(p.mine ? p.name + " (kamu)" : p.name, p.owner, verOf(p.pid))}</h3>${sub ? `<p class="fgsub">${esc(sub)}</p>` : ""}<div class="pvact"><button type="button" class="btn btn-primary" data-det>Rincian</button><button type="button" class="btn" data-close>Tutup</button></div>`);
   s.classList.add("pv");
   const img = s.querySelector("img.av");
