@@ -555,6 +555,9 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .inph{display:block;position:relative;border:0;padding:0;background:var(--line);border-radius:12px;overflow:hidden;cursor:zoom-in;color:var(--mute);font:inherit;font-size:13px}
 .inph.load{display:grid;place-items:center;width:200px;height:140px;cursor:pointer}
 .inph img{display:block;max-width:100%;max-height:300px;width:auto;height:auto}
+.fimg{display:block;position:relative;border:0;padding:0;background:var(--line);border-radius:12px;overflow:hidden;cursor:zoom-in;color:var(--mute);font:inherit;font-size:13px;width:240px;max-width:100%;aspect-ratio:var(--ar,4/3);margin:2px 0 4px}
+.fimg img{display:block;width:100%;height:100%;object-fit:cover}
+.fimg.load{display:grid;place-items:center;cursor:pointer;padding:8px;text-align:center}
 .inv{display:grid;place-items:center;width:200px;height:120px;cursor:pointer;text-align:center}
 .inph video{display:block;max-width:100%;max-height:300px}
 .inaud{display:flex;align-items:center;gap:10px;min-width:210px;max-width:100%}
@@ -1245,7 +1248,7 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 
 <section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><button type="button" class="fgback" id="fBack" aria-label="Kembali ke daftar chat"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div><button type="button" class="fginv" id="fCall" aria-label="Telepon grup"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></button><button type="button" class="fginv" id="fInvite" aria-label="Undang teman"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.6"/><path d="M2.8 20c.4-3.6 3.200-5.600 6.700-5.600s6.300 2 6.700 5.600"/><path d="M19 7.500v6M16 10.500h6"/></svg></button></div>
 <div class="fpinbar hidden" id="fPinBar"></div><div class="fmsgs" id="fMsgs"></div><div class="freply hidden" id="fReply"></div>
-<div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fcount hidden" id="fCount"></div><div class="fbar inbar"><div class="inpillbox"><textarea id="fInput" rows="1" placeholder="Tulis pesan…" enterkeyhint="send" autocomplete="off"></textarea></div><button class="inround" id="fPollBtn" type="button" aria-label="Buat polling"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button><button class="inround inprimary" id="fSend" type="button" aria-label="Kirim"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.5-7.6a1 1 0 0 0 0-1.8L3.4 3.4a1 1 0 0 0-1.4 1.2L4 11l9 1-9 1-2 6.4a1 1 0 0 0 1.4 1z"/></svg></button></div></div></section>
+<div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fcount hidden" id="fCount"></div><div class="fbar inbar"><div class="inpillbox"><textarea id="fInput" rows="1" placeholder="Tulis pesan…" enterkeyhint="send" autocomplete="off"></textarea></div><button class="inround" id="fImgBtn" type="button" aria-label="Kirim foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></button><button class="inround" id="fPollBtn" type="button" aria-label="Buat polling"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button><button class="inround inprimary" id="fSend" type="button" aria-label="Kirim"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.5-7.6a1 1 0 0 0 0-1.8L3.4 3.4a1 1 0 0 0-1.4 1.2L4 11l9 1-9 1-2 6.4a1 1 0 0 0 1.4 1z"/></svg></button></div></div></section>
 
 <section class="view" id="view-upload"><h2 class="page-title">Tambah materi</h2><p class="page-sub">Unggah file atau tulis catatan. Hasilnya langsung terkirim ke Telegram.</p>
 <div class="card">
@@ -3280,7 +3283,7 @@ function toggleStar(m, src = "f") {
   else {
     const mine = src === "f" ? !!m.mine : inMine(m);
     const name = src === "f" ? shortName(m.name) : (mine ? (fullUserName || "Kamu") : ((inPeer && inPeer.name) || "Chat pribadi"));
-    a.unshift({ k, src, id: m.id, name, ts: m.ts, mine, owner: src === "f" ? !!m.owner : m.from === "admin", vp: src === "f" ? (m.pid || "") : "", ap: src === "f" ? (m.pid || "") : (mine ? myPid() : ((inPeer && inPeer.pid) || "")), av: src === "f" ? !!m.av : (mine ? !!myProfile.av : !!(inPeer && inPeer.av)), avv: src === "f" ? (m.avv || 0) : (mine ? (myProfile.avv || 0) : ((inPeer && inPeer.avv) || 0)), pid: src === "i" ? inWith : "", peer: src === "i" ? ((inPeer && inPeer.name) || "") : "", text: String(m.text || (m.file ? "📎 Lampiran" : "")).slice(0, 4000) });
+    a.unshift({ k, src, id: m.id, name, ts: m.ts, mine, owner: src === "f" ? !!m.owner : m.from === "admin", vp: src === "f" ? (m.pid || "") : "", ap: src === "f" ? (m.pid || "") : (mine ? myPid() : ((inPeer && inPeer.pid) || "")), av: src === "f" ? !!m.av : (mine ? !!myProfile.av : !!(inPeer && inPeer.av)), avv: src === "f" ? (m.avv || 0) : (mine ? (myProfile.avv || 0) : ((inPeer && inPeer.avv) || 0)), pid: src === "i" ? inWith : "", peer: src === "i" ? ((inPeer && inPeer.name) || "") : "", text: String(m.text || (m.img ? "📷 Foto" : m.file ? "📎 Lampiran" : "")).slice(0, 4000) });
     showToast("Pesan diberi bintang ★");
   }
   starsSet(a); starMark(src, m.id, i < 0); renderStars();
@@ -3977,6 +3980,7 @@ $("adForumClear").addEventListener("click", async () => {
 let hubHtmlPrev = "";
 function fPreview(m) {
   if (m.poll) return "📊 Polling";
+  if (m.img) return "📷 " + (String(m.text || "").replace(/\s+/g, " ").trim() || "Foto");
   if (m.file) return "📎 Lampiran";
   return String(m.text || "").replace(/\s+/g, " ").trim();
 }
@@ -4149,6 +4153,7 @@ function renderForum(stick) {
     </div>${mine ? `<span class="myav" data-p="${esc(m.pid)}">${avatarHtml({ ...m, name: m.name || fullUserName || "" }, "s")}</span>` : ""}</div>`;
   }).join("");
   fPaintTyping();
+  fImgHydrate();
   if (stick) box.scrollTop = box.scrollHeight;
 }
 function forumReset() {
@@ -4265,7 +4270,7 @@ function setForumReply(id) {
   if (!m) return;
   fReplyTo = id;
   const r = $("fReply");
-  r.innerHTML = `<span><b>${esc(shortName(m.name))}</b>: ${esc(m.text.slice(0, 80))}</span><button type="button" aria-label="Batalkan balasan">✕</button>`;
+  r.innerHTML = `<span><b>${esc(shortName(m.name))}</b>: ${esc((m.text || (m.img ? "📷 Foto" : "")).slice(0, 80))}</span><button type="button" aria-label="Batalkan balasan">✕</button>`;
   r.classList.remove("hidden");
   r.querySelector("button").onclick = clearForumReply;
   $("fInput").focus({ preventScroll: true });
@@ -4324,6 +4329,92 @@ async function deleteForum(id) {
   } catch (e) { showToast(e.message, true); }
 }
 $("fSend").addEventListener("click", sendForum);
+/* ---------- foto di grup forum (disimpan di Telegram, bukan GitHub) ---------- */
+const fImgUrls = new Map(), fImgBusy = new Set(), F_IMG_MB = 8;
+const fImgAr = (m) => { const r = m.img && m.img.w && m.img.h ? m.img.w / m.img.h : 4 / 3; return Math.min(1.8, Math.max(0.6, r)).toFixed(3); };
+function fImgHtml(m) {
+  const u = fImgUrls.get(m.id), ar = fImgAr(m);
+  return u ? `<button type="button" class="fimg" data-fi="${m.id}" style="--ar:${ar}"><img src="${u}" alt="Foto"></button>`
+    : `<button type="button" class="fimg load" data-fi="${m.id}" style="--ar:${ar}">Memuat foto…</button>`;
+}
+async function fImgLoad(id) {
+  if (fImgUrls.has(id) || fImgBusy.has(id)) return;
+  fImgBusy.add(id);
+  try {
+    const res = await apiCall("/api/forum/img/" + id);
+    if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || "Gagal memuat foto."); }
+    const url = URL.createObjectURL(await res.blob());
+    fImgUrls.set(id, url);
+    if (fImgUrls.size > 80) { const k = fImgUrls.keys().next().value; URL.revokeObjectURL(fImgUrls.get(k)); fImgUrls.delete(k); }
+    const el = document.querySelector(`#fm-${id} .fimg`);
+    if (el) { el.classList.remove("load"); el.innerHTML = `<img src="${url}" alt="Foto">`; }
+  } catch (e) {
+    const el = document.querySelector(`#fm-${id} .fimg`);
+    if (el) { el.classList.add("load"); el.textContent = "Gagal memuat. Ketuk untuk coba lagi."; el.dataset.err = "1"; }
+  }
+  fImgBusy.delete(id);
+}
+function fImgHydrate() { document.querySelectorAll("#fMsgs .fimg.load:not([data-err])").forEach((el) => fImgLoad(+el.dataset.fi)); }
+$("fMsgs").addEventListener("click", (e) => {
+  const b = e.target.closest(".fimg");
+  if (!b || Date.now() - fPressAt < 700) return;
+  const id = +b.dataset.fi;
+  if (b.dataset.err) { delete b.dataset.err; b.textContent = "Memuat foto…"; fImgLoad(id); return; }
+  const u = fImgUrls.get(id);
+  if (u) inViewer(u, "foto-" + id + ".jpg");
+});
+function fImgDims(file) {
+  return new Promise((res) => {
+    const i = new Image(), u = URL.createObjectURL(file);
+    i.onload = () => { URL.revokeObjectURL(u); res({ w: i.naturalWidth, h: i.naturalHeight }); };
+    i.onerror = () => { URL.revokeObjectURL(u); res({ w: 0, h: 0 }); };
+    i.src = u;
+  });
+}
+let fImgSending = false;
+async function fUploadImg(file, caption) {
+  if (fImgSending) return;
+  fImgSending = true;
+  const btn = $("fImgBtn");
+  btn.disabled = true;
+  try {
+    let f = file;
+    if (f.size > 300e3) f = await inShrink(f);
+    if (f.size > F_IMG_MB * 1048576) throw new Error(`Foto terlalu besar (maks ${F_IMG_MB} MB).`);
+    const dm = await fImgDims(f);
+    const fd = new FormData();
+    fd.append("file", f, f.name || "foto.jpg");
+    fd.append("caption", caption || "");
+    fd.append("reply_to", fReplyTo || 0);
+    fd.append("w", dm.w); fd.append("h", dm.h);
+    fd.append("push_endpoint", myPushEndpoint || "");
+    const res = await apiCall("/api/forum/upload", { method: "POST", body: fd });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim foto.");
+    if (caption) { $("fInput").value = ""; forumAutosize(); fCount(); fMentionSel = {}; fHideMention(); }
+    clearForumReply();
+    if (!fMsgs.some((m) => m.id === d.message.id)) fMsgs.push(d.message);
+    fMsgs.sort((a, b) => a.id - b.id);
+    renderForum(true);
+    pollForum();
+  } catch (e) { showToast(e.message, true); }
+  fImgSending = false; btn.disabled = false;
+}
+$("fImgBtn").addEventListener("click", () => {
+  if (fImgSending) return;
+  const i = document.createElement("input");
+  i.type = "file"; i.accept = "image/jpeg,image/png,image/webp";
+  i.addEventListener("change", async () => {
+    const f = i.files && i.files[0];
+    if (!f) return;
+    if (!/^image\/(jpeg|png|webp)$/.test(f.type)) return showToast("Hanya foto JPG, PNG, atau WebP.", true);
+    if (f.size > 25 * 1048576) return showToast("Foto terlalu besar (maks 25 MB).", true);
+    const cap = ($("fInput").value || "").trim().slice(0, 500);
+    const ok = await openModal({ title: "Kirim foto ke grup?", text: `${f.name} · ${fmtSize(f.size)}${cap ? "\nTeks di kolom akan jadi keterangan." : ""}`, ok: "Kirim" });
+    if (ok) fUploadImg(f, cap);
+  });
+  i.click();
+});
 const F_MAX = 5000, F_HARD = 100000;
 function fCount() {
   const n = $("fInput").value.length, c = $("fCount");
@@ -4438,6 +4529,7 @@ async function fLongAction(btn) {
   btn.disabled = false;
 }
 function fTextBlock(m) {
+  if (m.img) return fImgHtml(m) + (m.text ? `<div class="ftext">${fmtText(m)}</div>` : "");
   if (m.file) return fLongCard(m);
   const long = m.text.length > 700 || (m.text.match(/\n/g) || []).length > 14, open = fExpanded.has(m.id);
   return `<div class="ftext${long && !open ? " fclamp" : ""}">${fmtText(m)}</div>` +
@@ -4682,7 +4774,7 @@ function fBanner(m, isMention) {
   const who = shortName(m.name);
   const title = m.all ? "📣 " + who + " (untuk semua)" : isMention ? "📣 " + who + " menyebutmu" : "💬 " + who;
   nbEl.className = "nbanner" + (isMention ? " mention" : "");
-  nbEl.innerHTML = `<b>${esc(title)}</b><span>${esc(m.text.slice(0, 90))}</span>`;
+  nbEl.innerHTML = `<b>${esc(title)}</b><span>${esc((m.text || (m.img ? "📷 Foto" : "")).slice(0, 90))}</span>`;
   requestAnimationFrame(() => nbEl.classList.add("show"));
   clearTimeout(nbTimer);
   nbTimer = setTimeout(hideBanner, isMention ? 6000 : 4000);
@@ -5771,7 +5863,7 @@ function openFPress(bub, id) {
     <button type="button" data-a="copy">Salin<svg class="i"><use href="#i-edit"/></svg></button>
     ${starBtn(m.id, "f")}
     <button type="button" data-a="del" class="danger">Hapus<svg class="i"><use href="#i-trash"/></svg></button>`;
-  const canEdit = m.mine && !m.poll && !m.file && Date.now() - new Date(m.ts).getTime() < FORUM_EDIT_MS;
+  const canEdit = m.mine && !m.poll && !m.file && !m.img && Date.now() - new Date(m.ts).getTime() < FORUM_EDIT_MS;
   menu.querySelector('[data-a="del"]').insertAdjacentHTML("beforebegin",
     (canEdit ? '<button type="button" data-a="edit">Edit<svg class="i"><use href="#i-edit"/></svg></button>' : "") +
     (isAdmin ? `<button type="button" data-a="pin">${m.pinned ? "Lepas sematan" : "Sematkan"}<svg class="i"><use href="#i-pin"/></svg></button>` : "") +
@@ -5952,7 +6044,7 @@ function fPaintPins() {
   if (!fPins.length) { bar.classList.add("hidden"); return; }
   const i = fPinIdx % fPins.length, m = fPins[fPins.length - 1 - i];
   bar.dataset.id = m.id;
-  bar.innerHTML = `<span>📌 <b>${esc(shortName(m.name))}:</b> ${esc(m.text)}</span>${fPins.length > 1 ? `<small>${i + 1}/${fPins.length}</small>` : ""}`;
+  bar.innerHTML = `<span>📌 <b>${esc(shortName(m.name))}:</b> ${esc(m.text || (m.img ? "📷 Foto" : ""))}</span>${fPins.length > 1 ? `<small>${i + 1}/${fPins.length}</small>` : ""}`;
   bar.classList.remove("hidden");
 }
 $("fPinBar").addEventListener("click", () => { jumpToMessage(+$("fPinBar").dataset.id); fPinIdx++; fPaintPins(); });
