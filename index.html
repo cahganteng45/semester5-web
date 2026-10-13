@@ -5260,7 +5260,7 @@ function inAppend(list, first) {
   const typ = $("inTyp");
   if (typ) typ.remove();
   if (box.querySelector("p")) box.innerHTML = "";
-  if (first && !list.length) box.innerHTML = '<p class="fgsub" style="text-align:center;margin-top:20px">Belum ada pesan. Tulis pesan pertamamu.</p>';
+  if (first && !list.length) box.innerHTML = '<p class="fgsub" style="text-align:center;margin-top:20px">Pesan Kamu, terenkripsi end-to-end.</p>';
   list.forEach((m) => {
     if (m.id <= inLast) return;
     inLast = m.id;
