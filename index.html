@@ -1134,9 +1134,6 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 
 .fquote{font-size:max(10px,calc(var(--cb-fs) - 4.5px))!important;line-height:1.3!important;padding:3px 8px!important;margin-bottom:5px!important}
 .fquote b{font-size:inherit!important;font-weight:700;line-height:1.3}
-.pvwrap.prot::after{display:none!important}
-.av.avp{display:inline-block;position:relative;overflow:hidden;border-radius:50%;background:var(--line);flex:0 0 auto;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
-.av.avp canvas{pointer-events:none}
 </style>
 
 </head>
@@ -1592,9 +1589,7 @@ function avSrc(url) {
 function avatarHtml(o, size) {
   const cls = "av " + (size || "s");
   return o.av && o.pid
-    ? ((size === "l" || size === "xl") && !isAdmin && o.pid !== myPid()
-      ? `<span class="${cls} avp" data-pp="${esc(API + "/api/avatar/" + o.pid + "?v=" + (o.avv || 0))}" aria-label="Foto profil"></span>`
-      : `<img class="${cls}" src="${esc(avSrc(API + "/api/avatar/" + o.pid + "?v=" + (o.avv || 0)))}" alt="" decoding="async">`)
+    ? `<img class="${cls}" src="${esc(avSrc(API + "/api/avatar/" + o.pid + "?v=" + (o.avv || 0)))}" alt="" decoding="async">`
     : `<span class="${cls}">${esc(initialsOf(o.name))}</span>`;
 }
 async function copyText(t) {
@@ -1627,8 +1622,7 @@ async function openProfile(pid) {
   document.body.appendChild(bg);
   const close = () => bg.remove();
   const pimg = bg.querySelector("img.av");
-  if (pimg && (isAdmin || d.pid === myPid())) { pimg.style.cursor = "zoom-in"; pimg.addEventListener("click", () => viewPhoto(pimg.src)); }
-  else if (pimg) { pimg.draggable = false; pimg.addEventListener("contextmenu", (e) => e.preventDefault()); }
+  if (pimg) { pimg.style.cursor = "zoom-in"; pimg.addEventListener("click", () => viewPhoto(pimg.src)); }
   bg.addEventListener("click", (e) => { if (e.target === bg) close(); });
   bg.querySelector("button").addEventListener("click", close);
 }
@@ -2644,40 +2638,6 @@ function gcCallTap() {
   gcStart();
 }
 
-
-/* foto profil orang lain ukuran besar (non-admin): digambar ke kanvas kecil + watermark nama pelihat,
-   bukan <img>, jadi tidak bisa disimpan/diunduh dan hasil screenshot-nya buram (tidak layak jadi stiker) */
-(function ppGuard() {
-  const N = 72;
-  function paint(el) {
-    if (el.dataset.done) return;
-    el.dataset.done = "1";
-    const cv = document.createElement("canvas");
-    cv.width = cv.height = N; cv.style.cssText = "width:100%;height:100%;display:block";
-    el.append(cv);
-    const im = new Image();
-    im.decoding = "async";
-    im.onload = () => {
-      const c = cv.getContext("2d"), w = im.naturalWidth, h = im.naturalHeight, m = Math.min(w, h);
-      c.drawImage(im, (w - m) / 2, (h - m) / 2, m, m, 0, 0, N, N);
-      const label = String(fullUserName || currentUser || "").slice(0, 14);
-      c.save(); c.translate(N / 2, N / 2); c.rotate(-0.42);
-      c.font = "700 9px sans-serif"; c.textAlign = "center"; c.textBaseline = "middle";
-      c.lineWidth = 2.4; c.strokeStyle = "rgba(0,0,0,.5)"; c.fillStyle = "rgba(255,255,255,.78)";
-      for (let y = -54; y <= 54; y += 17) { c.strokeText(label, 0, y); c.fillText(label, 0, y); }
-      c.restore();
-    };
-    im.onerror = () => { el.textContent = ""; };
-    im.src = el.dataset.pp;
-  }
-  function scan(root) {
-    if (root.nodeType !== 1) return;
-    if (root.matches && root.matches("[data-pp]")) paint(root);
-    root.querySelectorAll && root.querySelectorAll("[data-pp]:not([data-done])").forEach(paint);
-  }
-  new MutationObserver((list) => list.forEach((r) => r.addedNodes.forEach(scan))).observe(document.body, { childList: true, subtree: true });
-  document.addEventListener("contextmenu", (e) => { if (e.target.closest && e.target.closest(".avp")) e.preventDefault(); });
-})();
 
 function callInit() {
   if (callStarted) { callTick(); return; }
@@ -6132,11 +6092,6 @@ function profLocal(pid) {
   const o = Object.assign({}, f ? { pid, name: f.name, av: f.av, avv: f.avv, owner: f.owner } : {}, t || {}, m || {}, pe || {});
   return o.name ? o : null;
 }
-function wmUrl() {
-  const nm = String(fullUserName || currentUser || "").slice(0, 18).replace(/[<>&'"]/g, "");
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='120' height='60'><text x='60' y='34' text-anchor='middle' transform='rotate(-25 60 30)' font-size='12' font-family='sans-serif' font-weight='700' fill='rgba(255,255,255,.6)' stroke='rgba(0,0,0,.35)' stroke-width='.5'>${nm}</text></svg>`;
-  return "url(\"data:image/svg+xml," + encodeURIComponent(svg) + "\")";
-}
 async function showProfile(pid, hint) {
   if (!pid) return;
   document.querySelectorAll(".fgsheet.pv").forEach((x) => x.remove());
@@ -6150,12 +6105,10 @@ async function showProfile(pid, hint) {
   }
   p.pid = p.pid || pid;
   const sub = p.owner ? "Admin" : (isAdmin && p.real ? "@" + p.real : p.mask || p.sub || "");
-  const protect = !isAdmin && p.pid !== myPid();
-  const s = fgSheet(`<div class="pvwrap${protect ? " prot" : ""}"${protect ? ` style="--wm:${wmUrl()}"` : ""}>${avatarHtml(p, protect ? "l" : "xl")}</div><h3>${nameHtml(p.mine ? p.name + " (kamu)" : p.name, p.owner, verOf(p.pid))}</h3>${sub ? `<p class="fgsub">${esc(sub)}</p>` : ""}<div class="pvact"><button type="button" class="btn btn-primary" data-det>Rincian</button><button type="button" class="btn" data-close>Tutup</button></div>`);
+  const s = fgSheet(`<div class="pvwrap">${avatarHtml(p, "xl")}</div><h3>${nameHtml(p.mine ? p.name + " (kamu)" : p.name, p.owner, verOf(p.pid))}</h3>${sub ? `<p class="fgsub">${esc(sub)}</p>` : ""}<div class="pvact"><button type="button" class="btn btn-primary" data-det>Rincian</button><button type="button" class="btn" data-close>Tutup</button></div>`);
   s.classList.add("pv");
   const img = s.querySelector("img.av");
-  if (img && !protect) img.addEventListener("click", () => viewPhoto(img.src));
-  if (img && protect) { img.draggable = false; img.addEventListener("contextmenu", (e) => e.preventDefault()); }
+  if (img) img.addEventListener("click", () => viewPhoto(img.src));
   s.querySelector("[data-close]").addEventListener("click", () => s.remove());
   s.querySelector("[data-det]").addEventListener("click", async () => {
     s.remove();
