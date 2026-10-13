@@ -1579,7 +1579,7 @@ function formatNim(s) {
 ["nim", "fgNim", "adNewNim"].forEach((id) => $(id).addEventListener("input", (e) => { e.target.value = formatNim(e.target.value); }));
 
 const shortName = (n) => String(n || "").trim().split(/\s+/).slice(0, 2).join(" ");
-const BADGE = '<svg class="vbadge" data-t="admin" viewBox="0 0 24 24" role="img" aria-label="Terverifikasi admin"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#1d9bf0"/><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#1d9bf0" transform="rotate(45 12 12)"/><path d="M7.4 12.4l3.1 3.1 6.1-6.6" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const BADGE = '<svg class="vbadge" data-t="admin" viewBox="0 0 24 24" role="img" aria-label="Terverifikasi"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#1d9bf0"/><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="#1d9bf0" transform="rotate(45 12 12)"/><path d="M7.4 12.4l3.1 3.1 6.1-6.6" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 var fVers = {};   // pid -> keterangan centang pengguna (dari server, lewat polling forum)
 function verOf(pid) { return (pid && fVers && fVers[pid]) || ""; }
 function myPid() { try { return myProfile.pid || ""; } catch (e) { return ""; } }
@@ -3943,7 +3943,7 @@ $("view-admin").addEventListener("click", async (e) => {
   }
   if (a === "set_nim") {
     const r = await openModal({ title: "Ubah NIM", text: "Akun @" + t, icon: "edit", ok: "Simpan",
-      fields: [{ key: "nim", label: "NIM (kosongkan untuk menghapus)", placeholder: "24.230.0000", required: false }] });
+      fields: [{ key: "nim", label: t === "admin" ? "NIM (boleh dikosongkan untuk akun admin)" : "NIM", placeholder: "24.230.0000", required: t !== "admin" }] });
     if (!r) return;
     v = r.nim;
   }
@@ -4035,7 +4035,7 @@ function renderChatHub(force) {
     const u = inUnread > 0, am = fGroupMembers.find((m) => m.owner);
     if (!am && !hubAdmTried) { hubAdmTried = true; fLoadGroup(false).then(() => renderChatHub(true)); }
     const aAv = am ? avatarHtml(am, "s") : '<span class="av hubadm">🛡️</span>', aNm = am ? nameHtml(am.name, true, "") : "Admin";
-    rows.push(`<div class="inrow${u ? " unr" : ""}" data-hub="admin" role="button" tabindex="0">${aAv}<div class="inrowt"><div class="inrow1"><b>${aNm}</b></div><div class="inrow2"><em class="inprev">${u ? (inUnread > 1 ? inUnread + " pesan baru" : "Pesan baru") : "Tanya langsung ke admin"}</em>${u ? `<span class="ubadge">${inUnread > 99 ? "99+" : inUnread}</span>` : ""}</div></div></div>`);
+    rows.push(`<div class="inrow${u ? " unr" : ""}" data-hub="admin" role="button" tabindex="0">${aAv}<div class="inrowt"><div class="inrow1"><b>${aNm}</b></div><div class="inrow2"><em class="inprev">${u ? (inUnread > 1 ? inUnread + " pesan baru" : "Pesan baru") : "Akun resmi Study Hub"}</em>${u ? `<span class="ubadge">${inUnread > 99 ? "99+" : inUnread}</span>` : ""}</div></div></div>`);
   }
   if (!isAdmin && ucOn) {
     // mahasiswa: chat dengan teman. Chat admin & forum di atas TIDAK bisa diarsipkan; chat teman bisa (geser kiri = arsip, kanan = sematkan)
@@ -5050,7 +5050,7 @@ document.addEventListener("click", (e) => {
   if (!b) return;
   e.stopPropagation(); e.preventDefault();
   const admin = b.dataset.t === "admin", label = b.dataset.l || "Terverifikasi";
-  const s = fgSheet(`<div style="font-size:46px;line-height:1">${admin ? BADGE : VUSER(label)}</div><h3>${admin ? "Terverifikasi admin" : esc(label)}</h3><p class="fgsub">${admin ? "Akun resmi admin Study Hub." : "Diverifikasi oleh admin Study Hub."}</p><button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
+  const s = fgSheet(`<div style="font-size:46px;line-height:1">${admin ? BADGE : VUSER(label)}</div><h3>${admin ? "Terverifikasi" : esc(label)}</h3><p class="fgsub">${admin ? "Akun resmi Study Hub." : "Diverifikasi oleh admin Study Hub."}</p><button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
   s.querySelector("[data-close]").addEventListener("click", () => s.remove());
 }, true);
 
