@@ -1186,7 +1186,7 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
  .nav{border-radius:32px;border:1px solid color-mix(in srgb,var(--line) 65%,transparent);background:color-mix(in srgb,var(--surface) 72%,transparent);-webkit-backdrop-filter:blur(26px) saturate(1.9);backdrop-filter:blur(26px) saturate(1.9);box-shadow:0 14px 44px -12px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.4)}
  .nav ul{position:relative}
  .nav-item{position:relative;z-index:1}
- .nav-ind{display:block;position:fixed;left:0;top:0;z-index:60;width:var(--iw,0);height:var(--ih,0);border-radius:32px;background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.07));box-shadow:inset 0 0 0 1px rgba(255,255,255,.6),inset 0 2px 9px rgba(255,255,255,.6),inset 0 -9px 18px -8px rgba(0,0,0,.16),0 0 0 .5px rgba(0,0,0,.14),0 12px 28px -10px rgba(0,0,0,.34);-webkit-backdrop-filter:saturate(1.5) brightness(1.1);backdrop-filter:saturate(1.5) brightness(1.1);translate:var(--ix,0px) var(--iy,0px);transition:translate .62s cubic-bezier(.3,1.32,.5,1),width .55s var(--ios),height .3s var(--ios),scale .5s var(--spring),opacity .3s;opacity:0;pointer-events:none;will-change:translate}
+ .nav-ind{display:block;position:fixed;left:0;top:var(--iy,0px);z-index:60;width:var(--iw,0);height:var(--ih,0);border-radius:32px;background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.07));box-shadow:inset 0 0 0 1px rgba(255,255,255,.6),inset 0 2px 9px rgba(255,255,255,.6),inset 0 -9px 18px -8px rgba(0,0,0,.16),0 0 0 .5px rgba(0,0,0,.14),0 12px 28px -10px rgba(0,0,0,.34);-webkit-backdrop-filter:saturate(1.5) brightness(1.1);backdrop-filter:saturate(1.5) brightness(1.1);translate:var(--ix,0px) 0px;transition:translate .62s cubic-bezier(.3,1.32,.5,1),width .55s var(--ios),height .3s var(--ios),scale .5s var(--spring),opacity .3s;opacity:0;pointer-events:none;will-change:translate}
  body.lg-press .nav-ind{scale:1.16 1.12;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),inset 0 2px 12px rgba(255,255,255,.7),inset 0 -10px 20px -8px rgba(0,0,0,.2),0 0 0 .5px rgba(0,0,0,.16),0 16px 34px -10px rgba(0,0,0,.4)}
  body.lg-drag .nav-ind{transition:width .3s var(--ios),height .3s var(--ios),scale .5s var(--spring),opacity .3s}
  .nav-ind.go{animation:lgstretch .6s var(--ios)}
@@ -6568,7 +6568,7 @@ setInterval(checkUpdate, 10 * 60 * 1000);
     var u = ul.getBoundingClientRect(), r = b.getBoundingClientRect();
     var w = Math.round(r.width - 4), h = Math.round(r.height - 4), x = r.left - u.left + 2, moved = placed && Math.abs(x - ix) > 4;
     iw = w;
-    ind.style.setProperty("--iy", (r.top + 2) + "px");
+    lastTop = Math.round(r.top + 2); ind.style.setProperty("--iy", lastTop + "px");
     ind.style.setProperty("--iw", w + "px"); ind.style.setProperty("--ih", h + "px");
     put(x, !placed);
     flag("has-ind", true);
@@ -6586,6 +6586,26 @@ setInterval(checkUpdate, 10 * 60 * 1000);
   window.addEventListener("resize", sched);
   if (window.visualViewport) window.visualViewport.addEventListener("resize", sched);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(sched);
+  /* penanda selalu menempel ke nav: ikut posisi nav saat gulir / viewport berubah (bug bubble ketinggalan) */
+  var lastTop = null, settleUntil = 0, settleRaf = 0;
+  function syncY() {
+    if (!ind || !placed || !mobile() || !nav.offsetWidth) return;
+    var b = ul.querySelector(".nav-item.active");
+    if (!b || !b.offsetWidth) return;
+    var t = Math.round(b.getBoundingClientRect().top + 2);
+    if (t !== lastTop) { lastTop = t; ind.style.setProperty("--iy", t + "px"); }
+  }
+  function settle() {
+    settleUntil = performance.now() + 600;
+    if (settleRaf) return;
+    settleRaf = requestAnimationFrame(function tick() {
+      syncY();
+      if (performance.now() < settleUntil) settleRaf = requestAnimationFrame(tick); else settleRaf = 0;
+    });
+  }
+  document.addEventListener("scroll", settle, { capture: true, passive: true });
+  if (window.visualViewport) { window.visualViewport.addEventListener("resize", settle); window.visualViewport.addEventListener("scroll", settle); }
+  window.addEventListener("orientationchange", settle);
   sched();
 
   /* seret lensa: ikuti jari, tab di bawah lensa menyala, lepas = pindah ke tab itu */
