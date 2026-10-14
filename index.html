@@ -1585,6 +1585,8 @@ function enterGuest(keepLogin) {
   ["navAvatar", "setAvatar", "profAvatar", "heroAv"].forEach((id) => { $(id).innerHTML = GUEST_AV; });
   $("taskList").innerHTML = guestLock("Tugas & deadline", 2);
   topicsList = []; selectedTopicId = "";
+  $("navAdminLi").classList.add("hidden"); $("setAdminBtn").classList.add("hidden");
+  renderAdminPanel();
   renderTopicsGrid(); renderUploadSelect(); renderJadwal();
   hubHtmlPrev = ""; $("hubList").innerHTML = ""; delete $("hubList").dataset.g;
   navGuardInit();
@@ -2826,6 +2828,7 @@ async function loadTopics() {
   try {
     const res = await apiCall("/api/topics");
     const data = await res.json();
+    if (guest || !token) return;
     if (!res.ok) throw new Error(data.error);
     topicsList = (data.topics || []).map((t) => ({ ...t, id: String(t.id) }));
     isAdmin = !!data.is_admin;
@@ -2926,8 +2929,8 @@ $("uploadHint").addEventListener("click", () => {
 $("topicSelect").addEventListener("change", () => { uploadTouched = true; suggestUploadTopic(); });
 function renderAdminPanel() {
   const panel = $("adminPanel");
-  panel.classList.toggle("hidden", !isAdmin);
-  if (!isAdmin) return;
+  panel.classList.toggle("hidden", !isAdmin || guest);
+  if (!isAdmin || guest) { $("adminTopics").innerHTML = ""; return; }
   $("adminTopics").innerHTML = topicsList.map((t) => {
     const pub = t.visible !== false;
     return `<div class="adm-row"><span>${ICONS[t.name] || "📚"} ${esc(t.name)}</span>
@@ -3621,6 +3624,7 @@ async function loadTasks(force) {
         .then((r) => (r.ok ? r.json() : { materials: [] }))
         .catch(() => ({ materials: [] }))
         .then((d) => ({ t, items: d.materials || [] }))));
+    if (guest || !token) return;
     const out = [];
     results.forEach(({ t, items }) => items.forEach((m) => {
       const raw = String(m.content || m.caption || "");
