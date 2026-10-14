@@ -4937,7 +4937,7 @@ function fgSheet(html) {
   document.body.append(s);
   return s;
 }
-const CS_ROWS = '<dt>Kategori</dt><dd>Layanan pelanggan</dd><dt>Tentang</dt><dd>Akun resmi Study Hub. Tanya soal akun, materi, atau kirim kendala dan saran, nanti dibalas.</dd>';
+const CS_ROWS = '<dt>Kategori</dt><dd>Customer Service</dd><dt>Tentang</dt><dd>Akun resmi Study Hub. Tanya soal akun, materi, atau kirim kendala dan saran, nanti dibalas.</dd>';
 function fOpenMember(pid) {
   const m = fGroupMembers.find((x) => x.pid === pid);
   if (!m) return;
@@ -5053,7 +5053,7 @@ document.addEventListener("click", (e) => {
   if (!b) return;
   e.stopPropagation(); e.preventDefault();
   const admin = b.dataset.t === "admin", label = b.dataset.l || "Terverifikasi";
-  const s = fgSheet(`<div style="font-size:46px;line-height:1">${admin ? BADGE : VUSER(label)}</div><h3>${admin ? "Terverifikasi" : esc(label)}</h3><p class="fgsub">${admin ? "Akun resmi Study Hub." : "Diverifikasi oleh admin Study Hub."}</p><button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
+  const s = fgSheet(`<div style="font-size:46px;line-height:1">${admin ? BADGE : VUSER(label)}</div><h3>${admin ? "Terverifikasi" : esc(label)}</h3><p class="fgsub">${admin ? "ada yang bisa di bantu?." : "Diverifikasi oleh admin Study Hub."}</p><button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
   s.querySelector("[data-close]").addEventListener("click", () => s.remove());
 }, true);
 
@@ -5263,7 +5263,7 @@ function inAppend(list, first) {
   const typ = $("inTyp");
   if (typ) typ.remove();
   if (box.querySelector("p")) box.innerHTML = "";
-  if (first && !list.length) box.innerHTML = '<p class="fgsub" style="text-align:center;margin-top:20px">Pesan Kamu, terenkripsi end-to-end.</p>';
+  if (first && !list.length) box.innerHTML = '<p class="fgsub" style="text-align:center;margin-top:20px">pesan kamu, terenkripsi end-to-end.</p>';
   list.forEach((m) => {
     if (m.id <= inLast) return;
     inLast = m.id;
@@ -6337,7 +6337,7 @@ async function showProfile(pid, hint) {
     } catch (e) { return showToast(e.message, true); }
   }
   p.pid = p.pid || pid;
-  const sub = p.owner ? "Layanan Study Hub" : (isAdmin && p.real ? "@" + p.real : p.mask || p.sub || "");
+  const sub = p.owner ? "Akun resmi Study Hub" : (isAdmin && p.real ? "@" + p.real : p.mask || p.sub || "");
   const s = fgSheet(`<div class="pvwrap">${avatarHtml(p, "xl")}</div><h3>${nameHtml(p.mine ? p.name + " (kamu)" : p.name, p.owner, verOf(p.pid))}</h3>${sub ? `<p class="fgsub">${esc(sub)}</p>` : ""}<div class="pvact"><button type="button" class="btn btn-primary" data-det>Rincian</button><button type="button" class="btn" data-close>Tutup</button></div>`);
   s.classList.add("pv");
   const img = s.querySelector("img.av");
