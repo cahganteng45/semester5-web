@@ -1211,6 +1211,13 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
   @supports (-webkit-touch-callout:none){:root{--navb:calc(10px + max(env(safe-area-inset-bottom,0px),8px) + var(--nav-lift,0px))}}
   .nav{bottom:var(--navb)!important}
 }
+/* iOS Safari kadang membiarkan animasi masuk halaman macet di opacity 0 (konten kosong / terlambat muncul).
+   Di iOS: animasi halaman cukup fade ringan tanpa geser/skala dan tanpa animasi bertingkat di anak-anaknya. */
+@supports (-webkit-touch-callout:none){
+  .view.active{animation:viewfade .3s ease backwards}
+  @keyframes viewfade{from{opacity:0}to{opacity:1}}
+  #view-materi.active>*,#view-jadwal.active>*,#view-settings.active>*,#view-upload.active>*{animation:none!important}
+}
 </style>
 
 </head>
@@ -6693,6 +6700,44 @@ setInterval(checkUpdate, 10 * 60 * 1000);
     var sub = q("#setSub");
     if (sub && !sub.classList.contains("hidden")) { el = q("#subBack"); if (vis(el)) return el.click(); }
   }
+})();
+</script>
+<script>
+/* Pengaman: setelah pindah halaman, paksa semua animasi masuk yang terbatas selesai
+   supaya konten tidak tertinggal tak terlihat (bug render iOS Safari). */
+(function(){
+  "use strict";
+  var t1 = 0, t2 = 0, last = 0;
+  function settle(){
+    try {
+      var v = document.querySelector(".view.active");
+      if (!v || !v.getAnimations) return;
+      v.getAnimations({ subtree: true }).forEach(function(a){
+        try {
+          if (typeof CSSTransition !== "undefined" && a instanceof CSSTransition) return;
+          var tm = a.effect && a.effect.getComputedTiming && a.effect.getComputedTiming();
+          if (tm && isFinite(tm.endTime) && tm.iterations !== Infinity) a.finish();
+        } catch (_) {}
+      });
+    } catch (_) {}
+  }
+  function arm(){
+    clearTimeout(t1); clearTimeout(t2); last = Date.now();
+    t1 = setTimeout(settle, 900);
+    t2 = setTimeout(settle, 1800);
+  }
+  var sv = window.switchView;
+  if (typeof sv === "function") {
+    window.switchView = function(){ var r = sv.apply(this, arguments); arm(); return r; };
+  }
+  document.addEventListener("click", function(e){ if (e.target.closest && e.target.closest(".nav-item")) arm(); }, true);
+  document.addEventListener("visibilitychange", function(){ if (document.visibilityState === "visible") arm(); });
+  window.addEventListener("pageshow", arm);
+  /* kalau masih ada yang macet, sentuhan/gulir berikutnya membereskannya */
+  var touch = function(){ if (Date.now() - last > 1000) { last = Date.now(); settle(); } };
+  document.addEventListener("touchstart", touch, { passive: true, capture: true });
+  document.addEventListener("scroll", touch, { passive: true, capture: true });
+  arm();
 })();
 </script>
 </body>
