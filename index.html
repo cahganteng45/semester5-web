@@ -298,6 +298,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .fmeta{display:flex;gap:10px;align-items:center;font-size:11px;color:var(--mute);margin-top:3px}
 .fmeta button{font-size:11px;font-weight:700;color:var(--mute);padding:4px 0}
 .fmeta button:hover{color:var(--brand)}
+.ftick{margin-left:5px;font-size:11px;letter-spacing:-3px;font-weight:700;opacity:.85}.ftick.all{color:#53bdeb;opacity:1}
 .freply{display:flex;align-items:center;gap:8px;background:var(--brand-soft);color:var(--brand);border-radius:var(--r-s);padding:8px 12px;font-size:13px;margin-bottom:8px}
 .freply span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .freply button{font-weight:800;color:inherit;padding:0 4px}
@@ -1878,7 +1879,7 @@ function showMaint(msg) {
   if (!first && maintTimer) return;
   clearInterval(maintTimer);
   maintCheck(false);
-  maintTimer = setInterval(() => maintCheck(false), 20000);
+  maintTimer = setInterval(() => { if (!document.hidden) maintCheck(false); }, 30000);
 }
 $("maintRecheck").addEventListener("click", () => maintCheck(true));
 // Pintu masuk admin disembunyikan: ketuk lambang di atas 5 kali berturut-turut (dalam 3 detik).
@@ -4319,7 +4320,16 @@ let inUnread = 0, inUnreadSeen = null;   // pesan belum dibaca di chat admin (da
 const fTime = (iso) => new Date(iso).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
 /* ---- pesan belum dibaca + lompat ke pesan asli ---- */
 const fSeenKey = () => "s5_fseen_" + currentUser;
-function setFSeen(id) { try { localStorage.setItem(fSeenKey(), String(id)); } catch (e) {} }
+var fReadSent = 0, fReadAll = 0, fReadAny = 0;
+const fTick = (id) => { const c = id <= fReadAll ? "all" : id <= fReadAny ? "any" : "sent"; return `<span class="ftick ${c}" title="${c === "all" ? "Dibaca semua" : c === "any" ? "Sudah dibaca" : "Terkirim"}">${c === "sent" ? "✓" : "✓✓"}</span>`; };
+function setFSeen(id) {
+  try { localStorage.setItem(fSeenKey(), String(id)); } catch (e) {}
+  // laporkan ke server (untuk "Info pesan"), hanya saat forum benar-benar terbuka
+  if (id > fReadSent && activeView === "forum" && !document.hidden && token) {
+    fReadSent = id;
+    apiCall("/api/forum/read", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) }).catch(() => { fReadSent = 0; });
+  }
+}
 function unreadForum() {
   const seen = +(localStorage.getItem(fSeenKey()) || 0);
   return fMsgs.filter((m) => m.id > seen && !m.mine && !isFHidden(m.id)).length;
@@ -4376,7 +4386,7 @@ function renderForum(stick) {
     return `${sep}${divider}<div class="fmsg ${mine ? "me" : ""} ${m.mentioned && !mine ? "mentioned" : ""}" id="fm-${m.id}">${mine ? "" : `<span data-p="${esc(m.pid)}">${avatarHtml(m, "s")}</span>`}<div class="fbub">
       ${mine ? "" : `<div class="fname" data-p="${esc(m.pid)}">${nameHtml(name, crown, verOf(m.pid))}${tag}</div>`}${quote}
       ${fTextBlock(m)}${pollHtml(m)}${linkHtml(m)}${reactsHtml(m)}
-      <div class="fmeta"><span>${starSet.has(m.id) ? '<span class="fstar">★</span> ' : ""}${m.pinned ? "📌 " : ""}${m.edited ? '<i class="fed">diedit</i> · ' : ""}${esc(fTime(m.ts))}</span><button type="button" class="fmore" data-m="${m.id}" aria-label="Menu pesan">•••</button></div>
+      <div class="fmeta"><span>${starSet.has(m.id) ? '<span class="fstar">★</span> ' : ""}${m.pinned ? "📌 " : ""}${m.edited ? '<i class="fed">diedit</i> · ' : ""}${esc(fTime(m.ts))}${mine ? fTick(m.id) : ""}</span><button type="button" class="fmore" data-m="${m.id}" aria-label="Menu pesan">•••</button></div>
     </div>${mine ? `<span class="myav" data-p="${esc(m.pid)}">${avatarHtml({ ...m, name: m.name || fullUserName || "" }, "s")}</span>` : ""}</div>`;
   }).join("");
   fPaintTyping();
@@ -4388,7 +4398,7 @@ function forumReset() {
   if (inEl) { clearInterval(inTimer); inEl.remove(); inEl = null; }
   fGroupMembers = []; fGroup = { name: "Forum Kelas", av: false, avv: 0, n: 0 }; fGroupAt = 0;
   if (fgEl) { fgEl.remove(); fgEl = null; }
-  fMsgs = []; fLastId = 0; fLoaded = false; fReplyTo = null; fDivId = 0; fDivCount = 0; fPins = []; fPinIdx = 0; fRepSeen = 0; fPaintPins();
+  fReadSent = 0; fReadAll = 0; fReadAny = 0; fMsgs = []; fLastId = 0; fLoaded = false; fReplyTo = null; fDivId = 0; fDivCount = 0; fPins = []; fPinIdx = 0; fRepSeen = 0; fPaintPins();
   updateForumBadge();
   $("fReply").classList.add("hidden");
   renderForum(false);
@@ -4415,6 +4425,7 @@ async function pollForum() {
       if (!m.mine) { fresh++; if (m.mentioned) ment = m; }
     });
     fMsgs.sort((a, b) => a.id - b.id);
+    if (d.read && (d.read.all !== fReadAll || d.read.any !== fReadAny)) { fReadAll = d.read.all; fReadAny = d.read.any; changed = true; }
     if (d.reacts && fApplyReacts(d.reacts)) changed = true;
     if (fApplyMeta(d)) changed = true;
     if (typeof d.reports === "number") { if (fLoaded && d.reports > fRepSeen) showToast("🚩 Ada laporan baru: Panel admin → Forum"); fRepSeen = d.reports; }
@@ -4471,7 +4482,7 @@ function startForum() {
   fTimer = setInterval(() => {
     if (!token || !currentUser || document.hidden) return;
     fTicks++;
-    if (activeView === "forum" || fTicks % 3 === 0) pollForum();
+    if (activeView === "forum" || fTicks % 5 === 0) pollForum();
   }, 2000);
   pollForum();
 }
@@ -4861,6 +4872,27 @@ function fApplyReacts(map) {
     if (JSON.stringify(nr) !== JSON.stringify(m.reacts || [])) { m.reacts = nr; changed = true; }
   });
   return changed;
+}
+async function openFReaders(id) {
+  let d;
+  try {
+    const res = await apiCall("/api/forum/readers?id=" + encodeURIComponent(id));
+    d = await res.json();
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal memuat info pesan.");
+  } catch (e) { showToast(e.message, true); return; }
+  const bg = document.createElement("div");
+  bg.className = "rsheet-bg";
+  const rows = (arr) => arr.map((u) => `<div class="rrow">${avatarHtml(u, "s")}<span class="rn">${nameHtml(u.name, u.owner, verOf(u.pid))}</span></div>`).join("");
+  const sec = (title, arr, empty) => `<div style="padding:10px 16px 4px;font-weight:700;font-size:13px;color:var(--mute)">${title} (${arr.length})</div>` +
+    (arr.length ? rows(arr) : `<div style="padding:6px 16px 10px;color:var(--mute);font-size:13px">${empty}</div>`);
+  bg.innerHTML = `<div class="rsheet" role="dialog" aria-modal="true"><div class="grab"></div>
+    <div style="padding:6px 16px 2px;font-weight:800;font-size:16px">Info pesan</div>
+    <div class="rlist">${sec("Dibaca oleh", d.read, "Belum ada yang membaca.")}${d.unread ? sec("Belum membaca", d.unread, "Semua anggota sudah membaca.") : ""}</div></div>`;
+  const close = () => { document.removeEventListener("keydown", onKey); bg.remove(); };
+  const onKey = (e) => { if (e.key === "Escape") close(); };
+  document.body.appendChild(bg);
+  document.addEventListener("keydown", onKey);
+  bg.addEventListener("click", (e) => { if (e.target === bg) { fPressAt = Date.now(); close(); } });
 }
 async function openFReacts(id, startEmoji) {
   let users;
@@ -5445,7 +5477,7 @@ function inConv(pid, title) {
   });
   inFetch(true);
   clearInterval(inTimer);
-  inTimer = setInterval(() => inFetch(false), 3000);
+  inTimer = setInterval(() => { if (!document.hidden) inFetch(false); }, 3000);
 }
 async function inFetch(first) {
   if (inView !== "conv") return;
@@ -6213,6 +6245,7 @@ function openFPress(bub, id) {
   menu.innerHTML = fReactBar(m) + `<button type="button" data-a="reply">Balas<svg class="i"><use href="#i-chat"/></svg></button>
     <button type="button" data-a="copy">Salin<svg class="i"><use href="#i-edit"/></svg></button>
     ${starBtn(m.id, "f")}
+    ${m.mine || isAdmin ? '<button type="button" data-a="info">Info pesan<svg class="i"><use href="#i-eye"/></svg></button>' : ""}
     <button type="button" data-a="del" class="danger">Hapus<svg class="i"><use href="#i-trash"/></svg></button>`;
   const canEdit = m.mine && !m.poll && !m.file && !m.img && Date.now() - new Date(m.ts).getTime() < FORUM_EDIT_MS;
   menu.querySelector('[data-a="del"]').insertAdjacentHTML("beforebegin",
@@ -6249,6 +6282,7 @@ function openFPress(bub, id) {
     else if (a === "edit") editForum(id);
     else if (a === "pin") pinForum(id, !m.pinned);
     else if (a === "report") reportForum(id);
+    else if (a === "info") openFReaders(id);
   });
   ov.addEventListener("contextmenu", (e) => e.preventDefault());
 }
