@@ -712,6 +712,11 @@ img.av.xl{cursor:zoom-in}
 .pvwrap{display:flex;justify-content:center;margin:4px 0 12px}
 .pvact{display:flex;flex-direction:column;gap:8px;margin-top:16px}
 .pvact .btn{width:100%}
+.fgsheet.pv .fgcard{position:relative}
+.pvclose{position:absolute;top:12px;right:14px;width:40px;height:40px;border-radius:50%;background:var(--bg);color:var(--ink);font-size:17px;display:flex;align-items:center;justify-content:center}
+.pvtiles{display:flex;gap:10px;margin-top:18px}
+.pvtile{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border-radius:16px;background:var(--bg);color:var(--ink);font-size:13px;font-weight:600}
+.pvtile:active{filter:brightness(.94)}
 .inrow .inav{display:inline-flex;flex-shrink:0;border-radius:50%;cursor:pointer}
 .inrow1 b .vbadge{width:1em;height:1em}
 #view-forum.active{display:flex;flex-direction:column;position:fixed;left:0;right:0;top:var(--vvt,0px);height:var(--vvh,100dvh);max-width:none;margin:0;z-index:60;background:var(--bg);animation:none;overflow:hidden;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px calc(env(safe-area-inset-bottom,0px) + 10px)}
@@ -6584,11 +6589,22 @@ async function showProfile(pid, hint) {
   }
   p.pid = p.pid || pid;
   const sub = p.owner ? "Akun resmi Study Hub" : (isAdmin && p.real ? "@" + p.real : p.mask || p.sub || "");
-  const s = fgSheet(`<div class="pvwrap">${avatarHtml(p, "xl")}</div><h3>${nameHtml(p.mine ? p.name + " (kamu)" : p.name, p.owner, verOf(p.pid))}</h3>${sub ? `<p class="fgsub">${esc(sub)}</p>` : ""}<div class="pvact"><button type="button" class="btn btn-primary" data-det>Rincian</button><button type="button" class="btn" data-close>Tutup</button></div>`);
+  const SVG = (d) => `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const icMsg = SVG('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>');
+  const icInfo = SVG('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>');
+  const canMsg = !p.mine;
+  const s = fgSheet(`<button type="button" class="pvclose" data-close aria-label="Tutup">✕</button><div class="pvwrap">${avatarHtml(p, "xl")}</div><h3>${nameHtml(p.mine ? p.name + " (kamu)" : p.name, p.owner, verOf(p.pid))}</h3>${sub ? `<p class="fgsub">${esc(sub)}</p>` : ""}<div class="pvtiles">${canMsg ? `<button type="button" class="pvtile" data-msg>${icMsg}<span>Pesan</span></button>` : ""}<button type="button" class="pvtile" data-det>${icInfo}<span>Info</span></button></div>`);
   s.classList.add("pv");
   const img = s.querySelector("img.av");
   if (img) img.addEventListener("click", () => viewPhoto(img.src));
   s.querySelector("[data-close]").addEventListener("click", () => s.remove());
+  const mb = s.querySelector("[data-msg]");
+  if (mb) mb.addEventListener("click", () => {
+    s.remove();
+    document.querySelectorAll(".fgsheet").forEach((x) => x.remove());
+    const nm = p.name || "Chat";
+    if (p.owner && !isAdmin) inOpen(); else inOpen({ pid, name: nm });
+  });
   s.querySelector("[data-det]").addEventListener("click", async () => {
     s.remove();
     if (isAdmin && !fGroupMembers.length) { try { await fLoadGroup(false); } catch (e) {} }
