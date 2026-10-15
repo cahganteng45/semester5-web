@@ -5265,7 +5265,7 @@ document.addEventListener("click", (e) => {
 }, true);
 
 /* ---------- chat dengan admin (isi percakapan tersimpan di Telegram) ---------- */
-let inMsgs = [], inReplyTo = 0, inPressAt = 0;
+let inMsgs = [], inReplyTo = 0, inPressAt = 0, inGreet = "";
 let inTitleSig = "", inEl = null, inWith = "", inLast = 0, inTimer = null, inOn = false, inView = "", inPeer = null, inTypingOn = false, inTypeAt = 0;
 function inPaintBtn() { renderChatHub(false); }
 function fApplyInbox(on, unread) {
@@ -5419,7 +5419,7 @@ function inConv(pid, title) {
   inMode = (!isAdmin && pid) ? "dm" : "inbox";
   inFromArch = inView === "arch" ? true : inView === "conv" ? inFromArch : false;
   inRecStop(true); inCleanMedia();
-  inTitleSig = ""; inPeerUnread = null; inView = "conv"; inWith = pid; inLast = 0; inTypingOn = false; inTypeAt = 0; inPeer = null; inMsgs = []; inReplyTo = 0; inMeta = null;
+  inTitleSig = ""; inPeerUnread = null; inView = "conv"; inWith = pid; inLast = 0; inTypingOn = false; inTypeAt = 0; inPeer = null; inMsgs = []; inReplyTo = 0; inMeta = null; inGreet = "";
   inPaintPill();
   $("inTitle").classList.remove("tap");
   $("inTitle").innerHTML = `<b>${esc(title)}</b>`;
@@ -5454,6 +5454,7 @@ async function inFetch(first) {
     const d = await res.json();
     if (!res.ok || !d.ok) { if (first) showToast(d.error || "Gagal memuat.", true); return; }
     if (d.peer) inSetPeer(d.peer);
+    if (typeof d.greet === "string") inGreet = d.greet;
     if (d.meta && JSON.stringify(d.meta) !== JSON.stringify(inMeta)) { inMeta = d.meta; inPaintPill(); }
     if (d.deleted && d.deleted.length) inPrune(d.deleted);
     if (!isAdmin && inMode === "inbox" && inUnread) { inUnread = 0; inUnreadSeen = 0; inPaintBtn(); updateForumBadge(); }
@@ -5470,7 +5471,8 @@ function inAppend(list, first) {
   const typ = $("inTyp");
   if (typ) typ.remove();
   if (box.querySelector("p")) box.innerHTML = "";
-  if (first && !list.length) box.innerHTML = '<p class="fgsub" style="text-align:center;margin-top:20px">pesan kamu, terenkripsi end-to-end.</p>';
+  if (first && !list.length && !inGreet) box.innerHTML = '<p class="fgsub" style="text-align:center;margin-top:20px">pesan kamu, terenkripsi end-to-end.</p>';
+  if (inGreet && !document.getElementById("ibg-greet")) box.insertAdjacentHTML("afterbegin", `<div class="ibg" id="ibg-greet" style="display:flex"><div class="ibb">${esc(inGreet)}</div></div>`);
   list.forEach((m) => {
     if (m.id <= inLast) return;
     inLast = m.id;
@@ -5587,6 +5589,8 @@ async function inSend() {
     const el = document.getElementById(tmp); if (el) el.remove();
     inAppend([d.message], false);
     if (box) box.scrollTop = box.scrollHeight;
+    // balasan otomatis CS: cek lebih rapat sebentar supaya "sedang mengetik…" dan balasannya langsung kelihatan
+    if (!isAdmin && inMode === "inbox") [500, 1300, 2200, 3200, 4200, 5200].forEach((ms) => setTimeout(() => inFetch(false), ms));
   } catch (e) {
     const el = document.getElementById(tmp); if (el) el.remove();
     if (!inp.value) { inp.value = text; inSyncAct(); }       // kembalikan teks supaya bisa dikirim ulang
@@ -7090,15 +7094,19 @@ function ready(){
   if(root||d.hidden||d.getElementById('shCount'))return false;
   if(!d.body.classList.contains('guest'))return false;
   if(sp&&!sp.classList.contains('hidden'))return false;
+  /* jangan ganggu kalau form login/daftar atau popup lain sedang terbuka */
+  var lg=d.getElementById('login');
+  if(lg&&!lg.classList.contains('hidden'))return false;
+  if(d.querySelector('.gsheet-bg,.usheet-bg,.modal-bg,.modal'))return false;
   return true;
 }
 try{
   var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(!reduce&&!localStorage.getItem('semester5_token')){
+  if(!reduce&&!localStorage.getItem('semester5_token')&&!seen()){
     var idle=0,iv=setInterval(function(){
       if(localStorage.getItem('semester5_token')){clearInterval(iv);return}
-      if(!ready())return;
-      if(++idle>=10){clearInterval(iv);count()}
+      if(!ready()){idle=0;return}   /* sibuk (login/popup) -> hitungan mulai dari 0 lagi */
+      if(++idle>=10){clearInterval(iv);seen(1);count()}   /* otomatis cuma sekali */
     },1000);
   }
 }catch(e){}
