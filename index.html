@@ -1224,80 +1224,120 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 #shIntro{position:fixed;inset:0;z-index:100000;background:#000;display:flex;justify-content:center;font-family:var(--font-b,"DM Sans",system-ui,sans-serif);-webkit-font-smoothing:antialiased}
 #shIntro .si-big,#shIntro .si-h2,#shIntro .si-logo,#shIntro .si-btn,#shIntro .si-pill,#shIntro .si-card,#shIntro .si-task b,#shIntro .si-lab,#shIntro .si-ov button,#shIntro #si-rp button,#shIntro #si-nav span,#shIntro .si-ttl{font-family:var(--font-d,"Bricolage Grotesque",system-ui,sans-serif)}
 
-.si-stage{height:100%;aspect-ratio:9/16;max-width:100%;container-type:size;position:relative;overflow:hidden;background:#0e0e10;color:#0e0e10}
+.si-stage{width:100%;height:100%;container-type:size;position:relative;overflow:hidden;background:#0e0e10;color:#0e0e10;--u:min(1cqw,.5625cqh);--m:calc((100cqw - 100*var(--u))/2)}
 .si-sc,#si-wipe,#si-nav,.si-ov{position:absolute}
-.si-sc{inset:0;display:flex;flex-direction:column;justify-content:center;padding:8cqw;opacity:0;z-index:2;gap:3cqw}
+.si-sc{inset:0;display:flex;flex-direction:column;justify-content:center;padding:calc(8*var(--u));opacity:0;z-index:2;gap:calc(3*var(--u))}
 .si-a{opacity:0}
 .si-go .si-a{animation:si-pop .55s cubic-bezier(.2,1.3,.4,1) var(--d) both}
 .si-go .si-big{animation:si-slam .35s cubic-bezier(.2,1.2,.3,1) var(--d) both}
 .si-go .si-card{animation:si-sl .6s cubic-bezier(.2,1.2,.3,1) var(--d) both}
 .si-go .si-sc{animation:si-sc var(--l) linear var(--s) both}
 .si-go #si-s6{animation:si-in .3s ease var(--s) both}
-#si-wipe{width:300cqw;height:300cqw;left:50%;top:50%;margin:-150cqw 0 0 -150cqw;border-radius:50%;transform:scale(0);z-index:1;background:radial-gradient(circle at 62% 46%,#ddd5fb 0,#ebe8f6 8%,#f3f2f7 14%)}
+#si-wipe{width:calc(700*var(--u));height:calc(700*var(--u));left:50%;top:50%;margin:calc(-350*var(--u)) 0 0 calc(-350*var(--u));border-radius:50%;transform:scale(0);z-index:1;background:radial-gradient(circle at 62% 46%,#ddd5fb 0,#ebe8f6 8%,#f3f2f7 14%)}
 .si-go #si-wipe{animation:si-wipe .7s cubic-bezier(.7,0,.2,1) 2s both}
-.si-big{font-size:17cqw;font-weight:800;line-height:.98;letter-spacing:-.03em;margin:0;color:#fff}
-.si-h2{font-size:10.5cqw;font-weight:800;line-height:1.02;letter-spacing:-.03em;margin:0}
-.si-lab{font-size:3.4cqw;font-weight:700;letter-spacing:.18em;color:#7c6cf0}
-.si-sub{font-size:4.6cqw;font-weight:500;color:#6b6b76;margin:0}
-.si-chip{position:absolute;font-size:9cqw;font-style:normal}
+.si-big{font-size:calc(17*var(--u));font-weight:800;line-height:.98;letter-spacing:-.03em;margin:0;color:#fff}
+.si-h2{font-size:calc(10.5*var(--u));font-weight:800;line-height:1.02;letter-spacing:-.03em;margin:0}
+.si-lab{font-size:calc(3.4*var(--u));font-weight:700;letter-spacing:.18em;color:#7c6cf0}
+.si-sub{font-size:calc(4.6*var(--u));font-weight:500;color:#6b6b76;margin:0}
+.si-chip{position:absolute;font-size:calc(9*var(--u));font-style:normal}
 .si-go .si-chip{animation:si-pop .5s ease var(--d) both,si-float 1.6s ease-in-out var(--d) infinite}
-.si-mark{width:24cqw;height:24cqw;border-radius:7cqw;background:#0e0e10;display:grid;place-items:center;box-shadow:0 6cqw 12cqw -4cqw rgba(60,40,160,.45)}
+.si-mark{width:calc(24*var(--u));height:calc(24*var(--u));border-radius:calc(7*var(--u));background:#0e0e10;display:grid;place-items:center;box-shadow:0 calc(6*var(--u)) calc(12*var(--u)) calc(-4*var(--u)) rgba(60,40,160,.45)}
 .si-mark svg{width:56%;height:56%}
-.si-logo{font-size:15cqw;font-weight:800;letter-spacing:-.035em;line-height:1}
+.si-logo{font-size:calc(15*var(--u));font-weight:800;letter-spacing:-.035em;line-height:1}
 .si-l{display:inline-block}
 .si-center{align-items:center;text-align:center}
-.si-card{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6cqw;padding:5cqw;font-size:5cqw;font-weight:700;box-shadow:0 1cqw 3cqw rgba(0,0,0,.05);opacity:0}
-.si-tag{font-size:3.4cqw;background:#e6e6ea;border-radius:3cqw;padding:2cqw 3cqw}
-.si-pill{align-self:flex-start;background:#0e0e10;color:#fff;border-radius:8cqw;padding:3.4cqw 6cqw;font-size:4.6cqw;font-weight:700}
-.si-task{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6cqw;padding:5cqw;gap:4cqw}
-.si-task b{font-size:5.4cqw;display:block}.si-task small{font-size:3.8cqw;color:#6b6b76}
-.si-rg{position:relative;width:17cqw;height:17cqw;flex:none}.si-rg svg{width:100%;height:100%;transform:rotate(-90deg)}
+.si-card{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:calc(6*var(--u));padding:calc(5*var(--u));font-size:calc(5*var(--u));font-weight:700;box-shadow:0 calc(1*var(--u)) calc(3*var(--u)) rgba(0,0,0,.05);opacity:0}
+.si-tag{font-size:calc(3.4*var(--u));background:#e6e6ea;border-radius:calc(3*var(--u));padding:calc(2*var(--u)) calc(3*var(--u))}
+.si-pill{align-self:flex-start;background:#0e0e10;color:#fff;border-radius:calc(8*var(--u));padding:calc(3.4*var(--u)) calc(6*var(--u));font-size:calc(4.6*var(--u));font-weight:700}
+.si-task{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:calc(6*var(--u));padding:calc(5*var(--u));gap:calc(4*var(--u))}
+.si-task b{font-size:calc(5.4*var(--u));display:block}.si-task small{font-size:calc(3.8*var(--u));color:#6b6b76}
+.si-rg{position:relative;width:calc(17*var(--u));height:calc(17*var(--u));flex:none}.si-rg svg{width:100%;height:100%;transform:rotate(-90deg)}
 .si-rg circle{fill:none;stroke-width:5}.si-rg .si-bg{stroke:#ececf1}.si-rg .si-fg{stroke:#7c6cf0;stroke-linecap:round;stroke-dasharray:176;stroke-dashoffset:176}
 .si-go .si-fg{animation:si-ring 1.2s cubic-bezier(.5,0,.2,1) 7.6s both}
-.si-chk{position:absolute;inset:0;display:grid;place-items:center;font-size:8cqw;font-weight:800;color:#7c6cf0}
-.si-bub{max-width:70%;background:#fff;border-radius:5cqw;padding:3.6cqw 4.8cqw;font-size:4.6cqw;font-weight:600;box-shadow:0 1cqw 3cqw rgba(0,0,0,.05)}
+.si-chk{position:absolute;inset:0;display:grid;place-items:center;font-size:calc(8*var(--u));font-weight:800;color:#7c6cf0}
+.si-bub{max-width:70%;background:#fff;border-radius:calc(5*var(--u));padding:calc(3.6*var(--u)) calc(4.8*var(--u));font-size:calc(4.6*var(--u));font-weight:600;box-shadow:0 calc(1*var(--u)) calc(3*var(--u)) rgba(0,0,0,.05)}
 .si-bub.si-r{align-self:flex-end;background:#0e0e10;color:#fff}
 .si-acc{color:#7c6cf0}
-.si-btns{display:flex;gap:3cqw;margin-top:3cqw}
-.si-btn{flex:1;text-align:center;border-radius:5cqw;padding:4.6cqw 0;font-size:5cqw;font-weight:700;background:#dcdce2}.si-btn.si-k{background:#0e0e10;color:#fff}
-#si-nav{left:4cqw;right:4cqw;bottom:4cqw;height:17cqw;background:rgba(255,255,255,.95);border-radius:9cqw;box-shadow:0 2cqw 8cqw rgba(0,0,0,.12);z-index:3;opacity:0;display:flex}
+.si-btns{display:flex;gap:calc(3*var(--u));margin-top:calc(3*var(--u))}
+.si-btn{flex:1;text-align:center;border-radius:calc(5*var(--u));padding:calc(4.6*var(--u)) 0;font-size:calc(5*var(--u));font-weight:700;background:#dcdce2}.si-btn.si-k{background:#0e0e10;color:#fff}
+#si-nav{left:calc(4*var(--u));right:calc(4*var(--u));bottom:calc(4*var(--u));height:calc(17*var(--u));background:rgba(255,255,255,.95);border-radius:calc(9*var(--u));box-shadow:0 calc(2*var(--u)) calc(8*var(--u)) rgba(0,0,0,.12);z-index:3;opacity:0;display:flex}
 .si-go #si-nav{animation:si-navio 8s ease 4s both}
-#si-nav span{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:2.8cqw;font-weight:700;color:#6b6b76;position:relative;z-index:1}
-#si-nav span i{font-style:normal;font-size:5.4cqw}
-.si-hl{position:absolute;left:0;top:0;width:20%;height:100%;border-radius:9cqw;background:linear-gradient(135deg,#f1e8ff,#e1f1ff);box-shadow:inset 0 0 0 .5cqw #fff;transform:translateX(100%)}
+#si-nav span{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(2.8*var(--u));font-weight:700;color:#6b6b76;position:relative;z-index:1}
+#si-nav span i{font-style:normal;font-size:calc(5.4*var(--u))}
+.si-hl{position:absolute;left:0;top:0;width:20%;height:100%;border-radius:calc(9*var(--u));background:linear-gradient(135deg,#f1e8ff,#e1f1ff);box-shadow:inset 0 0 0 calc(.5*var(--u)) #fff;transform:translateX(100%)}
 .si-go .si-hl{animation:si-hl 8s ease 4s both}
-.si-bd{position:absolute;top:1cqw;right:2.6cqw;width:5.4cqw;height:5.4cqw;border-radius:50%;background:#d92b2b;color:#fff;font-size:3.2cqw;display:grid;place-items:center}
-.si-pb{position:absolute;left:0;bottom:0;height:.9cqw;width:100%;background:#7c6cf0;transform:scaleX(0);transform-origin:left;z-index:9}
+.si-bd{position:absolute;top:calc(1*var(--u));right:calc(2.6*var(--u));width:calc(5.4*var(--u));height:calc(5.4*var(--u));border-radius:50%;background:#d92b2b;color:#fff;font-size:calc(3.2*var(--u));display:grid;place-items:center}
+.si-pb{position:absolute;left:0;bottom:0;height:calc(.9*var(--u));width:100%;background:#7c6cf0;transform:scaleX(0);transform-origin:left;z-index:9}
 .si-go .si-pb{animation:si-pbar 15s linear both}
-.si-ov{inset:0;z-index:20;background:#0e0e10;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4cqw;text-align:center}
-@keyframes si-pop{0%{opacity:0;transform:translateY(4cqw) scale(.85)}60%{opacity:1;transform:translateY(-.6cqw) scale(1.04)}100%{opacity:1;transform:none}}
+.si-ov{inset:0;z-index:20;background:#0e0e10;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(4*var(--u));text-align:center}
+@keyframes si-pop{0%{opacity:0;transform:translateY(calc(4*var(--u))) scale(.85)}60%{opacity:1;transform:translateY(calc(-.6*var(--u))) scale(1.04)}100%{opacity:1;transform:none}}
 @keyframes si-slam{0%{opacity:0;transform:scale(1.5)}100%{opacity:1;transform:none}}
-@keyframes si-sl{0%{opacity:0;transform:translateX(30cqw)}70%{opacity:1;transform:translateX(-1cqw)}100%{opacity:1;transform:none}}
+@keyframes si-sl{0%{opacity:0;transform:translateX(calc(30*var(--u)))}70%{opacity:1;transform:translateX(calc(-1*var(--u)))}100%{opacity:1;transform:none}}
 @keyframes si-sc{0%{opacity:0}5%{opacity:1}92%{opacity:1}100%{opacity:0}}
 @keyframes si-in{from{opacity:0}to{opacity:1}}
 @keyframes si-collapse{to{transform:scale(.05);opacity:0}}
 @keyframes si-wipe{to{transform:scale(1)}}
 @keyframes si-ring{to{stroke-dashoffset:0}}
-@keyframes si-float{0%,100%{margin-top:0}50%{margin-top:-2cqw}}
-@keyframes si-navio{0%{opacity:0;transform:translateY(20cqw)}4%{opacity:1;transform:none}96%{opacity:1;transform:none}100%{opacity:0;transform:translateY(20cqw)}}
+@keyframes si-float{0%,100%{margin-top:0}50%{margin-top:calc(-2*var(--u))}}
+@keyframes si-navio{0%{opacity:0;transform:translateY(calc(20*var(--u)))}4%{opacity:1;transform:none}96%{opacity:1;transform:none}100%{opacity:0;transform:translateY(calc(20*var(--u)))}}
 @keyframes si-hl{0%,36%{transform:translateX(100%)}40%,68%{transform:translateX(0)}72%,100%{transform:translateX(300%)}}
 @keyframes si-pbar{to{transform:scaleX(1)}}
 .si-go #si-c1{animation:si-collapse .25s ease-in 1.8s both}
 
-.si-ov button,#si-rp button{font:inherit;font-weight:700;font-size:4.6cqw;border:0;border-radius:8cqw;padding:3.6cqw 7cqw;background:#fff;color:#0e0e10;cursor:pointer}
-#si-rp{position:absolute;z-index:8;left:0;right:0;bottom:9cqw;display:flex;gap:3cqw;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s}
-#si-rp button{background:#0e0e10;color:#fff;padding:3.6cqw 5cqw}#si-rp button+button{background:#7c6cf0}
+.si-ov button,#si-rp button{font:inherit;font-weight:700;font-size:calc(4.6*var(--u));border:0;border-radius:calc(8*var(--u));padding:calc(3.6*var(--u)) calc(7*var(--u));background:#fff;color:#0e0e10;cursor:pointer}
+#si-rp{position:absolute;z-index:8;left:0;right:0;bottom:calc(9*var(--u));display:flex;gap:calc(3*var(--u));justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s}
+#si-rp button{background:#0e0e10;color:#fff;padding:calc(3.6*var(--u)) calc(5*var(--u))}#si-rp button+button{background:#7c6cf0}
 #si-rp.si-show{opacity:1;pointer-events:auto}
-.si-ov .si-ghost{background:transparent;color:#a9a9b3;font-size:3.8cqw;padding:2cqw 4cqw}
+.si-ov .si-ghost{background:transparent;color:#a9a9b3;font-size:calc(3.8*var(--u));padding:calc(2*var(--u)) calc(4*var(--u))}
 .si-x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);right:12px;z-index:30;width:36px;height:36px;border-radius:50%;border:0;background:rgba(120,120,130,.5);color:#fff;font-size:16px;cursor:pointer}
 
-#shIntro #si-rp{flex-wrap:wrap;bottom:6cqw}
-#shIntro #si-rp .si-g{flex:0 0 100%;background:transparent;color:#6b6b76;font-size:3.8cqw;padding:1.5cqw 4cqw;font-weight:600}
-.si-hint{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%);z-index:30;background:rgba(14,14,16,.85);color:#fff;font-size:3.4cqw;font-weight:600;padding:2cqw 4cqw;border-radius:6cqw;pointer-events:none;white-space:nowrap}
+#shIntro #si-rp{flex-wrap:wrap;bottom:calc(6*var(--u))}
+#shIntro #si-rp .si-g{flex:0 0 100%;background:transparent;color:#6b6b76;font-size:calc(3.8*var(--u));padding:calc(1.5*var(--u)) calc(4*var(--u));font-weight:600}
+.si-hint{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%);z-index:30;background:rgba(14,14,16,.85);color:#fff;font-size:calc(3.4*var(--u));font-weight:600;padding:calc(2*var(--u)) calc(4*var(--u));border-radius:calc(6*var(--u));pointer-events:none;white-space:nowrap}
 .si-btn{cursor:pointer}
-#shIntro #si-rp{flex-wrap:nowrap;gap:1cqw;bottom:7cqw;align-items:center}
-#shIntro #si-rp button,#shIntro #si-rp button+button,#shIntro #si-rp .si-g{flex:0 0 auto;background:transparent;color:#6b6b76;font-size:3.9cqw;font-weight:600;padding:2.2cqw 3.5cqw}
-#shIntro #si-rp .si-g::before{content:"·";margin-right:4cqw;color:#a9a9b3}
+#shIntro #si-rp{flex-wrap:nowrap;gap:calc(1*var(--u));bottom:calc(7*var(--u));align-items:center}
+#shIntro #si-rp button,#shIntro #si-rp button+button,#shIntro #si-rp .si-g{flex:0 0 auto;background:transparent;color:#6b6b76;font-size:calc(3.9*var(--u));font-weight:600;padding:calc(2.2*var(--u)) calc(3.5*var(--u))}
+#shIntro #si-rp .si-g::before{content:"·";margin-right:calc(4*var(--u));color:#a9a9b3}
+
+#si-c1{position:relative}
+.si-L,.si-R{display:contents}
+.si-sc{padding:calc(8*var(--u)) calc(var(--m) + 8*var(--u))}
+#si-nav{left:calc(var(--m) + 4*var(--u));right:calc(var(--m) + 4*var(--u));bottom:calc(4*var(--u) + env(safe-area-inset-bottom,0px))}
+#shIntro #si-rp{bottom:calc(7*var(--u) + env(safe-area-inset-bottom,0px))}
+@media (min-aspect-ratio:11/10){
+.si-stage{--u:min(1cqw,1.7778cqh)}
+.si-sc{flex-direction:row;align-items:center;justify-content:center;gap:calc(6*var(--u));padding:0 calc(var(--m) + 6*var(--u))}
+#si-s1,#si-s2{flex-direction:column;gap:calc(2*var(--u))}
+.si-L,.si-R{display:flex;flex-direction:column;gap:calc(2*var(--u));flex:0 1 calc(46*var(--u));min-width:0;justify-content:center}
+.si-sp{display:none}
+.si-big{font-size:calc(8.5*var(--u))}.si-big br{display:none}
+#si-c1{align-items:center;text-align:center}
+.si-chip{font-size:calc(6*var(--u))}
+.si-mark{width:calc(13*var(--u));height:calc(13*var(--u));border-radius:calc(4*var(--u))}
+#si-s6 .si-mark{width:calc(9*var(--u))!important;height:calc(9*var(--u))!important;border-radius:calc(2.8*var(--u))!important}
+.si-logo{font-size:calc(10*var(--u))}
+.si-lab{font-size:calc(1.8*var(--u))}
+.si-h2{font-size:calc(6*var(--u))}
+#si-s6 .si-h2{font-size:calc(8*var(--u))!important}
+.si-sub{font-size:calc(2.6*var(--u))}
+.si-card{font-size:calc(2.9*var(--u));padding:calc(2.6*var(--u));border-radius:calc(3.2*var(--u))}
+.si-tag{font-size:calc(1.8*var(--u));padding:calc(1*var(--u)) calc(1.6*var(--u));border-radius:calc(1.6*var(--u))}
+.si-pill{font-size:calc(2.6*var(--u));padding:calc(1.8*var(--u)) calc(3.4*var(--u));border-radius:calc(4*var(--u))}
+.si-task{padding:calc(2.6*var(--u));border-radius:calc(3.2*var(--u));gap:calc(2.5*var(--u))}
+.si-task b{font-size:calc(3.2*var(--u))}.si-task small{font-size:calc(2.2*var(--u))}
+.si-rg{width:calc(9*var(--u));height:calc(9*var(--u))}.si-chk{font-size:calc(4.5*var(--u))}
+.si-bub{font-size:calc(2.7*var(--u));padding:calc(2*var(--u)) calc(2.8*var(--u));border-radius:calc(3*var(--u))}
+.si-btns{gap:calc(2*var(--u));margin-top:calc(1*var(--u))}
+.si-btn{font-size:calc(2.8*var(--u));padding:calc(2.6*var(--u)) 0;border-radius:calc(3*var(--u))}
+#si-nav{left:calc(50% - 30*var(--u));right:auto;width:calc(60*var(--u));height:calc(9.5*var(--u));bottom:calc(2.5*var(--u) + env(safe-area-inset-bottom,0px));border-radius:calc(5*var(--u))}
+#si-nav span{font-size:calc(1.5*var(--u))}#si-nav span i{font-size:calc(3*var(--u))}
+.si-hl{border-radius:calc(5*var(--u))}
+.si-bd{width:calc(3*var(--u));height:calc(3*var(--u));font-size:calc(1.8*var(--u));top:calc(.6*var(--u));right:calc(1.4*var(--u))}
+#shIntro #si-rp{bottom:calc(3*var(--u) + env(safe-area-inset-bottom,0px))}
+#shIntro #si-rp button,#shIntro #si-rp button+button,#shIntro #si-rp .si-g{font-size:calc(2.2*var(--u));padding:calc(1.2*var(--u)) calc(2*var(--u))}
+.si-hint{font-size:calc(2*var(--u));padding:calc(1*var(--u)) calc(2.4*var(--u))}
+.si-pb{height:calc(.6*var(--u))}
+}
 </style>
 </head>
 <body>
@@ -6828,7 +6868,7 @@ setInterval(checkUpdate, 10 * 60 * 1000);
 
   <!-- 0.0s HOOK -->
   <div class="si-sc" id="si-s1" style="--s:0s;--l:2.1s">
-    <div id="si-c1" style="display:flex;flex-direction:column;gap:3cqw">
+    <div id="si-c1" style="display:flex;flex-direction:column;gap:calc(3*var(--u))">
       <i class="si-chip si-a" style="left:6%;top:-18%;--d:.2s">📄</i><i class="si-chip si-a" style="right:8%;top:-14%;--d:.5s">⏰</i>
       <i class="si-chip si-a" style="right:4%;top:46%;--d:.9s">💬</i><i class="si-chip si-a" style="left:60%;bottom:-26%;--d:1.2s">📎</i>
       <h1 class="si-big" style="--d:.15s;opacity:0">Materi<br>tercecer.</h1>
@@ -6846,41 +6886,41 @@ setInterval(checkUpdate, 10 * 60 * 1000);
 
   <!-- 4.0s MATERI -->
   <div class="si-sc" id="si-s3" style="--s:4s;--l:3.1s">
-    <div class="si-lab si-a" style="--d:4.15s">01 · MATERI</div>
-    <h2 class="si-h2 si-a" style="--d:4.25s">Semua matkul<br>rapi.</h2>
+    <div class="si-L"><div class="si-lab si-a" style="--d:4.15s">01 · MATERI</div>
+    <h2 class="si-h2 si-a" style="--d:4.25s">Semua matkul<br>rapi.</h2></div><div class="si-R">
     <div class="si-card" style="--d:4.5s"><span>☁️ Cloud Computing</span><b class="si-tag">📄 PDF</b></div>
     <div class="si-card" style="--d:4.8s"><span>🔐 Keamanan Sistem</span><b class="si-tag">🎬 Video</b></div>
     <div class="si-card" style="--d:5.1s"><span>📚 + semua matkul</span><b class="si-tag">📝 Catatan</b></div>
     <div class="si-pill si-a" style="--d:5.7s">⬆ Upload sekali ketuk</div>
-    <div style="height:20cqw"></div>
+    </div><div class="si-sp" style="height:calc(20*var(--u))"></div>
   </div>
 
   <!-- 7.0s TUGAS -->
   <div class="si-sc" id="si-s4" style="--s:7s;--l:2.6s">
-    <div class="si-lab si-a" style="--d:7.15s">02 · TUGAS</div>
-    <h2 class="si-h2 si-a" style="--d:7.25s">Anti telat<br>deadline.</h2>
+    <div class="si-L"><div class="si-lab si-a" style="--d:7.15s">02 · TUGAS</div>
+    <h2 class="si-h2 si-a" style="--d:7.25s">Anti telat<br>deadline.</h2><p class="si-sub si-a" style="--d:8.1s">Tugas mendatang, urut waktu.</p></div><div class="si-R">
     <div class="si-task si-a" style="--d:7.45s"><div><b>Laporan Praktikum</b><small>Cloud Computing · besok 20:00</small></div>
       <div class="si-rg"><svg viewBox="0 0 64 64"><circle class="si-bg" cx="32" cy="32" r="28"/><circle class="si-fg" cx="32" cy="32" r="28"/></svg><div class="si-chk si-a" style="--d:8.85s">✓</div></div></div>
-    <p class="si-sub si-a" style="--d:8.1s">Tugas mendatang, urut waktu.</p>
-    <div style="height:20cqw"></div>
+    
+    </div><div class="si-sp" style="height:calc(20*var(--u))"></div>
   </div>
 
   <!-- 9.5s CHAT -->
   <div class="si-sc" id="si-s5" style="--s:9.5s;--l:2.6s">
-    <div class="si-lab si-a" style="--d:9.65s">03 · CHAT</div>
-    <h2 class="si-h2 si-a" style="--d:9.75s">Ngobrol<br>sekelas.</h2>
+    <div class="si-L"><div class="si-lab si-a" style="--d:9.65s">03 · CHAT</div>
+    <h2 class="si-h2 si-a" style="--d:9.75s">Ngobrol<br>sekelas.</h2></div><div class="si-R">
     <div class="si-bub si-a" style="--d:9.95s">Ada tugas baru? 👀</div>
     <div class="si-bub si-r si-a" style="--d:10.55s">Deadline Jumat 📌</div>
     <div class="si-bub si-a" style="--d:11.15s">Makasih! 🙌</div>
-    <div style="height:20cqw"></div>
+    </div><div class="si-sp" style="height:calc(20*var(--u))"></div>
   </div>
 
   <!-- 12.0s END -->
   <div class="si-sc" id="si-s6" style="--s:12s">
-    <div class="si-mark si-a" style="--d:12.1s;width:15cqw;height:15cqw;border-radius:4.5cqw"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9v6"/></svg></div>
-    <h2 class="si-h2 si-a" style="--d:12.2s;font-size:14cqw">Satu<br>semester,<br><span class="si-acc">satu app.</span></h2>
+    <div class="si-L"><div class="si-mark si-a" style="--d:12.1s;width:calc(15*var(--u));height:calc(15*var(--u));border-radius:calc(4.5*var(--u))"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9v6"/></svg></div>
+    <h2 class="si-h2 si-a" style="--d:12.2s;font-size:calc(14*var(--u))">Satu<br>semester,<br><span class="si-acc">satu app.</span></h2></div><div class="si-R">
     <div class="si-btns"><div class="si-btn si-k si-a" style="--d:13.2s">Masuk</div><div class="si-btn si-a" style="--d:13.4s">Daftar</div></div>
-    <p class="si-sub si-a" style="--d:13.7s">Gratis untuk mahasiswa · Study Hub</p>
+    <p class="si-sub si-a" style="--d:13.7s">Gratis untuk mahasiswa · Study Hub</p></div>
   </div>
 
   <div id="si-nav"><div class="si-hl"></div>
@@ -6890,8 +6930,8 @@ setInterval(checkUpdate, 10 * 60 * 1000);
 
   <div class="si-ov" id="si-ov">
     <div class="si-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9v6"/></svg></div>
-    <div style="font-size:9cqw;font-weight:800;letter-spacing:-.03em;font-family:var(--font-d,'Bricolage Grotesque',system-ui,sans-serif)">Study Hub</div>
-    <div style="font-size:4cqw;color:#a9a9b3">Intro 15 detik · 🔊 nyalakan suara</div>
+    <div style="font-size:calc(9*var(--u));font-weight:800;letter-spacing:-.03em;font-family:var(--font-d,'Bricolage Grotesque',system-ui,sans-serif)">Study Hub</div>
+    <div style="font-size:calc(4*var(--u));color:#a9a9b3">Intro 15 detik · 🔊 nyalakan suara</div>
     <button id="si-go">▶ Putar</button><button id="si-skip" class="si-ghost">Lewati</button>
   </div>
 </div><button class="si-x" id="si-x" aria-label="Tutup">✕</button></template>
