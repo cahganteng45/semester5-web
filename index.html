@@ -5335,7 +5335,7 @@ function inOpen(o) {
       if (e.target.closest("#inTitle.tap")) { inProfile(); return; }
       if (e.target.closest("#inNew")) { inPick(); return; }
       if (e.target.closest("#inPin")) { inMetaSet(inWith, { pin: !(inMeta && inMeta.pin > 0) }); return; }
-      if (e.target.closest("#inMore")) { inThreadSheet(inCurThread()); return; }
+      if (e.target.closest("#inMore")) { inThreadSheet(inCurThread(), true); return; }
       const fc = e.target.closest("[data-flt]");
       if (fc) { inFlt = fc.dataset.flt; inPaintRows(); return; }
       if (Date.now() - inPressAt < 700 && e.target.closest("#inList")) { e.preventDefault(); return; }
@@ -5531,7 +5531,7 @@ function seenText(p) {
 }
 // status online hanya dikirim server ke admin; untuk pengguna biasa teks ini tetap peran saja
 function inSubText(p) {
-  if (p.owner) return "Hai, ada yang bisa kami bantu?";
+  if (p.owner && !isAdmin) return p.online ? "Online" : "Offline · pesan tetap bisa dikirim";
   const st = seenText(p);
   const sb = p.sub;
   return st ? (sb ? sb + " · " + st : st) : (sb || "");
@@ -5702,13 +5702,13 @@ function inPaintPill() {
   if (p.dataset.h !== html) { p.dataset.h = html; p.innerHTML = html; }
 }
 var inSheetBlock = 0;
-function inThreadSheet(t) {
+function inThreadSheet(t, inRoom) {
   if (!t || Date.now() < inSheetBlock) return;
   document.querySelectorAll(".fgsheet[data-thr]").forEach((x) => x.remove());   // cegah sheet menumpuk
   const s = fgSheet(`<h3>${esc(t.name)}</h3><div class="inacts">` +
-    (t.arch ? "" : `<button type="button" data-ia="pin">${IC.pin}<span>${t.pin ? "Lepas sematan" : "Sematkan"}</span></button>`) +
-    `<button type="button" data-ia="arch">${IC.archive}<span>${t.arch ? "Keluarkan dari arsip" : "Arsipkan"}</span></button>` +
-    (t.unread ? `<button type="button" data-ia="read">${IC.check}<span>Tandai sudah dibaca</span></button>` : "") +
+    (inRoom || t.arch ? "" : `<button type="button" data-ia="pin">${IC.pin}<span>${t.pin ? "Lepas sematan" : "Sematkan"}</span></button>`) +
+    (inRoom ? "" : `<button type="button" data-ia="arch">${IC.archive}<span>${t.arch ? "Keluarkan dari arsip" : "Arsipkan"}</span></button>`) +
+    (!inRoom && t.unread ? `<button type="button" data-ia="read">${IC.check}<span>Tandai sudah dibaca</span></button>` : "") +
     `<button type="button" data-ia="del" class="danger">${IC.trash}<span>Hapus percakapan</span></button></div>`);
   s.dataset.thr = "1";
   s.addEventListener("click", (e) => {
