@@ -1295,6 +1295,9 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 #shIntro #si-rp .si-g{flex:0 0 100%;background:transparent;color:#6b6b76;font-size:3.8cqw;padding:1.5cqw 4cqw;font-weight:600}
 .si-hint{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%);z-index:30;background:rgba(14,14,16,.85);color:#fff;font-size:3.4cqw;font-weight:600;padding:2cqw 4cqw;border-radius:6cqw;pointer-events:none;white-space:nowrap}
 .si-btn{cursor:pointer}
+#shIntro #si-rp{flex-wrap:nowrap;gap:1cqw;bottom:7cqw;align-items:center}
+#shIntro #si-rp button,#shIntro #si-rp button+button,#shIntro #si-rp .si-g{flex:0 0 auto;background:transparent;color:#6b6b76;font-size:3.9cqw;font-weight:600;padding:2.2cqw 3.5cqw}
+#shIntro #si-rp .si-g::before{content:"·";margin-right:4cqw;color:#a9a9b3}
 </style>
 </head>
 <body>
@@ -6883,7 +6886,7 @@ setInterval(checkUpdate, 10 * 60 * 1000);
   <div id="si-nav"><div class="si-hl"></div>
     <span><i>🏠</i>Beranda</span><span><i>📁</i>Materi</span><span><i>📅</i>Jadwal</span><span><i>💬</i>Chat<b class="si-bd si-a" style="--d:11.55s">1</b></span><span><i>⚙️</i>Akun</span></div>
   <div class="si-pb"></div>
-  <div id="si-rp"><button id="si-rp1">↻ Ulangi</button><button id="si-rp2">Masuk sekarang</button></div>
+  <div id="si-rp"><button id="si-rp1">↻ Ulangi</button></div>
 
   <div class="si-ov" id="si-ov">
     <div class="si-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9v6"/></svg></div>
@@ -6985,10 +6988,9 @@ function open(){
   var ov=q('ov');if(ov)ov.remove();
   var x=q('x');if(li)x.onclick=close;else x.remove();
   q('rp1').onclick=play;
-  q('rp2').onclick=function(){goAuth('login')};
   var bt=root.querySelectorAll('.si-btn');
-  if(bt[0])bt[0].onclick=function(){if(Date.now()-tStart>13500)goAuth('login')};
-  if(bt[1])bt[1].onclick=function(){if(Date.now()-tStart>13500)goAuth('register')};
+  if(bt[0])bt[0].onclick=function(){if(Date.now()-tStart>13400)goAuth('login')};
+  if(bt[1])bt[1].onclick=function(){if(Date.now()-tStart>13400)goAuth('register')};
   var g=document.createElement('button');g.className='si-g';g.textContent=li?'Tutup':'Lanjut sebagai tamu';g.onclick=close;q('rp').appendChild(g);
   play();
 }
