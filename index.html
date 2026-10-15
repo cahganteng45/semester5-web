@@ -1294,6 +1294,7 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 #shIntro #si-rp{flex-wrap:wrap;bottom:6cqw}
 #shIntro #si-rp .si-g{flex:0 0 100%;background:transparent;color:#6b6b76;font-size:3.8cqw;padding:1.5cqw 4cqw;font-weight:600}
 .si-hint{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%);z-index:30;background:rgba(14,14,16,.85);color:#fff;font-size:3.4cqw;font-weight:600;padding:2cqw 4cqw;border-radius:6cqw;pointer-events:none;white-space:nowrap}
+.si-btn{cursor:pointer}
 </style>
 </head>
 <body>
@@ -6940,25 +6941,37 @@ function audio(t0){
   }catch(e){console.log(e)}
 }
 function close(){
-  if(!root)return;clearTimeout(rt);clearTimeout(tm);
+  if(!root)return;unhint();clearTimeout(rt);clearTimeout(tm);
   try{if(M){M.gain.cancelScheduledValues(0);M.gain.value=0;M.disconnect()}}catch(e){}
   root.remove();root=null;
 }
 function play(){
   var st=q('st'),ov=q('ov');if(ov)ov.style.display='none';
-  q('rp').classList.remove('si-show');clearTimeout(rt);clearTimeout(tm);
+  q('rp').classList.remove('si-show');clearTimeout(rt);clearTimeout(tm);unhint();tStart=Date.now();
   try{if(M){M.gain.cancelScheduledValues(0);M.gain.value=0;M.disconnect()}}catch(e){}
   st.classList.remove('si-go');void st.offsetWidth;
   var act=!!(navigator.userActivation&&navigator.userActivation.hasBeenActive);
   if(act)audio();
   tm=setTimeout(function(){st.classList.add('si-go')},150);
-  rt=setTimeout(function(){if(root)q('rp').classList.add('si-show')},15400);
+  rt=setTimeout(function(){if(root){unhint();q('rp').classList.add('si-show')}},15400);
   setTimeout(function(){if(root&&(!AC||AC.state!=='running'))hint()},450);
 }
+var hintEl=null,hintFn=null,tStart=0;
+function unhint(){
+  if(hintEl){hintEl.remove();hintEl=null}
+  if(hintFn&&root)root.removeEventListener('pointerdown',hintFn);
+  hintFn=null;
+}
 function hint(){
-  if(!root||root.querySelector('.si-hint'))return;
-  var h=document.createElement('div');h.className='si-hint';h.textContent='🔊 Ketuk layar untuk menyalakan suara';q('st').appendChild(h);
-  root.addEventListener('pointerdown',function f(){root.removeEventListener('pointerdown',f);h.remove();play()});
+  if(!root||hintEl)return;
+  hintEl=document.createElement('div');hintEl.className='si-hint';hintEl.textContent='🔊 Ketuk layar untuk menyalakan suara';q('st').appendChild(hintEl);
+  hintFn=function(e){if(e.target.closest&&e.target.closest('button,.si-btn'))return;unhint();play()};
+  root.addEventListener('pointerdown',hintFn);
+}
+function goAuth(kind){
+  close();
+  try{if(typeof showAuth==='function'){showAuth(kind==='register');return}}catch(e){}
+  var b=document.querySelector('#guestBanner [data-auth="'+kind+'"]');if(b)b.click();
 }
 function open(){
   if(root||!TPL)return;
@@ -6972,7 +6985,10 @@ function open(){
   var ov=q('ov');if(ov)ov.remove();
   var x=q('x');if(li)x.onclick=close;else x.remove();
   q('rp1').onclick=play;
-  q('rp2').onclick=function(){close();var b=document.querySelector('#guestBanner [data-auth="login"]');if(b)b.click()};
+  q('rp2').onclick=function(){goAuth('login')};
+  var bt=root.querySelectorAll('.si-btn');
+  if(bt[0])bt[0].onclick=function(){if(Date.now()-tStart>13500)goAuth('login')};
+  if(bt[1])bt[1].onclick=function(){if(Date.now()-tStart>13500)goAuth('register')};
   var g=document.createElement('button');g.className='si-g';g.textContent=li?'Tutup':'Lanjut sebagai tamu';g.onclick=close;q('rp').appendChild(g);
   play();
 }
