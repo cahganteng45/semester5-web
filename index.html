@@ -1220,6 +1220,81 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 }
 </style>
 
+<style id="shIntroCss">
+#shIntro{position:fixed;inset:0;z-index:100000;background:#000;display:flex;justify-content:center;font-family:var(--font-b,"DM Sans",system-ui,sans-serif);-webkit-font-smoothing:antialiased}
+#shIntro .si-big,#shIntro .si-h2,#shIntro .si-logo,#shIntro .si-btn,#shIntro .si-pill,#shIntro .si-card,#shIntro .si-task b,#shIntro .si-lab,#shIntro .si-ov button,#shIntro #si-rp button,#shIntro #si-nav span,#shIntro .si-ttl{font-family:var(--font-d,"Bricolage Grotesque",system-ui,sans-serif)}
+
+.si-stage{height:100%;aspect-ratio:9/16;max-width:100%;container-type:size;position:relative;overflow:hidden;background:#0e0e10;color:#0e0e10}
+.si-sc,#si-wipe,#si-nav,.si-ov{position:absolute}
+.si-sc{inset:0;display:flex;flex-direction:column;justify-content:center;padding:8cqw;opacity:0;z-index:2;gap:3cqw}
+.si-a{opacity:0}
+.si-go .si-a{animation:si-pop .55s cubic-bezier(.2,1.3,.4,1) var(--d) both}
+.si-go .si-big{animation:si-slam .35s cubic-bezier(.2,1.2,.3,1) var(--d) both}
+.si-go .si-card{animation:si-sl .6s cubic-bezier(.2,1.2,.3,1) var(--d) both}
+.si-go .si-sc{animation:si-sc var(--l) linear var(--s) both}
+.si-go #si-s6{animation:si-in .3s ease var(--s) both}
+#si-wipe{width:300cqw;height:300cqw;left:50%;top:50%;margin:-150cqw 0 0 -150cqw;border-radius:50%;transform:scale(0);z-index:1;background:radial-gradient(circle at 62% 46%,#ddd5fb 0,#ebe8f6 8%,#f3f2f7 14%)}
+.si-go #si-wipe{animation:si-wipe .7s cubic-bezier(.7,0,.2,1) 2s both}
+.si-big{font-size:17cqw;font-weight:800;line-height:.98;letter-spacing:-.03em;margin:0;color:#fff}
+.si-h2{font-size:10.5cqw;font-weight:800;line-height:1.02;letter-spacing:-.03em;margin:0}
+.si-lab{font-size:3.4cqw;font-weight:700;letter-spacing:.18em;color:#7c6cf0}
+.si-sub{font-size:4.6cqw;font-weight:500;color:#6b6b76;margin:0}
+.si-chip{position:absolute;font-size:9cqw;font-style:normal}
+.si-go .si-chip{animation:si-pop .5s ease var(--d) both,si-float 1.6s ease-in-out var(--d) infinite}
+.si-mark{width:24cqw;height:24cqw;border-radius:7cqw;background:#0e0e10;display:grid;place-items:center;box-shadow:0 6cqw 12cqw -4cqw rgba(60,40,160,.45)}
+.si-mark svg{width:56%;height:56%}
+.si-logo{font-size:15cqw;font-weight:800;letter-spacing:-.035em;line-height:1}
+.si-l{display:inline-block}
+.si-center{align-items:center;text-align:center}
+.si-card{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6cqw;padding:5cqw;font-size:5cqw;font-weight:700;box-shadow:0 1cqw 3cqw rgba(0,0,0,.05);opacity:0}
+.si-tag{font-size:3.4cqw;background:#e6e6ea;border-radius:3cqw;padding:2cqw 3cqw}
+.si-pill{align-self:flex-start;background:#0e0e10;color:#fff;border-radius:8cqw;padding:3.4cqw 6cqw;font-size:4.6cqw;font-weight:700}
+.si-task{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6cqw;padding:5cqw;gap:4cqw}
+.si-task b{font-size:5.4cqw;display:block}.si-task small{font-size:3.8cqw;color:#6b6b76}
+.si-rg{position:relative;width:17cqw;height:17cqw;flex:none}.si-rg svg{width:100%;height:100%;transform:rotate(-90deg)}
+.si-rg circle{fill:none;stroke-width:5}.si-rg .si-bg{stroke:#ececf1}.si-rg .si-fg{stroke:#7c6cf0;stroke-linecap:round;stroke-dasharray:176;stroke-dashoffset:176}
+.si-go .si-fg{animation:si-ring 1.2s cubic-bezier(.5,0,.2,1) 7.6s both}
+.si-chk{position:absolute;inset:0;display:grid;place-items:center;font-size:8cqw;font-weight:800;color:#7c6cf0}
+.si-bub{max-width:70%;background:#fff;border-radius:5cqw;padding:3.6cqw 4.8cqw;font-size:4.6cqw;font-weight:600;box-shadow:0 1cqw 3cqw rgba(0,0,0,.05)}
+.si-bub.si-r{align-self:flex-end;background:#0e0e10;color:#fff}
+.si-acc{color:#7c6cf0}
+.si-btns{display:flex;gap:3cqw;margin-top:3cqw}
+.si-btn{flex:1;text-align:center;border-radius:5cqw;padding:4.6cqw 0;font-size:5cqw;font-weight:700;background:#dcdce2}.si-btn.si-k{background:#0e0e10;color:#fff}
+#si-nav{left:4cqw;right:4cqw;bottom:4cqw;height:17cqw;background:rgba(255,255,255,.95);border-radius:9cqw;box-shadow:0 2cqw 8cqw rgba(0,0,0,.12);z-index:3;opacity:0;display:flex}
+.si-go #si-nav{animation:si-navio 8s ease 4s both}
+#si-nav span{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:2.8cqw;font-weight:700;color:#6b6b76;position:relative;z-index:1}
+#si-nav span i{font-style:normal;font-size:5.4cqw}
+.si-hl{position:absolute;left:0;top:0;width:20%;height:100%;border-radius:9cqw;background:linear-gradient(135deg,#f1e8ff,#e1f1ff);box-shadow:inset 0 0 0 .5cqw #fff;transform:translateX(100%)}
+.si-go .si-hl{animation:si-hl 8s ease 4s both}
+.si-bd{position:absolute;top:1cqw;right:2.6cqw;width:5.4cqw;height:5.4cqw;border-radius:50%;background:#d92b2b;color:#fff;font-size:3.2cqw;display:grid;place-items:center}
+.si-pb{position:absolute;left:0;bottom:0;height:.9cqw;width:100%;background:#7c6cf0;transform:scaleX(0);transform-origin:left;z-index:9}
+.si-go .si-pb{animation:si-pbar 15s linear both}
+.si-ov{inset:0;z-index:20;background:#0e0e10;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4cqw;text-align:center}
+@keyframes si-pop{0%{opacity:0;transform:translateY(4cqw) scale(.85)}60%{opacity:1;transform:translateY(-.6cqw) scale(1.04)}100%{opacity:1;transform:none}}
+@keyframes si-slam{0%{opacity:0;transform:scale(1.5)}100%{opacity:1;transform:none}}
+@keyframes si-sl{0%{opacity:0;transform:translateX(30cqw)}70%{opacity:1;transform:translateX(-1cqw)}100%{opacity:1;transform:none}}
+@keyframes si-sc{0%{opacity:0}5%{opacity:1}92%{opacity:1}100%{opacity:0}}
+@keyframes si-in{from{opacity:0}to{opacity:1}}
+@keyframes si-collapse{to{transform:scale(.05);opacity:0}}
+@keyframes si-wipe{to{transform:scale(1)}}
+@keyframes si-ring{to{stroke-dashoffset:0}}
+@keyframes si-float{0%,100%{margin-top:0}50%{margin-top:-2cqw}}
+@keyframes si-navio{0%{opacity:0;transform:translateY(20cqw)}4%{opacity:1;transform:none}96%{opacity:1;transform:none}100%{opacity:0;transform:translateY(20cqw)}}
+@keyframes si-hl{0%,36%{transform:translateX(100%)}40%,68%{transform:translateX(0)}72%,100%{transform:translateX(300%)}}
+@keyframes si-pbar{to{transform:scaleX(1)}}
+.si-go #si-c1{animation:si-collapse .25s ease-in 1.8s both}
+
+.si-ov button,#si-rp button{font:inherit;font-weight:700;font-size:4.6cqw;border:0;border-radius:8cqw;padding:3.6cqw 7cqw;background:#fff;color:#0e0e10;cursor:pointer}
+#si-rp{position:absolute;z-index:8;left:0;right:0;bottom:9cqw;display:flex;gap:3cqw;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s}
+#si-rp button{background:#0e0e10;color:#fff;padding:3.6cqw 5cqw}#si-rp button+button{background:#7c6cf0}
+#si-rp.si-show{opacity:1;pointer-events:auto}
+.si-ov .si-ghost{background:transparent;color:#a9a9b3;font-size:3.8cqw;padding:2cqw 4cqw}
+.si-x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);right:12px;z-index:30;width:36px;height:36px;border-radius:50%;border:0;background:rgba(120,120,130,.5);color:#fff;font-size:16px;cursor:pointer}
+
+#shIntro #si-rp{flex-wrap:wrap;bottom:6cqw}
+#shIntro #si-rp .si-g{flex:0 0 100%;background:transparent;color:#6b6b76;font-size:3.8cqw;padding:1.5cqw 4cqw;font-weight:600}
+.si-hint{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%);z-index:30;background:rgba(14,14,16,.85);color:#fff;font-size:3.4cqw;font-weight:600;padding:2cqw 4cqw;border-radius:6cqw;pointer-events:none;white-space:nowrap}
+</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -1298,7 +1373,7 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 <div class="hero">
 <div class="hero-top"><div><p id="dateText">Memuat tanggal…</p><div class="clock" id="liveClock">00:00<small>00</small></div></div><button type="button" class="hero-av" id="heroAv" data-go="settings" aria-label="Buka akun">US</button></div>
 <h1 id="greetingText">Halo!</h1><div class="strip" id="strip"></div></div>
-<div class="gcta" id="guestBanner"><b>👋 Kamu masuk sebagai tamu</b><p>Daftar gratis untuk melihat materi, ikut chat kelas, dan upload.</p><div class="gbtns"><button type="button" class="btn btn-primary" data-auth="login">Masuk</button><button type="button" class="btn btn-soft" data-auth="register">Daftar</button></div></div>
+<div class="gcta" id="guestBanner"><b>👋 Kamu masuk sebagai tamu</b><p>Daftar gratis untuk melihat materi, ikut chat kelas, dan upload.</p><div class="gbtns"><button type="button" class="btn btn-primary" data-auth="login">Masuk</button><button type="button" class="btn btn-soft" data-auth="register">Daftar</button></div><button type="button" class="btn btn-soft" data-intro style="margin-top:10px;width:100%">▶ Lihat video pengenalan (15 dtk)</button></div>
 <div class="card next" id="nextCard"></div>
 <div class="quick">
 <button type="button" class="pri" data-go="upload"><span class="ic"><svg class="i"><use href="#i-up"/></svg></span>Upload</button>
@@ -6742,6 +6817,178 @@ setInterval(checkUpdate, 10 * 60 * 1000);
   document.addEventListener("touchstart", touch, { passive: true, capture: true });
   document.addEventListener("scroll", touch, { passive: true, capture: true });
   arm();
+})();
+</script>
+<template id="shIntroTpl"><div class="si-stage" id="si-st">
+  <div id="si-wipe"></div>
+
+  <!-- 0.0s HOOK -->
+  <div class="si-sc" id="si-s1" style="--s:0s;--l:2.1s">
+    <div id="si-c1" style="display:flex;flex-direction:column;gap:3cqw">
+      <i class="si-chip si-a" style="left:6%;top:-18%;--d:.2s">📄</i><i class="si-chip si-a" style="right:8%;top:-14%;--d:.5s">⏰</i>
+      <i class="si-chip si-a" style="right:4%;top:46%;--d:.9s">💬</i><i class="si-chip si-a" style="left:60%;bottom:-26%;--d:1.2s">📎</i>
+      <h1 class="si-big" style="--d:.15s;opacity:0">Materi<br>tercecer.</h1>
+      <h1 class="si-big" style="--d:.8s;opacity:0">Deadline<br>kelewat.</h1>
+      <h1 class="si-big" style="--d:1.35s;opacity:0;color:#9b8cff">Chat<br>tenggelam.</h1>
+    </div>
+  </div>
+
+  <!-- 2.0s LOGO -->
+  <div class="si-sc si-center" id="si-s2" style="--s:2s;--l:2.1s;align-items:center">
+    <div class="si-mark si-a" style="--d:2.1s"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9v6"/></svg></div>
+    <div class="si-logo" data-split data-d="2.3">Study Hub</div>
+    <p class="si-sub si-a" style="--d:2.85s">Satu kelas. Satu aplikasi.</p>
+  </div>
+
+  <!-- 4.0s MATERI -->
+  <div class="si-sc" id="si-s3" style="--s:4s;--l:3.1s">
+    <div class="si-lab si-a" style="--d:4.15s">01 · MATERI</div>
+    <h2 class="si-h2 si-a" style="--d:4.25s">Semua matkul<br>rapi.</h2>
+    <div class="si-card" style="--d:4.5s"><span>☁️ Cloud Computing</span><b class="si-tag">📄 PDF</b></div>
+    <div class="si-card" style="--d:4.8s"><span>🔐 Keamanan Sistem</span><b class="si-tag">🎬 Video</b></div>
+    <div class="si-card" style="--d:5.1s"><span>📚 + semua matkul</span><b class="si-tag">📝 Catatan</b></div>
+    <div class="si-pill si-a" style="--d:5.7s">⬆ Upload sekali ketuk</div>
+    <div style="height:20cqw"></div>
+  </div>
+
+  <!-- 7.0s TUGAS -->
+  <div class="si-sc" id="si-s4" style="--s:7s;--l:2.6s">
+    <div class="si-lab si-a" style="--d:7.15s">02 · TUGAS</div>
+    <h2 class="si-h2 si-a" style="--d:7.25s">Anti telat<br>deadline.</h2>
+    <div class="si-task si-a" style="--d:7.45s"><div><b>Laporan Praktikum</b><small>Cloud Computing · besok 20:00</small></div>
+      <div class="si-rg"><svg viewBox="0 0 64 64"><circle class="si-bg" cx="32" cy="32" r="28"/><circle class="si-fg" cx="32" cy="32" r="28"/></svg><div class="si-chk si-a" style="--d:8.85s">✓</div></div></div>
+    <p class="si-sub si-a" style="--d:8.1s">Tugas mendatang, urut waktu.</p>
+    <div style="height:20cqw"></div>
+  </div>
+
+  <!-- 9.5s CHAT -->
+  <div class="si-sc" id="si-s5" style="--s:9.5s;--l:2.6s">
+    <div class="si-lab si-a" style="--d:9.65s">03 · CHAT</div>
+    <h2 class="si-h2 si-a" style="--d:9.75s">Ngobrol<br>sekelas.</h2>
+    <div class="si-bub si-a" style="--d:9.95s">Ada tugas baru? 👀</div>
+    <div class="si-bub si-r si-a" style="--d:10.55s">Deadline Jumat 📌</div>
+    <div class="si-bub si-a" style="--d:11.15s">Makasih! 🙌</div>
+    <div style="height:20cqw"></div>
+  </div>
+
+  <!-- 12.0s END -->
+  <div class="si-sc" id="si-s6" style="--s:12s">
+    <div class="si-mark si-a" style="--d:12.1s;width:15cqw;height:15cqw;border-radius:4.5cqw"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9v6"/></svg></div>
+    <h2 class="si-h2 si-a" style="--d:12.2s;font-size:14cqw">Satu<br>semester,<br><span class="si-acc">satu app.</span></h2>
+    <div class="si-btns"><div class="si-btn si-k si-a" style="--d:13.2s">Masuk</div><div class="si-btn si-a" style="--d:13.4s">Daftar</div></div>
+    <p class="si-sub si-a" style="--d:13.7s">Gratis untuk mahasiswa · Study Hub</p>
+  </div>
+
+  <div id="si-nav"><div class="si-hl"></div>
+    <span><i>🏠</i>Beranda</span><span><i>📁</i>Materi</span><span><i>📅</i>Jadwal</span><span><i>💬</i>Chat<b class="si-bd si-a" style="--d:11.55s">1</b></span><span><i>⚙️</i>Akun</span></div>
+  <div class="si-pb"></div>
+  <div id="si-rp"><button id="si-rp1">↻ Ulangi</button><button id="si-rp2">Masuk sekarang</button></div>
+
+  <div class="si-ov" id="si-ov">
+    <div class="si-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9v6"/></svg></div>
+    <div style="font-size:9cqw;font-weight:800;letter-spacing:-.03em;font-family:var(--font-d,'Bricolage Grotesque',system-ui,sans-serif)">Study Hub</div>
+    <div style="font-size:4cqw;color:#a9a9b3">Intro 15 detik · 🔊 nyalakan suara</div>
+    <button id="si-go">▶ Putar</button><button id="si-skip" class="si-ghost">Lewati</button>
+  </div>
+</div><button class="si-x" id="si-x" aria-label="Tutup">✕</button></template>
+<script>
+(function(){
+var TPL=document.getElementById('shIntroTpl'),root=null,AC,M,nb,rt,tm;
+function seen(v){try{if(v)localStorage.setItem('s5_intro_seen','1');return localStorage.getItem('s5_intro_seen')==='1'}catch(e){return true}}
+function q(id){return root.querySelector('#si-'+id)}
+function audio(t0){
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    AC.resume();
+    if(!nb){nb=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);var d=nb.getChannelData(0);for(var i=0;i<d.length;i++)d[i]=Math.random()*2-1}
+    var cp=AC.createDynamicsCompressor();cp.connect(AC.destination);
+    M=AC.createGain();M.gain.value=.8;M.connect(cp);
+    t0=AC.currentTime+.15;
+    var N=function(t,d,ty,f1,f2,v){var s=AC.createBufferSource();s.buffer=nb;var f=AC.createBiquadFilter();f.type=ty;f.frequency.setValueAtTime(f1,t);f.frequency.exponentialRampToValueAtTime(f2,t+d);f.Q.value=1.2;var g=AC.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+d*.3);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(f);f.connect(g);g.connect(M);s.start(t);s.stop(t+d+.05)};
+    var T=function(t,f,d,ty,v,f2){var o=AC.createOscillator();o.type=ty;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);var g=AC.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(M);o.start(t);o.stop(t+d+.05)};
+    var S=function(x){return t0+x};
+    var whoosh=function(x){N(S(x),.5,'bandpass',300,5000,.35)};
+    var pop=function(x,f){f=f||520;T(S(x),f,.12,'sine',.35,f*2);T(S(x+.02),f*1.5,.1,'triangle',.1)};
+    var ding=function(x,f){f=f||1318;T(S(x),f,.9,'sine',.22);T(S(x),f*2.005,.6,'sine',.07)};
+    var tick=function(x){T(S(x),1800,.03,'square',.07)};
+    var boom=function(x){T(S(x),90,.9,'sine',.9,30);N(S(x),.7,'lowpass',4000,200,.6)};
+    var slam=function(x){T(S(x),140,.14,'sine',.6,60);N(S(x),.08,'highpass',3000,6000,.2)};
+    var kick=function(x,v){T(S(x),150,.18,'sine',v,45)};
+    /* ---- music: 120 BPM, Am F C G feel ---- */
+    var C={A:[110,1.189],F:[87.31,1.26],C:[130.81,1.26],G:[98,1.26]},prog='AAFCGFCC',sq=[1,1.5,2,1.5,3,2,1.5,2];
+    T(S(0),55,2,'sawtooth',.1,110);N(S(.9),1.1,'bandpass',400,8000,.5);kick(0,.5);kick(1,.5);kick(1.5,.4);
+    for(var b=0;b<30;b++){
+      var x=b*.5,bar=Math.floor(b/4),c=C[prog[Math.min(bar,7)]],r=c[0];
+      if(b%4===0){[1,c[1],1.498].forEach(function(k){T(S(x),r*2*k,1.95,'triangle',.07)})}
+      if(b<4||b>=28)continue;
+      kick(x,.9);N(S(x+.25),.04,'highpass',7000,9000,.16);
+      if(b%2===1&&b>=6)N(S(x),.12,'bandpass',1800,1200,.45);
+      T(S(x),r,.22,'triangle',.35);T(S(x+.25),r*2,.18,'triangle',.18);
+      for(var k=0;k<4;k++)T(S(x+k*.125),r*2*sq[(b*4+k)%8],.1,'square',.05);
+    }
+    /* ---- sfx ---- */
+    whoosh(.05);slam(.15);slam(.8);slam(1.35);whoosh(1.85);boom(2);
+    for(var i=0;i<9;i++)T(S(2.3+i*.05),900+i*80,.05,'triangle',.08);
+    ding(2.85,1568);whoosh(3.95);
+    pop(4.5,520);pop(4.8,620);pop(5.1,740);pop(5.7,880);
+    whoosh(6.95);for(var j=0;j<9;j++)tick(7.6+j*.15);ding(8.9);
+    whoosh(9.45);pop(9.95,440);pop(10.55,560);pop(11.15,480);pop(11.55,1100);
+    whoosh(11.95);boom(12);N(S(12),1.5,'highpass',3000,9000,.35);
+    [1046,1318,1568,2093].forEach(function(f,q){ding(12.5+q*.15,f)});
+    pop(13.25,600);pop(13.45,500);ding(13.8,2093);
+    M.gain.setValueAtTime(.8,S(14.1));M.gain.linearRampToValueAtTime(0,S(15));
+  }catch(e){console.log(e)}
+}
+function close(){
+  if(!root)return;clearTimeout(rt);clearTimeout(tm);
+  try{if(M){M.gain.cancelScheduledValues(0);M.gain.value=0;M.disconnect()}}catch(e){}
+  root.remove();root=null;
+}
+function play(){
+  var st=q('st'),ov=q('ov');if(ov)ov.style.display='none';
+  q('rp').classList.remove('si-show');clearTimeout(rt);clearTimeout(tm);
+  try{if(M){M.gain.cancelScheduledValues(0);M.gain.value=0;M.disconnect()}}catch(e){}
+  st.classList.remove('si-go');void st.offsetWidth;
+  var act=!!(navigator.userActivation&&navigator.userActivation.hasBeenActive);
+  if(act)audio();
+  tm=setTimeout(function(){st.classList.add('si-go')},150);
+  rt=setTimeout(function(){if(root)q('rp').classList.add('si-show')},15400);
+  setTimeout(function(){if(root&&(!AC||AC.state!=='running'))hint()},450);
+}
+function hint(){
+  if(!root||root.querySelector('.si-hint'))return;
+  var h=document.createElement('div');h.className='si-hint';h.textContent='🔊 Ketuk layar untuk menyalakan suara';q('st').appendChild(h);
+  root.addEventListener('pointerdown',function f(){root.removeEventListener('pointerdown',f);h.remove();play()});
+}
+function open(){
+  if(root||!TPL)return;
+  var li=!!localStorage.getItem('semester5_token');
+  root=document.createElement('div');root.id='shIntro';root.appendChild(TPL.content.cloneNode(true));
+  document.body.appendChild(root);
+  root.querySelectorAll('[data-split]').forEach(function(el){
+    var b=+el.dataset.d;
+    el.innerHTML=Array.from(el.textContent).map(function(c,i){return '<span class="si-a si-l" style="--d:'+(b+i*.05).toFixed(2)+'s">'+(c===' '?'&nbsp;':c)+'</span>'}).join('');
+  });
+  var ov=q('ov');if(ov)ov.remove();
+  var x=q('x');if(li)x.onclick=close;else x.remove();
+  q('rp1').onclick=play;
+  q('rp2').onclick=function(){close();var b=document.querySelector('#guestBanner [data-auth="login"]');if(b)b.click()};
+  var g=document.createElement('button');g.className='si-g';g.textContent=li?'Tutup':'Lanjut sebagai tamu';g.onclick=close;q('rp').appendChild(g);
+  play();
+}
+document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('[data-intro]'))open()});
+/* otomatis hanya untuk tamu yang belum pernah lihat; yang sudah login tidak kena apa-apa */
+try{
+  /* tamu (belum login): putar otomatis tanpa tombol lewati. Yang sudah login tidak kena apa-apa. */
+  if(!localStorage.getItem('semester5_token')&&!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){
+    var go=function(){
+      var lg=document.getElementById('login');
+      if(document.body.classList.contains('guest')&&!localStorage.getItem('semester5_token')&&(!lg||lg.classList.contains('hidden')))open();
+    };
+    var wait=new Promise(function(r){setTimeout(r,1500)});
+    Promise.race([document.fonts?document.fonts.ready:wait,wait]).then(go,go);
+  }
+}catch(e){}
 })();
 </script>
 </body>
