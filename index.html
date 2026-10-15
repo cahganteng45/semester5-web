@@ -1214,9 +1214,9 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 /* iOS Safari kadang membiarkan animasi masuk halaman macet di opacity 0 (konten kosong / terlambat muncul).
    Di iOS: animasi halaman cukup fade ringan tanpa geser/skala dan tanpa animasi bertingkat di anak-anaknya. */
 @supports (-webkit-touch-callout:none){
-  .view.active{animation:viewfade .3s ease backwards}
+  .view.active{animation:none!important}
   @keyframes viewfade{from{opacity:0}to{opacity:1}}
-  #view-materi.active>*,#view-jadwal.active>*,#view-settings.active>*,#view-upload.active>*{animation:none!important}
+  #view-home.active>*,#view-materi.active>*,#view-jadwal.active>*,#view-settings.active>*,#view-upload.active>*,.stag .stg{animation:none!important;opacity:1}
 }
 </style>
 
@@ -7102,6 +7102,32 @@ try{
     },1000);
   }
 }catch(e){}
+})();
+</script>
+<script>
+/* jaring pengaman: kalau animasi masuk macet di opacity 0 (sering di iOS Safari), paksa tampil */
+(function(){
+  var t=null;
+  function fix(){
+    try{
+      var v=document.querySelector('.view.active');if(!v)return;
+      var list=[v].concat(Array.prototype.slice.call(v.children),Array.prototype.slice.call(v.querySelectorAll('.stg')));
+      list.forEach(function(e){
+        if(e.classList.contains('hidden'))return;
+        var cs=getComputedStyle(e);
+        if(cs.display==='none'||cs.visibility==='hidden')return;
+        if(parseFloat(cs.opacity)<.05){
+          if(e.getAnimations)e.getAnimations().forEach(function(a){try{a.finish()}catch(x){}});
+          e.style.animation='none';e.style.opacity='1';e.style.transform='none';
+        }
+      });
+    }catch(e){}
+  }
+  function soon(){clearTimeout(t);t=setTimeout(fix,900)}
+  try{new MutationObserver(soon).observe(document.body,{attributes:true,attributeFilter:['class'],subtree:true,childList:true})}catch(e){}
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)soon()});
+  window.addEventListener('pageshow',soon);
+  setInterval(fix,3000);soon();
 })();
 </script>
 </body>
