@@ -5362,7 +5362,14 @@ function fOpenMember(pid) {
     : (m.owner ? CS_ROWS : `<dt>Username</dt><dd>${esc(m.mask)}</dd>`);
   const cur = verOf(m.pid);
   const ctl = adm && !m.owner ? `<div class="fgver"><div class="fgchips">${["Terverifikasi", "Ketua Kelas", "Sekretaris", "Bendahara", "Asisten Lab"].map((x) => `<button type="button" data-pre="${esc(x)}">${esc(x)}</button>`).join("")}</div><input class="input" id="fgVerIn" maxlength="30" placeholder="Keterangan centang" value="${esc(cur)}"><div class="fgrow"><button type="button" class="btn btn-primary" id="fgVerOn">${cur ? "Perbarui centang" : "Beri centang"}</button>${cur ? '<button type="button" class="btn" id="fgVerOff">Cabut</button>' : ""}</div></div>` : "";
-  const s = fgSheet(`<div>${avatarHtml(m, "l")}</div><h3>${nameHtml(m.mine ? m.name + " (kamu)" : m.name, m.owner, verOf(m.pid))}</h3>${m.bio ? `<p class="fgsub">${esc(m.bio)}</p>` : ""}<dl>${rows}</dl>${adm ? '<p class="fgnote">Username asli dan NIM hanya terlihat oleh admin.</p>' : ""}${ctl}<button type="button" class="btn" style="margin-top:14px;width:100%" data-close>Tutup</button>`);
+  const s = fgSheet(`<div>${avatarHtml(m, "l")}</div><h3>${nameHtml(m.mine ? m.name + " (kamu)" : m.name, m.owner, verOf(m.pid))}</h3>${m.bio ? `<p class="fgsub">${esc(m.bio)}</p>` : ""}<dl>${rows}</dl>${adm ? '<p class="fgnote">Username asli dan NIM hanya terlihat oleh admin.</p>' : ""}${ctl}${m.mine ? "" : '<button type="button" class="btn btn-primary" style="margin-top:14px;width:100%" data-msg>Kirim pesan</button>'}<button type="button" class="btn" style="margin-top:${m.mine ? 14 : 8}px;width:100%" data-close>Tutup</button>`);
+  const dm = s.querySelector("[data-msg]");
+  if (dm) dm.addEventListener("click", () => {
+    s.remove();
+    document.querySelectorAll(".fgsheet").forEach((x) => x.remove());
+    if (fgEl) fgEl.classList.remove("show");
+    if (m.owner && !isAdmin) inOpen(); else inOpen({ pid: m.pid, name: m.name || "Chat" });
+  });
   s.querySelector("[data-close]").addEventListener("click", () => s.remove());
   const mImg = s.querySelector("img.av");
   if (mImg) { mImg.style.cursor = "zoom-in"; mImg.addEventListener("click", () => viewPhoto(mImg.src)); }
@@ -5409,7 +5416,7 @@ function fOpenGroup() {
     fgEl.addEventListener("click", async (e) => {
       if (e.target.closest("#fgBack")) { fgEl.classList.remove("show"); return; }
       const mb = e.target.closest("[data-pid]");
-      if (mb) { fOpenMember(mb.dataset.pid); return; }
+      if (mb) { const mem = fGroupMembers.find((x) => x.pid === mb.dataset.pid); showProfile(mb.dataset.pid, mem || null); return; }
       if (e.target.closest("#fgCam") && isAdmin) { $("fgFile").click(); return; }
       if (e.target.closest("#fgPhoto")) {
         const gi = fgEl.querySelector("#fgPhoto img.fgimg");
@@ -6773,6 +6780,7 @@ async function showProfile(pid, hint) {
   if (mb) mb.addEventListener("click", () => {
     s.remove();
     document.querySelectorAll(".fgsheet").forEach((x) => x.remove());
+    if (fgEl) fgEl.classList.remove("show");
     const nm = p.name || "Chat";
     if (p.owner && !isAdmin) inOpen(); else inOpen({ pid, name: nm });
   });
