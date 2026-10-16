@@ -262,6 +262,48 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:14px;text-align:center}
 .stat b{display:block;font-family:var(--font-d);font-size:24px;color:var(--brand)}
 .stat small{color:var(--mute);font-size:12px}
+.aurow{display:flex;align-items:center;gap:12px;width:100%;padding:11px 4px;text-align:left;color:var(--ink);border-top:1px solid var(--line);border-radius:12px;transition:background .15s}
+.aurow:first-child{border-top:0}
+.aurow:active{background:var(--brand-soft)}
+.aurow .aut{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.aurow .aut b{font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.aurow .aut small{font-size:12.5px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.aurow .aub{font-style:normal;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:99px;background:var(--red-soft);color:var(--red);flex:0 0 auto}
+.chv{width:16px;height:16px;color:var(--mute);flex:0 0 auto;opacity:.7}
+.av.u{width:44px;height:44px;font-size:15px}
+.av.uh{width:76px;height:76px;font-size:26px}
+.rsheet.usheet{max-height:88vh}
+.rsheet.usheet .ubody{flex:1;min-height:0;overflow-y:auto;padding:4px 16px 14px;display:flex;flex-direction:column;gap:14px}
+.uhead{display:flex;align-items:center;gap:14px;padding:6px 2px 0}
+.uhn{min-width:0;display:flex;flex-direction:column;gap:2px}
+.uhn b{font-family:var(--font-d);font-size:20px;line-height:1.2;overflow-wrap:anywhere}
+.uhn span{color:var(--mute);font-size:14px}
+.ubadges{display:flex;gap:6px;margin-top:6px}
+.ub{font-style:normal;font-size:11px;font-weight:800;padding:3px 10px;border-radius:99px}
+.ub-g{background:color-mix(in srgb,var(--ok) 16%,var(--surface));color:var(--ok)}
+.ub-r{background:var(--red-soft);color:var(--red)}
+.ub-a{background:var(--brand-soft);color:var(--brand)}
+.ustats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ustats div{background:var(--bg);border-radius:14px;padding:11px 6px;text-align:center}
+.ustats b{display:block;font-family:var(--font-d);font-size:20px}
+.ustats small{font-size:11.5px;color:var(--mute)}
+.ucard{background:var(--bg);border-radius:14px;padding:4px 14px}
+.uinf{display:flex;justify-content:space-between;gap:14px;padding:9px 0;font-size:13px;border-top:1px solid var(--line)}
+.uinf:first-child{border-top:0}
+.uinf span{color:var(--mute);flex:0 0 auto}
+.uinf b{font-weight:600;text-align:right;overflow-wrap:anywhere;min-width:0}
+.ugt{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:0 4px 6px}
+.ugc{background:var(--bg);border-radius:14px;overflow:hidden}
+.uact{display:flex;align-items:center;gap:12px;width:100%;padding:11px 14px;text-align:left;color:var(--ink);border-top:1px solid var(--line)}
+.uact:first-child{border-top:0}
+.uact:active{background:var(--brand-soft)}
+.uai{width:34px;height:34px;border-radius:10px;background:var(--surface);display:grid;place-items:center;flex:0 0 auto}
+.uai .i{width:18px;height:18px}
+.uat{flex:1;min-width:0;font-weight:700;font-size:14.5px;display:flex;flex-direction:column}
+.uat small{font-weight:500;font-size:12px;color:var(--mute);overflow-wrap:anywhere}
+.uact.warn .uai{background:var(--amber-soft);color:var(--amber)}
+.uact.dng{color:var(--red)}
+.uact.dng .uai{background:var(--red-soft);color:var(--red)}
 .au{padding:14px 0;border-top:1px solid var(--line)}
 .au:first-child{border-top:0;padding-top:0}
 .au .n{font-weight:700;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
@@ -4085,21 +4127,52 @@ $("adTabs").addEventListener("click", (e) => {
   if (b) setAdTab(b.dataset.tab);
 });
 function adUserHtml(u) {
-  const me = u.username === "admin", un = esc(u.username);
-  return `<div class="au"><div class="n">${esc(u.full_name || u.username)} <span class="tag">@${un}</span>${u.banned ? '<span class="vis priv">Banned</span>' : ""}</div>
-    <div class="m">NIM ${esc(u.nim || "belum diisi")} · Login ${u.login_count || 0} · Upload ${u.upload_count || 0} · IP ${esc(u.last_ip || "-")} · ${esc(u.last_device || "-")}</div>
-    <div class="mbtns">
-      ${me ? "" : `<button class="mbtn" data-ad="${u.banned ? "unban_web" : "ban_web"}" data-t="${un}">${u.banned ? "Unban" : "Ban"}</button>`}
-      ${me ? "" : `<button class="mbtn" data-ad="logout_web" data-t="${un}">Keluarkan semua perangkat</button>`}
-      <button class="mbtn" data-ad="reset_web" data-t="${un}">Reset password</button>
-      <button class="mbtn" data-ad="set_name" data-t="${un}">Ubah nama</button>
-      ${me ? "" : `<button class="mbtn" data-ad="set_username" data-t="${un}">Ganti username</button>`}
-      <button class="mbtn" data-ad="set_nim" data-t="${un}">Ubah NIM</button>
-      <button class="mbtn" data-ad="set_avatar" data-t="${un}">${u.has_avatar ? "Ganti foto" : "Pasang foto"}</button>
-      ${u.has_avatar ? `<button class="mbtn" data-ad="remove_avatar" data-t="${un}">Hapus foto</button>` : ""}
-      ${u.last_ip && !me ? `<button class="mbtn" data-ad="ban_ip" data-t="${esc(u.last_ip)}">Ban IP</button>` : ""}
-      ${me ? "" : `<button class="mbtn del" data-ad="delete_web" data-t="${un}">Hapus</button>`}
+  const o = { name: u.full_name || u.username, pid: u.pid, av: u.av, avv: u.avv };
+  return `<button type="button" class="aurow" data-auopen="${esc(u.username)}">${avatarHtml(o, "u")}
+    <span class="aut"><b>${esc(u.full_name || u.username)}${u.banned ? '<em class="aub">Banned</em>' : ""}</b>
+    <small>@${esc(u.username)} · ${esc(u.nim || "NIM belum diisi")}</small></span>
+    <svg class="i chv"><use href="#i-chev"/></svg></button>`;
+}
+function openUserSheet(un) {
+  const u = (adData.web_users || []).find((x) => x.username === un);
+  if (!u) return;
+  const me = u.username === "admin", n = esc(u.username);
+  const act = (a, icon, label, desc, t, cls) => `<button type="button" class="uact ${cls || ""}" data-ad="${a}" data-t="${esc(t || u.username)}">
+    <span class="uai"><svg class="i"><use href="#i-${icon}"/></svg></span><span class="uat">${label}<small>${desc}</small></span><svg class="i chv"><use href="#i-chev"/></svg></button>`;
+  const grp = (title, items) => items.filter(Boolean).length ? `<div class="ugrp"><div class="ugt">${title}</div><div class="ugc">${items.filter(Boolean).join("")}</div></div>` : "";
+  const info = (k, v) => `<div class="uinf"><span>${k}</span><b>${v}</b></div>`;
+  const bg = document.createElement("div");
+  bg.className = "rsheet-bg";
+  bg.innerHTML = `<div class="rsheet usheet" role="dialog" aria-modal="true"><div class="grab"></div>
+    <div class="ubody">
+      <div class="uhead">${avatarHtml({ name: u.full_name || u.username, pid: u.pid, av: u.av, avv: u.avv }, "uh")}
+        <div class="uhn"><b>${esc(u.full_name || u.username)}</b><span>@${n}</span>
+        <div class="ubadges">${me ? '<i class="ub ub-a">Admin</i>' : ""}${u.banned ? '<i class="ub ub-r">Banned</i>' : '<i class="ub ub-g">Aktif</i>'}</div></div></div>
+      <div class="ustats"><div><b>${u.login_count || 0}</b><small>Login</small></div><div><b>${u.upload_count || 0}</b><small>Upload</small></div><div><b>${u.sessions || 0}</b><small>Perangkat aktif</small></div></div>
+      <div class="ucard">${info("NIM", esc(u.nim || "Belum diisi"))}${info("IP terakhir", esc(u.last_ip || "-"))}${info("Perangkat", esc(u.last_device || "-"))}${info("Login terakhir", esc(u.last_login ? devWhen(u.last_login) : "Belum pernah"))}${info("Akun dibuat", esc(u.created_at ? devWhen(u.created_at) : "-"))}</div>
+      ${grp("Profil", [
+        act("set_name", "edit", "Ubah nama", "Nama lengkap yang tampil"),
+        me ? "" : act("set_username", "user", "Ganti username", "Pesan &amp; upload ikut pindah"),
+        act("set_nim", "edit", "Ubah NIM", "Nomor induk mahasiswa"),
+        act("set_avatar", "up", u.has_avatar ? "Ganti foto" : "Pasang foto", "Foto profil akun ini"),
+        u.has_avatar ? act("remove_avatar", "eyeoff", "Hapus foto", "Kembali ke inisial") : ""])}
+      ${grp("Keamanan", [
+        act("reset_web", "key", "Reset password", "Buat password baru"),
+        me ? "" : act("logout_web", "out", "Keluarkan semua perangkat", "Paksa login ulang"),
+        u.last_ip && !me ? act("ban_ip", "shield", "Blokir IP terakhir", esc(u.last_ip), u.last_ip) : ""])}
+      ${me ? "" : grp("Zona berbahaya", [
+        act(u.banned ? "unban_web" : "ban_web", "shield", u.banned ? "Buka blokir akun" : "Ban akun", u.banned ? "Izinkan login lagi" : "Tidak bisa login", "", "warn"),
+        act("delete_web", "trash", "Hapus akun", "Permanen, pesan jadi \"Akun dihapus\"", "", "dng")])}
     </div></div>`;
+  const close = () => { document.removeEventListener("keydown", onKey); bg.remove(); };
+  const onKey = (e) => { if (e.key === "Escape") close(); };
+  bg.addEventListener("click", (e) => {
+    if (e.target === bg) return close();
+    const b = e.target.closest("[data-ad]");
+    if (b) { close(); adAction(b.dataset.ad, b.dataset.t); }
+  });
+  document.addEventListener("keydown", onKey);
+  document.body.appendChild(bg);
 }
 function renderAdUsers() {
   const q = $("adUserSearch").value.trim().toLowerCase();
@@ -4195,10 +4268,13 @@ $("view-admin").addEventListener("click", (e) => {
   adLimit[k] += 10;
   ({ users: renderAdUsers, tg: renderAdTg, ips: renderAdIps })[k]();
 });
-$("view-admin").addEventListener("click", async (e) => {
+$("view-admin").addEventListener("click", (e) => {
+  const o = e.target.closest("[data-auopen]");
+  if (o) return openUserSheet(o.dataset.auopen);
   const b = e.target.closest("[data-ad]");
-  if (!b) return;
-  const a = b.dataset.ad, t = b.dataset.t;
+  if (b) adAction(b.dataset.ad, b.dataset.t);
+});
+async function adAction(a, t) {
   let v = "";
   if (a === "set_avatar") {
     const pick = document.createElement("input");
@@ -4247,7 +4323,7 @@ $("view-admin").addEventListener("click", async (e) => {
     showToast("Berhasil.");
     loadAdmin();
   } catch (err) { showToast(err.message, true); }
-});
+}
 $("adCreate").addEventListener("click", async () => {
   try {
     const nim = $("adNewNim").value.trim();
