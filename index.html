@@ -4093,6 +4093,7 @@ function adUserHtml(u) {
       ${me ? "" : `<button class="mbtn" data-ad="logout_web" data-t="${un}">Keluarkan semua perangkat</button>`}
       <button class="mbtn" data-ad="reset_web" data-t="${un}">Reset password</button>
       <button class="mbtn" data-ad="set_name" data-t="${un}">Ubah nama</button>
+      ${me ? "" : `<button class="mbtn" data-ad="set_username" data-t="${un}">Ganti username</button>`}
       <button class="mbtn" data-ad="set_nim" data-t="${un}">Ubah NIM</button>
       <button class="mbtn" data-ad="set_avatar" data-t="${un}">${u.has_avatar ? "Ganti foto" : "Pasang foto"}</button>
       ${u.has_avatar ? `<button class="mbtn" data-ad="remove_avatar" data-t="${un}">Hapus foto</button>` : ""}
@@ -4223,6 +4224,12 @@ $("view-admin").addEventListener("click", async (e) => {
       fields: [{ key: "name", label: "Nama lengkap baru", placeholder: "Contoh: Andi Saputra", required: true }] });
     if (!r) return;
     v = r.name;
+  }
+  if (a === "set_username") {
+    const r = await openModal({ title: "Ganti username", text: "Akun @" + t + ". Pesan dan upload lamanya ikut pindah. Dia harus login ulang di semua perangkat.", icon: "edit", ok: "Ganti",
+      fields: [{ key: "u", label: "Username baru", placeholder: "3-24 karakter: huruf, angka, _ atau -", required: true }] });
+    if (!r) return;
+    v = r.u;
   }
   if (a === "set_nim") {
     const r = await openModal({ title: "Ubah NIM", text: "Akun @" + t, icon: "edit", ok: "Simpan",
