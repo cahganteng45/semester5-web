@@ -832,7 +832,20 @@ html[data-cstyle="msg"] .fmsg.me .fname,html[data-cstyle="msg"] .fmsg.me a{color
 .devrow .dvt{flex:1;min-width:0}
 .devrow .dvt b{display:block;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .devrow .dvt small{display:block;font-size:12px;color:var(--mute);line-height:1.4}
+.maintcard .mrow{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.maintcard h3{margin:0 0 2px}.maintcard small{color:var(--mute);font-size:12.5px}
+.tgl{position:relative;flex:0 0 auto;width:52px;height:30px;border-radius:99px;border:0;background:var(--line);transition:background .2s;padding:0}
+.tgl i{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.tgl[aria-checked="true"]{background:var(--amber)}
+.tgl[aria-checked="true"] i{transform:translateX(22px)}
+.tgl:disabled{opacity:.6}
 .devrow .dvon{color:#16a34a;font-weight:700}
+.devrow{align-items:flex-start}
+.devrow .dvt b{white-space:normal;margin:2px 0 6px}
+.devrow .dvbadge{display:inline-block;background:var(--brand-soft);color:var(--brand);font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:10px;margin-bottom:6px}
+.devrow .dvinfo{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--ink);line-height:1.45}
+.devrow .dvinfo span{overflow-wrap:anywhere;word-break:break-all}
+.devrow .dvinfo span:last-child{color:var(--mute);font-size:12px}
 .devrow .dvout{border:1px solid var(--red);background:var(--red-soft);color:var(--red);font-weight:800;font-size:12.5px;padding:8px 12px;border-radius:99px;flex:0 0 auto}
 .devall{width:100%;margin-top:10px;padding:13px;border-radius:99px;border:1px solid var(--red);background:var(--red-soft);color:var(--red);font-weight:800;font-size:14px}
 .stempty{text-align:center;color:var(--mute);padding:90px 20px 0;font-size:14px;line-height:1.5}
@@ -1479,6 +1492,7 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 <div class="seg" id="adTabs"><button type="button" class="active" data-tab="akun">Akun</button><button type="button" data-tab="blokir">Blokir</button><button type="button" data-tab="log">Log</button><button type="button" data-tab="forum">Forum</button></div>
 
 <div class="adpane" data-pane="akun">
+<div class="card maintcard"><div class="mrow"><div><h3>Mode maintenance</h3><small id="adMaintSub">Website terbuka untuk semua</small></div><button type="button" class="tgl" id="adMaint" role="switch" aria-checked="false" aria-label="Mode maintenance"><i></i></button></div></div>
 <div class="card"><h3>Buat akun</h3><div class="field"><input class="input" id="adNewUser" placeholder="Username" autocapitalize="none"></div><div class="field"><input class="input" id="adNewName" placeholder="Nama lengkap"></div><div class="field"><input class="input" id="adNewNim" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="NIM (24.230.0000)"></div><button class="btn btn-primary" id="adCreate" type="button">Buat akun</button></div>
 <div class="card"><h3>Akun website <span class="tag" id="adUserCount"></span></h3><input class="input search" id="adUserSearch" type="search" placeholder="Cari username, nama, atau NIM"><div id="adUsers"></div></div>
 </div>
@@ -2899,6 +2913,7 @@ async function initApp() {
     if (res.status >= 500) { initTransient = true; lastInitError = "Server sedang sibuk. Coba lagi sebentar lagi."; return false; }
     if (!res.ok || !data.ok) throw new Error(data.error || "Sesi tidak valid.");
     guest = false; document.body.classList.remove("guest");
+    devIPsSent = false; setTimeout(() => { try { reportIPs(); } catch (e) {} }, 1500);
     topicsList = []; backToTopics();
     $("navLogout").setAttribute("aria-label", "Keluar"); $("navLogout").title = "Keluar";
     hubHtmlPrev = ""; $("hubList").innerHTML = ""; delete $("hubList").dataset.g;
@@ -3556,7 +3571,22 @@ document.addEventListener("click", (e) => {
 });
 
 /* ---------- perangkat yang login ---------- */
-let devList = [], devModel = "";
+let devList = [], devModel = "", devIPsSent = false;
+async function detectIP(host) {
+  try {
+    const c = new AbortController(), t = setTimeout(() => c.abort(), 5000);
+    const r = await fetch("https://" + host + "/?format=json", { signal: c.signal, cache: "no-store" });
+    clearTimeout(t);
+    return String((await r.json()).ip || "");
+  } catch (e) { return ""; }       // jaringan tanpa IPv4/IPv6 salah satunya: kosongkan
+}
+async function reportIPs() {
+  if (devIPsSent || !token) return;
+  devIPsSent = true;
+  const [ip4, ip6] = await Promise.all([detectIP("api4.ipify.org"), detectIP("api6.ipify.org")]);
+  try { await apiCall("/api/sessions/ips", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ip4, ip6 }) }); }
+  catch (e) { devIPsSent = false; }
+}
 try { if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) navigator.userAgentData.getHighEntropyValues(["model"]).then((v) => { devModel = String(v.model || "").trim(); }).catch(() => {}); } catch (e) {}
 const devIcon = (n) => (/iphone|android|redmi|xiaomi|samsung|oppo|vivo|realme|poco|pixel|mobile|ios/i.test(n || "") ? "📱" : /ipad|tablet/i.test(n || "") ? "📲" : "💻");
 function devSeen(x) {
@@ -3567,9 +3597,15 @@ function devSeen(x) {
   if (m < 5) return '<span class="dvon">Aktif sekarang</span>';
   return "Terakhir aktif " + new Date(t).toLocaleDateString("id-ID", { day: "numeric", month: "short" }) + ", " + new Date(t).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
 }
+function devWhen(iso) {
+  const t = new Date(iso || 0); if (!t.getTime()) return "-";
+  const p = (n) => String(n).padStart(2, "0");
+  return t.getFullYear() + "-" + p(t.getMonth() + 1) + "-" + p(t.getDate()) + " " + p(t.getHours()) + ":" + p(t.getMinutes()) + ":" + p(t.getSeconds());
+}
 function devRow(x) {
-  const ip = x.ip ? "IP " + esc(x.ip) + " · " : "";
-  return `<div class="devrow"><span class="dvi">${devIcon(x.device)}</span><div class="dvt" data-dvname="${esc(x.id)}"><b>${esc(x.device || "Perangkat tidak dikenal")} ✎</b><small>${ip}${devSeen(x)}</small></div>${x.current ? "" : `<button type="button" class="dvout" data-dvout="${esc(x.id)}">Keluarkan</button>`}</div>`;
+  return `<div class="devrow"><div class="dvt" data-dvname="${esc(x.id)}">${x.current ? '<span class="dvbadge">Perangkat saat ini</span>' : ""}<b>${devIcon(x.device)} ${esc(x.device || "Perangkat tidak dikenal")} ✎</b>`
+    + `<div class="dvinfo"><span>IPv4: ${esc(x.ip4 || "-")}</span><span>IPv6: ${esc(x.ip6 || "-")}</span><span>Waktu login: ${esc(devWhen(x.created))}</span><span>Lokasi: ${esc(x.location || "Tidak diketahui")}</span><span>${devSeen(x)}</span></div></div>`
+    + (x.current ? "" : `<button type="button" class="dvout" data-dvout="${esc(x.id)}">Keluarkan</button>`) + `</div>`;
 }
 function renderDevices() {
   const box = $("devList"); if (!box) return;
@@ -3585,6 +3621,7 @@ async function loadDevices(silent) {
   const box = $("devList"); if (!box) return;
   if (!silent) box.innerHTML = '<p class="stempty" style="padding:40px 12px 0">Memuat…</p>';
   try {
+    await reportIPs();
     const res = await apiCall("/api/sessions" + (devModel ? "?model=" + encodeURIComponent(devModel) : ""));
     if (res.status === 404) { if (!silent) box.innerHTML = '<p class="stempty" style="padding:40px 12px 0"><b>Fitur ini belum aktif di server</b>Server perlu diperbarui dulu supaya daftar perangkat bisa dimuat.</p>'; return; }
     const d = await res.json().catch(() => ({}));
@@ -4074,6 +4111,21 @@ function renderAdIps() {
     || `<div class="empty" style="padding:12px">Tidak ada IP diblokir.</div>`)
     + (all.length > shown.length ? moreBtn("ips", `Tampilkan lebih banyak (${all.length - shown.length} lagi)`) : "");
 }
+function setMaintUI(on) {
+  const b = $("adMaint"); if (!b) return;
+  b.setAttribute("aria-checked", on ? "true" : "false");
+  $("adMaintSub").textContent = on ? "AKTIF: website ditutup untuk non-admin" : "Website terbuka untuk semua";
+}
+$("adMaint").addEventListener("click", async () => {
+  const b = $("adMaint"), next = b.getAttribute("aria-checked") !== "true";
+  b.disabled = true;
+  try {
+    const d = await adminAct("set_maintenance", "", next ? "1" : "0");
+    setMaintUI(!!d.maintenance);
+    showToast(d.maintenance ? "Maintenance dinyalakan." : "Maintenance dimatikan.");
+  } catch (e) { showToast(e.message, true); }
+  b.disabled = false;
+});
 async function loadAdmin() {
   try {
     const res = await apiCall("/api/admin/overview");
@@ -4082,7 +4134,7 @@ async function loadAdmin() {
     const s = d.stats;
     $("adStats").innerHTML = [["Akun", s.accounts], ["Materi", s.materials], ["Topik", s.topics]]
       .map(([l, v]) => `<div class="stat"><b>${v}</b><small>${l}</small></div>`).join("");
-    adData = d;
+    adData = d; setMaintUI(!!d.maintenance);
     renderAdUsers(); renderAdTg(); renderAdIps();
     setAdTab(adTab);
     if (Date.now() < adStagUntil) { adStagUntil = 0; stagger($("view-admin"), ".stat,.adpane:not(.hidden)>.card"); }
