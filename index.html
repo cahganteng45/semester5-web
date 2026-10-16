@@ -3874,6 +3874,8 @@ $("dueBanner").addEventListener("click", () => {
 let pushOn = false, deferredInstall = null;
 const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 if (standalone) { try { localStorage.setItem("s5_app", "1"); } catch (e) {} }   // tanda: aplikasi pernah dibuka dari ikon di perangkat ini
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const iosNeedsInstall = () => isIOS && !standalone;   // iPhone/iPad: izin notifikasi hanya bisa dari aplikasi di Layar Utama
 const pushSupported = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
 const b64ToU8 = (b) => {
   const r = atob((b + "=".repeat((4 - (b.length % 4)) % 4)).replace(/-/g, "+").replace(/_/g, "/"));
@@ -3944,10 +3946,12 @@ function updateNotifBtn() {
   if (!pushSupported()) { b.textContent = "Tidak didukung di browser ini"; b.disabled = true; return; }
   if (pushOn) { b.textContent = "Notifikasi aktif ✓"; b.disabled = true; return; }
   b.disabled = false;
-  b.textContent = Notification.permission === "denied" ? "Notifikasi diblokir (atur di browser)" : "Aktifkan notifikasi";
+  if (iosNeedsInstall()) { b.textContent = "Pasang ke Layar Utama dulu"; return; }
+  b.textContent = Notification.permission === "denied" ? "Notifikasi diblokir (atur di Pengaturan iPhone/browser)" : "Aktifkan notifikasi";
 }
 $("notifBtn").addEventListener("click", async () => {
-  if (Notification.permission === "denied") return showToast("Notifikasi diblokir. Aktifkan lewat pengaturan situs di browser.", true);
+  if (iosNeedsInstall()) return showToast("Di iPhone: buka lewat Safari, ketuk Bagikan, Tambahkan ke Layar Utama, lalu buka Study Hub dari ikonnya dan aktifkan notifikasi.", true);
+  if (Notification.permission === "denied") return showToast(isIOS ? "Diblokir. Buka Pengaturan iPhone > Notifikasi > Study Hub lalu izinkan." : "Notifikasi diblokir. Aktifkan lewat pengaturan situs di browser.", true);
   const ok = await syncPush(true);
   showToast(ok ? "Notifikasi aktif." : "Notifikasi belum aktif.", !ok);
   updateNotifBtn(); notifDiag();
