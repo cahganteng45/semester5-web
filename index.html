@@ -472,6 +472,20 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 .rrow .rn small{display:block;font-weight:400;font-size:11px;color:var(--mute)}
 .rrow .re{font-size:22px;line-height:1}
 .rrow:active{background:var(--brand-soft)}
+.rhead{padding:6px 18px 12px;border-bottom:1px solid var(--line)}
+.rtitle{font-weight:800;font-size:17px;margin-bottom:12px}
+.rbar{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.rbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#34b7f1,#25d366);transition:width .4s ease}
+.rsumt{display:flex;justify-content:space-between;margin-top:7px;font-size:12.5px;color:var(--mute)}
+.rsumt b{color:var(--ink)}
+.rsent{display:flex;align-items:center;gap:8px;margin-top:12px;padding:9px 12px;border-radius:12px;background:var(--brand-soft);font-size:13px}
+.rsent .i{width:16px;height:16px;color:var(--brand)}
+.rsent span{color:var(--mute)}.rsent b{margin-left:auto;font-weight:700}
+.rsec{display:flex;align-items:center;gap:8px;padding:14px 18px 4px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.rsec b{background:var(--brand-soft);color:var(--ink);border-radius:99px;padding:1px 9px;font-size:11.5px;letter-spacing:0}
+.rempty{padding:8px 18px 12px;color:var(--mute);font-size:13px}
+.rrow .rtime{display:flex;align-items:center;gap:5px;flex:0 0 auto;font-size:11.5px;color:var(--mute)}
+.rrow .rtime .i{width:14px;height:14px;color:#34b7f1}
 .rempty{padding:22px;text-align:center;color:var(--mute);font-size:14px}
 .freactbar{display:flex;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--line)}
 .fmenu .freactbar button{width:auto;display:block;padding:4px 6px;border:0;font-size:24px;line-height:1;border-radius:10px}
@@ -4943,12 +4957,30 @@ async function openFReaders(id) {
   } catch (e) { showToast(e.message, true); return; }
   const bg = document.createElement("div");
   bg.className = "rsheet-bg";
-  const rows = (arr) => arr.map((u) => `<div class="rrow">${avatarHtml(u, "s")}<span class="rn">${nameHtml(u.name, u.owner, verOf(u.pid))}</span></div>`).join("");
-  const sec = (title, arr, empty) => `<div style="padding:10px 16px 4px;font-weight:700;font-size:13px;color:var(--mute)">${title} (${arr.length})</div>` +
-    (arr.length ? rows(arr) : `<div style="padding:6px 16px 10px;color:var(--mute);font-size:13px">${empty}</div>`);
+  const pad = (n) => String(n).padStart(2, "0");
+  const dayLabel = (d) => {
+    const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+    const diff = Math.round((t0 - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 864e5);
+    if (diff === 0) return "Hari ini"; if (diff === 1) return "Kemarin";
+    return d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: d.getFullYear() === t0.getFullYear() ? undefined : "numeric" });
+  };
+  const when = (d) => dayLabel(d) + ", " + pad(d.getHours()) + "." + pad(d.getMinutes());
+  const sentD = d.sent ? new Date(d.sent) : null;
+  const readN = d.read.length, total = d.total || (readN + (d.unread ? d.unread.length : 0));
+  const pct = total ? Math.round((readN / total) * 100) : 0;
+  const rows = (arr, seen) => arr.map((u) => {
+    const t = seen && u.at ? new Date(u.at * 1000) : null;
+    return `<div class="rrow">${avatarHtml(u, "s")}<span class="rn">${nameHtml(u.name, u.owner, verOf(u.pid))}</span>`
+      + (t ? `<span class="rtime"><svg class="i"><use href="#i-eye"/></svg>${esc(when(t))}</span>` : "") + `</div>`;
+  }).join("");
+  const sec = (title, arr, empty, seen) => `<div class="rsec"><span>${title}</span><b>${arr.length}</b></div>` +
+    (arr.length ? rows(arr, seen) : `<div class="rempty">${empty}</div>`);
   bg.innerHTML = `<div class="rsheet" role="dialog" aria-modal="true"><div class="grab"></div>
-    <div style="padding:6px 16px 2px;font-weight:800;font-size:16px">Info pesan</div>
-    <div class="rlist">${sec("Dibaca oleh", d.read, "Belum ada yang membaca.")}${d.unread ? sec("Belum membaca", d.unread, "Semua anggota sudah membaca.") : ""}</div></div>`;
+    <div class="rhead"><div class="rtitle">Info pesan</div>
+      <div class="rsum"><div class="rbar"><i style="width:${pct}%"></i></div>
+        <div class="rsumt"><span>${readN} dari ${total} sudah membaca</span><b>${pct}%</b></div></div>
+      ${sentD ? `<div class="rsent"><svg class="i"><use href="#i-clock"/></svg><span>Terkirim</span><b>${esc(when(sentD))}</b></div>` : ""}</div>
+    <div class="rlist">${sec("Dibaca oleh", d.read, "Belum ada yang membaca.", true)}${d.unread ? sec("Belum membaca", d.unread, "Semua anggota sudah membaca.", false) : ""}</div></div>`;
   const close = () => { document.removeEventListener("keydown", onKey); bg.remove(); };
   const onKey = (e) => { if (e.key === "Escape") close(); };
   document.body.appendChild(bg);
