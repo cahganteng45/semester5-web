@@ -773,6 +773,13 @@ img.av.xl{cursor:zoom-in}
 .pvtiles{display:flex;gap:10px;margin-top:18px}
 .pvtile{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border-radius:16px;background:var(--bg);color:var(--ink);font-size:13px;font-weight:600}
 .pvtile:active{filter:brightness(.94)}
+video.av{object-fit:cover;background:var(--brand-soft)}
+.animprog{position:fixed;inset:0;z-index:2100;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:24px}
+.animbox{width:min(340px,100%);background:var(--surface);color:var(--ink);border-radius:20px;padding:22px;text-align:center;display:flex;flex-direction:column;gap:10px}
+.animbox p{margin:0;font-size:14px;color:var(--mute)}
+.animbox small{font-size:12px;color:var(--mute)}
+.animbar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.animbar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#34b7f1,#25d366);transition:width .25s linear}
 .inrow .inav{display:inline-flex;flex-shrink:0;border-radius:50%;cursor:pointer}
 .inrow1 b .vbadge{width:1em;height:1em}
 #view-forum.active{display:flex;flex-direction:column;position:fixed;left:0;right:0;top:var(--vvt,0px);height:var(--vvh,100dvh);max-width:none;margin:0;z-index:60;background:var(--bg);animation:none;overflow:hidden;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px calc(env(safe-area-inset-bottom,0px) + 10px)}
@@ -1593,7 +1600,7 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 <div class="subpane hidden" data-sub="profil">
 <div class="prof-hero"><div class="avatar" id="profAvatar"></div>
 <div class="row" style="gap:8px;justify-content:center"><button type="button" class="btn btn-soft" id="avPick" style="padding:9px 16px;font-size:13px">Ganti foto</button><button type="button" class="btn btn-line" id="avDel" style="padding:9px 16px;font-size:13px">Hapus foto</button></div>
-<input type="file" id="avFile" accept="image/*" class="hidden"><p>Foto otomatis dibuat HD (320 px) lalu dikecilkan, sekitar 10-20 KB.</p></div>
+<input type="file" id="avFile" accept="image/*" class="hidden"><p>Foto otomatis dibuat HD (hingga 640 px) dan versi kecil untuk daftar chat, jadi tetap tajam dan cepat dimuat.</p></div>
 <div class="card"><form id="nameForm"><div class="field"><label for="newName">Nama tampilan</label><input class="input" id="newName" maxlength="60" autocomplete="name" placeholder="Nama lengkap"></div>
 <div class="field"><label for="newBio">Bio (opsional)</label><input class="input" id="newBio" maxlength="80" placeholder="Contoh: Suka ngoding, anak kos"></div>
 <p style="color:var(--mute);font-size:13px;margin-bottom:12px">Nama bisa diganti sekali tiap 7 hari (admin tanpa batas). Username kamu tampil disamarkan.</p>
@@ -1873,11 +1880,26 @@ function avSrc(url) {
   }
   return url;
 }
+const animMiss = {};                       // pid|versi yang ternyata tidak punya video -> pakai foto statis
+const THUMB_SIZES = new Set(["xs", "s", "u"]);          // ukuran kecil memakai versi ringan; sisanya HD
+function avUrl(pid, v, thumb) { return API + "/api/avatar/" + pid + "?v=" + (v || 0) + (thumb ? "&s=t" : ""); }
+function animAvHtml(pid, v, cls, style, thumb) {
+  const ph = thumb ? "" : `background:url('${esc(avUrl(pid, v, true))}') center/cover;`;     // versi kecil sebagai placeholder
+  return `<video class="${cls}" style="${ph}${style || ""}" src="${esc(API + "/api/avatar-anim/" + pid + "?v=" + (v || 0))}" poster="${esc(avUrl(pid, v, thumb))}" data-k="${esc(pid + "|" + (v || 0))}" data-t="${thumb ? 1 : 0}" autoplay loop muted playsinline disablepictureinpicture preload="auto" onerror="animFail(this)"></video>`;
+}
+function animFail(v) {
+  animMiss[v.dataset.k] = 1;
+  const i = document.createElement("img");
+  i.className = v.className; i.alt = ""; i.src = v.poster; if (v.getAttribute("style")) i.setAttribute("style", v.getAttribute("style"));
+  v.replaceWith(i);
+}
 function avatarHtml(o, size) {
   const cls = "av " + (size || "s");
-  return o.av && o.pid
-    ? `<img class="${cls}" src="${esc(avSrc(API + "/api/avatar/" + o.pid + "?v=" + (o.avv || 0)))}" alt="" decoding="async">`
-    : `<span class="${cls}">${esc(initialsOf(o.name))}</span>`;
+  if (!(o.av && o.pid)) return `<span class="${cls}">${esc(initialsOf(o.name))}</span>`;
+  const thumb = THUMB_SIZES.has(size || "s");
+  if (o.owner && !animMiss[o.pid + "|" + (o.avv || 0)]) return animAvHtml(o.pid, o.avv || 0, cls, "", thumb);   // admin: foto bergerak di semua tempat
+  const ph = thumb ? "" : ` style="background:url('${esc(avUrl(o.pid, o.avv, true))}') center/cover"`;
+  return `<img class="${cls}"${ph} src="${esc(avSrc(avUrl(o.pid, o.avv, thumb)))}" alt="" decoding="async">`;
 }
 async function copyText(t) {
   try { await navigator.clipboard.writeText(t); }
@@ -1917,7 +1939,11 @@ let myProfile = { pid: "", av: false, avv: 0, bio: "" };
 function setMyAvatars() {
   const html = myProfile.av && myProfile.pid
     ? `<img src="${API}/api/avatar/${myProfile.pid}?v=${myProfile.avv}" alt="">` : esc(initials());
-  ["navAvatar", "setAvatar", "profAvatar", "heroAv"].forEach((id) => { const e = $(id); if (e) e.innerHTML = html; });
+  const canAnim = isAdmin && myProfile.av && myProfile.pid && !animMiss[myProfile.pid + "|" + myProfile.avv];
+  ["navAvatar", "setAvatar", "profAvatar", "heroAv"].forEach((id) => {
+    const e = $(id);
+    if (e) e.innerHTML = canAnim ? animAvHtml(myProfile.pid, myProfile.avv, "", "width:100%;height:100%;object-fit:cover", id === "navAvatar") : html;
+  });
 }
 
 let toastTimer;
@@ -2346,7 +2372,37 @@ async function compressAvatar(file) {
   ctx.imageSmoothingQuality = "high";
   ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, S, S);
   ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, S, S);
-  // WebP jauh lebih kecil untuk kualitas yang sama; Safari belum bisa membuatnya, jadi cadangannya JPEG.
+  return canvasToAvatar(c);   // WebP kalau bisa, cadangannya JPEG
+}
+const ANIM_SEC = 8;                        // durasi maksimum foto profil bergerak
+const AV_QS = [0.88, 0.8, 0.72, 0.64, 0.56, 0.48];
+function encAvatar(c, limit, qs) {
+  const formats = c.toDataURL("image/webp", 0.8).startsWith("data:image/webp") ? ["image/webp", "image/jpeg"] : ["image/jpeg"];
+  for (const f of formats) for (const q of qs) { const d = c.toDataURL(f, q); if (d.length < limit) return d; }
+  return null;
+}
+function squareCanvas(src, sw, sh, S) {            // potong persegi dari tengah lalu kecilkan ke S piksel
+  const side = Math.min(sw, sh), c = document.createElement("canvas");
+  c.width = c.height = S;
+  const ctx = c.getContext("2d");
+  ctx.imageSmoothingQuality = "high";
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, S, S);
+  ctx.drawImage(src, (sw - side) / 2, (sh - side) / 2, side, side, 0, 0, S, S);
+  return c;
+}
+function avatarPair(src, sw, sh) {                 // HD (maks 640 px) + versi kecil (128 px) untuk daftar chat
+  const side = Math.min(sw, sh);
+  let image = encAvatar(squareCanvas(src, sw, sh, Math.min(640, side)), 150000, AV_QS)
+    || encAvatar(squareCanvas(src, sw, sh, Math.min(480, side)), 150000, AV_QS);
+  const thumb = encAvatar(squareCanvas(src, sw, sh, Math.min(128, side)), 14000, [0.8, 0.7, 0.6, 0.5, 0.4]);
+  if (!image || !thumb) throw new Error("Foto terlalu rumit untuk dikecilkan. Pilih foto lain.");
+  return { image, thumb };
+}
+async function compressAvatarSet(file) {
+  const img = await loadImg(file);
+  return avatarPair(img, img.width, img.height);
+}
+function canvasToAvatar(c) {
   const formats = c.toDataURL("image/webp", 0.8).startsWith("data:image/webp") ? ["image/webp", "image/jpeg"] : ["image/jpeg"];
   for (const f of formats) {
     for (const q of [0.82, 0.72, 0.62, 0.52, 0.42]) {
@@ -2356,7 +2412,102 @@ async function compressAvatar(file) {
   }
   throw new Error("Foto terlalu rumit untuk dikecilkan. Pilih foto lain.");
 }
-$("avPick").addEventListener("click", () => $("avFile").click());
+function animOverlay() {
+  const o = document.createElement("div");
+  o.className = "animprog";
+  o.innerHTML = '<div class="animbox"><b>Memproses foto profil bergerak</b><p id="animMsg">Menyiapkan…</p><div class="animbar"><i id="animFill"></i></div><small>Jangan tutup atau pindah tab sampai selesai.</small></div>';
+  document.body.appendChild(o);
+  return { set(t, p) { o.querySelector("#animMsg").textContent = t; o.querySelector("#animFill").style.width = Math.round(Math.min(p, 1) * 100) + "%"; }, close() { o.remove(); } };
+}
+async function makeAnimAvatar(file, ui) {
+  if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) throw new Error("Browser ini belum bisa memproses video. Pakai Chrome atau Safari terbaru.");
+  const mt = ["video/mp4;codecs=avc1.42E01E", "video/mp4", "video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"].find((m) => MediaRecorder.isTypeSupported(m));
+  if (!mt) throw new Error("Browser ini belum bisa merekam video.");
+  const S = 480, cv = document.createElement("canvas");
+  cv.width = cv.height = S;
+  const ctx = cv.getContext("2d");
+  ctx.imageSmoothingQuality = "high";
+  const url = URL.createObjectURL(file);
+  let drawFrame, dur, start, stop = () => {}, ended = () => false;
+  if (file.type.startsWith("video/")) {
+    const v = document.createElement("video");
+    v.muted = true; v.playsInline = true; v.preload = "auto"; v.src = url;
+    await new Promise((ok, no) => { v.onloadeddata = ok; v.onerror = () => no(new Error("Video tidak bisa dibaca.")); });
+    const w = v.videoWidth, hh = v.videoHeight, side = Math.min(w, hh);
+    drawFrame = () => ctx.drawImage(v, (w - side) / 2, (hh - side) / 2, side, side, 0, 0, S, S);
+    dur = Math.min(isFinite(v.duration) && v.duration > 0 ? v.duration : ANIM_SEC, ANIM_SEC);
+    start = () => v.play(); stop = () => v.pause(); ended = () => v.ended;
+  } else {
+    if (!window.ImageDecoder) throw new Error("GIF belum didukung di browser ini. Pilih video MP4.");
+    const dec = new ImageDecoder({ data: await file.arrayBuffer(), type: "image/gif" });
+    await dec.tracks.ready;
+    const n = dec.tracks.selectedTrack.frameCount, frames = [];
+    let total = 0;
+    for (let i = 0; i < n && total < ANIM_SEC * 1000 && frames.length < 240; i++) {
+      const { image } = await dec.decode({ frameIndex: i });
+      const ms = Math.max((image.duration || 100000) / 1000, 20);
+      frames.push({ image, ms, at: total }); total += ms;
+    }
+    if (!frames.length) throw new Error("GIF tidak bisa dibaca.");
+    let g0 = performance.now();
+    drawFrame = () => {
+      const t = (performance.now() - g0) % total;
+      let f = frames[0];
+      for (const x of frames) if (x.at <= t) f = x; else break;
+      const w = f.image.displayWidth, hh = f.image.displayHeight, side = Math.min(w, hh);
+      ctx.drawImage(f.image, (w - side) / 2, (hh - side) / 2, side, side, 0, 0, S, S);
+    };
+    dur = Math.max(Math.min(total / 1000, ANIM_SEC), 1);
+    start = () => { g0 = performance.now(); };
+  }
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, S, S);
+  drawFrame();
+  const pair = avatarPair(cv, S, S);                 // frame pertama = foto statis HD + versi kecil (daftar chat, notifikasi, dll)
+  const rec = new MediaRecorder(cv.captureStream(30), { mimeType: mt, videoBitsPerSecond: 650000 });
+  const chunks = [];
+  rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+  const done = new Promise((ok) => { rec.onstop = ok; });
+  rec.start(250);
+  await start();
+  const t0 = performance.now();
+  await new Promise((ok) => {
+    const tick = () => {
+      const el = (performance.now() - t0) / 1000;
+      drawFrame();
+      ui.set("Merekam " + Math.min(Math.floor(el), Math.ceil(dur)) + " / " + Math.ceil(dur) + " detik", el / dur);
+      if (el >= dur || ended()) return ok();
+      requestAnimationFrame(tick);
+    };
+    tick();
+  });
+  rec.stop(); stop();
+  await done;
+  URL.revokeObjectURL(url);
+  const blob = new Blob(chunks, { type: mt.split(";")[0] });
+  if (blob.size > 1150000) throw new Error("Hasilnya terlalu besar. Pilih video yang lebih pendek.");
+  return { blob, mime: blob.type, pair };
+}
+async function uploadAnimAvatar(f) {
+  const ui = animOverlay();
+  try {
+    const { blob, mime, pair } = await makeAnimAvatar(f, ui);
+    ui.set("Mengunggah…", 1);
+    const r1 = await apiCall("/api/profile/avatar-anim", { method: "POST", headers: { "Content-Type": mime }, body: blob });
+    const d1 = await r1.json().catch(() => ({}));
+    if (!r1.ok || !d1.ok) throw new Error(d1.error || "Gagal mengunggah video.");
+    const { res, data } = await postJSON("/api/profile/avatar", pair, true);   // terakhir: menaikkan versi foto
+    if (!res.ok || !data.ok) throw new Error(data.error || "Gagal menyimpan foto.");
+    myProfile.av = true; myProfile.avv = data.avv;
+    setMyAvatars(); refreshPeople();
+    showToast("Foto profil bergerak dipasang.");
+  } catch (err) { showToast(err.message, true); }
+  finally { ui.close(); }
+}
+function pickAvatar() {
+  $("avFile").accept = isAdmin ? "image/*,video/*" : "image/*";   // video/GIF hanya untuk admin
+  $("avFile").click();
+}
+$("avPick").addEventListener("click", pickAvatar);
 function viewPhoto(src) {
   const lb = document.createElement("div");
   lb.className = "lb";
@@ -2370,17 +2521,18 @@ function viewPhoto(src) {
 }
 // ketuk foto = lihat besar; kalau belum punya foto, langsung pilih foto
 $("profAvatar").addEventListener("click", () => {
-  const img = $("profAvatar").querySelector("img");
-  if (img) viewPhoto(img.src); else $("avFile").click();
+  const img = $("profAvatar").querySelector("img, video");
+  if (img) viewPhoto(img.poster || img.src); else pickAvatar();
 });
 $("avFile").addEventListener("change", async () => {
   const f = $("avFile").files[0];
   $("avFile").value = "";
   if (!f) return;
+  if (isAdmin && (f.type.startsWith("video/") || f.type === "image/gif")) return uploadAnimAvatar(f);
   try {
     showToast("Memproses foto…");
-    const image = await compressAvatar(f);
-    const { res, data } = await postJSON("/api/profile/avatar", { image }, true);
+    const pair = await compressAvatarSet(f);
+    const { res, data } = await postJSON("/api/profile/avatar", pair, true);
     if (!res.ok || !data.ok) throw new Error(data.error || "Gagal mengunggah foto.");
     myProfile.av = true; myProfile.avv = data.avv;
     setMyAvatars(); refreshPeople();
@@ -2784,7 +2936,7 @@ function gcRender() {
   callEl("clParts").innerHTML = parts.map((p) => {
     const me = p.pid === gcMe(), st = me ? "ok" : ((gc && gc.peers[p.pid] && gc.peers[p.pid].state === "connected") ? "ok" : "wait");
     const lbl = me ? (gc && gc.muted ? "Mikrofon mati" : "Kamu") : st === "ok" ? "Tersambung" : "Menghubungkan…";
-    const img = p.av && p.pid ? `<img src="${esc(avSrc(API + "/api/avatar/" + p.pid + "?v=" + (p.avv || 0)))}" alt="">` : esc(initialsOf(p.name));
+    const img = p.av && p.pid ? `<img src="${esc(avSrc(avUrl(p.pid, p.avv, true)))}" alt="">` : esc(initialsOf(p.name));
     return `<div class="gp ${st}"><div class="pa">${img}</div><b>${esc(me ? "Kamu" : p.name || "Anggota")}</b><small>${esc(gcInc ? (p.owner ? "Memulai" : "") : lbl)}</small></div>`;
   }).join("");
   const b = (cls, id, ic, label) => `<div class="cl-b"><button type="button" class="${cls}" id="${id}" aria-label="${label}">${ic}</button>${label}</div>`;
@@ -3590,7 +3742,7 @@ function renderStars() {
     const ap = x.mine ? myPid() : (x.ap || vp || (live && live.pid) || (x.src === "i" && !isAdmin ? ((inPeer && inPeer.pid) || "") : "") || (x.src === "i" && isAdmin ? x.pid : ""));
     const mem = ap && fGroupMembers.find((g) => g.pid === ap);
     const avv = x.mine ? (myProfile.avv || 0) : ((mem && mem.avv) || (live && live.avv) || x.avv || 0);
-    const avImg = ap ? `<img src="${esc(avSrc(API + "/api/avatar/" + ap + "?v=" + avv))}" alt="" onerror="this.remove()">` : "";
+    const avImg = ap ? `<img src="${esc(avSrc(avUrl(ap, avv, true)))}" alt="" onerror="this.remove()">` : "";
     const nm = x.mine ? "Kamu" : (x.name || "");
     const sub = x.src === "i" ? "Chat pribadi" : "Forum Kelas";
     const txt = esc(x.text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
@@ -4284,8 +4436,8 @@ async function adAction(a, t) {
       if (!f) return;
       try {
         showToast("Memproses foto…");
-        const image = await compressAvatar(f);
-        const { res, data } = await postJSON("/api/admin/action", { action: "set_avatar", target: t, image }, true);
+        const pair = await compressAvatarSet(f);
+        const { res, data } = await postJSON("/api/admin/action", { action: "set_avatar", target: t, image: pair.image, thumb: pair.thumb }, true);
         if (!res.ok || !data.ok) throw new Error(data.error || "Gagal mengganti foto.");
         if (t === currentUser) { myProfile.av = true; myProfile.avv = data.avv; setMyAvatars(); }
         showToast("Foto @" + t + " diganti.");
@@ -5371,8 +5523,8 @@ function fOpenMember(pid) {
     if (m.owner && !isAdmin) inOpen(); else inOpen({ pid: m.pid, name: m.name || "Chat" });
   });
   s.querySelector("[data-close]").addEventListener("click", () => s.remove());
-  const mImg = s.querySelector("img.av");
-  if (mImg) { mImg.style.cursor = "zoom-in"; mImg.addEventListener("click", () => viewPhoto(mImg.src)); }
+  const mImg = s.querySelector("img.av, video.av");
+  if (mImg) { mImg.style.cursor = "zoom-in"; mImg.addEventListener("click", () => viewPhoto(mImg.poster || mImg.src)); }
   const seenEl = s.querySelector("#fgSeen");
   if (seenEl) {
     apiCall("/api/forum/seen").then((r) => r.json()).then((d) => {
@@ -6773,8 +6925,8 @@ async function showProfile(pid, hint) {
   const canMsg = !p.mine;
   const s = fgSheet(`<button type="button" class="pvclose" data-close aria-label="Tutup">✕</button><div class="pvwrap">${avatarHtml(p, "xl")}</div><h3>${nameHtml(p.mine ? p.name + " (kamu)" : p.name, p.owner, verOf(p.pid))}</h3>${sub ? `<p class="fgsub">${esc(sub)}</p>` : ""}<div class="pvtiles">${canMsg ? `<button type="button" class="pvtile" data-msg>${icMsg}<span>Pesan</span></button>` : ""}<button type="button" class="pvtile" data-det>${icInfo}<span>Info</span></button></div>`);
   s.classList.add("pv");
-  const img = s.querySelector("img.av");
-  if (img) img.addEventListener("click", () => viewPhoto(img.src));
+  const img = s.querySelector("img.av, video.av");
+  if (img) img.addEventListener("click", () => viewPhoto(img.poster || img.src));
   s.querySelector("[data-close]").addEventListener("click", () => s.remove());
   const mb = s.querySelector("[data-msg]");
   if (mb) mb.addEventListener("click", () => {
