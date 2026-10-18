@@ -5932,7 +5932,7 @@ function seenText(p) {
 }
 // status online hanya dikirim server ke admin; untuk pengguna biasa teks ini tetap peran saja
 function inSubText(p) {
-  if (p.owner && !isAdmin) return p.online ? "Online" : "Offline · pesan tetap bisa dikirim";
+  if (p.owner && !isAdmin) return p.online ? "Online" : "Offline";
   const st = seenText(p);
   const sb = p.sub;
   return st ? (sb ? sb + " · " + st : st) : (sb || "");
