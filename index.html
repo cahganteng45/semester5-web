@@ -207,6 +207,7 @@ input[type="datetime-local"].input::-webkit-datetime-edit{padding:0}
 #offline{position:fixed;left:0;right:0;top:0;background:var(--red);color:#fff;text-align:center;font-size:13px;font-weight:700;padding:calc(6px + env(safe-area-inset-top)) 10px 6px;z-index:998}
 .lb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1550;display:flex;align-items:center;justify-content:center;padding:16px}
 .lb img{max-width:100%;max-height:100%;border-radius:8px}
+.lb .lbsnd{position:absolute;left:50%;bottom:calc(34px + env(safe-area-inset-bottom));transform:translateX(-50%);min-width:56px;height:44px;padding:0 18px;border-radius:99px;background:rgba(255,255,255,.2);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
 .lb button{position:absolute;top:calc(12px + env(safe-area-inset-top));right:14px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;font-size:20px}
 .mprev img{cursor:zoom-in}
 .prog{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-bottom:14px}
@@ -2421,18 +2422,29 @@ function animOverlay() {
 }
 async function makeAnimAvatar(file, ui) {
   if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) throw new Error("Browser ini belum bisa memproses video. Pakai Chrome atau Safari terbaru.");
-  const mt = ["video/mp4;codecs=avc1.42E01E", "video/mp4", "video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"].find((m) => MediaRecorder.isTypeSupported(m));
+  const mt = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4;codecs=avc1.42E01E", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"].find((m) => MediaRecorder.isTypeSupported(m));
   if (!mt) throw new Error("Browser ini belum bisa merekam video.");
   const S = 480, cv = document.createElement("canvas");
   cv.width = cv.height = S;
   const ctx = cv.getContext("2d");
   ctx.imageSmoothingQuality = "high";
   const url = URL.createObjectURL(file);
-  let drawFrame, dur, start, stop = () => {}, ended = () => false;
+  let drawFrame, dur, start, stop = () => {}, ended = () => false, audioTrack = null, actx = null;
   if (file.type.startsWith("video/")) {
     const v = document.createElement("video");
     v.muted = true; v.playsInline = true; v.preload = "auto"; v.src = url;
     await new Promise((ok, no) => { v.onloadeddata = ok; v.onerror = () => no(new Error("Video tidak bisa dibaca.")); });
+    try {                                                 // suara asli video ikut direkam, tapi tidak keluar dari speaker saat memproses
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) {
+        actx = new AC();
+        await actx.resume().catch(() => {});
+        const node = actx.createMediaElementSource(v), dest = actx.createMediaStreamDestination();
+        node.connect(dest);
+        audioTrack = dest.stream.getAudioTracks()[0] || null;
+        if (audioTrack) v.muted = false;
+      }
+    } catch (e) { audioTrack = null; v.muted = true; }
     const w = v.videoWidth, hh = v.videoHeight, side = Math.min(w, hh);
     drawFrame = () => ctx.drawImage(v, (w - side) / 2, (hh - side) / 2, side, side, 0, 0, S, S);
     dur = Math.min(isFinite(v.duration) && v.duration > 0 ? v.duration : ANIM_SEC, ANIM_SEC);
@@ -2463,7 +2475,9 @@ async function makeAnimAvatar(file, ui) {
   ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, S, S);
   drawFrame();
   const pair = avatarPair(cv, S, S);                 // frame pertama = foto statis HD + versi kecil (daftar chat, notifikasi, dll)
-  const rec = new MediaRecorder(cv.captureStream(30), { mimeType: mt, videoBitsPerSecond: 650000 });
+  const vstream = cv.captureStream(30);
+  if (audioTrack) vstream.addTrack(audioTrack);
+  const rec = new MediaRecorder(vstream, { mimeType: mt, videoBitsPerSecond: 650000, audioBitsPerSecond: 64000 });
   const chunks = [];
   rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
   const done = new Promise((ok) => { rec.onstop = ok; });
@@ -2482,6 +2496,7 @@ async function makeAnimAvatar(file, ui) {
   });
   rec.stop(); stop();
   await done;
+  if (actx) actx.close().catch(() => {});
   URL.revokeObjectURL(url);
   const blob = new Blob(chunks, { type: mt.split(";")[0] });
   if (blob.size > 1150000) throw new Error("Hasilnya terlalu besar. Pilih video yang lebih pendek.");
@@ -2518,9 +2533,21 @@ function viewPhoto(src, vsrc) {
   document.querySelectorAll(".lb").forEach((x) => x.remove());
   const box = "width:min(92vw,86vh,640px);height:min(92vw,86vh,640px);object-fit:cover;border-radius:18px";
   const media = vsrc
-    ? `<video src="${esc(vsrc)}" poster="${esc(src)}" style="${box}" autoplay loop muted playsinline disablepictureinpicture></video>`
+    ? `<video src="${esc(vsrc)}" poster="${esc(src)}" style="${box}" loop playsinline disablepictureinpicture></video>`
     : `<img src="${esc(src)}" alt="Foto profil" style="${box}">`;
-  lb.innerHTML = `${media}<button type="button" aria-label="Tutup">✕</button>`;
+  lb.innerHTML = `${media}${vsrc ? '<span class="lbsnd" role="button" aria-label="Suara" tabindex="0">🔊</span>' : ""}<button type="button" aria-label="Tutup">✕</button>`;
+  const vid = lb.querySelector("video"), snd = lb.querySelector(".lbsnd");
+  if (vid) {
+    const paint = () => { snd.textContent = vid.muted ? "🔇" : "🔊"; };
+    vid.muted = false;                                   // dibuka lewat ketukan pengguna, jadi suara boleh langsung bunyi
+    vid.play().catch(() => { vid.muted = true; vid.play().catch(() => {}); }).finally(paint);
+    snd.addEventListener("click", (e) => {
+      e.stopPropagation();
+      vid.muted = !vid.muted;
+      if (vid.paused) vid.play().catch(() => {});
+      paint();
+    });
+  }
   lb.addEventListener("click", () => lb.remove());
   const esc2 = (e) => { if (e.key === "Escape") { lb.remove(); document.removeEventListener("keydown", esc2); } };
   document.addEventListener("keydown", esc2);
