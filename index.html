@@ -7584,6 +7584,10 @@ try{
 .gcsec{font-size:12px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin:16px 0 4px}
 .gcmem{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
 .gcmem:first-of-type{border-top:0}
+.gcmem{flex-wrap:wrap}
+.gcma{flex-basis:100%;display:flex;gap:8px;flex-wrap:wrap;padding-left:52px}
+.gcma .gckick{margin:0}
+.gcmem em.gcmu{color:#d35400;font-weight:600}
 .gcpn{flex:1;min-width:0}
 .gcpn b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gcpn em{display:block;font-style:normal;font-size:12.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -7803,6 +7807,7 @@ function gcApplyHead() {
   if (!gcCur) return;
   const ro = gcCur.can_send === false;
   $("gcForm").classList.toggle("hidden", ro); $("gcRo").classList.toggle("hidden", !ro);
+  if (ro) $("gcRo").textContent = gcCur.ro || "Hanya admin grup yang bisa mengirim pesan di sini.";
 }
 function gcJump(id) {
   const t = document.getElementById("gcm-" + id);
@@ -7822,7 +7827,7 @@ function gcHeader() {
   $("gcHdName").textContent = gcCur.name;
   const sub = $("gcHdSub");
   if (gcTypers.length) { sub.className = "typ"; sub.textContent = gcTypers.map((x) => shortName(x.name)).join(", ") + " sedang mengetik…"; }
-  else { sub.className = ""; sub.textContent = ((gcCur.n || 0) + 1) + " anggota"; }
+  else { sub.className = ""; sub.textContent = ((gcCur.n || 0) + 1) + " anggota" + (gcCur.ttl ? " · ⏳ " + gcTtlLabel(gcCur.ttl) : ""); }
 }
 function gcOpen(gid) {
   const gr = gcGroups.find((x) => x.gid === gid);
@@ -8188,6 +8193,28 @@ async function gcUpload(file) {
   gcSendBusy = false; btn.disabled = false;
 }
 
+const gcTtlLabel = (sec) => sec % 86400 === 0 ? sec / 86400 + " hari" : sec % 3600 === 0 ? sec / 3600 + " jam" : Math.ceil(sec / 60) + " menit";
+const gcLeft = (sec) => {
+  const m = Math.ceil(Math.max(0, sec) / 60), d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mi = m % 60;
+  return [d && d + " hari", h && h + " jam", mi && mi + " menit"].filter(Boolean).slice(0, 2).join(" ") || "kurang dari 1 menit";
+};
+function gcPickPhoto(gid) {
+  const inp = document.createElement("input");
+  inp.type = "file"; inp.accept = "image/jpeg,image/png,image/webp"; inp.style.display = "none";
+  document.body.appendChild(inp);
+  const done = () => inp.remove();
+  inp.addEventListener("cancel", done);
+  inp.addEventListener("change", async () => {
+    const f = inp.files[0]; done(); if (!f) return;
+    try {
+      if (f.size > 15e6) throw new Error("Foto terlalu besar (maks 15 MB).");
+      const image = await compressAvatar(f);
+      await gcJSON("/api/groupchat/photo", { gid, image });
+      showToast("Foto grup diperbarui."); gcLoadState(true); gcPoll(false); if (gcCur && gcCur.gid === gid) gcShowInfo();
+    } catch (e) { showToast(e.message, true); }
+  });
+  inp.click();
+}
 /* ----- info grup: profil, anggota, peran, pengaturan chat ----- */
 async function gcShowInfo() {
   if (!gcCur) return;
@@ -8195,13 +8222,13 @@ async function gcShowInfo() {
   let d;
   try { d = (await gcJSON(`/api/groupchat/info?gid=${encodeURIComponent(gid)}`, undefined, "GET")).group; } catch (e) { return showToast(e.message, true); }
   const mgr = !!d.mgr, B = (a, t, c) => `<button type="button"${c ? ` class="${c}"` : ""} data-a="${a}">${t}</button>`;
-  const row = (u, tag) => `<div class="gcmem">${avatarHtml(u, "u")}<span class="gcpn"><b>${nameHtml(u.name, u.owner, verOf(u.pid))}${u.mine ? " (kamu)" : ""}</b><em>${esc(tag ? "Admin utama" : u.gadm ? "Admin grup" : ((u.real ? "@" + u.real : "") + (u.nim ? " · " + u.nim : "")) || u.mask || "")}</em></span>${tag || u.gadm ? '<span class="gctag">Admin</span>' : ""}${gcAdmin && !tag && !u.mine ? `<button type="button" class="gckick" style="color:var(--brand);background:var(--brand-soft)" data-role="${esc(u.pid)}" data-on="${u.gadm ? 0 : 1}">${u.gadm ? "Copot" : "Jadikan admin"}</button>` : ""}${mgr && !tag && !u.mine && (!u.gadm || gcAdmin) ? `<button type="button" class="gckick" data-kick="${esc(u.pid)}" data-nm="${esc(u.name)}">Keluarkan</button>` : ""}</div>`;
+  const row = (u, tag) => `<div class="gcmem">${avatarHtml(u, "u")}<span class="gcpn"><b>${nameHtml(u.name, u.owner, verOf(u.pid))}${u.mine ? " (kamu)" : ""}</b><em class="${u.mute_left > 0 ? "gcmu" : ""}">${u.mute_left > 0 ? "🔇 Dilarang kirim pesan · sisa " + esc(gcLeft(u.mute_left)) : esc(tag ? "Admin utama" : u.gadm ? "Admin grup" : ((u.real ? "@" + u.real : "") + (u.nim ? " · " + u.nim : "")) || u.mask || "")}</em></span>${tag || u.gadm ? '<span class="gctag">Admin</span>' : ""}${(gcAdmin || mgr) && !tag && !u.mine ? `<span class="gcma">${gcAdmin ? `<button type="button" class="gckick" style="color:var(--brand);background:var(--brand-soft)" data-role="${esc(u.pid)}" data-on="${u.gadm ? 0 : 1}">${u.gadm ? "Copot" : "Jadikan admin"}</button>` : ""}${mgr && (!u.gadm || gcAdmin) ? `<button type="button" class="gckick" style="color:#d35400;background:#fff1e6" data-mute="${esc(u.pid)}" data-on="${u.mute_left > 0 ? 1 : 0}" data-nm="${esc(u.name)}">${u.mute_left > 0 ? "Cabut larangan" : "Larang kirim pesan"}</button><button type="button" class="gckick" data-kick="${esc(u.pid)}" data-nm="${esc(u.name)}">Keluarkan</button>` : ""}</span>` : ""}</div>`;
   const md = d.media || {};
   const s = gcSheet(`<div class="gcbig">${gcAvHtml(d)}</div><h3>${esc(d.name)}</h3><p class="gcsub">Grup · ${d.members.length + 1} anggota${d.created ? " · dibuat " + esc(new Date(d.created).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })) : ""}</p>
     ${d.desc ? `<p class="gcdesc">${esc(d.desc)}</p>` : ""}
-    <p class="gcsub">📷 ${md.photo || 0} foto · 📄 ${md.file || 0} file · 🔗 ${md.link || 0} tautan${d.ann ? " · 📢 Mode pengumuman" : ""}</p>
+    <p class="gcsub">📷 ${md.photo || 0} foto · 📄 ${md.file || 0} file · 🔗 ${md.link || 0} tautan${d.ann ? " · 📢 Mode pengumuman" : ""}${d.ttl ? " · ⏳ Pesan hilang " + gcTtlLabel(d.ttl) : ""}</p>
     <div class="gcacts">${B("pinchat", d.pin ? "Lepas sematan chat" : "Sematkan chat")}${B("arch", d.arch ? "Keluarkan dari arsip" : "Arsipkan chat")}${B("mute", d.mute ? "Nyalakan notifikasi" : "Bisukan notifikasi")}${B("clr", "Kosongkan chat untuk saya")}</div>
-    ${mgr ? `<div class="gcsec">Kelola grup</div><div class="gcacts">${B("add", "Tambah anggota")}${B("edit", "Ubah nama & deskripsi")}${B("ann", d.ann ? "Matikan mode pengumuman" : "Mode pengumuman (hanya admin yang kirim)")}${B("clrall", "Hapus semua pesan grup", "dng")}</div>` : ""}
+    ${mgr ? `<div class="gcsec">Kelola grup</div><div class="gcacts">${B("add", "Tambah anggota")}${B("photo", d.av ? "Ganti foto grup" : "Tambah foto grup")}${d.av ? B("rmphoto", "Hapus foto grup") : ""}${B("edit", "Ubah nama & deskripsi")}${B("ttl", "⏳ Pesan sementara: " + (d.ttl ? gcTtlLabel(d.ttl) : "Mati"))}${B("ann", d.ann ? "Matikan mode pengumuman" : "Mode pengumuman (hanya admin yang kirim)")}${B("clrall", "Hapus semua pesan grup", "dng")}</div>` : ""}
     <div class="gcsec">Anggota (${d.members.length + 1})</div>${row(d.owner, true)}${d.members.map((u) => row(u, false)).join("")}
     <div class="gcacts" style="margin-top:16px">${gcAdmin ? B("del", "Hapus grup", "dng") : B("leave", "Keluar dari grup", "dng")}</div>`);
   const post = async (path, body, okMsg) => { try { const r = await gcJSON(path, body); if (okMsg) showToast(okMsg); return r; } catch (e) { showToast(e.message, true); return null; } };
@@ -8213,6 +8240,14 @@ async function gcShowInfo() {
       if (ok && await post("/api/groupchat/members/kick", { gid, pid: k.dataset.kick }, "Anggota dikeluarkan.")) refresh();
       return;
     }
+    const mu = e.target.closest("[data-mute]");
+    if (mu) {
+      if (mu.dataset.on === "1") { if (await post("/api/groupchat/members/mute", { gid, pid: mu.dataset.mute, sec: 0 }, "Larangan dicabut.")) refresh(); return; }
+      const nm = mu.dataset.nm, pid = mu.dataset.mute;
+      const m = fgSheet(`<h3>Larang ${esc(nm)} kirim pesan</h3><p class="gcsub">Selama dilarang, dia tetap bisa membaca dan bereaksi.</p><div class="gcacts"><button type="button" data-s="300">5 menit</button><button type="button" data-s="900">15 menit</button><button type="button" data-s="3600">1 jam</button><button type="button" data-s="28800">8 jam</button><button type="button" data-s="86400">1 hari</button><button type="button" data-s="604800">7 hari</button><button type="button" data-s="x">Batal</button></div>`);
+      m.addEventListener("click", async (ev) => { const x = ev.target.closest("[data-s]"); if (!x) return; m.remove(); if (x.dataset.s !== "x" && await post("/api/groupchat/members/mute", { gid, pid, sec: +x.dataset.s }, "Anggota dilarang kirim pesan.")) refresh(); });
+      return;
+    }
     const ro = e.target.closest("[data-role]");
     if (ro) { if (await post("/api/groupchat/members/role", { gid, pid: ro.dataset.role, admin: ro.dataset.on === "1" }, ro.dataset.on === "1" ? "Dijadikan admin grup." : "Admin grup dicopot.")) refresh(); return; }
     const b = e.target.closest("[data-a]"); if (!b) return;
@@ -8222,6 +8257,15 @@ async function gcShowInfo() {
       const v = await openModal({ title: "Profil grup", ok: "Simpan", fields: [{ key: "name", label: "Nama grup", value: d.name, required: true }, { key: "desc", label: "Deskripsi (opsional)", value: d.desc || "" }] });
       if (v && await post("/api/groupchat/profile", { gid, name: v.name, desc: v.desc }, "Profil grup diperbarui.")) refresh();
     } else if (a === "ann") { if (await post("/api/groupchat/profile", { gid, ann: !d.ann })) refresh(); }
+    else if (a === "photo") { s.remove(); gcPickPhoto(gid); }
+    else if (a === "rmphoto") {
+      const ok = await openModal({ title: "Hapus foto grup?", ok: "Hapus", danger: true });
+      if (ok && await post("/api/groupchat/photo", { gid, image: "" }, "Foto grup dihapus.")) refresh();
+    } else if (a === "ttl") {
+      const opts = [[0, "Mati"], [86400, "1 hari"], [259200, "3 hari"], [604800, "7 hari"], [1296000, "15 hari"], [2592000, "30 hari"]];
+      const m = fgSheet(`<h3>Pesan sementara</h3><p class="gcsub">Pesan baru akan hilang otomatis untuk semua anggota setelah waktu ini. Pesan yang sudah ada tidak berubah.</p><div class="gcacts">${opts.map(([v, t]) => `<button type="button" data-s="${v}">${(d.ttl || 0) === v ? "✓ " : ""}${t}</button>`).join("")}<button type="button" data-s="x">Batal</button></div>`);
+      m.addEventListener("click", async (ev) => { const x = ev.target.closest("[data-s]"); if (!x) return; m.remove(); if (x.dataset.s !== "x" && await post("/api/groupchat/disappear", { gid, sec: +x.dataset.s }, +x.dataset.s ? "Pesan sementara dinyalakan." : "Pesan sementara dimatikan.")) refresh(); });
+    }
     else if (a === "pinchat") { if (await post("/api/groupchat/prefs", { gid, pin: !d.pin })) refresh(); }
     else if (a === "arch") { if (await post("/api/groupchat/prefs", { gid, arch: !d.arch }, d.arch ? "Chat dikeluarkan dari arsip." : "Chat diarsipkan.")) { if (!d.arch) { s.remove(); gcClose(); } else refresh(); } }
     else if (a === "mute") {
