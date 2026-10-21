@@ -1537,7 +1537,7 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 
 <section class="view" id="view-forum"><div class="fghead" id="fGroupHead" role="button" tabindex="0" aria-label="Info grup"><button type="button" class="fgback" id="fBack" aria-label="Kembali ke daftar chat"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><span id="fGroupPhoto"></span><div class="fgtx"><b id="fGroupName">Forum Kelas</b><small id="fGroupMembers">Ketuk untuk melihat anggota</small></div><button type="button" class="fginv" id="fCall" aria-label="Telepon grup"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></button><button type="button" class="fginv" id="fInvite" aria-label="Undang teman"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.6"/><path d="M2.8 20c.4-3.6 3.200-5.600 6.700-5.600s6.300 2 6.700 5.600"/><path d="M19 7.500v6M16 10.500h6"/></svg></button></div>
 <div class="fpinbar hidden" id="fPinBar"></div><div class="fmsgs" id="fMsgs"></div><div class="freply hidden" id="fReply"></div>
-<div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fcount hidden" id="fCount"></div><div class="fbar inbar"><div class="inpillbox"><textarea id="fInput" rows="1" placeholder="Tulis pesan…" enterkeyhint="send" autocomplete="off"></textarea></div><button class="inround" id="fImgBtn" type="button" aria-label="Kirim foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></button><button class="inround" id="fPollBtn" type="button" aria-label="Buat polling"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button><button class="inround inprimary" id="fSend" type="button" aria-label="Kirim"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.5-7.6a1 1 0 0 0 0-1.8L3.4 3.4a1 1 0 0 0-1.4 1.2L4 11l9 1-9 1-2 6.4a1 1 0 0 0 1.4 1z"/></svg></button></div></div></section>
+<div class="fwrap"><div class="fmention hidden" id="fMention"></div><div class="fcount hidden" id="fCount"></div><div class="fbar inbar"><div class="inpillbox"><textarea id="fInput" rows="1" placeholder="Tulis pesan…" enterkeyhint="send" autocomplete="off"></textarea></div><button class="inround" id="fImgBtn" type="button" aria-label="Lampirkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></button><button class="inround" id="fPollBtn" type="button" aria-label="Buat polling"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button><button class="inround inprimary" id="fSend" type="button" aria-label="Kirim"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.5-7.6a1 1 0 0 0 0-1.8L3.4 3.4a1 1 0 0 0-1.4 1.2L4 11l9 1-9 1-2 6.4a1 1 0 0 0 1.4 1z"/></svg></button></div></div></section>
 
 <section class="view" id="view-upload"><h2 class="page-title">Tambah materi</h2><p class="page-sub">Unggah file atau tulis catatan. Hasilnya langsung terkirim ke Telegram.</p>
 <div class="card">
@@ -5015,7 +5015,7 @@ async function fUploadImg(file, caption, once) {
     let f = file;
     if (f.size > 300e3) f = await inShrink(f);
     if (f.size > F_IMG_MB * 1048576) throw new Error(`Foto terlalu besar (maks ${F_IMG_MB} MB).`);
-    const dm = await fImgDims(f);
+    const dm = isImg ? await fImgDims(f) : { w: 0, h: 0 };
     const fd = new FormData();
     fd.append("file", f, f.name || "foto.jpg");
     fd.append("caption", caption || "");
@@ -5025,7 +5025,7 @@ async function fUploadImg(file, caption, once) {
     if (once) fd.append("once", "1");
     const res = await apiCall("/api/forum/upload", { method: "POST", body: fd });
     const d = await res.json().catch(() => ({}));
-    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim foto.");
+    if (!res.ok || !d.ok) throw new Error(d.error || "Gagal mengirim lampiran.");
     if (caption) { $("fInput").value = ""; forumAutosize(); fCount(); fMentionSel = {}; fHideMention(); }
     clearForumReply();
     if (!fMsgs.some((m) => m.id === d.message.id)) fMsgs.push(d.message);
@@ -7607,14 +7607,39 @@ try{
 .gcviewer{position:fixed;inset:0;z-index:1300;background:rgba(0,0,0,.92);display:grid;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 12px) 12px calc(env(safe-area-inset-bottom,0px) + 12px)}
 .gcviewer img{max-width:100%;max-height:100%;border-radius:6px}
 .gcviewer button{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);right:12px;width:40px;height:40px;color:#fff;display:grid;place-items:center}
+
+.gcpinbar{cursor:pointer}
+.gcro{padding:14px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 14px);text-align:center;color:var(--mute);font-size:13.5px;background:var(--surface);border-top:1px solid var(--line)}
+.gctk{font-style:normal;margin-left:4px;letter-spacing:-3px}.gctk.rd{color:#4fc3f7;opacity:1}
+.gcfw{font-size:11.5px;opacity:.7;font-style:italic}
+.gcm.ment .gcb{box-shadow:0 0 0 2px var(--brand)}
+.gcrx{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.gcrx button{font-size:12px;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,currentColor 12%,transparent)}
+.gcrx button.me{outline:1.5px solid var(--brand)}
+.gcpoll{display:flex;flex-direction:column;gap:5px;min-width:200px}
+.gcpo{position:relative;overflow:hidden;display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:10px;background:color-mix(in srgb,currentColor 10%,transparent);text-align:left;font-size:14px}
+.gcpo i{position:absolute;left:0;top:0;bottom:0;background:color-mix(in srgb,var(--brand) 24%,transparent)}
+.gcpo span,.gcpo em{position:relative;font-style:normal}
+.gcpo.on{outline:1.5px solid var(--brand)}
+.gcpoll small{opacity:.7;font-size:11.5px}
+.gcfile{display:flex;align-items:center;gap:10px;padding:8px;border-radius:12px;background:color-mix(in srgb,currentColor 10%,transparent);text-align:left;max-width:100%}
+.gcfile span{font-size:22px}.gcfile b{display:block;font-size:13.5px;word-break:break-all}.gcfile em{display:block;font-style:normal;font-size:11.5px;opacity:.7}
+.gcrxbar{display:flex;justify-content:space-around;margin-bottom:6px}.gcrxbar button{font-size:26px;padding:6px}
+.ubadge.mt{background:var(--mute)}
+.gcarch{text-align:center;padding:12px;color:var(--brand);font-weight:700;font-size:13.5px;cursor:pointer}
+.gcviewer video{max-width:100%;max-height:100%;border-radius:6px}
+.gcdesc{white-space:pre-wrap;font-size:14px;margin:0 0 10px;text-align:center}
 </style>
 <script>
 /* ---------- Grup chat: admin buat/hapus grup, kick anggota; isi chat disimpan di Telegram ---------- */
 var gcGroups = [], gcEnabled = false, gcAdmin = false, gcUnread = 0, gcAt = 0, gcBusy = false;
 var gcCur = null, gcMsgs = [], gcLast = 0, gcTimer = null, gcReply = null, gcPollBusy = false, gcSendBusy = false;
+var gcShowArch = false, gcRead = { all: 0, any: 0 }, gcPins = [], gcLim = { edit: 1200, delete: 3600 }, gcReacts = ["👍", "❤️", "😂", "😮", "😢", "🙏"], gcReasons = [], gcSig = "", gcAudio = null;
 var gcTypAt = 0, gcReadAt = 0, gcTypers = [], gcImgs = new Map(), gcImgBusy = new Set();
 const gcHue = (s) => { let h = 0; for (const c of String(s || "")) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
-const gcAvHtml = (gr) => `<span class="av gcav" style="background:hsl(${gcHue(gr.gid)} 52% 46%)">👥</span>`;
+const gcAvHtml = (gr) => gr.av ? `<span class="av gcav" style="background:none"><img src="${esc(avSrc("/api/groupchat/photo/" + gr.gid + "?v=" + (gr.avv || 0)))}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover"></span>` : `<span class="av gcav" style="background:hsl(${gcHue(gr.gid)} 52% 46%)">👥</span>`;
+const gcCalc = () => { gcUnread = gcGroups.reduce((a, x) => a + (x.mute ? 0 : (x.unread || (x.marked ? 1 : 0))), 0); };
+const gcAge = (ts) => (Date.now() - new Date(ts).getTime()) / 1000;
 const gcHM = (ts) => { const d = new Date(ts); return isNaN(d) ? "" : `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
 function gcDayLabel(ts) {
   const d = new Date(ts), n = new Date();
@@ -7638,12 +7663,16 @@ function gcReset() {
   gcGroups = []; gcEnabled = false; gcAdmin = false; gcUnread = 0; gcAt = 0;
 }
 function gcRowsHtml() {
-  return (gcGroups || []).map((gr) => {
-    const l = gr.last, u = gr.unread || 0;
-    const prev = l ? (l.sys ? esc(l.text) : `${l.mine ? "Kamu: " : esc(shortName(l.name)) + ": "}${esc(l.text)}`) : "Belum ada pesan";
-    return `<div class="inrow${u ? " unr" : ""}" data-gc="${esc(gr.gid)}" role="button" tabindex="0">${gcAvHtml(gr)}<div class="inrowt"><div class="inrow1"><b>${esc(gr.name)}</b>${l ? `<time>${esc(inRowTime(l.ts))}</time>` : ""}</div><div class="inrow2"><em class="inprev">${prev}</em>${u ? `<span class="ubadge">${u > 99 ? "99+" : u}</span>` : ""}</div></div></div>`;
+  const arch = gcGroups.filter((x) => x.arch), list = gcShowArch ? gcGroups : gcGroups.filter((x) => !x.arch);
+  const ic = { photo: "📷 ", voice: "🎤 ", audio: "🎵 ", video: "🎬 ", doc: "📄 " };
+  const rows = list.map((gr) => {
+    const l = gr.last, u = gr.unread || 0, mk = !u && gr.marked;
+    const prev = l ? (l.sys ? esc(l.text) : `${l.mine ? "Kamu: " : esc(shortName(l.name)) + ": "}${ic[l.kind] || ""}${esc(l.text)}`) : "Belum ada pesan";
+    return `<div class="inrow${u ? " unr" : ""}" data-gc="${esc(gr.gid)}" role="button" tabindex="0">${gcAvHtml(gr)}<div class="inrowt"><div class="inrow1"><b>${gr.pin ? "📌 " : ""}${esc(gr.name)}${gr.mute ? " 🔕" : ""}</b>${l ? `<time>${esc(inRowTime(l.ts))}</time>` : ""}</div><div class="inrow2"><em class="inprev">${prev}</em>${u ? `<span class="ubadge${gr.mute ? " mt" : ""}">${gr.mention ? "@" : (u > 99 ? "99+" : u)}</span>` : mk ? '<span class="ubadge mt" style="min-width:10px;height:10px;padding:0"></span>' : ""}</div></div></div>`;
   }).join("");
+  return rows + (arch.length ? `<div class="gcarch" data-gca="1">${gcShowArch ? "Sembunyikan arsip" : "Diarsipkan"} (${arch.length})</div>` : "");
 }
+document.addEventListener("click", (e) => { if (e.target.closest("[data-gca]")) { gcShowArch = !gcShowArch; try { renderChatHub(true); } catch (x) {} } });
 async function gcLoadState(force) {
   if (guest || !token || gcBusy) return;
   if (!force && Date.now() - gcAt < 5000) return;
@@ -7652,9 +7681,9 @@ async function gcLoadState(force) {
     const res = await apiCall("/api/groupchat/state");
     const d = await res.json().catch(() => ({}));
     if (res.ok && d.ok) {
-      gcEnabled = !!d.enabled; gcAdmin = !!d.admin; gcGroups = d.groups || []; gcAt = Date.now();
+      gcLim = d.limits || gcLim; gcReacts = d.reactions || gcReacts; gcReasons = d.reasons || gcReasons; gcEnabled = !!d.enabled; gcAdmin = !!d.admin; gcGroups = d.groups || []; gcAt = Date.now();
       if (gcCur) { const g0 = gcGroups.find((x) => x.gid === gcCur.gid); if (g0) g0.unread = 0; }
-      gcUnread = gcGroups.reduce((a, x) => a + (x.unread || 0), 0);
+      gcCalc();
       updateForumBadge();
     }
   } catch (e) {} finally { gcBusy = false; }
@@ -7722,9 +7751,10 @@ function gcEnsureRoom() {
   const el = document.createElement("div");
   el.id = "gcRoom"; el.className = "gcroom";
   el.innerHTML = `<header class="gchd"><button type="button" id="gcBack" aria-label="Kembali">${IC.back}</button><div class="gchdt" id="gcHead" role="button" tabindex="0"><span id="gcHdAv"></span><div class="gchdn"><b id="gcHdName"></b><em id="gcHdSub"></em></div></div></header>
+    <div class="gcrep gcpinbar hidden" id="gcPinBar"></div>
     <div class="gcmsgs" id="gcMsgs"></div>
     <div class="gcrep hidden" id="gcRep"></div>
-    <form class="gccomp" id="gcForm"><button type="button" id="gcAttach" aria-label="Kirim foto">${IC.clip}</button><textarea id="gcText" rows="1" placeholder="Pesan" maxlength="3000"></textarea><button type="submit" id="gcSend" aria-label="Kirim" disabled>${IC.send}</button><input type="file" id="gcFile" accept="image/jpeg,image/png,image/webp" hidden></form>`;
+    <form class="gccomp" id="gcForm"><button type="button" id="gcAttach" aria-label="Kirim foto">${IC.clip}</button><textarea id="gcText" rows="1" placeholder="Pesan" maxlength="20000"></textarea><button type="submit" id="gcSend" aria-label="Kirim" disabled>${IC.send}</button><input type="file" id="gcFile" hidden></form><div class="gcro hidden" id="gcRo">Hanya admin grup yang bisa mengirim pesan di sini.</div>`;
   document.body.appendChild(el);
   $("gcBack").addEventListener("click", () => gcClose());
   $("gcHead").addEventListener("click", gcShowInfo);
@@ -7738,9 +7768,30 @@ function gcEnsureRoom() {
     if (e.key === "Enter" && !e.shiftKey && !e.isComposing && matchMedia("(pointer:fine)").matches) { e.preventDefault(); gcSend(); }
   });
   $("gcForm").addEventListener("submit", (e) => { e.preventDefault(); gcSend(); });
-  $("gcAttach").addEventListener("click", () => $("gcFile").click());
+  $("gcAttach").addEventListener("click", () => {
+    const s = fgSheet(`<div class="gcacts"><button type="button" data-a="f">Foto / file</button><button type="button" data-a="p">Buat polling</button><button type="button" data-a="x">Batal</button></div>`);
+    s.addEventListener("click", (e) => { const b = e.target.closest("[data-a]"); if (!b) return; s.remove(); if (b.dataset.a === "f") $("gcFile").click(); else if (b.dataset.a === "p") gcNewPoll(); });
+  });
+  $("gcPinBar").addEventListener("click", () => gcJump($("gcPinBar").dataset.q));
   $("gcFile").addEventListener("change", (e) => { const f = e.target.files[0]; e.target.value = ""; if (f) gcUpload(f); });
   $("gcMsgs").addEventListener("click", gcMsgClick);
+}
+function gcApplyHead() {
+  if (!gcCur) return;
+  const ro = gcCur.can_send === false;
+  $("gcForm").classList.toggle("hidden", ro); $("gcRo").classList.toggle("hidden", !ro);
+}
+function gcJump(id) {
+  const t = document.getElementById("gcm-" + id);
+  if (!t) return showToast("Pesan ada di atas. Gulir ke atas untuk melihatnya.", true);
+  t.scrollIntoView({ block: "center", behavior: "smooth" }); t.classList.add("flash"); setTimeout(() => t.classList.remove("flash"), 1600);
+}
+function gcPaintPin() {
+  const b = $("gcPinBar"); if (!b) return;
+  if (!gcPins.length) { b.classList.add("hidden"); return; }
+  const p = gcPins[gcPins.length - 1]; b.dataset.q = p.id;
+  b.innerHTML = `<div><b>📌 Disematkan${gcPins.length > 1 ? " (" + gcPins.length + ")" : ""}</b><span>${esc(p.text || (p.img ? "📷 Foto" : p.file ? "📎 Lampiran" : ""))}</span></div>`;
+  b.classList.remove("hidden");
 }
 function gcHeader() {
   if (!gcCur) return;
@@ -7754,9 +7805,9 @@ function gcOpen(gid) {
   const gr = gcGroups.find((x) => x.gid === gid);
   if (!gr) return;
   gcEnsureRoom();
-  gcCur = { gid, name: gr.name, n: gr.n, created: gr.created };
+  gcCur = Object.assign({}, gr); gcRead = { all: 0, any: 0 }; gcPins = []; gcSig = ""; $("gcPinBar").classList.add("hidden"); gcApplyHead();
   gcMsgs = []; gcLast = 0; gcTypers = []; gcReply = null; gr.unread = 0;
-  gcUnread = gcGroups.reduce((a, x) => a + (x.unread || 0), 0);
+  gcCalc();
   $("gcText").value = ""; $("gcText").style.height = "auto"; $("gcSend").disabled = true;
   $("gcRep").classList.add("hidden");
   $("gcMsgs").innerHTML = '<div class="gcempty">Memuat…</div>';
@@ -7794,25 +7845,38 @@ async function gcPoll(first) {
     if (d.reset) { gcMsgs = []; gcLast = 0; }
     const before = gcMsgs.length, lastBefore = gcLast;
     gcMerge(d.messages || []);
-    const alive = new Set(d.ids || []);
-    const n0 = gcMsgs.length;
+    const alive = new Set(d.ids || []), n0 = gcMsgs.length;
     gcMsgs = gcMsgs.filter((m) => alive.has(m.id));
+    const rx = d.reacts || {}, ed = d.edits || {}, pl = d.polls || {}, on = d.onces || {}, st = new Set(d.starred || []);
+    gcPins = d.pins || []; gcRead = d.read || gcRead;
+    const pinIds = new Set(gcPins.map((p) => p.id));
+    gcMsgs.forEach((m) => {
+      if (m.sys) return;
+      const k = String(m.id);
+      m.reacts = rx[k] || [];
+      if (ed[k]) { m.text = ed[k].t; m.edited = true; }
+      if (pl[k]) m.poll = pl[k];
+      if (on[k] && m.img) Object.assign(m.img, on[k]);
+      m.starred = st.has(m.id); m.pinned = pinIds.has(m.id);
+    });
     gcTypers = d.typing || [];
-    if (d.group) { gcCur.n = d.group.n; if (d.group.name) gcCur.name = d.group.name; }
-    gcHeader();
-    if (first || d.reset || gcMsgs.length !== before || n0 !== gcMsgs.length || gcLast !== lastBefore) { gcRender(near); gcMarkRead(); }
+    if (d.group) Object.assign(gcCur, d.group);
+    gcApplyHead(); gcHeader(); gcPaintPin();
+    const sig = JSON.stringify([rx, ed, pl, on, gcRead, [...pinIds], d.starred]);
+    if (first || d.reset || gcMsgs.length !== before || n0 !== gcMsgs.length || gcLast !== lastBefore || sig !== gcSig) { gcSig = sig; gcRender(near); gcMarkRead(); }
   } catch (e) {} finally { gcPollBusy = false; }
 }
 function gcMarkRead() {
   if (!gcCur || document.hidden || Date.now() - gcReadAt < 2500 || !gcMsgs.length) return;
   gcReadAt = Date.now();
   gcJSON("/api/groupchat/read", { gid: gcCur.gid }).catch(() => {});
-  const g0 = gcGroups.find((x) => x.gid === gcCur.gid); if (g0 && g0.unread) { g0.unread = 0; gcUnread = gcGroups.reduce((a, x) => a + (x.unread || 0), 0); updateForumBadge(); }
+  const g0 = gcGroups.find((x) => x.gid === gcCur.gid); if (g0 && g0.unread) { g0.unread = 0; gcCalc(); updateForumBadge(); }
 }
 const gcNearBottom = () => { const b = $("gcMsgs"); return !b || b.scrollHeight - b.scrollTop - b.clientHeight < 120; };
+const gcFIcon = { voice: "🎤", audio: "🎵", video: "🎬" }, gcFName = { voice: "Pesan suara", audio: "Audio", video: "Video" };
 function gcRender(stick) {
   const box = $("gcMsgs"); if (!box || !gcCur) return;
-  const top = box.scrollTop, keep = box.scrollHeight - box.scrollTop;
+  const keep = box.scrollHeight - box.scrollTop;
   if (!gcMsgs.length) { box.innerHTML = '<div class="gcempty">Belum ada pesan. Mulai obrolan di sini 👋</div>'; return; }
   let html = "", day = "", prevKey = "";
   for (const m of gcMsgs) {
@@ -7821,14 +7885,23 @@ function gcRender(stick) {
     if (m.sys) { html += `<div class="gcsys"><span>${esc(m.text)}</span></div>`; prevKey = ""; continue; }
     const key = m.pid || "?", first = key !== prevKey; prevKey = key;
     let img = "";
-    if (m.img) {
-      const url = gcImgs.get(m.id), w = m.img.w, h = m.img.h;
-      const ar = w && h ? `${w}/${h}` : "4/3";
+    if (m.img && m.img.once) {
+      img = m.mine ? `<div class="gcfile"><span>👁</span><div><b>Foto sekali lihat</b><em>Dibuka ${m.img.n || 0} orang</em></div></div>`
+        : m.img.seen ? '<div class="gcfile"><span>👁</span><div><b>Sudah dibuka</b></div></div>'
+        : `<button type="button" class="gcfile" data-once="${m.id}"><span>👁</span><div><b>Foto sekali lihat</b><em>Ketuk untuk buka (hanya sekali)</em></div></button>`;
+    } else if (m.img) {
+      const url = gcImgs.get(m.id), w = m.img.w, h = m.img.h, ar = w && h ? `${w}/${h}` : "4/3";
       img = url ? `<div class="gcimg" data-gi="${m.id}" style="aspect-ratio:${ar}"><img src="${url}" alt="Foto"></div>` : `<div class="gcimg load" data-gi="${m.id}" style="aspect-ratio:${ar}"></div>`;
     }
-    const nm = !m.mine && first ? `<div class="gcn" data-pid="${esc(m.pid)}" style="color:hsl(${gcHue(m.pid)} 62% 46%)">${nameHtml(m.name, m.owner, verOf(m.pid))}</div>` : "";
+    const f = m.file;
+    const fl = f ? `<button type="button" class="gcfile" data-gf="${m.id}"><span>${f.chars ? "📄" : gcFIcon[f.kind] || "📄"}</span><div><b>${esc(f.chars ? "Pesan panjang" : f.name || gcFName[f.kind] || "Dokumen")}</b><em>${f.chars ? "Ketuk untuk membaca semua" : fmtSize(f.size) + (f.dur ? " · " + fmtDur(f.dur) : "")}</em></div></button>` : "";
+    const p = m.poll;
+    const pl = p ? `<div class="gcpoll"><b>📊 ${esc(p.q)}</b>${p.opts.map((o, i) => `<button type="button" class="gcpo${o.me ? " on" : ""}" data-po="${i}"${p.closed ? " disabled" : ""}><i style="width:${p.total ? Math.round(o.n * 100 / p.total) : 0}%"></i><span>${esc(o.t)}</span><em>${o.n}</em></button>`).join("")}<small>${p.voters} suara${p.closed ? " · ditutup" : p.multi ? " · boleh pilih lebih dari satu" : ""}</small></div>` : "";
+    const nm = !m.mine && first ? `<div class="gcn" data-pid="${esc(m.pid)}" style="color:hsl(${gcHue(m.pid)} 62% 46%)">${nameHtml(m.name, m.owner, verOf(m.pid))}${m.gadm ? ' <small style="font-weight:600;opacity:.7">· admin</small>' : ""}</div>` : "";
     const rp = m.reply ? `<div class="gcq" data-q="${m.reply.id}"><b>${esc(m.reply.name)}</b><span>${esc(m.reply.text)}</span></div>` : "";
-    html += `<div class="gcm ${m.mine ? "me" : "oth"}${first ? " first" : ""}" id="gcm-${m.id}" data-id="${m.id}"><div class="gcb">${nm}${rp}${img}${m.text ? `<div class="gct">${esc(m.text)}</div>` : ""}<time>${gcHM(m.ts)}</time></div></div>`;
+    const rx = m.reacts && m.reacts.length ? `<div class="gcrx">${m.reacts.map((r) => `<button type="button" data-rx="${r.e}" class="${r.me ? "me" : ""}">${r.e} ${r.n}</button>`).join("")}</div>` : "";
+    const tick = m.mine ? `<i class="gctk${gcRead.all >= m.id ? " rd" : ""}">${gcRead.any >= m.id ? "✓✓" : "✓"}</i>` : "";
+    html += `<div class="gcm ${m.mine ? "me" : "oth"}${first ? " first" : ""}${m.mentioned && !m.mine ? " ment" : ""}" id="gcm-${m.id}" data-id="${m.id}"><div class="gcb">${nm}${m.fwd ? '<div class="gcfw">↪️ Diteruskan</div>' : ""}${rp}${img}${fl}${pl}${m.text && !p ? `<div class="gct">${esc(m.text)}</div>` : ""}${rx}<time>${m.pinned ? "📌 " : ""}${m.starred ? "⭐ " : ""}${m.edited ? "diedit · " : ""}${gcHM(m.ts)}${tick}</time></div></div>`;
   }
   box.innerHTML = html;
   if (stick) box.scrollTop = box.scrollHeight; else box.scrollTop = box.scrollHeight - keep;
@@ -7860,44 +7933,112 @@ function gcSetReply(m) {
   r.querySelector("button").onclick = () => gcSetReply(null);
   $("gcText").focus();
 }
+function gcView(url, video) {
+  const v = document.createElement("div");
+  v.className = "gcviewer";
+  v.innerHTML = (video ? `<video src="${url}" controls autoplay playsinline></video>` : `<img src="${url}" alt="Foto">`) + `<button type="button" aria-label="Tutup">${IC.x}</button>`;
+  v.querySelector("button").addEventListener("click", () => v.remove());
+  if (!video) v.addEventListener("click", () => v.remove());
+  document.body.appendChild(v);
+}
+async function gcFileTap(m) {
+  try {
+    const f = m.file, res = await apiCall(`/api/groupchat/file/${encodeURIComponent(gcCur.gid)}/${m.id}${f.kind === "voice" ? "?play=1" : ""}`);
+    if (!res.ok) throw new Error("File tidak bisa dimuat. Coba lagi.");
+    if (f.chars) {
+      const t = await res.text();
+      const s = gcSheet(`<h3>Pesan panjang</h3><div class="gct" style="max-height:55vh;overflow:auto;margin:8px 0">${esc(t)}</div><div class="gcacts"><button type="button" data-a="c">Salin</button><button type="button" data-a="x">Tutup</button></div>`);
+      s.addEventListener("click", (e) => { const b = e.target.closest("[data-a]"); if (!b) return; s.remove(); if (b.dataset.a === "c") copyText(t); });
+      return;
+    }
+    const url = URL.createObjectURL(await res.blob());
+    if (f.kind === "voice" || f.kind === "audio") { if (gcAudio) gcAudio.pause(); gcAudio = new Audio(url); gcAudio.play().catch(() => showToast("Audio tidak bisa diputar.", true)); }
+    else if (f.kind === "video") gcView(url, true);
+    else { const a = document.createElement("a"); a.href = url; a.download = f.name || "file"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 30000); }
+  } catch (e) { showToast(e.message || "Gagal memuat file.", true); }
+}
+async function gcOnce(m) {
+  try {
+    const res = await apiCall(`/api/groupchat/once/${encodeURIComponent(gcCur.gid)}/${m.id}`, { method: "POST" });
+    if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || "Foto tidak bisa dibuka."); }
+    m.img.seen = true; gcRender(false);
+    gcView(URL.createObjectURL(await res.blob()));
+  } catch (e) { showToast(e.message, true); gcPoll(false); }
+}
+async function gcAct(path, body, after) {
+  try { const d = await gcJSON(path, body, path.includes("/message/") ? "DELETE" : undefined); if (after) after(d); gcPoll(false); return d; } catch (e) { showToast(e.message, true); return null; }
+}
+async function gcNewPoll() {
+  const v = await openModal({ title: "Polling baru", ok: "Kirim", fields: [{ key: "q", label: "Pertanyaan", required: true }, { key: "a", label: "Pilihan 1", required: true }, { key: "b", label: "Pilihan 2", required: true }, { key: "c", label: "Pilihan 3 (opsional)" }, { key: "d", label: "Pilihan 4 (opsional)" }] });
+  if (!v) return;
+  try {
+    const d = await gcJSON("/api/groupchat/send", { gid: gcCur.gid, text: v.q.trim(), poll: { options: [v.a, v.b, v.c, v.d].filter((x) => x && x.trim()), multi: false }, push_endpoint: myPushEndpoint || "" });
+    if (d.message) gcMerge([d.message]); gcRender(true);
+  } catch (e) { showToast(e.message, true); }
+}
+async function gcReaders(m) {
+  try {
+    const d = await gcJSON(`/api/groupchat/readers?gid=${encodeURIComponent(gcCur.gid)}&id=${m.id}`, undefined, "GET");
+    const row = (u, t) => `<div class="gcmem">${avatarHtml(u, "u")}<span class="gcpn"><b>${esc(u.name)}</b>${t ? `<em>${esc(t)}</em>` : ""}</span></div>`;
+    gcSheet(`<h3>Info pesan</h3><p class="gcsub">Dikirim ${esc(gcHM(m.ts))}</p><div class="gcsec">Dibaca (${d.read.length})</div>${d.read.map((u) => row(u, u.at ? gcHM(u.at * 1000) : "")).join("") || '<p class="gcsub">Belum ada.</p>'}${d.unread ? `<div class="gcsec">Belum membaca (${d.unread.length})</div>${d.unread.map((u) => row(u, "")).join("")}` : ""}`);
+  } catch (e) { showToast(e.message, true); }
+}
+async function gcReport(m) {
+  const s = fgSheet(`<h3>Laporkan pesan</h3><div class="gcacts">${gcReasons.map((r, i) => `<button type="button" data-r="${i}">${esc(r)}</button>`).join("")}<button type="button" data-r="x">Batal</button></div>`);
+  s.addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-r]"); if (!b) return; s.remove();
+    if (b.dataset.r === "x") return;
+    try { await gcJSON("/api/groupchat/report", { gid: gcCur.gid, id: m.id, reason: gcReasons[+b.dataset.r] }); showToast("Laporan terkirim ke admin."); } catch (er) { showToast(er.message, true); }
+  });
+}
+async function gcEditMsg(m) {
+  const v = await openModal({ title: "Edit pesan", ok: "Simpan", fields: [{ key: "t", label: "Pesan", value: m.text, required: !(m.img || m.file) }] });
+  if (!v) return;
+  try { const d = await gcJSON("/api/groupchat/edit", { gid: gcCur.gid, id: m.id, text: v.t }); if (d.message) { m.text = d.message.text; m.edited = true; } gcRender(false); } catch (e) { showToast(e.message, true); }
+}
 function gcMsgClick(e) {
   const im = e.target.closest(".gcimg");
   if (im) {
     if (im.dataset.err) { delete im.dataset.err; im.classList.remove("err"); im.classList.add("load"); im.textContent = ""; gcImgLoad(gcCur.gid, +im.dataset.gi); return; }
-    const img = im.querySelector("img");
-    if (img) {
-      const v = document.createElement("div");
-      v.className = "gcviewer"; v.innerHTML = `<img src="${img.src}" alt="Foto"><button type="button" aria-label="Tutup">${IC.x}</button>`;
-      v.addEventListener("click", () => v.remove()); document.body.appendChild(v);
-    }
+    const img = im.querySelector("img"); if (img) gcView(img.src);
     return;
   }
+  const mOf = (el) => gcMsgs.find((x) => x.id === +el.closest(".gcm").dataset.id);
+  const one = e.target.closest("[data-once]"); if (one) return gcOnce(mOf(one));
+  const gf = e.target.closest("[data-gf]"); if (gf) return gcFileTap(mOf(gf));
+  const po = e.target.closest("[data-po]");
+  if (po) { const m = mOf(po); return gcAct("/api/groupchat/vote", { gid: gcCur.gid, id: m.id, opt: +po.dataset.po }, (d) => { m.poll = d.poll; gcRender(false); }); }
+  const rxb = e.target.closest("[data-rx]");
+  if (rxb) { const m = mOf(rxb); return gcAct("/api/groupchat/react", { gid: gcCur.gid, id: m.id, emoji: rxb.dataset.rx }, (d) => { m.reacts = d.reacts; gcRender(false); }); }
   const q = e.target.closest(".gcq");
-  if (q) {
-    const t = document.getElementById("gcm-" + q.dataset.q);
-    if (!t) return showToast("Pesan aslinya sudah dihapus atau terlalu lama.", true);
-    t.scrollIntoView({ block: "center", behavior: "smooth" }); t.classList.add("flash"); setTimeout(() => t.classList.remove("flash"), 1600);
-    return;
-  }
+  if (q) return gcJump(q.dataset.q) || undefined;
   const n = e.target.closest(".gcn");
   if (n && n.dataset.pid) return openProfile(n.dataset.pid);
   const row = e.target.closest(".gcm");
   if (!row) return;
   const m = gcMsgs.find((x) => x.id === +row.dataset.id);
   if (!m) return;
-  const canDel = gcAdmin || m.mine;
-  const s = fgSheet(`<div class="gcacts"><button type="button" data-a="reply">Balas</button>${m.text ? '<button type="button" data-a="copy">Salin</button>' : ""}${canDel ? '<button type="button" class="dng" data-a="del">Hapus untuk semua</button>' : ""}<button type="button" data-a="x">Batal</button></div>`);
+  const mgr = !!(gcCur && gcCur.mgr), age = gcAge(m.ts);
+  const canEdit = m.mine && m.text && !m.poll && !(m.file && m.file.chars) && !(m.img && m.img.once) && age <= gcLim.edit;
+  const canDel = mgr || (m.mine && age <= gcLim.delete);
+  const B = (a, t, c) => `<button type="button"${c ? ` class="${c}"` : ""} data-a="${a}">${t}</button>`;
+  const s = fgSheet(`<div class="gcrxbar">${gcReacts.map((r) => `<button type="button" data-e="${r}">${r}</button>`).join("")}</div><div class="gcacts">${B("reply", "Balas")}${m.text ? B("copy", "Salin") : ""}${canEdit ? B("edit", "Edit") : ""}${mgr ? B("pin", m.pinned ? "Lepas sematan" : "Sematkan") : ""}${B("star", m.starred ? "Hapus bintang" : "Bintangi")}${m.mine || mgr ? B("info", "Info pesan") : ""}${m.poll && !m.poll.closed && (m.mine || mgr) ? B("close", "Tutup polling") : ""}${!m.mine ? B("rep", "Laporkan") : ""}${B("hide", "Hapus untuk saya")}${canDel ? B("del", "Hapus untuk semua", "dng") : ""}${B("x", "Batal")}</div>`);
   s.addEventListener("click", async (ev) => {
+    const eb = ev.target.closest("[data-e]");
+    if (eb) { s.remove(); return gcAct("/api/groupchat/react", { gid: gcCur.gid, id: m.id, emoji: eb.dataset.e }, (d) => { m.reacts = d.reacts; gcRender(false); }); }
     const b = ev.target.closest("[data-a]"); if (!b) return;
     s.remove();
-    if (b.dataset.a === "reply") gcSetReply(m);
-    else if (b.dataset.a === "copy") copyText(m.text);
-    else if (b.dataset.a === "del") {
-      try {
-        await gcJSON(`/api/groupchat/message/${encodeURIComponent(gcCur.gid)}/${m.id}`, undefined, "DELETE");
-        gcMsgs = gcMsgs.filter((x) => x.id !== m.id); gcRender(false);
-      } catch (er) { showToast(er.message, true); }
-    }
+    const a = b.dataset.a, gid = gcCur.gid;
+    if (a === "reply") gcSetReply(m);
+    else if (a === "copy") copyText(m.text);
+    else if (a === "edit") gcEditMsg(m);
+    else if (a === "pin") gcAct("/api/groupchat/pin", { gid, id: m.id, on: !m.pinned });
+    else if (a === "star") gcAct("/api/groupchat/star", { gid, id: m.id, on: !m.starred }, () => { m.starred = !m.starred; gcRender(false); });
+    else if (a === "info") gcReaders(m);
+    else if (a === "close") gcAct("/api/groupchat/vote", { gid, id: m.id, close: true }, (d) => { m.poll = d.poll; gcRender(false); });
+    else if (a === "rep") gcReport(m);
+    else if (a === "hide") gcAct("/api/groupchat/hide", { gid, ids: [m.id] }, () => { gcMsgs = gcMsgs.filter((x) => x.id !== m.id); gcRender(false); });
+    else if (a === "del") gcAct(`/api/groupchat/message/${encodeURIComponent(gid)}/${m.id}`, undefined, () => { gcMsgs = gcMsgs.filter((x) => x.id !== m.id); gcRender(false); });
   });
 }
 async function gcSend() {
@@ -7918,7 +8059,8 @@ async function gcUpload(file) {
   const btn = $("gcAttach"); btn.disabled = true;
   try {
     let f = file;
-    if (f.size > 300e3 && typeof inShrink === "function") f = await inShrink(f);
+    const isImg = /^image\/(jpeg|png|webp)$/.test(f.type);
+    if (isImg && f.size > 300e3 && typeof inShrink === "function") f = await inShrink(f);
     const dm = await fImgDims(f);
     const fd = new FormData();
     fd.append("gid", gcCur.gid); fd.append("file", f, f.name || "foto.jpg");
@@ -7934,36 +8076,52 @@ async function gcUpload(file) {
   gcSendBusy = false; btn.disabled = false;
 }
 
-/* ----- info grup: anggota, tambah, kick, ubah nama, hapus / keluar ----- */
+/* ----- info grup: profil, anggota, peran, pengaturan chat ----- */
 async function gcShowInfo() {
   if (!gcCur) return;
   const gid = gcCur.gid;
   let d;
-  try { d = await gcJSON(`/api/groupchat/members?gid=${encodeURIComponent(gid)}`, undefined, "GET"); } catch (e) { return showToast(e.message, true); }
-  const row = (u, isAdm) => `<div class="gcmem">${avatarHtml(u, "u")}<span class="gcpn"><b>${nameHtml(u.name, u.owner, verOf(u.pid))}${u.mine ? " (kamu)" : ""}</b><em>${esc(isAdm ? "Admin grup" : gcAdmin ? ((u.real ? "@" + u.real : "") + (u.nim ? " · " + u.nim : "")) : u.mask || "")}</em></span>${isAdm ? '<span class="gctag">Admin</span>' : gcAdmin ? `<button type="button" class="gckick" data-kick="${esc(u.pid)}" data-nm="${esc(u.name)}">Keluarkan</button>` : ""}</div>`;
-  const s = gcSheet(`<div class="gcbig">${gcAvHtml(gcCur)}</div><h3>${esc(d.name || gcCur.name)}</h3><p class="gcsub">Grup · ${d.members.length} anggota${d.created ? " · dibuat " + esc(new Date(d.created).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })) : ""}</p>
-    ${gcAdmin ? '<div class="gcacts"><button type="button" data-a="add">Tambah anggota</button><button type="button" data-a="ren">Ubah nama grup</button></div>' : ""}
-    <div class="gcsec">Anggota (${d.members.length + 1})</div>${row(d.admin, true)}${d.members.map((u) => row(u, false)).join("")}
-    <div class="gcacts" style="margin-top:16px">${gcAdmin ? '<button type="button" class="dng" data-a="del">Hapus grup</button>' : '<button type="button" class="dng" data-a="leave">Keluar dari grup</button>'}</div>`);
-  const post = async (path, body, okMsg) => {
-    try { const r = await gcJSON(path, body); if (okMsg) showToast(okMsg); return r; } catch (e) { showToast(e.message, true); return null; }
-  };
+  try { d = (await gcJSON(`/api/groupchat/info?gid=${encodeURIComponent(gid)}`, undefined, "GET")).group; } catch (e) { return showToast(e.message, true); }
+  const mgr = !!d.mgr, B = (a, t, c) => `<button type="button"${c ? ` class="${c}"` : ""} data-a="${a}">${t}</button>`;
+  const row = (u, tag) => `<div class="gcmem">${avatarHtml(u, "u")}<span class="gcpn"><b>${nameHtml(u.name, u.owner, verOf(u.pid))}${u.mine ? " (kamu)" : ""}</b><em>${esc(tag ? "Admin utama" : u.gadm ? "Admin grup" : ((u.real ? "@" + u.real : "") + (u.nim ? " · " + u.nim : "")) || u.mask || "")}</em></span>${tag || u.gadm ? '<span class="gctag">Admin</span>' : ""}${gcAdmin && !tag && !u.mine ? `<button type="button" class="gckick" style="color:var(--brand);background:var(--brand-soft)" data-role="${esc(u.pid)}" data-on="${u.gadm ? 0 : 1}">${u.gadm ? "Copot" : "Jadikan admin"}</button>` : ""}${mgr && !tag && !u.mine && (!u.gadm || gcAdmin) ? `<button type="button" class="gckick" data-kick="${esc(u.pid)}" data-nm="${esc(u.name)}">Keluarkan</button>` : ""}</div>`;
+  const md = d.media || {};
+  const s = gcSheet(`<div class="gcbig">${gcAvHtml(d)}</div><h3>${esc(d.name)}</h3><p class="gcsub">Grup · ${d.members.length + 1} anggota${d.created ? " · dibuat " + esc(new Date(d.created).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })) : ""}</p>
+    ${d.desc ? `<p class="gcdesc">${esc(d.desc)}</p>` : ""}
+    <p class="gcsub">📷 ${md.photo || 0} foto · 📄 ${md.file || 0} file · 🔗 ${md.link || 0} tautan${d.ann ? " · 📢 Mode pengumuman" : ""}</p>
+    <div class="gcacts">${B("pinchat", d.pin ? "Lepas sematan chat" : "Sematkan chat")}${B("arch", d.arch ? "Keluarkan dari arsip" : "Arsipkan chat")}${B("mute", d.mute ? "Nyalakan notifikasi" : "Bisukan notifikasi")}${B("clr", "Kosongkan chat untuk saya")}</div>
+    ${mgr ? `<div class="gcsec">Kelola grup</div><div class="gcacts">${B("add", "Tambah anggota")}${B("edit", "Ubah nama & deskripsi")}${B("ann", d.ann ? "Matikan mode pengumuman" : "Mode pengumuman (hanya admin yang kirim)")}${B("clrall", "Hapus semua pesan grup", "dng")}</div>` : ""}
+    <div class="gcsec">Anggota (${d.members.length + 1})</div>${row(d.owner, true)}${d.members.map((u) => row(u, false)).join("")}
+    <div class="gcacts" style="margin-top:16px">${gcAdmin ? B("del", "Hapus grup", "dng") : B("leave", "Keluar dari grup", "dng")}</div>`);
+  const post = async (path, body, okMsg) => { try { const r = await gcJSON(path, body); if (okMsg) showToast(okMsg); return r; } catch (e) { showToast(e.message, true); return null; } };
+  const refresh = () => { s.remove(); gcLoadState(true); gcPoll(false); gcShowInfo(); };
   s.addEventListener("click", async (e) => {
     const k = e.target.closest("[data-kick]");
     if (k) {
       const ok = await openModal({ title: "Keluarkan anggota?", text: `${k.dataset.nm} tidak akan bisa membaca atau mengirim pesan di grup ini lagi.`, ok: "Keluarkan", danger: true });
-      if (!ok) return;
-      if (await post("/api/groupchat/members/kick", { gid, pid: k.dataset.kick }, "Anggota dikeluarkan.")) { s.remove(); gcLoadState(true); gcPoll(false); gcShowInfo(); }
+      if (ok && await post("/api/groupchat/members/kick", { gid, pid: k.dataset.kick }, "Anggota dikeluarkan.")) refresh();
       return;
     }
+    const ro = e.target.closest("[data-role]");
+    if (ro) { if (await post("/api/groupchat/members/role", { gid, pid: ro.dataset.role, admin: ro.dataset.on === "1" }, ro.dataset.on === "1" ? "Dijadikan admin grup." : "Admin grup dicopot.")) refresh(); return; }
     const b = e.target.closest("[data-a]"); if (!b) return;
     const a = b.dataset.a;
     if (a === "add") { s.remove(); gcAddMembers(gid, d.members.map((u) => u.pid)); }
-    else if (a === "ren") {
-      const v = await openModal({ title: "Ubah nama grup", ok: "Simpan", fields: [{ key: "name", label: "Nama grup", value: gcCur ? gcCur.name : "", required: true }] });
-      if (!v) return;
-      const r = await post("/api/groupchat/rename", { gid, name: v.name }, "Nama grup diperbarui.");
-      if (r && gcCur) { gcCur.name = r.name; gcHeader(); s.remove(); gcLoadState(true); gcPoll(false); }
+    else if (a === "edit") {
+      const v = await openModal({ title: "Profil grup", ok: "Simpan", fields: [{ key: "name", label: "Nama grup", value: d.name, required: true }, { key: "desc", label: "Deskripsi (opsional)", value: d.desc || "" }] });
+      if (v && await post("/api/groupchat/profile", { gid, name: v.name, desc: v.desc }, "Profil grup diperbarui.")) refresh();
+    } else if (a === "ann") { if (await post("/api/groupchat/profile", { gid, ann: !d.ann })) refresh(); }
+    else if (a === "pinchat") { if (await post("/api/groupchat/prefs", { gid, pin: !d.pin })) refresh(); }
+    else if (a === "arch") { if (await post("/api/groupchat/prefs", { gid, arch: !d.arch }, d.arch ? "Chat dikeluarkan dari arsip." : "Chat diarsipkan.")) { if (!d.arch) { s.remove(); gcClose(); } else refresh(); } }
+    else if (a === "mute") {
+      if (d.mute) { if (await post("/api/groupchat/prefs", { gid, mute: 0 }, "Notifikasi dinyalakan.")) refresh(); return; }
+      const m = fgSheet(`<h3>Bisukan notifikasi</h3><div class="gcacts"><button type="button" data-s="28800">8 jam</button><button type="button" data-s="604800">1 minggu</button><button type="button" data-s="-1">Selamanya</button><button type="button" data-s="x">Batal</button></div>`);
+      m.addEventListener("click", async (ev) => { const x = ev.target.closest("[data-s]"); if (!x) return; m.remove(); if (x.dataset.s !== "x" && await post("/api/groupchat/prefs", { gid, mute: +x.dataset.s }, "Notifikasi dibisukan.")) refresh(); });
+    } else if (a === "clr") {
+      const ok = await openModal({ title: "Kosongkan chat?", text: "Pesan hanya hilang dari tampilanmu. Anggota lain tidak terpengaruh.", ok: "Kosongkan", danger: true });
+      if (ok && await post("/api/groupchat/clear", { gid }, "Chat dikosongkan.")) { s.remove(); gcMsgs = []; gcRender(true); gcPoll(false); }
+    } else if (a === "clrall") {
+      const ok = await openModal({ title: "Hapus semua pesan?", text: "Semua pesan grup dihapus untuk semua anggota, termasuk di Telegram. Tidak bisa dibatalkan.", ok: "Hapus semua", danger: true });
+      if (ok && await post("/api/groupchat/clear_all", { gid }, "Semua pesan dihapus.")) { s.remove(); gcMsgs = []; gcRender(true); gcPoll(false); }
     } else if (a === "del") {
       const ok = await openModal({ title: "Hapus grup?", text: "Grup dan semua pesannya dihapus untuk semua anggota, termasuk topiknya di Telegram. Tidak bisa dibatalkan.", ok: "Hapus grup", danger: true });
       if (ok && await post("/api/groupchat/delete", { gid }, "Grup dihapus.")) { s.remove(); gcClose(); }
