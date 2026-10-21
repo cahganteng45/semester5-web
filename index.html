@@ -7628,6 +7628,10 @@ try{
 .ubadge.mt{background:var(--mute)}
 .gcarch{text-align:center;padding:12px;color:var(--brand);font-weight:700;font-size:13.5px;cursor:pointer}
 .gcviewer video{max-width:100%;max-height:100%;border-radius:6px}
+.gcb.pressing{transform:scale(.96)}
+.gcb{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;transition:transform .15s}
+.gcm.snap{transition:transform .22s}
+.fpress .fclone.gcb{margin:0}
 .gcdesc{white-space:pre-wrap;font-size:14px;margin:0 0 10px;text-align:center}
 </style>
 <script>
@@ -7775,6 +7779,7 @@ function gcEnsureRoom() {
   $("gcPinBar").addEventListener("click", () => gcJump($("gcPinBar").dataset.q));
   $("gcFile").addEventListener("change", (e) => { const f = e.target.files[0]; e.target.value = ""; if (f) gcUpload(f); });
   $("gcMsgs").addEventListener("click", gcMsgClick);
+  gcBindPress($("gcMsgs"));
 }
 function gcApplyHead() {
   if (!gcCur) return;
@@ -7819,7 +7824,7 @@ function gcOpen(gid) {
   updateForumBadge();
 }
 function gcClose(silent) {
-  clearInterval(gcTimer); gcTimer = null; gcCur = null;
+  clearInterval(gcTimer); gcTimer = null; gcCur = null; gcClosePress(true);
   const el = $("gcRoom"); if (el) el.classList.remove("show");
   document.body.style.overflow = "";
   document.querySelectorAll(".gcviewer").forEach((x) => x.remove());
@@ -7997,6 +8002,7 @@ async function gcEditMsg(m) {
   try { const d = await gcJSON("/api/groupchat/edit", { gid: gcCur.gid, id: m.id, text: v.t }); if (d.message) { m.text = d.message.text; m.edited = true; } gcRender(false); } catch (e) { showToast(e.message, true); }
 }
 function gcMsgClick(e) {
+  if (Date.now() - gcPressAt < 700 || gcPress) return;
   const im = e.target.closest(".gcimg");
   if (im) {
     if (im.dataset.err) { delete im.dataset.err; im.classList.remove("err"); im.classList.add("load"); im.textContent = ""; gcImgLoad(gcCur.gid, +im.dataset.gi); return; }
@@ -8014,32 +8020,113 @@ function gcMsgClick(e) {
   if (q) return gcJump(q.dataset.q) || undefined;
   const n = e.target.closest(".gcn");
   if (n && n.dataset.pid) return openProfile(n.dataset.pid);
-  const row = e.target.closest(".gcm");
-  if (!row) return;
-  const m = gcMsgs.find((x) => x.id === +row.dataset.id);
-  if (!m) return;
+}
+/* ----- tahan lama pada pesan = menu melayang (sama seperti forum), geser kanan = balas ----- */
+var gcPress = null, gcPressAt = 0, gcPressTimer = null, gcPressEl = null, gcPressStart = null;
+function gcClosePress(instant) {
+  const o = gcPress; if (!o) return; gcPress = null;
+  if (instant) { o.remove(); return; }
+  o.classList.add("out"); setTimeout(() => o.remove(), 160);
+}
+function gcCancelPress() {
+  clearTimeout(gcPressTimer); gcPressTimer = null;
+  if (gcPressEl) { gcPressEl.classList.remove("pressing"); gcPressEl = null; }
+}
+function gcDoAct(a, m) {
+  const gid = gcCur.gid;
+  if (a === "reply") gcSetReply(m);
+  else if (a === "copy") { if (m.file && m.file.chars) gcFileTap(m); else copyText(m.text); }
+  else if (a === "edit") gcEditMsg(m);
+  else if (a === "pin") gcAct("/api/groupchat/pin", { gid, id: m.id, on: !m.pinned });
+  else if (a === "star") gcAct("/api/groupchat/star", { gid, id: m.id, on: !m.starred }, () => { m.starred = !m.starred; gcRender(false); });
+  else if (a === "info") gcReaders(m);
+  else if (a === "close") gcAct("/api/groupchat/vote", { gid, id: m.id, close: true }, (d) => { m.poll = d.poll; gcRender(false); });
+  else if (a === "report") gcReport(m);
+  else if (a === "hide") gcAct("/api/groupchat/hide", { gid, ids: [m.id] }, () => { gcMsgs = gcMsgs.filter((x) => x.id !== m.id); gcRender(false); });
+  else if (a === "del") gcAct(`/api/groupchat/message/${encodeURIComponent(gid)}/${m.id}`, undefined, () => { gcMsgs = gcMsgs.filter((x) => x.id !== m.id); gcRender(false); });
+}
+function gcOpenPress(bub) {
+  const row = bub.closest(".gcm"); if (!row || gcPress) return;
+  const m = gcMsgs.find((x) => x.id === +row.dataset.id); if (!m) return;
+  gcPressAt = Date.now();
+  if (navigator.vibrate) navigator.vibrate(12);
+  const rect = bub.getBoundingClientRect();
+  const ov = document.createElement("div"); ov.className = "fpress";
+  const clone = bub.cloneNode(true); clone.classList.remove("pressing"); clone.classList.add("fclone");
+  const host = document.createElement("div"); host.className = row.className.replace(/\b(flash|ment)\b/g, "") + " fclonehost"; host.style.display = "contents";
+  host.append(clone);
   const mgr = !!(gcCur && gcCur.mgr), age = gcAge(m.ts);
   const canEdit = m.mine && m.text && !m.poll && !(m.file && m.file.chars) && !(m.img && m.img.once) && age <= gcLim.edit;
   const canDel = mgr || (m.mine && age <= gcLim.delete);
-  const B = (a, t, c) => `<button type="button"${c ? ` class="${c}"` : ""} data-a="${a}">${t}</button>`;
-  const s = fgSheet(`<div class="gcrxbar">${gcReacts.map((r) => `<button type="button" data-e="${r}">${r}</button>`).join("")}</div><div class="gcacts">${B("reply", "Balas")}${m.text ? B("copy", "Salin") : ""}${canEdit ? B("edit", "Edit") : ""}${mgr ? B("pin", m.pinned ? "Lepas sematan" : "Sematkan") : ""}${B("star", m.starred ? "Hapus bintang" : "Bintangi")}${m.mine || mgr ? B("info", "Info pesan") : ""}${m.poll && !m.poll.closed && (m.mine || mgr) ? B("close", "Tutup polling") : ""}${!m.mine ? B("rep", "Laporkan") : ""}${B("hide", "Hapus untuk saya")}${canDel ? B("del", "Hapus untuk semua", "dng") : ""}${B("x", "Batal")}</div>`);
-  s.addEventListener("click", async (ev) => {
-    const eb = ev.target.closest("[data-e]");
-    if (eb) { s.remove(); return gcAct("/api/groupchat/react", { gid: gcCur.gid, id: m.id, emoji: eb.dataset.e }, (d) => { m.reacts = d.reacts; gcRender(false); }); }
-    const b = ev.target.closest("[data-a]"); if (!b) return;
-    s.remove();
-    const a = b.dataset.a, gid = gcCur.gid;
-    if (a === "reply") gcSetReply(m);
-    else if (a === "copy") copyText(m.text);
-    else if (a === "edit") gcEditMsg(m);
-    else if (a === "pin") gcAct("/api/groupchat/pin", { gid, id: m.id, on: !m.pinned });
-    else if (a === "star") gcAct("/api/groupchat/star", { gid, id: m.id, on: !m.starred }, () => { m.starred = !m.starred; gcRender(false); });
-    else if (a === "info") gcReaders(m);
-    else if (a === "close") gcAct("/api/groupchat/vote", { gid, id: m.id, close: true }, (d) => { m.poll = d.poll; gcRender(false); });
-    else if (a === "rep") gcReport(m);
-    else if (a === "hide") gcAct("/api/groupchat/hide", { gid, ids: [m.id] }, () => { gcMsgs = gcMsgs.filter((x) => x.id !== m.id); gcRender(false); });
-    else if (a === "del") gcAct(`/api/groupchat/message/${encodeURIComponent(gid)}/${m.id}`, undefined, () => { gcMsgs = gcMsgs.filter((x) => x.id !== m.id); gcRender(false); });
+  const mine = ((m.reacts || []).find((r) => r.me) || {}).e;
+  const I = (n) => `<svg class="i"><use href="#i-${n}"/></svg>`;
+  const B = (a, t, ic, c) => `<button type="button" data-a="${a}"${c ? ` class="${c}"` : ""}>${t}${ic}</button>`;
+  const star = '<span class="i" style="display:inline-flex;align-items:center;justify-content:center;font-style:normal;color:#f5b301">★</span>';
+  const menu = document.createElement("div"); menu.className = "fmenu";
+  menu.innerHTML = `<div class="freactbar">${gcReacts.map((e) => `<button type="button" data-e="${e}" class="${e === mine ? "on" : ""}">${e}</button>`).join("")}</div>`
+    + B("reply", "Balas", I("chat")) + (m.text ? B("copy", "Salin", I("edit")) : "") + (canEdit ? B("edit", "Edit", I("edit")) : "")
+    + B("star", m.starred ? "Hapus bintang" : "Bintangi", star)
+    + (m.mine || mgr ? B("info", "Info pesan", I("eye")) : "")
+    + (mgr ? B("pin", m.pinned ? "Lepas sematan" : "Sematkan", I("pin")) : "")
+    + (m.poll && !m.poll.closed && (m.mine || mgr) ? B("close", "Tutup polling", I("clock")) : "")
+    + (!m.mine ? B("report", "Laporkan", I("shield"), "danger") : "")
+    + B("hide", "Hapus untuk saya", I("eyeoff"), "danger")
+    + (canDel ? B("del", "Hapus untuk semua", I("trash"), "danger") : "");
+  ov.append(host, menu); document.body.append(ov); gcPress = ov;
+  const vh = innerHeight, vw = innerWidth, gap = 10, pad = 16, mh = menu.offsetHeight, mw = menu.offsetWidth;
+  const bh = Math.min(rect.height, Math.max(vh - mh - gap - pad * 2, 120));
+  let top = Math.min(Math.max(rect.top, pad), vh - bh - mh - gap - pad); top = Math.max(top, pad);
+  Object.assign(clone.style, { left: rect.left + "px", top: top + "px", width: rect.width + "px", maxHeight: bh + "px", maxWidth: "none" });
+  const left = m.mine ? Math.max(pad, rect.right - mw) : Math.min(rect.left, vw - mw - pad);
+  Object.assign(menu.style, { left: Math.max(pad, left) + "px", top: top + bh + gap + "px" });
+  if (menu.getBoundingClientRect().bottom > vh - 8) menu.style.maxHeight = (vh - top - bh - gap - 8) + "px", menu.style.overflowY = "auto";
+  ov.addEventListener("click", (e) => {
+    const ex = e.target.closest("[data-e]");
+    if (ex) { gcClosePress(true); gcAct("/api/groupchat/react", { gid: gcCur.gid, id: m.id, emoji: ex.dataset.e }, (d) => { m.reacts = d.reacts; gcRender(false); }); return; }
+    const b = e.target.closest("[data-a]");
+    if (!b) { gcPressAt = Date.now(); return gcClosePress(); }
+    gcClosePress(true); gcDoAct(b.dataset.a, m);
   });
+  ov.addEventListener("contextmenu", (e) => e.preventDefault());
+}
+function gcBindPress(box) {
+  let sw = null;
+  box.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "mouse" || e.button > 0 || gcPress) return;
+    if (e.target.closest("a")) return;
+    const bub = e.target.closest(".gcb"); if (!bub) return;
+    gcCancelPress(); gcPressStart = { x: e.clientX, y: e.clientY }; gcPressEl = bub;
+    gcPressTimer = setTimeout(() => { const el = gcPressEl; gcCancelPress(); sw = null; if (el) gcOpenPress(el); }, 450);
+    setTimeout(() => { if (gcPressEl === bub) bub.classList.add("pressing"); }, 120);
+    const row = bub.closest(".gcm"); if (row) sw = { row, x: e.clientX, y: e.clientY, lock: false, dead: false, ready: false };
+  });
+  box.addEventListener("pointermove", (e) => {
+    if (gcPressStart && Math.hypot(e.clientX - gcPressStart.x, e.clientY - gcPressStart.y) > 10) gcCancelPress();
+    if (!sw || sw.dead) return;
+    const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+    if (!sw.lock) {
+      if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { sw.dead = true; return; }
+      if (dx < -12) { sw.dead = true; return; }
+      if (dx > 12 && dx > Math.abs(dy) * 1.4) { sw.lock = true; gcCancelPress(); sw.row.classList.remove("snap"); try { box.setPointerCapture(e.pointerId); } catch (_) {} } else return;
+    }
+    const d = Math.max(0, Math.min(dx, 92));
+    sw.row.style.transform = `translateX(${d}px)`;
+    const ready = d >= 64;
+    if (ready !== sw.ready) { sw.ready = ready; if (ready && navigator.vibrate) navigator.vibrate(10); }
+  });
+  const end = (e) => {
+    gcCancelPress();
+    if (!sw) return; const s0 = sw; sw = null;
+    if (!s0.lock) return;
+    gcPressAt = Date.now();
+    s0.row.classList.add("snap"); s0.row.style.transform = "";
+    setTimeout(() => s0.row.classList.remove("snap"), 240);
+    if (e.type === "pointerup" && s0.ready) { const m = gcMsgs.find((x) => x.id === +s0.row.dataset.id); if (m) gcSetReply(m); }
+  };
+  box.addEventListener("pointerup", end); box.addEventListener("pointercancel", end); box.addEventListener("pointerleave", gcCancelPress);
+  box.addEventListener("scroll", gcCancelPress, { passive: true });
+  box.addEventListener("contextmenu", (e) => { const bub = e.target.closest(".gcb"); if (!bub) return; e.preventDefault(); gcCancelPress(); gcOpenPress(bub); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") gcClosePress(); });
 }
 async function gcSend() {
   const t = $("gcText"), text = t.value.trim();
