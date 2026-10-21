@@ -7584,10 +7584,10 @@ try{
 .gcsec{font-size:12px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin:16px 0 4px}
 .gcmem{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
 .gcmem:first-of-type{border-top:0}
-.gcmem{flex-wrap:wrap}
-.gcma{flex-basis:100%;display:flex;gap:8px;flex-wrap:wrap;padding-left:52px}
-.gcma .gckick{margin:0}
 .gcmem em.gcmu{color:#d35400;font-weight:600}
+.gcmzoom{display:inline-flex;flex:none;cursor:zoom-in}
+.gcbig.gz{cursor:zoom-in}
+.gcmg{flex:none;border:0;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700;color:var(--brand);background:var(--brand-soft);cursor:pointer}
 .gcpn{flex:1;min-width:0}
 .gcpn b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gcpn em{display:block;font-style:normal;font-size:12.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -7643,7 +7643,7 @@ var gcCur = null, gcMsgs = [], gcLast = 0, gcTimer = null, gcReply = null, gcPol
 var gcShowArch = false, gcRead = { all: 0, any: 0 }, gcPins = [], gcLim = { edit: 1200, delete: 3600 }, gcReacts = ["👍", "❤️", "😂", "😮", "😢", "🙏"], gcReasons = [], gcSig = "", gcAudio = null;
 var gcTypAt = 0, gcReadAt = 0, gcTypers = [], gcImgs = new Map(), gcImgBusy = new Set();
 const gcHue = (s) => { let h = 0; for (const c of String(s || "")) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
-const gcAvHtml = (gr) => gr.av ? `<span class="av gcav" style="background:none"><img src="${esc(avSrc("/api/groupchat/photo/" + gr.gid + "?v=" + (gr.avv || 0)))}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover"></span>` : `<span class="av gcav" style="background:hsl(${gcHue(gr.gid)} 52% 46%)">👥</span>`;
+const gcAvHtml = (gr) => gr.av ? `<span class="av gcav" style="background:none"><img src="${esc(avSrc(API + "/api/groupchat/photo/" + gr.gid + "?v=" + (gr.avv || 0)))}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover"></span>` : `<span class="av gcav" style="background:hsl(${gcHue(gr.gid)} 52% 46%)">👥</span>`;
 const gcCalc = () => { gcUnread = gcGroups.reduce((a, x) => a + (x.mute ? 0 : (x.unread || (x.marked ? 1 : 0))), 0); };
 const gcAge = (ts) => (Date.now() - new Date(ts).getTime()) / 1000;
 const gcHM = (ts) => { const d = new Date(ts); return isNaN(d) ? "" : `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
@@ -8222,9 +8222,9 @@ async function gcShowInfo() {
   let d;
   try { d = (await gcJSON(`/api/groupchat/info?gid=${encodeURIComponent(gid)}`, undefined, "GET")).group; } catch (e) { return showToast(e.message, true); }
   const mgr = !!d.mgr, B = (a, t, c) => `<button type="button"${c ? ` class="${c}"` : ""} data-a="${a}">${t}</button>`;
-  const row = (u, tag) => `<div class="gcmem">${avatarHtml(u, "u")}<span class="gcpn"><b>${nameHtml(u.name, u.owner, verOf(u.pid))}${u.mine ? " (kamu)" : ""}</b><em class="${u.mute_left > 0 ? "gcmu" : ""}">${u.mute_left > 0 ? "🔇 Dilarang kirim pesan · sisa " + esc(gcLeft(u.mute_left)) : esc(tag ? "Admin utama" : u.gadm ? "Admin grup" : ((u.real ? "@" + u.real : "") + (u.nim ? " · " + u.nim : "")) || u.mask || "")}</em></span>${tag || u.gadm ? '<span class="gctag">Admin</span>' : ""}${(gcAdmin || mgr) && !tag && !u.mine ? `<span class="gcma">${gcAdmin ? `<button type="button" class="gckick" style="color:var(--brand);background:var(--brand-soft)" data-role="${esc(u.pid)}" data-on="${u.gadm ? 0 : 1}">${u.gadm ? "Copot" : "Jadikan admin"}</button>` : ""}${mgr && (!u.gadm || gcAdmin) ? `<button type="button" class="gckick" style="color:#d35400;background:#fff1e6" data-mute="${esc(u.pid)}" data-on="${u.mute_left > 0 ? 1 : 0}" data-nm="${esc(u.name)}">${u.mute_left > 0 ? "Cabut larangan" : "Larang kirim pesan"}</button><button type="button" class="gckick" data-kick="${esc(u.pid)}" data-nm="${esc(u.name)}">Keluarkan</button>` : ""}</span>` : ""}</div>`;
+  const row = (u, tag) => `<div class="gcmem">${u.av ? `<span class="gcmzoom" data-zoom="${esc(u.pid)}" data-v="${u.avv || 0}">${avatarHtml(u, "u")}</span>` : avatarHtml(u, "u")}<span class="gcpn"><b>${nameHtml(u.name, u.owner, verOf(u.pid))}${u.mine ? " (kamu)" : ""}</b><em class="${u.mute_left > 0 ? "gcmu" : ""}">${u.mute_left > 0 ? "🔇 Dilarang kirim pesan · sisa " + esc(gcLeft(u.mute_left)) : esc(tag ? "Admin utama" : u.gadm ? "Admin grup" : ((u.real ? "@" + u.real : "") + (u.nim ? " · " + u.nim : "")) || u.mask || "")}</em></span>${tag || u.gadm ? '<span class="gctag">Admin</span>' : ""}${!tag && !u.mine && (gcAdmin || (mgr && !u.gadm)) ? `<button type="button" class="gcmg" data-mg="${esc(u.pid)}" data-nm="${esc(u.name)}" data-on="${u.mute_left > 0 ? 1 : 0}" data-adm="${u.gadm ? 1 : 0}">Kelola</button>` : ""}</div>`;
   const md = d.media || {};
-  const s = gcSheet(`<div class="gcbig">${gcAvHtml(d)}</div><h3>${esc(d.name)}</h3><p class="gcsub">Grup · ${d.members.length + 1} anggota${d.created ? " · dibuat " + esc(new Date(d.created).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })) : ""}</p>
+  const s = gcSheet(`<div class="gcbig${d.av ? " gz" : ""}"${d.av ? " data-gzoom=\"1\"" : ""}>${gcAvHtml(d)}</div><h3>${esc(d.name)}</h3><p class="gcsub">Grup · ${d.members.length + 1} anggota${d.created ? " · dibuat " + esc(new Date(d.created).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })) : ""}</p>
     ${d.desc ? `<p class="gcdesc">${esc(d.desc)}</p>` : ""}
     <p class="gcsub">📷 ${md.photo || 0} foto · 📄 ${md.file || 0} file · 🔗 ${md.link || 0} tautan${d.ann ? " · 📢 Mode pengumuman" : ""}${d.ttl ? " · ⏳ Pesan hilang " + gcTtlLabel(d.ttl) : ""}</p>
     <div class="gcacts">${B("pinchat", d.pin ? "Lepas sematan chat" : "Sematkan chat")}${B("arch", d.arch ? "Keluarkan dari arsip" : "Arsipkan chat")}${B("mute", d.mute ? "Nyalakan notifikasi" : "Bisukan notifikasi")}${B("clr", "Kosongkan chat untuk saya")}</div>
@@ -8234,22 +8234,28 @@ async function gcShowInfo() {
   const post = async (path, body, okMsg) => { try { const r = await gcJSON(path, body); if (okMsg) showToast(okMsg); return r; } catch (e) { showToast(e.message, true); return null; } };
   const refresh = () => { s.remove(); gcLoadState(true); gcPoll(false); gcShowInfo(); };
   s.addEventListener("click", async (e) => {
-    const k = e.target.closest("[data-kick]");
-    if (k) {
-      const ok = await openModal({ title: "Keluarkan anggota?", text: `${k.dataset.nm} tidak akan bisa membaca atau mengirim pesan di grup ini lagi.`, ok: "Keluarkan", danger: true });
-      if (ok && await post("/api/groupchat/members/kick", { gid, pid: k.dataset.kick }, "Anggota dikeluarkan.")) refresh();
+    if (e.target.closest("[data-gzoom]")) { viewPhoto(API + "/api/groupchat/photo/" + encodeURIComponent(gid) + "?v=" + (d.avv || 0)); return; }
+    const zm = e.target.closest("[data-zoom]");
+    if (zm) { viewPhoto(avUrl(zm.dataset.zoom, +zm.dataset.v || 0)); return; }
+    const mg = e.target.closest("[data-mg]");
+    if (mg) {
+      const pid = mg.dataset.mg, nm = mg.dataset.nm, muted = mg.dataset.on === "1", adm = mg.dataset.adm === "1";
+      const m = fgSheet(`<h3>${esc(nm)}</h3><div class="gcacts">${gcAdmin ? `<button type="button" data-x="role">${adm ? "Copot dari admin grup" : "Jadikan admin grup"}</button>` : ""}<button type="button" data-x="mute">${muted ? "Cabut larangan kirim pesan" : "Larang kirim pesan sementara"}</button><button type="button" class="dng" data-x="kick">Keluarkan dari grup</button><button type="button" data-x="c">Batal</button></div>`);
+      m.addEventListener("click", async (ev) => {
+        const x = ev.target.closest("[data-x]"); if (!x) return; m.remove();
+        const t = x.dataset.x;
+        if (t === "role") { if (await post("/api/groupchat/members/role", { gid, pid, admin: !adm }, adm ? "Admin grup dicopot." : "Dijadikan admin grup.")) refresh(); }
+        else if (t === "kick") {
+          const ok = await openModal({ title: "Keluarkan anggota?", text: `${nm} tidak akan bisa membaca atau mengirim pesan di grup ini lagi.`, ok: "Keluarkan", danger: true });
+          if (ok && await post("/api/groupchat/members/kick", { gid, pid }, "Anggota dikeluarkan.")) refresh();
+        } else if (t === "mute") {
+          if (muted) { if (await post("/api/groupchat/members/mute", { gid, pid, sec: 0 }, "Larangan dicabut.")) refresh(); return; }
+          const d2 = fgSheet(`<h3>Larang ${esc(nm)} kirim pesan</h3><p class="gcsub">Selama dilarang, dia tetap bisa membaca dan bereaksi.</p><div class="gcacts"><button type="button" data-s="300">5 menit</button><button type="button" data-s="900">15 menit</button><button type="button" data-s="3600">1 jam</button><button type="button" data-s="28800">8 jam</button><button type="button" data-s="86400">1 hari</button><button type="button" data-s="604800">7 hari</button><button type="button" data-s="x">Batal</button></div>`);
+          d2.addEventListener("click", async (e2) => { const y = e2.target.closest("[data-s]"); if (!y) return; d2.remove(); if (y.dataset.s !== "x" && await post("/api/groupchat/members/mute", { gid, pid, sec: +y.dataset.s }, "Anggota dilarang kirim pesan.")) refresh(); });
+        }
+      });
       return;
     }
-    const mu = e.target.closest("[data-mute]");
-    if (mu) {
-      if (mu.dataset.on === "1") { if (await post("/api/groupchat/members/mute", { gid, pid: mu.dataset.mute, sec: 0 }, "Larangan dicabut.")) refresh(); return; }
-      const nm = mu.dataset.nm, pid = mu.dataset.mute;
-      const m = fgSheet(`<h3>Larang ${esc(nm)} kirim pesan</h3><p class="gcsub">Selama dilarang, dia tetap bisa membaca dan bereaksi.</p><div class="gcacts"><button type="button" data-s="300">5 menit</button><button type="button" data-s="900">15 menit</button><button type="button" data-s="3600">1 jam</button><button type="button" data-s="28800">8 jam</button><button type="button" data-s="86400">1 hari</button><button type="button" data-s="604800">7 hari</button><button type="button" data-s="x">Batal</button></div>`);
-      m.addEventListener("click", async (ev) => { const x = ev.target.closest("[data-s]"); if (!x) return; m.remove(); if (x.dataset.s !== "x" && await post("/api/groupchat/members/mute", { gid, pid, sec: +x.dataset.s }, "Anggota dilarang kirim pesan.")) refresh(); });
-      return;
-    }
-    const ro = e.target.closest("[data-role]");
-    if (ro) { if (await post("/api/groupchat/members/role", { gid, pid: ro.dataset.role, admin: ro.dataset.on === "1" }, ro.dataset.on === "1" ? "Dijadikan admin grup." : "Admin grup dicopot.")) refresh(); return; }
     const b = e.target.closest("[data-a]"); if (!b) return;
     const a = b.dataset.a;
     if (a === "add") { s.remove(); gcAddMembers(gid, d.members.map((u) => u.pid)); }
