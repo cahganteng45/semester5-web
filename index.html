@@ -7931,7 +7931,7 @@ function gcRender(stick) {
     const fl = f ? `<button type="button" class="gcfile" data-gf="${m.id}"><span>${f.chars ? "📄" : gcFIcon[f.kind] || "📄"}</span><div><b>${esc(f.chars ? "Pesan panjang" : f.name || gcFName[f.kind] || "Dokumen")}</b><em>${f.chars ? "Ketuk untuk membaca semua" : fmtSize(f.size) + (f.dur ? " · " + fmtDur(f.dur) : "")}</em></div></button>` : "";
     const p = m.poll;
     const pl = p ? `<div class="gcpoll"><b>📊 ${esc(p.q)}</b>${p.opts.map((o, i) => `<button type="button" class="gcpo${o.me ? " on" : ""}" data-po="${i}"${p.closed ? " disabled" : ""}><i style="width:${p.total ? Math.round(o.n * 100 / p.total) : 0}%"></i><span>${esc(o.t)}</span><em>${o.n}</em></button>`).join("")}<small>${p.voters} suara${p.closed ? " · ditutup" : p.multi ? " · boleh pilih lebih dari satu" : ""}</small></div>` : "";
-    const nm = !m.mine && first ? `<div class="fname" data-p="${esc(m.pid)}">${nameHtml(m.name, m.owner, verOf(m.pid))}${m.owner ? "<small>owner</small>" : m.gadm ? "<small>admin</small>" : ""}</div>` : "";
+    const nm = !m.mine && first ? `<div class="fname" data-p="${esc(m.pid)}">${nameHtml(m.name, m.owner, verOf(m.pid))}</div>` : "";
     const rp = m.reply ? `<div class="fquote gcq" data-q="${m.reply.id}"><b>${esc(m.reply.name)}</b>${esc(m.reply.text)}</div>` : "";
     const rx = m.reacts && m.reacts.length ? `<div class="gcrx">${m.reacts.map((r) => `<button type="button" data-rx="${r.e}" class="${r.me ? "me" : ""}">${r.e} ${r.n}</button>`).join("")}</div>` : "";
     const tick = m.mine ? `<i class="gctk${gcRead.all >= m.id ? " rd" : ""}">${gcRead.any >= m.id ? " ✓✓" : " ✓"}</i>` : "";
