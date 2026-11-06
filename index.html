@@ -1531,7 +1531,7 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 <button type="button" class="mfab" id="matFab"><svg class="i"><use href="#i-up"/></svg>Upload</button>
 </section>
 
-<section class="view" id="view-jadwal"><h2 class="page-title">Jadwal kuliah</h2><p class="page-sub">Sistem Informasi, kelas 5P52 dan 5P52A. Semester Gasal 2026/2027.</p><div class="chips" id="dayChips"></div><div id="scheduleList"></div></section>
+<section class="view" id="view-jadwal"><h2 class="page-title">Jadwal kuliah</h2><p class="page-sub">Sistem Informasi, kelas 5P52 dan 5P52A. Semester Gasal 2026/2027.</p><div class="chips" id="schMode"></div><div class="chips" id="dayChips"></div><div id="scheduleList"></div></section>
 
 <section class="view" id="view-chat"><div class="hubhd"><h2 class="page-title">Chat</h2><button type="button" class="hubnew hidden" id="hubNew" aria-label="Pesan baru"></button></div><div class="hublist" id="hubList"></div></section>
 
@@ -1705,6 +1705,50 @@ const JADWAL = [
     {time:"09:15 - 10:55",name:"Pemrograman Berbasis Mobile I",room:"A1.1",dosen:"Arochman, M.Kom",code:"5P52"},
     {time:"13:00 - 14:40",name:"Pemrograman Berbasis Mobile I",room:"LAB 1",dosen:"Arochman, M.Kom",code:"5P52A"}]}
 ];
+
+/* ---------- jadwal UTS (Gasal 2026/2027) ---------- */
+const UTS = [
+  {date:"2026-11-16",day:"Senin",time:"13:00 - 14:40",name:"Cloud Computing",room:"B1.2",dosen:"Era Yunianto, M.Kom",code:"5P52"},
+  {date:"2026-11-16",day:"Senin",time:"15:00 - 16:40",name:"Cloud Computing",room:"LAB 3",dosen:"Era Yunianto, M.Kom",code:"5P52A"},
+  {date:"2026-11-18",day:"Rabu",time:"13:00 - 14:40",name:"Visualisasi Data & Data Science",room:"C.3",dosen:"Nurul Amalia, M.Kom",code:"5P52"},
+  {date:"2026-11-18",day:"Rabu",time:"15:00 - 16:40",name:"Visualisasi Data & Data Science",room:"LAB 5",dosen:"Nurul Amalia, M.Kom",code:"5P52A"},
+  {date:"2026-11-19",day:"Kamis",time:"07:30 - 09:10",name:"Business Intelligence System",room:"B1.2",dosen:"Eny Jumiati, M.Kom",code:"5P52"},
+  {date:"2026-11-19",day:"Kamis",time:"09:15 - 10:55",name:"Business Intelligence System",room:"B1.2",dosen:"Eny Jumiati, M.Kom",code:"5P52"},
+  {date:"2026-11-19",day:"Kamis",time:"13:00 - 14:40",name:"Manajemen Proyek",room:"B1.2",dosen:"Indrayanti, S.T., M.Kom",code:"5P52"},
+  {date:"2026-11-20",day:"Jumat",time:"09:15 - 10:40",name:"Pemrograman Berbasis Mobile I",room:"A1.1",dosen:"Arochman, M.Kom",code:"5P52"},
+  {date:"2026-11-20",day:"Jumat",time:"13:00 - 14:40",name:"Pemrograman Berbasis Mobile I",room:"LAB 1",dosen:"Arochman, M.Kom",code:"5P52A"},
+  {date:"2026-11-25",day:"Rabu",time:"09:15 - 10:55",name:"Audit Sistem Informasi",room:"A1.2",dosen:"Satriedi Wahyu Binabar, M.Kom",code:"5P52"},
+  {date:"2026-11-25",day:"Rabu",time:"11:00 - 12:40",name:"Keamanan Sistem Informasi",room:"C.6",dosen:"Muhammad Faizal Kurniawan, M.Kom",code:"5P52"},
+  {date:"2026-11-27",day:"Jumat",time:"07:30 - 09:10",name:"Metodologi Penelitian & Publikasi",room:"D1.1",dosen:"Eko Budi Susanto, M.Kom",code:"5P52"}
+];
+let schMode = "kuliah";
+const BLN = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+function utsAt(e, end) {
+  const [y, m, d] = e.date.split("-").map(Number), t = e.time.split(" - ")[end ? 1 : 0].split(":").map(Number);
+  return new Date(y, m - 1, d, t[0], t[1]);
+}
+function renderUTS() {
+  const now = new Date(), day0 = (x) => new Date(x.getFullYear(), x.getMonth(), x.getDate());
+  const items = UTS.map((e) => ({ e, s: utsAt(e), f: utsAt(e, 1) }));
+  const nx = items.find((x) => now < x.f);
+  let html = "";
+  if (nx) {
+    const live = now >= nx.s, dd = Math.round((day0(nx.s) - day0(now)) / 864e5);
+    const when = live ? "Sedang berlangsung" : dd === 0 ? "Hari ini, mulai " + nx.e.time.split(" - ")[0] : dd === 1 ? "Besok" : dd + " hari lagi";
+    html += `<div class="card next"><div class="nx-top"><span class="nx-state ${live ? "live" : ""}"><i></i>UTS berikutnya</span><span class="nx-in">${esc(when)}</span></div><div class="nm">${esc(nx.e.name)}</div><div class="nx-sub">${esc(nx.e.day)}, ${esc(nx.e.time)} · Ruang ${esc(nx.e.room)}</div></div>`;
+  } else html += `<div class="empty"><span class="big">🎉</span>Semua UTS sudah selesai.</div>`;
+  let last = "";
+  items.forEach(({ e, s, f }) => {
+    if (e.date !== last) {
+      last = e.date; const d = e.date.split("-").map(Number);
+      html += `<h3 style="font-family:var(--font-d);font-size:16px;font-weight:700;margin:18px 2px 10px">${esc(e.day)}, ${d[2]} ${BLN[d[1] - 1]} ${d[0]}</h3>`;
+    }
+    const done = now >= f, live = now >= s && now < f;
+    html += `<div class="sch" style="${done ? "opacity:.5" : ""}"><div class="time">${esc(e.time)}${live ? " · Berlangsung" : done ? " · Selesai" : ""}</div><div class="name">${ICONS[e.name] || "📝"} ${esc(e.name)}</div>
+     <div class="info"><span>Ruang ${esc(e.room)}</span><span>${esc(e.code)}</span><span>${esc(e.dosen)}</span></div></div>`;
+  });
+  $("scheduleList").innerHTML = html;
+}
 
 /* ---------- state ---------- */
 let token = localStorage.getItem("semester5_token") || "";
@@ -2184,10 +2228,12 @@ function renderHome() {
 }
 function renderJadwal() {
   if (guest) {
-    $("dayChips").innerHTML = "";
+    $("dayChips").innerHTML = ""; $("schMode").innerHTML = "";
     $("scheduleList").innerHTML = `<div class="gcta"><b>🗓️ Jadwal kuliah</b><p>Masuk atau daftar gratis untuk melihat jadwal, ruang, dan dosen tiap mata kuliah.</p><div class="gbtns"><button type="button" class="btn btn-primary" data-auth="login">Masuk</button><button type="button" class="btn btn-soft" data-auth="register">Daftar</button></div></div>` + guestLock("Jadwal kuliah", 4);
     return;
   }
+  $("schMode").innerHTML = `<button class="chip ${schMode === "kuliah" ? "active" : ""}" data-mode="kuliah">Kuliah</button><button class="chip ${schMode === "uts" ? "active" : ""}" data-mode="uts">UTS</button>`;
+  if (schMode === "uts") { $("dayChips").innerHTML = ""; renderUTS(); return; }
   const todayNum = new Date().getDay();
   if (chosenDay === null) {
     const d = JADWAL.find((x) => x.dayNum >= todayNum) || JADWAL[0];
@@ -2200,6 +2246,10 @@ function renderJadwal() {
     `<div class="sch"><div class="time">${esc(c.time)}</div><div class="name">${esc(c.name)}</div>
      <div class="info"><span>Ruang ${esc(c.room)}</span><span>${esc(c.code)}</span><span>${esc(c.dosen)}</span></div></div>`).join("");
 }
+$("schMode").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-mode]");
+  if (b) { schMode = b.dataset.mode; renderJadwal(); stagger($("scheduleList"), ".sch"); }
+});
 $("dayChips").addEventListener("click", (e) => {
   const b = e.target.closest("[data-day]");
   if (b) { chosenDay = +b.dataset.day; renderJadwal(); stagger($("scheduleList"), ".sch"); }
