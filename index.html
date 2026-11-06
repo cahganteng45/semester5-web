@@ -1731,7 +1731,7 @@ function renderUTS() {
   const now = new Date(), day0 = (x) => new Date(x.getFullYear(), x.getMonth(), x.getDate());
   const items = UTS.map((e) => ({ e, s: utsAt(e), f: utsAt(e, 1) }));
   const nx = items.find((x) => now < x.f);
-  let html = "";
+  let html = `<div class="row" style="gap:10px;margin-bottom:16px"><button type="button" class="btn btn-soft" data-utsdl="png" style="flex:1">⬇ Unduh gambar</button><button type="button" class="btn btn-line" data-utsdl="pdf" style="flex:1">⬇ Unduh PDF</button></div>`;
   if (nx) {
     const live = now >= nx.s, dd = Math.round((day0(nx.s) - day0(now)) / 864e5);
     const when = live ? "Sedang berlangsung" : dd === 0 ? "Hari ini, mulai " + nx.e.time.split(" - ")[0] : dd === 1 ? "Besok" : dd + " hari lagi";
@@ -1748,6 +1748,95 @@ function renderUTS() {
      <div class="info"><span>Ruang ${esc(e.room)}</span><span>${esc(e.code)}</span><span>${esc(e.dosen)}</span></div></div>`;
   });
   $("scheduleList").innerHTML = html;
+}
+
+/* ---------- unduh jadwal UTS (PNG / PDF) ---------- */
+const UTS_COL = {"Cloud Computing":"#2f80ed","Visualisasi Data & Data Science":"#9b51e0","Business Intelligence System":"#f2994a","Manajemen Proyek":"#1f9d55","Pemrograman Berbasis Mobile I":"#eb5757","Audit Sistem Informasi":"#0f9fa8","Keamanan Sistem Informasi":"#c2410c","Metodologi Penelitian & Publikasi":"#6c5ce7"};
+async function utsCanvas() {
+  const FD = "'Bricolage Grotesque','DM Sans',system-ui,sans-serif", FB = "'DM Sans',system-ui,sans-serif";
+  try { await Promise.all([document.fonts.load("800 64px 'Bricolage Grotesque'"), document.fonts.load("600 34px 'Bricolage Grotesque'"), document.fonts.load("400 24px 'DM Sans'"), document.fonts.load("700 24px 'DM Sans'")]); } catch (e) {}
+  const HN = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  const groups = []; UTS.forEach((e) => { const g = groups[groups.length - 1]; if (g && g.date === e.date) g.rows.push(e); else groups.push({ date: e.date, day: e.day, rows: [e] }); });
+  const W = 1080, P = 56, HEAD = 330, GH = 104, CARD = 132, GAP = 18, GG = 30, FOOT = 120;
+  let H = HEAD + 20; groups.forEach((g) => { H += GH + g.rows.length * (CARD + GAP) - GAP + GG; }); H += FOOT;
+  const S = 2, cv = document.createElement("canvas"); cv.width = W * S; cv.height = H * S;
+  const x = cv.getContext("2d"); x.scale(S, S); x.textBaseline = "alphabetic";
+  const rr = (X, Y, w, h, r) => { const [a, b, c, d] = [].concat(r, r, r, r).slice(0, 4); x.beginPath(); x.moveTo(X + a, Y); x.lineTo(X + w - b, Y); x.arcTo(X + w, Y, X + w, Y + b, b); x.lineTo(X + w, Y + h - c); x.arcTo(X + w, Y + h, X + w - c, Y + h, c); x.lineTo(X + d, Y + h); x.arcTo(X, Y + h, X, Y + h - d, d); x.lineTo(X, Y + a); x.arcTo(X, Y, X + a, Y, a); x.closePath(); };
+  const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
+  const sp = (v) => { try { x.letterSpacing = v; } catch (e) {} };
+  x.fillStyle = "#f3f3f6"; x.fillRect(0, 0, W, H);
+  /* header */
+  const gr = x.createLinearGradient(0, 0, W, HEAD); gr.addColorStop(0, "#0c0c0f"); gr.addColorStop(1, "#262640");
+  x.fillStyle = gr; rr(0, 0, W, HEAD, [0, 0, 56, 56]); x.fill();
+  x.save(); rr(0, 0, W, HEAD, [0, 0, 56, 56]); x.clip(); x.fillStyle = "rgba(255,255,255,.05)"; x.beginPath(); x.arc(W - 40, 20, 230, 0, 7); x.fill(); x.beginPath(); x.arc(W - 220, HEAD, 150, 0, 7); x.fill(); x.restore();
+  x.fillStyle = "#9a9aab"; x.font = `700 22px ${FB}`; sp("4px"); x.fillText("STUDY HUB  ·  SISTEM INFORMASI", P, 92); sp("0px");
+  x.fillStyle = "#fff"; x.font = `800 110px ${FD}`; sp("-3px"); x.fillText("Jadwal UTS", P - 4, 208); sp("0px");
+  x.fillStyle = "#c4c4d0"; x.font = `500 28px ${FB}`; x.fillText("Kelas 5P52 & 5P52A  ·  Semester Gasal 2026/2027", P, 262);
+  /* pill rentang */
+  const rt = "16 – 27 Nov 2026"; x.font = `700 24px ${FB}`; const pw = x.measureText(rt).width + 44;
+  x.fillStyle = "rgba(255,255,255,.12)"; rr(W - P - pw, 66, pw, 54, 27); x.fill(); x.fillStyle = "#fff"; x.fillText(rt, W - P - pw + 22, 101);
+  /* titik warna matkul */
+  Object.values(UTS_COL).forEach((c, i) => { x.fillStyle = c; x.beginPath(); x.arc(W - P - 10 - i * 30, 290, 9, 0, 7); x.fill(); });
+  /* isi */
+  let y = HEAD + 20;
+  groups.forEach((g) => {
+    const [yy, mm, dd] = g.date.split("-").map(Number);
+    x.fillStyle = "#111113"; x.font = `800 72px ${FD}`; sp("-2px"); x.fillText(String(dd), P, y + 74); const nw = x.measureText(String(dd)).width; sp("0px");
+    x.font = `700 30px ${FB}`; x.fillText(g.day, P + nw + 22, y + 48);
+    x.fillStyle = "#6b6b73"; x.font = `400 24px ${FB}`; x.fillText(HN[mm - 1] + " " + yy, P + nw + 22, y + 80);
+    const tw = Math.max(x.measureText(g.day).width, x.measureText(HN[mm - 1] + " " + yy).width);
+    x.fillStyle = "#e0e0e6"; x.fillRect(P + nw + 22 + tw + 28, y + 56, W - P - (P + nw + 22 + tw + 28), 2);
+    y += GH;
+    g.rows.forEach((e) => {
+      const col = UTS_COL[e.name] || "#555", [s, f] = e.time.split(" - "), cx = P, cw = W - 2 * P, LW = 210;
+      x.save(); x.shadowColor = "rgba(20,20,40,.08)"; x.shadowBlur = 24; x.shadowOffsetY = 8; x.fillStyle = "#fff"; rr(cx, y, cw, CARD, 30); x.fill(); x.restore();
+      x.save(); rr(cx, y, cw, CARD, 30); x.clip(); x.fillStyle = rgba(col, .13); x.fillRect(cx, y, LW, CARD); x.fillStyle = col; x.fillRect(cx, y, 8, CARD); x.restore();
+      x.fillStyle = col; x.font = `800 48px ${FD}`; x.fillText(s, cx + 34, y + 70);
+      x.fillStyle = "#6b6b73"; x.font = `500 24px ${FB}`; x.fillText("s/d " + f, cx + 36, y + 106);
+      const tx = cx + LW + 32;
+      x.fillStyle = "#111113"; x.font = `600 35px ${FD}`; x.fillText(e.name, tx, y + 56);
+      x.fillStyle = "#6b6b73"; x.font = `400 24px ${FB}`; x.fillText(e.dosen, tx, y + 102);
+      let pr = cx + cw - 30; x.font = `700 22px ${FB}`;
+      [[e.code, e.code.endsWith("A") ? "#fff0d4" : "#e6eeff", e.code.endsWith("A") ? "#9a5b00" : "#2457c5"], ["R. " + e.room, "#eeeef2", "#111113"]].forEach(([t, bg, fg]) => {
+        const w = x.measureText(t).width + 30; x.fillStyle = bg; rr(pr - w, y + 76, w, 38, 19); x.fill(); x.fillStyle = fg; x.fillText(t, pr - w + 15, y + 102); pr -= w + 10;
+      });
+      y += CARD + GAP;
+    });
+    y += GG - GAP;
+  });
+  x.fillStyle = "#8a8a93"; x.font = `400 22px ${FB}`; x.textAlign = "center";
+  x.fillText("12 sesi  ·  8 mata kuliah  ·  jadwal dapat berubah, cek portal akademik", W / 2, H - 62);
+  x.fillStyle = "#111113"; x.font = `800 24px ${FD}`; x.fillText("Study Hub", W / 2, H - 28); x.textAlign = "left";
+  return cv;
+}
+function utsPdf(jpeg, w, h) {
+  const pw = 595.28, ph = +(pw * h / w).toFixed(2), enc = new TextEncoder(), parts = [], off = [];
+  let len = 0; const add = (d) => { const b = typeof d === "string" ? enc.encode(d) : d; parts.push(b); len += b.length; };
+  add("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
+  const obj = (n, body) => { off[n] = len; add(`${n} 0 obj\n${body}\nendobj\n`); };
+  obj(1, "<< /Type /Catalog /Pages 2 0 R >>"); obj(2, "<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
+  obj(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`);
+  off[4] = len; add(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`); add(jpeg); add("\nendstream\nendobj\n");
+  const c = `q ${pw} 0 0 ${ph} 0 0 cm /Im0 Do Q`; obj(5, `<< /Length ${c.length} >>\nstream\n${c}\nendstream`);
+  const xr = len; let t = "xref\n0 6\n0000000000 65535 f \n"; for (let i = 1; i <= 5; i++) t += String(off[i]).padStart(10, "0") + " 00000 n \n";
+  add(t + `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`);
+  const out = new Uint8Array(len); let p = 0; parts.forEach((b) => { out.set(b, p); p += b.length; }); return out;
+}
+async function utsDownload(kind) {
+  try {
+    const cv = await utsCanvas(); let blob, name = "Jadwal-UTS-5P52";
+    if (kind === "pdf") {
+      const b64 = cv.toDataURL("image/jpeg", 0.93).split(",")[1], bin = atob(b64), u = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+      blob = new Blob([utsPdf(u, cv.width, cv.height)], { type: "application/pdf" }); name += ".pdf";
+    } else { blob = await new Promise((r) => cv.toBlob(r, "image/png")); name += ".png"; }
+    const file = new File([blob], name, { type: blob.type });
+    if (/iPhone|iPad|Android/i.test(navigator.userAgent) && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: "Jadwal UTS" }); return; } catch (e) { if (e && e.name === "AbortError") return; }
+    }
+    const url = URL.createObjectURL(blob), a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 15000); showToast(kind === "pdf" ? "PDF jadwal UTS diunduh." : "Gambar jadwal UTS diunduh.");
+  } catch (e) { showToast("Gagal membuat file: " + (e.message || e), true); }
 }
 
 /* ---------- state ---------- */
@@ -2246,6 +2335,11 @@ function renderJadwal() {
     `<div class="sch"><div class="time">${esc(c.time)}</div><div class="name">${esc(c.name)}</div>
      <div class="info"><span>Ruang ${esc(c.room)}</span><span>${esc(c.code)}</span><span>${esc(c.dosen)}</span></div></div>`).join("");
 }
+$("scheduleList").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-utsdl]"); if (!b || b.disabled) return;
+  const t = b.textContent; b.disabled = true; b.textContent = "Membuat file…";
+  try { await utsDownload(b.dataset.utsdl); } finally { b.disabled = false; b.textContent = t; }
+});
 $("schMode").addEventListener("click", (e) => {
   const b = e.target.closest("[data-mode]");
   if (b) { schMode = b.dataset.mode; renderJadwal(); stagger($("scheduleList"), ".sch"); }
