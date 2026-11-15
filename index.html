@@ -1637,7 +1637,7 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 <div class="subpane hidden" data-sub="kmk">
 <div class="card" id="kmkUpCard"><p class="kmk-note">Download KMK dari LMS kampus (menu Registrasi → Kartu Mata Kuliah → cetak/simpan PDF), lalu upload di sini. Mata kuliah, kelas, dan <b>nomor kursi</b> terisi otomatis. Kamu bisa cek dan edit dulu sebelum disimpan. File PDF-nya tidak disimpan, hanya hasil bacanya.</p>
 <input type="file" id="kmkFile" accept="application/pdf,.pdf" class="hidden"><input type="file" id="kmkPhotoFile" accept="image/*" class="hidden">
-<div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-primary" id="kmkPick" style="width:auto">Upload PDF KMK</button><button type="button" class="btn btn-soft" id="kmkManual" style="width:auto">Isi manual</button></div>
+<div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-primary" id="kmkPick" style="width:auto">Upload PDF KMK</button><button type="button" class="btn btn-soft" id="kmkTpl" style="width:auto">Pakai daftar kelas 5P52</button><button type="button" class="btn btn-soft" id="kmkManual" style="width:auto">Isi manual</button></div>
 <p class="kmk-msg" id="kmkMsg"></p></div>
 <div id="kmkView"></div>
 </div>
@@ -8497,7 +8497,8 @@ async function gcAddMembers(gid, haveIds) {
 .kmk-meta select,.kmk-meta input{padding:9px 10px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--surface);color:var(--ink);font:inherit;font-size:14px;min-width:0}
 .kmk-meta input{width:92px}
 .kmk-item{border:1px solid var(--line);border-radius:var(--r-m);padding:12px;margin-bottom:10px;background:var(--surface)}
-.kmk-item .kmk-grid{display:grid;grid-template-columns:1.1fr .6fr 1fr .9fr;gap:8px;margin-top:8px}
+.kmk-item .kmk-grid{display:grid;grid-template-columns:1fr .5fr .9fr .8fr 1fr;gap:8px;margin-top:8px}
+.kmk-item select{width:100%;padding:9px 6px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--bg);color:var(--ink);font:inherit;font-size:14px;min-width:0}
 .kmk-item label{display:block;font-size:11px;color:var(--mute);margin-bottom:3px}
 .kmk-item input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--bg);color:var(--ink);font:inherit;font-size:14px;min-width:0}
 .kmk-item .kmk-del{float:right;color:var(--red);font-size:13px;padding:2px 4px}
@@ -8567,6 +8568,7 @@ function kmkRenderDraft() {
       <div><label>SKS</label><input data-f="sks" value="${esc(it.sks)}" inputmode="numeric" maxlength="2"></div>
       <div><label>Kelas</label><input data-f="kelas" value="${esc(it.kelas)}" maxlength="10"></div>
       <div><label>No kursi</label><input data-f="kursi" value="${esc(it.kursi)}" maxlength="8"></div>
+      <div><label>Jenis</label><select data-f="jenis"><option value="Teori"${it.jenis === "Praktek" ? "" : " selected"}>Teori</option><option value="Praktek"${it.jenis === "Praktek" ? " selected" : ""}>Praktek</option></select></div>
     </div></div>`).join("");
   v.innerHTML = `<div class="card"><h4>Cek dan edit dulu</h4>
     <div class="kmk-meta"><select id="kmkUjian"><option value="UTS">UTS</option><option value="UAS">UAS</option></select>
@@ -8589,6 +8591,22 @@ function kmkSyncDraft() {
 }
 function kmkBlank() { return { kode: "", nama: "", sks: 2, kelas: "", jenis: "", kursi: "" }; }
 $("kmkPick").addEventListener("click", () => $("kmkFile").click());
+
+/* Daftar kelas 5P52 (24 SKS). Hapus baris yang tidak diambil, isi nomor kursi sendiri. */
+const KMK_TEMPLATE = [
+  ["KB124","Cloud Computing",2,"5P52","Teori"],["KB124","Cloud Computing",2,"5P52A","Praktek"],
+  ["KB159","Manajemen Proyek",2,"5P52","Teori"],["KB162","Metodologi Penelitian dan Publikasi",2,"5P52","Teori"],
+  ["KB170","Pemrograman Berbasis Mobile I",2,"5P52","Teori"],["KB170","Pemrograman Berbasis Mobile I",2,"5P52A","Praktek"],
+  ["KB195","Visualisasi Data dan Data Sciensce",2,"5P52","Teori"],["KB195","Visualisasi Data dan Data Sciensce",2,"5P52A","Praktek"],
+  ["KB348","Keamanan Sistem Informasi",2,"5P52","Teori"],["KK032","Business Intelegence System",4,"5P52","Teori"],
+  ["KK160","Audit Sistem Informasi",2,"5P52","Teori"]
+];
+$("kmkTpl").addEventListener("click", () => {
+  kmkDraft = { ujian: "UTS", semester: 5, tahun: "2026/2027",
+    items: KMK_TEMPLATE.map(([kode, nama, sks, kelas, jenis]) => ({ kode, nama, sks, kelas, jenis, kursi: "" })) };
+  kmkMsg("Hapus mata kuliah yang tidak kamu ambil, lalu isi nomor kursi dari KMK aslimu.");
+  kmkRenderDraft();
+});
 $("kmkManual").addEventListener("click", () => {
   kmkDraft = kmkData ? JSON.parse(JSON.stringify(kmkData)) : { ujian: "UTS", semester: 5, tahun: "", items: [kmkBlank()] };
   kmkMsg(""); kmkRenderDraft();
@@ -8666,7 +8684,7 @@ function kmkPrint() {
   const tot = k.items.reduce((a, b) => a + (b.sks || 0), 0);
   const ph = kmkPhoto();
   const now = new Date().toLocaleString("id-ID", { dateStyle: "full", timeStyle: "short" });
-  const rows = k.items.map((it, i) => `<tr><td class="c">${i + 1}</td><td class="c">${esc(it.kode)}</td><td>${esc(it.nama)}</td><td class="c">${esc(it.sks)}</td><td class="c">${esc(it.kelas)}</td><td class="c seat">${esc(it.kursi || "-")}</td></tr>`).join("");
+  const rows = k.items.map((it, i) => `<tr><td class="c">${i + 1}</td><td class="c">${esc(it.kode)}</td><td>${esc(it.nama)}</td><td class="c">${esc(it.sks)}</td><td class="c">${esc(it.kelas)}</td><td class="c">${esc(it.jenis || "-")}</td><td class="c seat">${esc(it.kursi || "-")}</td></tr>`).join("");
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>Kartu ujian ${esc(nim)}</title><style>
 @page{size:A4;margin:14mm}*{box-sizing:border-box}body{font:13px/1.4 Arial,Helvetica,sans-serif;color:#111;margin:0}
 h1{font-size:20px;margin:0}.sub{color:#555;font-size:12px;margin-top:2px}.top{border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:14px}
@@ -8678,8 +8696,8 @@ table.t{width:100%;border-collapse:collapse}.t th,.t td{border:1px solid #111;pa
 <div class="top"><h1>Kartu Ujian Pribadi${k.ujian ? " " + esc(k.ujian) : ""}</h1><div class="sub">Study Hub · Semester ${esc(k.semester || "")}${k.tahun ? " · " + esc(k.tahun) : ""}</div></div>
 <div class="id"><table><tr><td>NIM</td><td>: ${esc(nim || "-")}</td></tr><tr><td>Nama</td><td>: ${esc(fullUserName || currentUser)}</td></tr><tr><td>Semester</td><td>: ${esc(k.semester || "-")}</td></tr><tr><td>Tahap ujian</td><td>: ${esc(k.ujian || "-")}</td></tr></table>
 <div class="ph">${ph ? `<img src="${ph}" alt="Foto">` : "Foto 3x4"}</div></div>
-<table class="t"><thead><tr><th>No</th><th>Kode</th><th>Mata Kuliah</th><th>SKS</th><th>Kelas</th><th>No Kursi</th></tr></thead><tbody>${rows}
-<tr class="tot"><td colspan="3" class="c">Jumlah SKS</td><td class="c">${tot}</td><td colspan="2"></td></tr></tbody></table>
+<table class="t"><thead><tr><th>No</th><th>Kode</th><th>Mata Kuliah</th><th>SKS</th><th>Kelas</th><th>Jenis</th><th>No Kursi</th></tr></thead><tbody>${rows}
+<tr class="tot"><td colspan="3" class="c">Jumlah SKS</td><td class="c">${tot}</td><td colspan="3"></td></tr></tbody></table>
 <div class="note"><b>Catatan:</b> ini salinan pribadi dari Study Hub untuk membantu mengingat kelas dan nomor kursi. Ini <b>bukan</b> dokumen resmi kampus dan tidak menggantikan Kartu Mata Kuliah asli dari LMS. Tetap bawa KMK resmi saat ujian.</div>
 <div class="foot">Dicetak dari Study Hub: ${esc(now)}</div></body></html>`;
   const fr = document.createElement("iframe");
