@@ -1636,7 +1636,7 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 <div class="subpane hidden" data-sub="stars"><div id="starList"></div></div>
 <div class="subpane hidden" data-sub="kmk">
 <div class="card" id="kmkUpCard"><p class="kmk-note">Download KMK dari LMS kampus (menu Registrasi → Kartu Mata Kuliah → cetak/simpan PDF), lalu upload di sini. Mata kuliah, kelas, dan <b>nomor kursi</b> terisi otomatis. Kamu bisa cek dan edit dulu sebelum disimpan. File PDF-nya tidak disimpan, hanya hasil bacanya.</p>
-<input type="file" id="kmkFile" accept="application/pdf,.pdf" class="hidden">
+<input type="file" id="kmkFile" accept="application/pdf,.pdf" class="hidden"><input type="file" id="kmkPhotoFile" accept="image/*" class="hidden">
 <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-primary" id="kmkPick" style="width:auto">Upload PDF KMK</button><button type="button" class="btn btn-soft" id="kmkManual" style="width:auto">Isi manual</button></div>
 <p class="kmk-msg" id="kmkMsg"></p></div>
 <div id="kmkView"></div>
@@ -8555,7 +8555,7 @@ function kmkRenderSaved() {
   v.innerHTML = `<div class="card"><h4>KMK tersimpan${k.ujian ? `<span class="kmk-chip">${esc(k.ujian)}</span>` : ""}</h4>
     <p class="kmk-note" style="margin-bottom:6px">${k.semester ? "Semester " + esc(k.semester) : ""}${k.tahun ? " · " + esc(k.tahun) : ""}${upd ? " · diperbarui " + esc(upd) : ""}</p>
     ${kmkRowsHtml(k.items)}
-    <div class="kmk-actions"><button type="button" class="btn btn-soft" id="kmkEdit" style="width:auto">Edit</button><button type="button" class="btn btn-line" id="kmkRemove" style="width:auto">Hapus</button></div></div>`;
+    <div class="kmk-actions"><button type="button" class="btn btn-primary" id="kmkPrint" style="width:auto">Cetak kartu</button><button type="button" class="btn btn-soft" id="kmkPhoto" style="width:auto">${kmkPhoto() ? "Ganti foto" : "Tambah foto"}</button><button type="button" class="btn btn-soft" id="kmkEdit" style="width:auto">Edit</button><button type="button" class="btn btn-line" id="kmkRemove" style="width:auto">Hapus</button></div></div>`;
 }
 function kmkRenderDraft() {
   const d = kmkDraft, v = $("kmkView");
@@ -8617,6 +8617,8 @@ $("kmkView").addEventListener("click", async (e) => {
   if (t.dataset.del !== undefined) { kmkSyncDraft(); kmkDraft.items.splice(+t.dataset.del, 1); kmkRenderDraft(); return; }
   if (t.id === "kmkAdd") { kmkSyncDraft(); kmkDraft.items.push(kmkBlank()); kmkRenderDraft(); return; }
   if (t.id === "kmkCancel") { kmkDraft = null; kmkMsg(""); kmkRenderSaved(); return; }
+  if (t.id === "kmkPrint") return kmkPrint();
+  if (t.id === "kmkPhoto") return $("kmkPhotoFile").click();
   if (t.id === "kmkEdit") { kmkDraft = JSON.parse(JSON.stringify(kmkData)); kmkRenderDraft(); return; }
   if (t.id === "kmkRemove") {
     if (!confirm("Hapus KMK tersimpan?")) return;
@@ -8636,6 +8638,56 @@ $("kmkView").addEventListener("click", async (e) => {
     } catch (err) { kmkMsg(err.message || "Gagal menyimpan.", true); t.disabled = false; }
   }
 });
+
+/* ---- Cetak kartu ujian pribadi ---- */
+function kmkPhoto() { try { return localStorage.getItem("kmk_photo") || ""; } catch (e) { return ""; } }
+$("kmkPhotoFile").addEventListener("change", () => {
+  const f = $("kmkPhotoFile").files[0];
+  $("kmkPhotoFile").value = "";
+  if (!f || !/^image\//.test(f.type)) return;
+  const img = new Image(), url = URL.createObjectURL(f);
+  img.onload = () => {
+    const W = 300, H = 400, c = document.createElement("canvas");
+    c.width = W; c.height = H;
+    const x = c.getContext("2d"), r = Math.max(W / img.width, H / img.height);   // isi penuh 3x4, potong tengah
+    x.fillStyle = "#fff"; x.fillRect(0, 0, W, H);
+    x.drawImage(img, (W - img.width * r) / 2, (H - img.height * r) / 2, img.width * r, img.height * r);
+    URL.revokeObjectURL(url);
+    try { localStorage.setItem("kmk_photo", c.toDataURL("image/jpeg", 0.85)); showToast("Foto tersimpan di perangkat ini"); } catch (e) { showToast("Foto gagal disimpan", true); }
+    kmkRenderSaved();
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); showToast("Foto tidak bisa dibaca", true); };
+  img.src = url;
+});
+function kmkPrint() {
+  const k = kmkData;
+  if (!k || !k.items || !k.items.length) return showToast("Belum ada KMK tersimpan", true);
+  const nim = ($("setNim").textContent || "").replace(/^NIM\s*/, "").trim();
+  const tot = k.items.reduce((a, b) => a + (b.sks || 0), 0);
+  const ph = kmkPhoto();
+  const now = new Date().toLocaleString("id-ID", { dateStyle: "full", timeStyle: "short" });
+  const rows = k.items.map((it, i) => `<tr><td class="c">${i + 1}</td><td class="c">${esc(it.kode)}</td><td>${esc(it.nama)}</td><td class="c">${esc(it.sks)}</td><td class="c">${esc(it.kelas)}</td><td class="c seat">${esc(it.kursi || "-")}</td></tr>`).join("");
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Kartu ujian ${esc(nim)}</title><style>
+@page{size:A4;margin:14mm}*{box-sizing:border-box}body{font:13px/1.4 Arial,Helvetica,sans-serif;color:#111;margin:0}
+h1{font-size:20px;margin:0}.sub{color:#555;font-size:12px;margin-top:2px}.top{border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:14px}
+.id{display:flex;justify-content:space-between;gap:16px;margin-bottom:14px}.id table td{padding:3px 12px 3px 0;vertical-align:top}.id td:first-child{font-weight:700;white-space:nowrap}
+.ph{width:30mm;height:40mm;border:1px solid #999;display:flex;align-items:center;justify-content:center;color:#999;font-size:11px;text-align:center;flex:none}.ph img{width:100%;height:100%;object-fit:cover}
+table.t{width:100%;border-collapse:collapse}.t th,.t td{border:1px solid #111;padding:6px 8px}.t th{background:#eee;text-align:center}.c{text-align:center}.seat{font-weight:700;font-size:15px}
+.tot td{font-weight:700}.note{margin-top:16px;padding:10px;border:1px dashed #777;font-size:11.5px;color:#333}.foot{margin-top:8px;font-size:11px;color:#666}
+</style></head><body>
+<div class="top"><h1>Kartu Ujian Pribadi${k.ujian ? " " + esc(k.ujian) : ""}</h1><div class="sub">Study Hub · Semester ${esc(k.semester || "")}${k.tahun ? " · " + esc(k.tahun) : ""}</div></div>
+<div class="id"><table><tr><td>NIM</td><td>: ${esc(nim || "-")}</td></tr><tr><td>Nama</td><td>: ${esc(fullUserName || currentUser)}</td></tr><tr><td>Semester</td><td>: ${esc(k.semester || "-")}</td></tr><tr><td>Tahap ujian</td><td>: ${esc(k.ujian || "-")}</td></tr></table>
+<div class="ph">${ph ? `<img src="${ph}" alt="Foto">` : "Foto 3x4"}</div></div>
+<table class="t"><thead><tr><th>No</th><th>Kode</th><th>Mata Kuliah</th><th>SKS</th><th>Kelas</th><th>No Kursi</th></tr></thead><tbody>${rows}
+<tr class="tot"><td colspan="3" class="c">Jumlah SKS</td><td class="c">${tot}</td><td colspan="2"></td></tr></tbody></table>
+<div class="note"><b>Catatan:</b> ini salinan pribadi dari Study Hub untuk membantu mengingat kelas dan nomor kursi. Ini <b>bukan</b> dokumen resmi kampus dan tidak menggantikan Kartu Mata Kuliah asli dari LMS. Tetap bawa KMK resmi saat ujian.</div>
+<div class="foot">Dicetak dari Study Hub: ${esc(now)}</div></body></html>`;
+  const fr = document.createElement("iframe");
+  fr.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0";
+  document.body.appendChild(fr);
+  fr.onload = () => { setTimeout(() => { try { fr.contentWindow.focus(); fr.contentWindow.print(); } catch (e) { showToast("Browser menolak mencetak", true); } setTimeout(() => fr.remove(), 60000); }, 300); };
+  fr.srcdoc = html;
+}
 /* kosongkan cache saat logout/ganti akun */
 const _kmkLogout = typeof logout === "function" ? logout : null;
 if (_kmkLogout) logout = function () { kmkData = null; kmkLoaded = false; kmkDraft = null; return _kmkLogout.apply(this, arguments); };
