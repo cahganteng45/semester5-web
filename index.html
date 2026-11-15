@@ -1508,6 +1508,7 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 <h1 id="greetingText">Halo!</h1><div class="strip" id="strip"></div></div>
 <div class="gcta" id="guestBanner"><b>👋 Kamu masuk sebagai tamu</b><p>Daftar gratis untuk melihat materi, ikut chat kelas, dan upload.</p><div class="gbtns"><button type="button" class="btn btn-primary" data-auth="login">Masuk</button><button type="button" class="btn btn-soft" data-auth="register">Daftar</button></div><button type="button" class="btn btn-soft" data-intro style="margin-top:10px;width:100%">▶ Lihat video pengenalan (15 dtk)</button></div>
 <div class="card next" id="nextCard"></div>
+<div class="card hidden" id="kmkCard"></div>
 <div class="quick">
 <button type="button" class="pri" data-go="upload"><span class="ic"><svg class="i"><use href="#i-up"/></svg></span>Upload</button>
 <button type="button" id="qTask"><span class="ic"><svg class="i"><use href="#i-clock"/></svg></span>Tugas</button>
@@ -1587,6 +1588,7 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 <button type="button" class="menu-row" data-sub="tampilan"><span class="mi">🎨</span><span class="mt"><b>Tampilan</b><small>Tema dan warna aplikasi</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="chat"><span class="mi">💬</span><span class="mt"><b>Tampilan chat</b><small>Gaya iOS, WhatsApp, Messenger, ukuran bubble dan teks</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="stars"><span class="mi">⭐</span><span class="mt"><b>Pesan berbintang</b><small id="starCount">Simpan info penting</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+<button type="button" class="menu-row" data-sub="kmk"><span class="mi">🪪</span><span class="mt"><b>Kartu Mata Kuliah</b><small id="kmkSub">Upload KMK, simpan nomor kursi ujian</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="notif"><span class="mi">🔔</span><span class="mt"><b>Notifikasi</b><small id="notifSub">Belum aktif</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="keamanan"><span class="mi">🔐</span><span class="mt"><b>Keamanan</b><small>Ganti password</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
 <button type="button" class="menu-row" data-sub="perangkat"><span class="mi">📱</span><span class="mt"><b>Perangkat</b><small id="devCount">Lihat dan keluarkan perangkat yang login</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
@@ -1632,6 +1634,13 @@ html[data-cstyle="wa"] .fmsg.me .fquote,html[data-cstyle="wa"] .ib.me .fquote,ht
 <p style="color:var(--mute);font-size:12.5px;margin-top:10px">Foto orang lain selalu tampil. Pengaturan berlaku untuk Forum Kelas dan chat Admin. Disimpan di HP ini saja.</p>
 </div></div>
 <div class="subpane hidden" data-sub="stars"><div id="starList"></div></div>
+<div class="subpane hidden" data-sub="kmk">
+<div class="card" id="kmkUpCard"><p class="kmk-note">Download KMK dari LMS kampus (menu Registrasi → Kartu Mata Kuliah → cetak/simpan PDF), lalu upload di sini. Mata kuliah, kelas, dan <b>nomor kursi</b> terisi otomatis. Kamu bisa cek dan edit dulu sebelum disimpan. File PDF-nya tidak disimpan, hanya hasil bacanya.</p>
+<input type="file" id="kmkFile" accept="application/pdf,.pdf" class="hidden">
+<div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-primary" id="kmkPick" style="width:auto">Upload PDF KMK</button><button type="button" class="btn btn-soft" id="kmkManual" style="width:auto">Isi manual</button></div>
+<p class="kmk-msg" id="kmkMsg"></p></div>
+<div id="kmkView"></div>
+</div>
 <div class="subpane hidden" data-sub="perangkat"><div id="devList"></div></div>
 <div class="subpane hidden" data-sub="notif"><div class="card"><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Dapat pemberitahuan materi baru dan pengingat deadline (24 jam, 3 jam, 1 jam, dan 5 menit sebelumnya) walau web ditutup. Tanda selesai yang kamu pasang hanya berlaku di tampilan web, jadi notifikasi tugas tetap datang dari server.</p><button type="button" class="btn btn-soft" id="notifBtn">Aktifkan notifikasi</button></div><div class="card"><h3>Pengingat jadwal kuliah</h3><p style="color:var(--mute);font-size:14px;margin-bottom:12px">Pemberitahuan sebelum kelas mulai. Berjalan selama aplikasi terbuka atau masih aktif di latar belakang.</p>
 <label style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px"><span>Aktifkan pengingat</span><input type="checkbox" id="clsOn"></label>
@@ -2226,7 +2235,7 @@ document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click"
 document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => switchView(b.dataset.go)));
 
 /* ---------- Akun: daftar menu + sub-halaman (gaya WhatsApp) ---------- */
-const SUB_TITLES = { profil: "Profil", tampilan: "Tampilan", chat: "Tampilan chat", stars: "Pesan berbintang", perangkat: "Perangkat", notif: "Notifikasi", keamanan: "Keamanan", pasang: "Unduh aplikasi" };
+const SUB_TITLES = { profil: "Profil", tampilan: "Tampilan", chat: "Tampilan chat", stars: "Pesan berbintang", kmk: "Kartu Mata Kuliah", perangkat: "Perangkat", notif: "Notifikasi", keamanan: "Keamanan", pasang: "Unduh aplikasi" };
 function openSub(name) {
   if (guest && !["tampilan", "pasang"].includes(name)) return needLogin("Fitur ini hanya untuk anggota kelas.");
   $("setMain").classList.add("hidden");
@@ -2235,6 +2244,7 @@ function openSub(name) {
   $("subTitle").textContent = SUB_TITLES[name] || "";
   stagger($("setSub"), ".subpane:not(.hidden)>.card,.subpane:not(.hidden)>.secnote,.subpane:not(.hidden)>.seclist,.subpane:not(.hidden)>.prof-hero");
   if (name === "notif") { $("notifTestMsg").textContent = ""; notifDiag(); }
+  if (name === "kmk") kmkOpen();
   scrollAppTop();
 }
 function closeSub() {
@@ -3788,6 +3798,7 @@ $("matFilters").addEventListener("click", (e) => {
 
 /* ---------- beranda: favorit ---------- */
 function renderHomeExtras() {
+  if (typeof kmkHome === "function") kmkHome();
   const pins = topicsList.filter((t) => pinnedTopics.includes(t.id));
   $("favCard").classList.toggle("hidden", !pins.length);
   $("favList").innerHTML = pins.map((t) =>
@@ -8477,6 +8488,157 @@ async function gcAddMembers(gid, haveIds) {
   window.addEventListener('pageshow',soon);
   setInterval(fix,3000);soon();
 })();
+</script>
+
+<style id="kmkCss">
+.kmk-note{color:var(--mute);font-size:14px;line-height:1.5;margin-bottom:12px}
+.kmk-msg{font-size:13px;margin-top:10px;color:var(--mute)}.kmk-msg.err{color:var(--red)}
+.kmk-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.kmk-meta select,.kmk-meta input{padding:9px 10px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--surface);color:var(--ink);font:inherit;font-size:14px;min-width:0}
+.kmk-meta input{width:92px}
+.kmk-item{border:1px solid var(--line);border-radius:var(--r-m);padding:12px;margin-bottom:10px;background:var(--surface)}
+.kmk-item .kmk-grid{display:grid;grid-template-columns:1.1fr .6fr 1fr .9fr;gap:8px;margin-top:8px}
+.kmk-item label{display:block;font-size:11px;color:var(--mute);margin-bottom:3px}
+.kmk-item input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--bg);color:var(--ink);font:inherit;font-size:14px;min-width:0}
+.kmk-item .kmk-del{float:right;color:var(--red);font-size:13px;padding:2px 4px}
+.kmk-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.kmk-chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;background:var(--brand-soft);margin-left:6px}
+.kmk-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.kmk-row:first-child{border-top:0}
+.kmk-row .kmk-n{flex:1;min-width:0}.kmk-row .kmk-n b{display:block;font-size:14.5px}.kmk-row .kmk-n small{color:var(--mute);font-size:12.5px}
+.kmk-seat{min-width:46px;text-align:center;font-weight:800;font-size:18px;padding:6px 10px;border-radius:var(--r-s);background:var(--brand-soft)}
+.kmk-seat.none{opacity:.4;font-weight:500}
+@media (max-width:420px){.kmk-item .kmk-grid{grid-template-columns:1fr 1fr}}
+</style>
+<script>
+/* ---------- Kartu Mata Kuliah (KMK) ---------- */
+let kmkData = null, kmkDraft = null, kmkLoaded = false;
+const kmkMsg = (t, err) => { const m = $("kmkMsg"); if (m) { m.textContent = t || ""; m.classList.toggle("err", !!err); } };
+async function kmkFetch(force) {
+  if (kmkLoaded && !force) return kmkData;
+  try {
+    const res = await apiCall("/api/kmk");
+    const d = await res.json();
+    if (d.ok) { kmkData = d.kmk || null; kmkLoaded = true; }
+  } catch (e) {}
+  return kmkData;
+}
+function kmkSeatLabel(it) { return it.kursi ? esc(it.kursi) : "–"; }
+function kmkRowsHtml(items) {
+  return items.map((it) => `<div class="kmk-row"><div class="kmk-n"><b>${esc(it.nama)}</b><small>${esc(it.kode)} · ${esc(it.kelas)}${it.jenis ? " · " + esc(it.jenis) : ""} · ${esc(it.sks)} SKS</small></div><div class="kmk-seat${it.kursi ? "" : " none"}" title="Nomor kursi">${kmkSeatLabel(it)}</div></div>`).join("");
+}
+async function kmkHome() {
+  const c = $("kmkCard");
+  if (!c) return;
+  if (typeof guest !== "undefined" && guest || !token) { c.classList.add("hidden"); return; }
+  const k = await kmkFetch(false);
+  if (!k || !k.items || !k.items.length) { c.classList.add("hidden"); return; }
+  const tot = k.items.reduce((a, b) => a + (b.sks || 0), 0);
+  c.innerHTML = `<h3>Kursi ujian ${esc(k.ujian || "")}<span class="kmk-chip">${tot} SKS</span></h3>${kmkRowsHtml(k.items)}`;
+  c.classList.remove("hidden");
+}
+function kmkOpen() {
+  kmkDraft = null;
+  kmkMsg("");
+  $("kmkUpCard").classList.remove("hidden");
+  kmkFetch(true).then(kmkRenderSaved);
+  kmkRenderSaved();
+}
+function kmkRenderSaved() {
+  const v = $("kmkView");
+  if (!v || kmkDraft) return;
+  const k = kmkData;
+  if (!k || !k.items || !k.items.length) { v.innerHTML = ""; $("kmkSub").textContent = "Upload KMK, simpan nomor kursi ujian"; return; }
+  const tot = k.items.reduce((a, b) => a + (b.sks || 0), 0);
+  $("kmkSub").textContent = `${k.items.length} baris · ${tot} SKS${k.ujian ? " · " + k.ujian : ""}`;
+  const upd = k.updated_at ? new Date(k.updated_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "";
+  v.innerHTML = `<div class="card"><h4>KMK tersimpan${k.ujian ? `<span class="kmk-chip">${esc(k.ujian)}</span>` : ""}</h4>
+    <p class="kmk-note" style="margin-bottom:6px">${k.semester ? "Semester " + esc(k.semester) : ""}${k.tahun ? " · " + esc(k.tahun) : ""}${upd ? " · diperbarui " + esc(upd) : ""}</p>
+    ${kmkRowsHtml(k.items)}
+    <div class="kmk-actions"><button type="button" class="btn btn-soft" id="kmkEdit" style="width:auto">Edit</button><button type="button" class="btn btn-line" id="kmkRemove" style="width:auto">Hapus</button></div></div>`;
+}
+function kmkRenderDraft() {
+  const d = kmkDraft, v = $("kmkView");
+  const rows = d.items.map((it, i) => `<div class="kmk-item" data-i="${i}">
+    <button type="button" class="kmk-del" data-del="${i}">Hapus baris</button>
+    <label>Mata kuliah</label><input data-f="nama" value="${esc(it.nama)}" maxlength="80">
+    <div class="kmk-grid">
+      <div><label>Kode</label><input data-f="kode" value="${esc(it.kode)}" maxlength="10"></div>
+      <div><label>SKS</label><input data-f="sks" value="${esc(it.sks)}" inputmode="numeric" maxlength="2"></div>
+      <div><label>Kelas</label><input data-f="kelas" value="${esc(it.kelas)}" maxlength="10"></div>
+      <div><label>No kursi</label><input data-f="kursi" value="${esc(it.kursi)}" maxlength="8"></div>
+    </div></div>`).join("");
+  v.innerHTML = `<div class="card"><h4>Cek dan edit dulu</h4>
+    <div class="kmk-meta"><select id="kmkUjian"><option value="UTS">UTS</option><option value="UAS">UAS</option></select>
+    <input id="kmkSem" placeholder="Semester" inputmode="numeric" maxlength="2" value="${esc(d.semester || "")}"><input id="kmkTahun" placeholder="2026/2027" maxlength="12" value="${esc(d.tahun || "")}"></div>
+    ${rows}
+    <div class="kmk-actions"><button type="button" class="btn btn-soft" id="kmkAdd" style="width:auto">+ Tambah baris</button></div>
+    <div class="kmk-actions"><button type="button" class="btn btn-primary" id="kmkSave" style="width:auto">Simpan</button><button type="button" class="btn btn-line" id="kmkCancel" style="width:auto">Batal</button></div></div>`;
+  $("kmkUjian").value = d.ujian === "UAS" ? "UAS" : "UTS";
+}
+function kmkSyncDraft() {
+  if (!kmkDraft) return;
+  document.querySelectorAll("#kmkView .kmk-item").forEach((el) => {
+    const it = kmkDraft.items[+el.dataset.i];
+    if (!it) return;
+    el.querySelectorAll("[data-f]").forEach((inp) => { it[inp.dataset.f] = inp.value; });
+  });
+  kmkDraft.ujian = $("kmkUjian") ? $("kmkUjian").value : kmkDraft.ujian;
+  kmkDraft.semester = $("kmkSem") ? $("kmkSem").value : kmkDraft.semester;
+  kmkDraft.tahun = $("kmkTahun") ? $("kmkTahun").value : kmkDraft.tahun;
+}
+function kmkBlank() { return { kode: "", nama: "", sks: 2, kelas: "", jenis: "", kursi: "" }; }
+$("kmkPick").addEventListener("click", () => $("kmkFile").click());
+$("kmkManual").addEventListener("click", () => {
+  kmkDraft = kmkData ? JSON.parse(JSON.stringify(kmkData)) : { ujian: "UTS", semester: 5, tahun: "", items: [kmkBlank()] };
+  kmkMsg(""); kmkRenderDraft();
+});
+$("kmkFile").addEventListener("change", async () => {
+  const f = $("kmkFile").files[0];
+  $("kmkFile").value = "";
+  if (!f) return;
+  if (f.size > 2 * 1024 * 1024) return kmkMsg("PDF terlalu besar (maks 2 MB).", true);
+  kmkMsg("Membaca PDF…");
+  const fd = new FormData();
+  fd.append("file", f);
+  try {
+    const res = await apiCall("/api/kmk/parse", { method: "POST", body: fd });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.ok) return kmkMsg(d.error || "Gagal membaca PDF.", true);
+    kmkDraft = d.preview;
+    kmkDraft.tahun = kmkDraft.tahun || "";
+    kmkMsg(`${d.preview.items.length} mata kuliah terbaca. Periksa lalu simpan.`);
+    kmkRenderDraft();
+  } catch (e) { kmkMsg(e.message || "Gagal mengunggah.", true); }
+});
+$("kmkView").addEventListener("click", async (e) => {
+  const t = e.target.closest("button");
+  if (!t) return;
+  if (t.dataset.del !== undefined) { kmkSyncDraft(); kmkDraft.items.splice(+t.dataset.del, 1); kmkRenderDraft(); return; }
+  if (t.id === "kmkAdd") { kmkSyncDraft(); kmkDraft.items.push(kmkBlank()); kmkRenderDraft(); return; }
+  if (t.id === "kmkCancel") { kmkDraft = null; kmkMsg(""); kmkRenderSaved(); return; }
+  if (t.id === "kmkEdit") { kmkDraft = JSON.parse(JSON.stringify(kmkData)); kmkRenderDraft(); return; }
+  if (t.id === "kmkRemove") {
+    if (!confirm("Hapus KMK tersimpan?")) return;
+    try { await apiCall("/api/kmk/delete", { method: "POST" }); } catch (err) { return kmkMsg(err.message, true); }
+    kmkData = null; kmkRenderSaved(); kmkHome(); showToast("KMK dihapus");
+    return;
+  }
+  if (t.id === "kmkSave") {
+    kmkSyncDraft();
+    const body = { ujian: kmkDraft.ujian, semester: kmkDraft.semester, tahun: kmkDraft.tahun, items: kmkDraft.items };
+    t.disabled = true;
+    try {
+      const { res, data } = await postJSON("/api/kmk", body, true);
+      if (!res.ok || !data.ok) { kmkMsg(data.error || "Gagal menyimpan.", true); t.disabled = false; return; }
+      kmkData = data.kmk; kmkLoaded = true; kmkDraft = null; kmkMsg("");
+      kmkRenderSaved(); kmkHome(); showToast("KMK tersimpan ✅");
+    } catch (err) { kmkMsg(err.message || "Gagal menyimpan.", true); t.disabled = false; }
+  }
+});
+/* kosongkan cache saat logout/ganti akun */
+const _kmkLogout = typeof logout === "function" ? logout : null;
+if (_kmkLogout) logout = function () { kmkData = null; kmkLoaded = false; kmkDraft = null; return _kmkLogout.apply(this, arguments); };
 </script>
 </body>
 </html>
